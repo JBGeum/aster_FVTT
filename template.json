@@ -1,0 +1,108 @@
+{
+  "Actor": {
+    "types": ["character", "npc"],
+    "templates": {
+      "base": {
+        "dc": 7,
+        "rollFlag": 1,
+        "health": {
+          "value": 20,
+          "min": 0,
+          "max": 20
+        },
+        "satiety": {
+          "value": 20,
+          "min": 0,
+          "max": 20
+        },
+        "biography": ""
+      }
+    },
+    "character": {
+      "templates": ["base"],
+      "attributes": {
+        "level": {"value": 1}
+      },
+      "ability": {
+        "active": {"total": 0,"base": 0,"mod": 0},
+        "knowledge": {"total": 0,"base": 0,"mod": 0},
+        "dexterity": {"total": 0,"base": 0,"mod": 0},
+        "worldly": {"total": 0,"base": 0,"mod": 0}
+      },
+      "speed": 0,
+      "dodge": 0,
+      "aster": {
+        "white": 0,
+        "red": 0,
+        "blue": 0,
+        "green": 0,
+        "yellow": 0
+      },
+      "material": 0,
+      "features": {
+        "born": {"title": "", "description": ""},
+        "past":{"title": "", "description": ""},
+        "purpose": {"title": "", "description": ""}
+      },
+      "badStatus": {
+        "injury": false,
+        "bigInj": false,
+        "sleepy": false,
+        "exhaustion": false,
+        "hungry": false
+      },
+      "player": ""
+    },
+    "npc": {
+      "templates": ["base"],
+      "cr": 0
+    }
+  },
+  "Item": {
+    "types": ["consumable", "equipment", "food", "spell", "feature"],
+    "templates": {
+      "base": {
+        "material" : 0,
+        "effect": "",
+        "requirement": {},
+        "description": ""
+      }
+    },
+    "consumable": {
+      "templates": ["base"],
+      "size": "",
+      "timing": "",
+      "material" : 0,
+      "mod": 0
+    },
+    "equipment": {
+      "templates": ["base"],
+      "type": "",
+      "size": ""
+    },
+    "food": {
+      "effect": "",
+      "requirement": "",
+      "img": ""
+    },
+    "feature": {
+      "type": "",
+      "die": 0,
+      "detail": ""
+    },
+    "spell": {
+      "ruby": "",
+      "color": "",
+      "ability": "",
+      "alert" : {
+        "min": 0,
+        "max": 0
+      },
+      "message": {
+        "critical": "",
+        "fumble": ""
+      },
+      "description": ""
+    }
+  }
+}

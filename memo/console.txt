@@ -1,0 +1,5 @@
+cd d:\foundry
+node resources/app/main.js --dataPath=$home/foundrydata
+
+
+game.actors.getName("1123")

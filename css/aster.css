@@ -1,0 +1,501 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+/* Global styles */
+.window-app {
+  font-family: "Roboto", sans-serif;
+}
+
+.rollable:hover, .rollable:focus {
+  color: #000;
+  text-shadow: 0 0 10px red;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+}
+
+.grid-test, .aster .char-header {
+  grid-gap: 3px;
+  background-color: #999;
+}
+.grid-test > div, .aster .char-header > div {
+  background-color: rgba(255, 255, 255, 0.3);
+  border: 1px solid grey;
+}
+
+.grid-3col {
+  grid-column: span 3/span 3;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid-4col {
+  grid-column: span 4/span 4;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.grid-5col {
+  grid-column: span 5/span 5;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.grid-6col {
+  grid-column: span 6/span 6;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.grid-7col {
+  grid-column: span 7/span 7;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.grid-8col {
+  grid-column: span 8/span 8;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
+.grid-9col {
+  grid-column: span 9/span 9;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.grid-10col {
+  grid-column: span 10/span 10;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+.grid-11col {
+  grid-column: span 11/span 11;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+}
+
+.grid-12col {
+  grid-column: span 12/span 12;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.grid-start-2 {
+  grid-column-start: 2;
+}
+
+.grid-start-3 {
+  grid-column-start: 3;
+}
+
+.grid-start-4 {
+  grid-column-start: 4;
+}
+
+.grid-start-5 {
+  grid-column-start: 5;
+}
+
+.grid-start-6 {
+  grid-column-start: 6;
+}
+
+.grid-start-7 {
+  grid-column-start: 7;
+}
+
+.grid-start-8 {
+  grid-column-start: 8;
+}
+
+.grid-start-9 {
+  grid-column-start: 9;
+}
+
+.grid-start-10 {
+  grid-column-start: 10;
+}
+
+.grid-start-11 {
+  grid-column-start: 11;
+}
+
+.grid-start-12 {
+  grid-column-start: 12;
+}
+
+.grid-span-2 {
+  grid-column-end: span 2;
+}
+
+.grid-span-3 {
+  grid-column-end: span 3;
+}
+
+.grid-span-4 {
+  grid-column-end: span 4;
+}
+
+.grid-span-5 {
+  grid-column-end: span 5;
+}
+
+.grid-span-6 {
+  grid-column-end: span 6;
+}
+
+.grid-span-7 {
+  grid-column-end: span 7;
+}
+
+.grid-span-8 {
+  grid-column-end: span 8;
+}
+
+.grid-span-9 {
+  grid-column-end: span 9;
+}
+
+.grid-span-10 {
+  grid-column-end: span 10;
+}
+
+.grid-span-11 {
+  grid-column-end: span 11;
+}
+
+.grid-span-12 {
+  grid-column-end: span 12;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-center, .aster .left-side .abilities-top .grid.ability > div, .aster .char-header .char-left > .features > div, .aster .char-header .char-right > .container > div,
+.flex-left,
+.flex-right {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.flex-left {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.flex-right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.flexshrink {
+  flex: 0;
+}
+
+.flex-between {
+  justify-content: space-between;
+}
+
+.flexlarge {
+  flex: 2;
+}
+
+.align-left {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.align-right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.align-center {
+  justify-content: center;
+  text-align: center;
+}
+
+/* Styles limited to aster sheets */
+.aster {
+  /* ----------------------------------------- */
+  /*  Items Lists                              */
+  /* ----------------------------------------- */
+  /* Example style for aster (can be removed if not needed) */
+}
+.aster .item-form {
+  font-family: "Roboto", sans-serif;
+}
+.aster .sheet-tabs {
+  flex: 0;
+}
+.aster .sheet-body,
+.aster .sheet-body .tab,
+.aster .sheet-body .tab .editor {
+  height: 100%;
+}
+.aster .tox .tox-editor-container {
+  background: #fff;
+}
+.aster .tox .tox-edit-area {
+  padding: 0 8px;
+}
+.aster input {
+  width: 80%;
+}
+.aster header.sheet-header {
+  margin: 10px;
+  display: block;
+}
+.aster .char-header {
+  grid-template-columns: 1fr 160px 1fr;
+  height: 160px;
+}
+.aster .char-header input {
+  height: 70%;
+}
+.aster .char-header .char-left > .features, .aster .char-header .char-right > .container {
+  height: 100%;
+}
+.aster .char-header .char-left > .features > div > label, .aster .char-header .char-right > .container > div > label {
+  flex-shrink: 0;
+  width: 50px;
+  padding: 0 5px;
+}
+.aster .char-header .char-left > .features > div > input, .aster .char-header .char-right > .container > div > input {
+  flex-grow: 1;
+  padding: 0 10px;
+}
+.aster .char-header .char-left {
+  padding: 10px;
+}
+.aster .char-header .char-middle {
+  height: 160px;
+  width: 160px;
+  border-radius: 50px;
+}
+.aster .char-header .char-middle .profile-img {
+  height: 100%;
+}
+.aster .char-header .char-middle img.profile-img {
+  border: none;
+  width: 100%;
+  height: 100%;
+}
+.aster .char-header .char-right {
+  position: relative;
+  padding: 10px;
+}
+.aster .char-header .char-right .container .color .color-logo {
+  width: 60px;
+  height: 60px;
+  border: 4px solid grey;
+  background: grey;
+  position: absolute;
+  left: -30px;
+  top: -10px;
+}
+.aster .char-header .char-right .container .color > input {
+  margin-left: 30px;
+}
+.aster section.sheet-center {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  padding: 10px;
+}
+.aster section.sheet-center .left-side {
+  grid-column: 1/span 1;
+  grid-row: 1/span 1;
+  padding: 10px;
+}
+.aster section.sheet-center .right-side {
+  grid-column: 2/span 1;
+  grid-row: 1/span 1;
+  padding: 10px;
+}
+.aster .left-side .abilities-top {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+.aster .left-side .abilities-top .grid.ability {
+  grid-template-columns: 1fr 1fr;
+}
+.aster .left-side .abilities-top .grid.ability .abl-name {
+  grid-column: 1/span 2;
+  grid-row: 1/span 1;
+  text-align: center;
+}
+.aster .left-side .abilities-top .grid.ability .abl-value {
+  grid-column: 1/span 2;
+  grid-row: 2/span 1;
+}
+.aster .left-side .abilities-bottom {
+  grid-template-columns: 1fr 1fr;
+}
+.aster .left-side .aster-container {
+  display: flex;
+  height: 200px;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 30px;
+}
+.aster .left-side .aster-container input {
+  background: transparent;
+  border: 1px solid grey;
+  text-align: center;
+}
+.aster .left-side .aster-container .aster, .aster .left-side .aster-container .aster-down {
+  border: 1px solid grey;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.aster .left-side .aster-container .aster input, .aster .left-side .aster-container .aster-down input {
+  width: 50%;
+  height: 50%;
+  border: none;
+  font-size: 2rem;
+}
+.aster .left-side .aster-container .aster {
+  transform: rotate(45deg);
+}
+.aster .left-side .aster-container .aster input {
+  transform: rotate(-45deg);
+}
+.aster .left-side .aster-container .aster-down {
+  transform: rotate(-45deg) translateX(-40px) translateY(40px);
+}
+.aster .left-side .aster-container .aster-down input {
+  transform: rotate(45deg);
+}
+.aster .right-side .badstatus {
+  height: 70%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+.aster .right-side .badstatus > div {
+  border: 1px solid grey;
+}
+.aster .right-side .material {
+  height: 30%;
+  border: 1px solid grey;
+}
+.aster section.sheet-bottom .inventory {
+  display: grid;
+  grid-template-columns: 1fr 4fr;
+}
+.aster section.sheet-bottom .inventory > div {
+  border: 1px solid grey;
+}
+.aster section.sheet-bottom .inven-etc {
+  display: grid;
+  grid-template-columns: 2fr repeat(2, 1fr);
+}
+.aster section.sheet-bottom .inven-etc > div {
+  border: 1px solid grey;
+}
+.aster .resource-label {
+  font-weight: bold;
+}
+.aster .items-header {
+  height: 28px;
+  margin: 2px 0;
+  padding: 0;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.05);
+  border: 2px groove #eeede0;
+  font-weight: bold;
+}
+.aster .items-header > * {
+  font-size: 14px;
+  text-align: center;
+}
+.aster .items-header .item-name {
+  font-weight: bold;
+  padding-left: 5px;
+  text-align: left;
+  display: flex;
+}
+.aster .items-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  color: #444;
+}
+.aster .items-list .item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.aster .items-list .item-name {
+  flex: 2;
+  margin: 0;
+  overflow: hidden;
+  font-size: 13px;
+  text-align: left;
+  align-items: center;
+  display: flex;
+}
+.aster .items-list .item-name h3, .aster .items-list .item-name h4 {
+  margin: 0;
+  white-space: nowrap;
+  overflow-x: hidden;
+}
+.aster .items-list .item-controls {
+  display: flex;
+  flex: 0 0 100px;
+  justify-content: flex-end;
+}
+.aster .items-list .item-controls a {
+  font-size: 12px;
+  text-align: center;
+  margin: 0 6px;
+}
+.aster .items-list .item {
+  align-items: center;
+  padding: 0 2px;
+  border-bottom: 1px solid #c9c7b8;
+}
+.aster .items-list .item:last-child {
+  border-bottom: none;
+}
+.aster .items-list .item .item-name {
+  color: #191813;
+}
+.aster .items-list .item .item-name .item-image {
+  flex: 0 0 30px;
+  height: 30px;
+  background-size: 30px;
+  border: none;
+  margin-right: 5px;
+}
+.aster .items-list .item-prop {
+  text-align: center;
+  border-left: 1px solid #c9c7b8;
+  border-right: 1px solid #c9c7b8;
+  font-size: 12px;
+}
+.aster .items-list .items-header {
+  height: 28px;
+  margin: 2px 0;
+  padding: 0;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.05);
+  border: 2px groove #eeede0;
+  font-weight: bold;
+}
+.aster .items-list .items-header > * {
+  font-size: 12px;
+  text-align: center;
+}
+.aster .items-list .items-header .item-name {
+  padding-left: 5px;
+  text-align: left;
+}
+.aster .item-formula {
+  flex: 0 0 200px;
+  padding: 0 8px;
+}
+
+/*# sourceMappingURL=aster.css.map */

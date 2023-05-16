@@ -1,0 +1,188 @@
+
+<form class="{{cssClass}} {{actor.type}}" autocomplete="off">
+  
+  <header class="sheet-header">
+    <div class="grid char-header">
+      <div class="char-left">
+        <div class="grid features">
+          <div class="born">
+            <label class="chardata">출생</label>
+            <input name="system.features.born.title" type="text" value="{{system.features.born.title}}" placeholder="출생"/>
+          </div>
+          <div class="past">
+            <label class="chardata">경험</label>
+            <input name="system.features.past.title" type="text" value="{{system.features.past.title}}" placeholder="경험"/>
+          </div>
+          <div class="purpose">
+            <label class="chardata">목적</label>
+            <input name="system.features.purpose.title" type="text" value="{{system.features.purpose.title}}" placeholder="목적"/>
+          </div>
+        </div>
+      </div>
+      <div class="char-middle">
+        <div class="profile-img">
+          <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+        </div>
+      </div>
+      <div class="char-right">
+        <div class="grid container">
+          <div class="color">
+            <div class="color-logo"></div>
+            <input name="system.color" type="text" value="{{system.color}}" placeholder="마기사 색"/>
+          </div>
+          <div class="charname">
+            <label class="chardata">이름</label>
+            <input name="name" type="text" value="{{actor.name}}" placeholder="캐릭터이름"/>
+          </div>
+          <div class="player">
+            <label class="chardata">PL</label>
+            <input name="system.player" type="text" value="{{system.player}}" placeholder="플레이어"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  
+  <section class="sheet-center">
+    <div class="left-side">
+      <div class="abilities-top">
+        {{#each system.ability as |ability key|}}
+        <div class="grid ability">
+          <div class="abl-name">
+              <span class="ability-label abl-roll"
+                    data-ability="{{key}}"
+                    data-label="{{ability.label}}">{{ability.label}}</span>
+          </div>
+          <div class="abl-value">
+            <input type="number" name="system.ability.{{key}}.total" value="{{ability.total}}" disabled>
+          </div>
+          <div class="abl-base">
+            <input type="number" name="system.ability.{{key}}.base" value="{{ability.base}}">
+          </div>
+          <div class="abl-mod">
+            <input type="number" name="system.ability.{{key}}.mod" value="{{ability.mod}}">
+          </div>
+        </div>
+        {{/each}}
+        <div class="roll-option flexcol">
+          <div class="roll-opt-header">
+            ROLL
+          </div>
+          <div class="roll-input">
+            <input type="number" name="system.dc" value="{{system.dc}}" />
+          </div>
+          <div class="roll-option-list">
+            <!--<div class="roll-option-radio">
+              <div id="rollFlag1" class="rollFlag" value="1">
+              일반
+              </div>
+            </div>
+            <div class="roll-option-radio">
+              <div id="rollFlag3" class="rollFlag" value="3"
+                   {{#ifEquals system.rollFlag "3"}} checked {{/ifEquals}}/>
+              대항
+            </div></div>-->
+            <div class="roll-option-radio">
+              <div>
+              정동
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="grid abilities-bottom">
+        <div class="abl-health">
+          <div class="abl-label">건강</div>
+          <div class="health">
+            <input type="number" name="system.health" value="{{system.health}}">
+          </div>
+          <div class="abl-label">포만도</div>
+          <div class="satiety">
+            <input type="number" name="system.satiety" value="{{system.satiety}}">
+          </div>
+        </div>
+        <div class="abl-derived">
+          <div class="abl-label">민첩</div>
+          <div class="speed">
+            <input type="number" name="system.speed" value="{{system.speed}}">
+          </div>
+          <div class="abl-label">회피</div>
+          <div class="dodge">
+            <input type="number" name="system.dodge" value="{{system.dodge}}">
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="aster-container">
+        <div class="aster aster-red">
+          <input type="number" name="system.aster.red" value="{{system.aster.red}}" />
+        </div>
+        <div class="aster-down aster-blue">
+          <input type="number" name="system.aster.blue" value="{{system.aster.blue}}" />
+        </div>
+        <div class="aster aster-white">
+          <input type="number" name="system.aster.white" value="{{system.aster.white}}" />
+        </div>
+        <div class="aster-down aster-green">
+          <input type="number" name="system.aster.green" value="{{system.aster.green}}" />
+        </div>
+        <div class="aster aster-yellow">
+          <input type="number" name="system.aster.yellow" value="{{system.aster.yellow}}" />
+        </div>
+        <div class="aster aster-material">
+          <input type="number" name="system.material" value="{{system.material}}" />
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="inven-etc">
+        <div class="item-bag">
+          가방
+        </div>
+        <div class="equipment flexrow">
+          <div class="equip-item">
+            장비 1
+          </div>
+          <div class="equip-item">
+            장비 2
+          </div>
+        </div>
+        <div class="basket">
+          바구니
+        </div>
+        <div class="companion">
+          사역마
+        </div>
+      </div>
+    </div>
+    
+    <div class="right-side">
+      <div class="badstatus flexcol">
+        <div class="bs-label">상태이상</div>
+        <div class="bs-injury">부상</div>
+        <div class="bs-biginj">큰 부상</div>
+        <div class="bs-sleepy">졸림</div>
+        <div class="bs-exhaustion">피로</div>
+        <div class="bs-hungry">배고픔</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet-bottom">
+    <div class="inventory">
+      <div class="item-list">
+        <div class="item-card">아이템1</div>
+        <div class="item-card">아이템2</div>
+        <div class="item-card">아이템3</div>
+      </div>
+    </div>
+  </section>
+</form>
+

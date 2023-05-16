@@ -1,0 +1,40 @@
+<div class="chatcard aster-dicecard text-align">
+  <div class="roll-abl-chatcard">
+    <div class="roll-title">
+      <div class="chatcard-abl-name flex-center">{{label}} 판정</div>
+      <div class="rankMod flexrow flex-group-center">
+        <div class="roll-dc">
+          <label class="roll-dc-lbl">목표치</label>
+          {{rollDC}}
+        </div>
+      </div>
+    </div>
+    <div class="diceset-area flexrow align-center">
+      {{#each resultDiceset}}
+      <div class="die-result flexcol">
+        <div class="die-area">
+          <i class="dNum-{{this}} fa-duotone fa-square-{{this}}"></i>
+        </div>
+      </div>
+      {{/each}}
+      <div class="die-result flexcol">
+        <div class="die-area">
+          <i class="dNum-{{ablValue}} fa-duotone fa-square-{{ablValue}}"></i>
+        </div>
+      </div>
+    </div>
+    <div class="roll-dc">
+      <label class="roll-dc-lbl">결과</label>
+      {{result}}
+      >=
+      {{rollDC}}
+    </div>
+    <div class="roll-result-text">
+      {{#if rollResult}}
+      판정 성공
+      {{else}}
+      판정 실패
+      {{/if}}
+    </div>
+  </div>
+</div>
