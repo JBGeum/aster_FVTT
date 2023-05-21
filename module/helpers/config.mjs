@@ -11,11 +11,17 @@ export const ASTER = {};
   "worldly": "ASTER.ability.worldly"
 };
 
-ASTER.abilityAbbreviations = {
-  "str": "ASTER.AbilityStrAbbr",
-  "dex": "ASTER.AbilityDexAbbr",
-  "con": "ASTER.AbilityConAbbr",
-  "int": "ASTER.AbilityIntAbbr",
-  "wis": "ASTER.AbilityWisAbbr",
-  "cha": "ASTER.AbilityChaAbbr"
+ASTER.color = {
+  "red": "ASTER.aster.red",
+  "blue": "ASTER.aster.blue",
+  "green": "ASTER.aster.green",
+  "yellow": "ASTER.aster.yellow"
+};
+
+ASTER.aster = {
+  "red": "ASTER.aster.red",
+  "blue": "ASTER.aster.blue",
+  "green": "ASTER.aster.green",
+  "yellow": "ASTER.aster.yellow",
+  "white": "ASTER.aster.white",
 };

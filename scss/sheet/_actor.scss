@@ -102,6 +102,22 @@ section.sheet-center{
       grid-template-columns: 50px 1fr;
       grid-template-rows: 1fr 1fr;
       gap: 5px;
+      .health-container, .satiety-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+      }
+      .health-input, .satiety-input {
+        display: flex;
+        justify-content: space-evenly;
+        input {
+          width:40%;
+          text-align: center;
+        }
+      }
+      .health-fill, .satiety-fill{
+        background-color: #000;
+        height: 100%;
+      }
     }
     .abl-derived{
       display:grid;
@@ -121,13 +137,17 @@ section.sheet-center{
       border: 1px solid grey;
       text-align:center;
     }
-    .aster, .aster-down{
+    .aster {
       border:1px solid grey;
       width:80px;
       height:80px;
-      display:flex;
-      justify-content:center;
-      align-items:center;
+      display:grid;
+      grid-template-rows: 1fr 3fr;
+      div{
+        display:flex;
+        justify-content:center;
+        align-items:center;
+      }
       input{
         width:50%;
         height:50%;

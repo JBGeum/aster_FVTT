@@ -5,27 +5,27 @@
       "knowledge": "박식",
       "dexterity": "요령",
       "worldly": "처세"
+    },
+    "aster": {
+      "red": "적",
+      "blue": "청",
+      "white": "백",
+      "green": "녹",
+      "yellow": "황"
+    },
+    "label": {
+      "speed": "민첩",
+      "dodge": "회피",
+      "health": "건강",
+      "satiety": "포만",
+      "material": "마테리얼"
+    },
+    "badstatus": {
+      "injury": "부상",
+      "biginj": "큰 부상",
+      "sleepy": "졸림",
+      "exhaustion": "피로",
+      "hungry": "배고픔"
     }
-  },
-  "aster": {
-    "red": "적",
-    "blue": "청",
-    "white": "백",
-    "green": "녹",
-    "yellow": "황"
-  },
-  "label": {
-    "speed": "민첩",
-    "dodge": "회피",
-    "health": "건강",
-    "satiety": "포만",
-    "material": "마테리얼"
-  },
-  "badstatus": {
-    "injury": "부상",
-    "biginj": "큰 부상",
-    "sleepy": "졸림",
-    "exhaustion": "피로",
-    "hungry": "배고픔"
   }
 }

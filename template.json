@@ -8,12 +8,14 @@
         "health": {
           "value": 20,
           "min": 0,
-          "max": 20
+          "max": 20,
+          "percent": 100
         },
         "satiety": {
           "value": 20,
           "min": 0,
-          "max": 20
+          "max": 20,
+          "percent": 100
         },
         "biography": ""
       }
@@ -29,14 +31,15 @@
         "dexterity": {"total": 0,"base": 0,"mod": 0},
         "worldly": {"total": 0,"base": 0,"mod": 0}
       },
+      "color": "",
       "speed": 0,
       "dodge": 0,
       "aster": {
-        "white": 0,
-        "red": 0,
-        "blue": 0,
-        "green": 0,
-        "yellow": 0
+        "white": {"value": 0},
+        "red": {"value": 0},
+        "blue":{"value": 0},
+        "green": {"value": 0},
+        "yellow":{"value": 0}
       },
       "material": 0,
       "features": {

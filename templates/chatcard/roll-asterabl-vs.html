@@ -1,7 +1,8 @@
-<div class="chatcard aster-dicecard text-align">
+<div class="chatcard aster-chatcard text-align">
   <div class="roll-abl-chatcard">
     <div class="roll-title">
       <div class="chatcard-abl-name flex-center">{{label}} 판정</div>
+      <div class="roll-type">VS</div>
     </div>
     <div class="diceset-area flexrow align-center">
       {{#each resultDiceset}}
@@ -12,16 +13,18 @@
       </div>
       {{/each}}
       <div class="die-result flexcol">
-        <div class="die-area">
-          <i class="dNum-{{ablValue}} fa-duotone fa-square-{{ablValue}}"></i>
+        <div class="mod-area">
+          + {{ablValue}}
         </div>
       </div>
     </div>
     <div class="roll-dc">
-      <label class="roll-dc-lbl">결과</label>
-      {{result}}
-      =
-      {{total}}
+      <div class="roll-dc-lbl"></div>
+      <div class="roll-dc-formula align-center">
+        {{result}}
+        =
+        {{total}}
+      </div>
     </div>
   </div>
 </div>

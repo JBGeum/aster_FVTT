@@ -1,8 +1,8 @@
 <div class="chatcard aster-chatcard text-align">
   <div class="roll-abl-chatcard">
     <div class="roll-title">
-      <div class="chatcard-abl-name flex-center">{{label}} 판정</div>
-      <div class="roll-type">{{rollDC}}</div>
+      <div class="chatcard-abl-name flex-center">정동 판정</div>
+      <div class="roll-type">{{localize label}}</div>
     </div>
     <div class="diceset-area flexrow align-center">
       {{#each resultDiceset}}
@@ -14,7 +14,9 @@
       {{/each}}
       <div class="die-result flexcol">
         <div class="mod-area">
-          + {{ablValue}}
+          {{#if isFavColor}}
+            특기
+          {{/if}}
         </div>
       </div>
       <div class="roll-result-text">
@@ -34,8 +36,15 @@
       <div class="roll-dc-formula align-center">
         {{result}}
         >=
-        {{rollDC}}
+        7
       </div>
+    </div>
+    <div class="roll-emo flexrow align-center">
+      <div class="roll-emo-option flexcol">적</div>
+      <div class="roll-emo-option flexcol">청</div>
+      <div class="roll-emo-option flexcol">백</div>
+      <div class="roll-emo-option flexcol">황</div>
+      <div class="roll-emo-option flexcol">녹</div>
     </div>
   </div>
 </div>

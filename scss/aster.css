@@ -212,8 +212,7 @@
 }
 
 /* Styles limited to aster sheets */
-.aster {
-  /* ----------------------------------------- */
+.aster { /* ----------------------------------------- */
   /*  Items Lists                              */
   /* ----------------------------------------- */
   /* Example style for aster (can be removed if not needed) */
@@ -347,6 +346,22 @@
   grid-template-rows: 1fr 1fr;
   gap: 5px;
 }
+.aster .left-side .abilities-bottom .abl-health .health-container, .aster .left-side .abilities-bottom .abl-health .satiety-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+}
+.aster .left-side .abilities-bottom .abl-health .health-input, .aster .left-side .abilities-bottom .abl-health .satiety-input {
+  display: flex;
+  justify-content: space-evenly;
+}
+.aster .left-side .abilities-bottom .abl-health .health-input input, .aster .left-side .abilities-bottom .abl-health .satiety-input input {
+  width: 40%;
+  text-align: center;
+}
+.aster .left-side .abilities-bottom .abl-health .health-fill, .aster .left-side .abilities-bottom .abl-health .satiety-fill {
+  background-color: #000;
+  height: 100%;
+}
 .aster .left-side .abilities-bottom .abl-derived {
   display: grid;
   grid-template-columns: 40px 1fr;
@@ -372,15 +387,19 @@
   border: 1px solid grey;
   text-align: center;
 }
-.aster .left-side .aster-container .aster, .aster .left-side .aster-container .aster-down {
+.aster .left-side .aster-container .aster {
   border: 1px solid grey;
   width: 80px;
   height: 80px;
+  display: grid;
+  grid-template-rows: 1fr 3fr;
+}
+.aster .left-side .aster-container .aster div {
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.aster .left-side .aster-container .aster input, .aster .left-side .aster-container .aster-down input {
+.aster .left-side .aster-container .aster input {
   width: 50%;
   height: 50%;
   border: none;
@@ -513,6 +532,13 @@
 .aster .item-formula {
   flex: 0 0 200px;
   padding: 0 8px;
+}
+
+.aster-chatcard .roll-title {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  justify-content: center;
+  text-align: center;
 }
 
 /*# sourceMappingURL=aster.css.map */

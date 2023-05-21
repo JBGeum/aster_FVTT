@@ -31,6 +31,7 @@ export class AsterActorSheet extends ActorSheet {
     // sheets are the actor object, the data object, whether or not it's
     // editable, the items array, and the effects array.
     const context = super.getData();
+    context.config = CONFIG.ASTER;  //schmm CONFIG 쓰려면 꼭 추가하기!!!!
 
     // Use a safe clone of the actor data for further operations.
     const actorData = this.actor.toObject(false);
@@ -70,6 +71,9 @@ export class AsterActorSheet extends ActorSheet {
    // Handle ability scores.
     for (let [k, v] of Object.entries(context.system.ability)) {
       v.label = game.i18n.localize(CONFIG.ASTER.ability[k]) ?? k;
+    }
+    for (let [k, v] of Object.entries(context.system.aster)) {
+      v.label = game.i18n.localize(CONFIG.ASTER.aster[k]) ?? k;
     }
   }
 
@@ -155,6 +159,12 @@ export class AsterActorSheet extends ActorSheet {
 
     // Rollable abilities.
     html.find('.rollable').click(this._onRoll.bind(this));
+    html.find('.roll-opt-abl').click(()=>{
+      $('#roll-dc').val('7');
+      this.actor.system.dc = 7;
+    });
+    html.find('.roll-opt-vs').click(()=>{$('#roll-dc').val('');
+      this.actor.system.dc = 0;});
 
     // Drag events for macros.
     if (this.actor.isOwner) {
@@ -167,6 +177,9 @@ export class AsterActorSheet extends ActorSheet {
     }
     //어빌리티 4종 굴리기
     html.find('.abl-roll').click(this._onAblRoll.bind(this));
+    //정동판정
+    html.find('.emo-roll').click(this._onEmoRoll.bind(this));
+
 
 
   }
@@ -236,5 +249,10 @@ export class AsterActorSheet extends ActorSheet {
     const dataset = element.dataset;
     this.actor.rollAbility(dataset.ability, dataset.label, {event: event});
   }
-
+  _onEmoRoll(event) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const dataset = element.dataset;
+    this.actor.rollEmotion(dataset.aster, dataset.label, {event: event});
+  }
 }

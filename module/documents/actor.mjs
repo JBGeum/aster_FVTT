@@ -48,6 +48,8 @@ export class AsterActor extends Actor {
     }
     systemData.speed = (systemData.ability.knowledge.total + systemData.ability.worldly.total)/2;
     systemData.dodge = systemData.ability.active.total + systemData.ability.dexterity.total;
+    systemData.health.percent = Math.round((systemData.health.value / systemData.health.max) * 100);
+    systemData.satiety.percent = Math.round((systemData.satiety.value / systemData.satiety.max) * 100);
 
    /* //Loop through ability scores, and add their modifiers to our sheet output.
     for (let [key, ability] of Object.entries(systemData.abilities)) {
@@ -121,33 +123,48 @@ export class AsterActor extends Actor {
         result: roll.result,
         total : roll.total,
         resultDiceset}
-      let content = await renderTemplate("systems/aster/templates/chatcard/roll-asterabl-none.html", templateData)
+      let content = await renderTemplate("systems/aster/templates/chatcard/roll-asterabl-vs.html", templateData)
       ChatMessage.create({content, speaker : ChatMessage.getSpeaker({alias : game.user.name }), type : 3});
-    }else {
-    // 일반 판정
-    const rollResult = roll.total >= this.system.dc;
+    } else {
+      // 일반 판정
+    const isSpecial = resultDiceset[0] === 6 && resultDiceset[1] === 6;
+    const isSuccess = roll.total >= this.system.dc;
     const templateData = {
       label,
       ablValue: ablValue,
       rollDC: this.system.dc,
       result: roll.result,
-      rollResult : rollResult,
+      isSuccess,
+      isSpecial,
       resultDiceset}
     let content = await renderTemplate("systems/aster/templates/chatcard/roll-asterabl.html", templateData)
     ChatMessage.create({content, speaker : ChatMessage.getSpeaker({alias : game.user.name }), type : 3});
     }
   }
-  async rollEmotion(label, options={}){
-    let roll = new Roll("2d6", {ablValue: ablValue}); //getRolLData: template.json의 attribute들 가져옴
+  async rollEmotion(aster, label, options={}){
+    const isFavColor = aster === this.system.color;
+    let roll;
+    if(isFavColor){
+      roll = new Roll("2d6+1");
+    }
+    else{
+      roll = new Roll("2d6");
+    }
     await roll.evaluate({async: true});
-    const rollResult = roll.total >= 7;
     const resultDiceset = roll.dice[0].values;
+
+    const isSpecial = resultDiceset[0] === 6 && resultDiceset[1] === 6;
+    const isSuccess = roll.total >= 7;
     const templateData = {
       label,
       total : roll.total,
-      rollResult : rollResult,
+      aster,
+      result: roll.result,
+      isFavColor,
+      isSpecial,
+      isSuccess,
       resultDiceset}
-    let content = await renderTemplate("systems/aster/templates/chatcard/roll-asterabl.html", templateData)
+    let content = await renderTemplate("systems/aster/templates/chatcard/roll-asterabl-emo.html", templateData)
     ChatMessage.create({content, speaker : ChatMessage.getSpeaker({alias : game.user.name }), type : 3});
 
   }
