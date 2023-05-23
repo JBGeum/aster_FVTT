@@ -1,0 +1,185 @@
+<header class="sheet-header">
+  <div class="grid char-header">
+    <div class="char-left">
+      <div class="grid features">
+        <div class="born">
+          <label class="chardata">출생</label>
+          <input name="system.features.born.title" type="text" value="{{system.features.born.title}}" placeholder="출생"/>
+        </div>
+        <div class="past">
+          <label class="chardata">경험</label>
+          <input name="system.features.past.title" type="text" value="{{system.features.past.title}}" placeholder="경험"/>
+        </div>
+        <div class="purpose">
+          <label class="chardata">목적</label>
+          <input name="system.features.purpose.title" type="text" value="{{system.features.purpose.title}}" placeholder="목적"/>
+        </div>
+      </div>
+    </div>
+    <div class="char-middle">
+      <div class="profile-img">
+        <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+      </div>
+    </div>
+    <div class="char-right">
+      <div class="grid container">
+        <div class="color">
+          <div class="color-logo"></div>
+          <select name="system.color">
+            {{#select system.color}}
+            {{#each config.color as |value key|}}
+            <option value="{{key}}">{{localize value}}</option>
+            {{/each}}
+            {{/select}}
+          </select>
+          <!--<input name="system.color" type="text" value="{{system.color}}" placeholder="마기사 색"/>-->
+        </div>
+        <div class="charname">
+          <label class="chardata">이름</label>
+          <input name="name" type="text" value="{{actor.name}}" placeholder="캐릭터이름"/>
+        </div>
+        <div class="player">
+          <label class="chardata">PL</label>
+          <input name="system.player" type="text" value="{{system.player}}" placeholder="플레이어"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<section class="sheet-center">
+  <div class="left-side">
+    <div class="abilities-top">
+      {{#each system.ability as |ability key|}}
+      <div class="grid ability">
+        <div class="abl-name">
+                <span class="ability-label abl-roll"
+                      data-ability="{{key}}"
+                      data-label="{{ability.label}}">{{ability.label}}</span>
+        </div>
+        <div class="abl-value">
+          <input type="number" name="system.ability.{{key}}.total" value="{{ability.total}}" disabled>
+        </div>
+        <div class="abl-base">
+          <input type="number" name="system.ability.{{key}}.base" value="{{ability.base}}">
+        </div>
+        <div class="abl-mod">
+          <input type="number" name="system.ability.{{key}}.mod" value="{{ability.mod}}">
+        </div>
+      </div>
+      {{/each}}
+      <div class="roll-option flexcol align-center">
+        <div class="roll-opt-header">
+          ROLL
+        </div>
+        <div class="roll-option-list flexrow">
+          <div class="roll-option-btn roll-opt-abl">
+            일반
+          </div>
+          <div class="roll-option-btn roll-opt-vs">
+            대항
+          </div>
+        </div>
+        <div class="roll-input">
+          <input type="number" id="roll-dc" name="system.dc" value="{{system.dc}}" />
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="grid abilities-bottom">
+      <div class="abl-health">
+        <div class="abl-label">건강</div>
+        <div class="health-container">
+          <div class="health-input">
+            <input type="number" name="system.health.value" value="{{system.health.value}}">
+            /
+            <input type="number" name="system.health.max" value="{{system.health.max}}">
+          </div>
+          <div class="health-bar">
+            <div class="health-fill" style="width:{{system.health.percent}}%;"></div>
+          </div>
+        </div>
+        <div class="abl-label">포만도</div>
+        <div class="satiety-container">
+          <div class="satiety-input">
+            <input type="number" name="system.satiety.value" value="{{system.satiety.value}}">
+            /
+            <input type="number" name="system.satiety.max" value="{{system.satiety.max}}">
+          </div>
+          <div class="satiety-bar">
+            <div class="satiety-fill" style="width:{{system.satiety.percent}}%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="abl-derived">
+        <div class="abl-label">민첩</div>
+        <div class="speed">
+          <input type="number" name="system.speed" value="{{system.speed}}">
+        </div>
+        <div class="abl-label">회피</div>
+        <div class="dodge">
+          <input type="number" name="system.dodge" value="{{system.dodge}}">
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="aster-container">
+      {{#each system.aster as |aster key|}}
+      <div class="aster aster-{{key}}">
+        <div class="aster-name">
+              <span class="aster-label emo-roll"
+                    data-aster="{{key}}"
+                    data-label="{{aster.label}}">{{aster.label}}</span>
+        </div>
+        <div class="aster-value">
+          <input type="number" name="system.aster.{{key}}.value" value="{{aster.value}}" />
+        </div>
+      </div>
+      {{/each}}
+      <div class="aster aster-material">
+        <div class="aster-name">
+          <span>마테리얼</span>
+        </div>
+        <div class="aster-value">
+          <input type="number" name="system.material" value="{{system.material}}" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right-side">
+    <div class="bs-label">상태이상</div>
+    <div class="badstatus-grid flexcol">
+      <div class="badstatus bs-injury {{checked system.badstatus.injury}}">
+        <input type="checkbox" class="badstatus" id="bs1.{{actor._id}}"
+               name="system.badstatus.injury" {{checked system.badstatus.injury}} />
+        <label for="bs1.{{actor._id}}" class="badstatus">{{localize 'ASTER.badstatus.injury'}}</label>
+      </div>
+      <div class="badstatus bs-biginj {{checked system.badstatus.biginj}}">
+        <input type="checkbox" class="badstatus" id="bs2.{{actor._id}}"
+               name="system.badstatus.biginj" {{checked system.badstatus.biginj}} />
+        <label for="bs2.{{actor._id}}" class="badstatus">{{localize 'ASTER.badstatus.biginj'}}</label>
+      </div>
+      <div class="badstatus bs-sleepy {{checked system.badstatus.sleepy}}">
+        <input type="checkbox" class="badstatus" id="bs3.{{actor._id}}"
+               name="system.badstatus.sleepy" {{checked system.badstatus.sleepy}} />
+        <label for="bs3.{{actor._id}}" class="badstatus">{{localize 'ASTER.badstatus.sleepy'}}</label>
+      </div>
+      <div class="badstatus bs-exhaustion {{checked system.badstatus.exhaustion}}">
+        <input type="checkbox" class="badstatus" id="bs4.{{actor._id}}"
+               name="system.badstatus.exhaustion" {{checked system.badstatus.exhaustion}} />
+        <label for="bs4.{{actor._id}}" class="badstatus">{{localize 'ASTER.badstatus.exhaustion'}}</label>
+      </div>
+      <div class="badstatus bs-hungry {{checked system.badstatus.hungry}}">
+        <input type="checkbox" class="badstatus" id="bs5.{{actor._id}}"
+               name="system.badstatus.hungry" {{checked system.badstatus.hungry}} />
+        <label for="bs5.{{actor._id}}" class="badstatus">{{localize 'ASTER.badstatus.hungry'}}</label>
+      </div>
+    </div>
+  </div>
+</section>

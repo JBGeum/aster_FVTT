@@ -13,7 +13,8 @@ export class AsterActorSheet extends ActorSheet {
       template: "systems/aster/templates/actor/actor-sheet.html",
       width: 650,
       height: 800,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "features" }]
+      tabs: [{ navSelector: ".sheet-main-tabs", contentSelector: ".sheet-container", initial: "character" },
+        { navSelector: ".sheet-sub-tabs", contentSelector: ".sheet-bottom", initial: "inventory" }]
     });
   }
 

@@ -47,7 +47,7 @@
         "past":{"title": "", "description": ""},
         "purpose": {"title": "", "description": ""}
       },
-      "badStatus": {
+      "badstatus": {
         "injury": false,
         "bigInj": false,
         "sleepy": false,
@@ -62,31 +62,33 @@
     }
   },
   "Item": {
-    "types": ["consumable", "equipment", "food", "spell", "feature"],
+    "types": ["bag", "consumable", "equipment", "food", "spell", "feature"],
     "templates": {
       "base": {
-        "material" : 0,
+        "material": [0,0,0,0,0,0],
         "effect": "",
-        "requirement": {},
+        "requirement": [],
         "description": ""
       }
     },
+    "bag": {
+      "templates": ["base"],
+      "storageImg": ""
+    },
     "consumable": {
       "templates": ["base"],
-      "size": "",
+      "size": [1,1],
       "timing": "",
-      "material" : 0,
       "mod": 0
     },
     "equipment": {
       "templates": ["base"],
       "type": "",
-      "size": ""
+      "size": [1,1]
     },
     "food": {
-      "effect": "",
-      "requirement": "",
-      "img": ""
+      "templates": ["base"],
+      "effect": ""
     },
     "feature": {
       "type": "",

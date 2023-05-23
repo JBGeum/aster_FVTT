@@ -7,10 +7,13 @@
   return loadTemplates([
 
     // Actor partials.
-    "systems/aster/templates/actor/parts/actor-features.html",
-    "systems/aster/templates/actor/parts/actor-items.html",
-    "systems/aster/templates/actor/parts/actor-spells.html",
-    "systems/aster/templates/actor/parts/actor-effects.html",
+    "systems/aster/templates/actor/parts/actor-main-character.html",
+    "systems/aster/templates/actor/parts/actor-main-craft.html",
+    "systems/aster/templates/actor/parts/actor-main-record.html",
+
+    "systems/aster/templates/actor/parts/actor-sub-inventory.html",
+    "systems/aster/templates/actor/parts/actor-sub-spell.html",
+
 
 
     "systems/aster/templates/chatcard/roll-asterabl.html",
@@ -18,3 +21,9 @@
     "systems/aster/templates/chatcard/roll-asterabl-vs.html",
   ]);
 };
+
+export function registerHandlebarsHelpers() {
+  Handlebars.registerHelper("checked", function (condition) {
+    return (condition) ? "checked" : "";
+  });
+}

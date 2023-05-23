@@ -8,7 +8,7 @@ export class AsterItemSheet extends ItemSheet {
   static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
       classes: ["aster", "sheet", "item"],
-      width: 520,
+      width: 400,
       height: 480,
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" }]
     });

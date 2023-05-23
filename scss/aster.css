@@ -212,11 +212,6 @@
 }
 
 /* Styles limited to aster sheets */
-.aster { /* ----------------------------------------- */
-  /*  Items Lists                              */
-  /* ----------------------------------------- */
-  /* Example style for aster (can be removed if not needed) */
-}
 .aster .item-form {
   font-family: "Roboto", sans-serif;
 }
@@ -238,7 +233,7 @@
   width: 80%;
 }
 .aster header.sheet-header {
-  margin: 10px;
+  margin: 5px;
   display: block;
 }
 .aster .char-header {
@@ -325,16 +320,8 @@
   grid-column: 1/span 2;
   grid-row: 2/span 1;
 }
-.aster .left-side .abilities-top .roll-option {
-  /*grid-column: 5 / span 2;  grid-row : 1 / span 1;*/
-}
 .aster .left-side .abilities-top .roll-option .roll-opt-header {
   display: grid;
-  grid-template-columns: 40px 1fr;
-}
-.aster .left-side .abilities-top .roll-option .roll-option-list {
-  /*        display: grid;
-          grid-template-columns: repeat(3, 1fr);*/
 }
 .aster .left-side .abilities-bottom {
   grid-template-columns: 4fr 1fr;
@@ -372,15 +359,6 @@
   display: flex;
   justify-content: space-evenly;
   align-items: flex-start;
-  padding-top: 20px;
-  /*    .aster{
-        transform:rotate(45deg);
-        input{ transform:rotate(-45deg);}
-      }
-      .aster-down{
-        transform:rotate(-45deg) translateX(-40px) translateY(40px);
-        input{ transform:rotate(45deg);}
-      }*/
 }
 .aster .left-side .aster-container input {
   background: transparent;
@@ -390,7 +368,7 @@
 .aster .left-side .aster-container .aster {
   border: 1px solid grey;
   width: 80px;
-  height: 80px;
+  height: 90px;
   display: grid;
   grid-template-rows: 1fr 3fr;
 }
@@ -405,20 +383,43 @@
   border: none;
   font-size: 2rem;
 }
-.aster .left-side .inven-etc {
+.aster .right-side .badstatus-grid {
+  height: 100%;
+}
+.aster .right-side .badstatus-grid .badstatus input[type=checkbox] {
+  display: none;
+}
+.aster .right-side .badstatus-grid .badstatus.checked {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  border: 1px solid white;
+}
+.aster .right-side .badstatus-grid .badstatus .bs-input {
+  width: 0.8rem;
+}
+.aster .right-side .badstatus-grid .badstatus input.bs-input {
+  border: none;
+  font-size: 1rem;
+}
+.aster .right-side .badstatus-grid .badstatus input.bs-input.checked {
+  color: #ffffff;
+  border: none;
+  background: none;
+}
+.aster .right-side .badstatus-grid .badstatus.bs-num {
+  justify-content: space-between;
+}
+.aster .right-side .badstatus-grid > div {
+  text-align: center;
+  border: 1px solid grey;
+}
+.aster section.sheet-bottom .inven-etc {
   display: grid;
   grid-template-columns: 1fr 2fr repeat(2, 1fr);
   gap: 10px;
   height: 80px;
 }
-.aster .left-side .inven-etc > div {
-  border: 1px solid grey;
-}
-.aster .right-side .badstatus {
-  height: 100%;
-}
-.aster .right-side .badstatus > div {
-  text-align: center;
+.aster section.sheet-bottom .inven-etc > div {
   border: 1px solid grey;
 }
 .aster section.sheet-bottom .inventory .item-list {
@@ -432,106 +433,16 @@
 .aster .resource-label {
   font-weight: bold;
 }
-.aster .items-header {
-  height: 28px;
-  margin: 2px 0;
-  padding: 0;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.05);
-  border: 2px groove #eeede0;
-  font-weight: bold;
-}
-.aster .items-header > * {
-  font-size: 14px;
+.aster .item-sheet .item-container .item-header input {
+  width: 100%;
   text-align: center;
 }
-.aster .items-header .item-name {
-  font-weight: bold;
-  padding-left: 5px;
-  text-align: left;
-  display: flex;
+.aster .item-sheet .item-container .item-detail {
+  display: grid;
+  grid-template-columns: 1fr 4fr;
 }
-.aster .items-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  color: #444;
-}
-.aster .items-list .item-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.aster .items-list .item-name {
-  flex: 2;
-  margin: 0;
-  overflow: hidden;
-  font-size: 13px;
-  text-align: left;
-  align-items: center;
-  display: flex;
-}
-.aster .items-list .item-name h3, .aster .items-list .item-name h4 {
-  margin: 0;
-  white-space: nowrap;
-  overflow-x: hidden;
-}
-.aster .items-list .item-controls {
-  display: flex;
-  flex: 0 0 100px;
-  justify-content: flex-end;
-}
-.aster .items-list .item-controls a {
-  font-size: 12px;
-  text-align: center;
-  margin: 0 6px;
-}
-.aster .items-list .item {
-  align-items: center;
-  padding: 0 2px;
-  border-bottom: 1px solid #c9c7b8;
-}
-.aster .items-list .item:last-child {
-  border-bottom: none;
-}
-.aster .items-list .item .item-name {
-  color: #191813;
-}
-.aster .items-list .item .item-name .item-image {
-  flex: 0 0 30px;
-  height: 30px;
-  background-size: 30px;
-  border: none;
-  margin-right: 5px;
-}
-.aster .items-list .item-prop {
-  text-align: center;
-  border-left: 1px solid #c9c7b8;
-  border-right: 1px solid #c9c7b8;
-  font-size: 12px;
-}
-.aster .items-list .items-header {
-  height: 28px;
-  margin: 2px 0;
-  padding: 0;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.05);
-  border: 2px groove #eeede0;
-  font-weight: bold;
-}
-.aster .items-list .items-header > * {
-  font-size: 12px;
-  text-align: center;
-}
-.aster .items-list .items-header .item-name {
-  padding-left: 5px;
-  text-align: left;
-}
-.aster .item-formula {
-  flex: 0 0 200px;
-  padding: 0 8px;
+.aster .item-sheet .item-container .item-detail .detail-input input {
+  width: 100%;
 }
 
 .aster-chatcard .roll-title {
