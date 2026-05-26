@@ -1,19 +1,19 @@
-  .item-sheet{
-    .item-container{
-      .item-header{
-        input{
-          width:100%;
-          text-align: center;
-        }
+.item-sheet {
+  .item-container {
+    .item-header {
+      input {
+        width: 100%;
+        text-align: center;
       }
-      .item-detail{
-        display:grid;
-        grid-template-columns: 1fr 4fr;
-        .detail-input{
-          input{
-            width:100%;
-          }
+    }
+    .item-detail {
+      display: grid;
+      grid-template-columns: 1fr 4fr;
+      .detail-input {
+        input {
+          width: 100%;
         }
       }
     }
   }
+}

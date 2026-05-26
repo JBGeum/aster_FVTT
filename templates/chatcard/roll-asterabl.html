@@ -13,29 +13,15 @@
       </div>
       {{/each}}
       <div class="die-result flexcol">
-        <div class="mod-area">
-          + {{ablValue}}
-        </div>
+        <div class="mod-area">+ {{ablValue}}</div>
       </div>
       <div class="roll-result-text">
-        {{#if isSpecial}}
-        스페셜
-        {{else}}
-          {{#if isSuccess}}
-          성공
-          {{else}}
-          실패
-          {{/if}}
-        {{/if}}
+        {{#if isSpecial}} 스페셜 {{else}} {{#if isSuccess}} 성공 {{else}} 실패 {{/if}} {{/if}}
       </div>
     </div>
     <div class="roll-dc">
       <div class="roll-dc-lbl"></div>
-      <div class="roll-dc-formula align-center">
-        {{result}}
-        >=
-        {{rollDC}}
-      </div>
+      <div class="roll-dc-formula align-center">{{result}} >= {{rollDC}}</div>
     </div>
   </div>
 </div>

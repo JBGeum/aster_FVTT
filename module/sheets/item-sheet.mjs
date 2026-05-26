@@ -3,14 +3,15 @@
  * @extends {ItemSheet}
  */
 export class AsterItemSheet extends ItemSheet {
-
   /** @override */
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["aster", "sheet", "item"],
       width: 400,
       height: 480,
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" }]
+      tabs: [
+        { navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" },
+      ],
     });
   }
 
@@ -37,7 +38,7 @@ export class AsterItemSheet extends ItemSheet {
 
     // Retrieve the roll data for TinyMCE editors.
     context.rollData = {};
-    let actor = this.object?.parent ?? null;
+    const actor = this.object?.parent ?? null;
     if (actor) {
       context.rollData = actor.getRollData();
     }

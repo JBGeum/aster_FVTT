@@ -23,29 +23,29 @@
     "character": {
       "templates": ["base"],
       "attributes": {
-        "level": {"value": 1}
+        "level": { "value": 1 }
       },
       "ability": {
-        "active": {"total": 0,"base": 0,"mod": 0},
-        "knowledge": {"total": 0,"base": 0,"mod": 0},
-        "dexterity": {"total": 0,"base": 0,"mod": 0},
-        "worldly": {"total": 0,"base": 0,"mod": 0}
+        "active": { "total": 0, "base": 0, "mod": 0 },
+        "knowledge": { "total": 0, "base": 0, "mod": 0 },
+        "dexterity": { "total": 0, "base": 0, "mod": 0 },
+        "worldly": { "total": 0, "base": 0, "mod": 0 }
       },
       "color": "",
       "speed": 0,
       "dodge": 0,
       "aster": {
-        "white": {"value": 0},
-        "red": {"value": 0},
-        "blue":{"value": 0},
-        "green": {"value": 0},
-        "yellow":{"value": 0}
+        "white": { "value": 0 },
+        "red": { "value": 0 },
+        "blue": { "value": 0 },
+        "green": { "value": 0 },
+        "yellow": { "value": 0 }
       },
       "material": 0,
       "features": {
-        "born": {"title": "", "description": ""},
-        "past":{"title": "", "description": ""},
-        "purpose": {"title": "", "description": ""}
+        "born": { "title": "", "description": "" },
+        "past": { "title": "", "description": "" },
+        "purpose": { "title": "", "description": "" }
       },
       "badstatus": {
         "injury": false,
@@ -65,7 +65,7 @@
     "types": ["bag", "consumable", "equipment", "food", "spell", "feature"],
     "templates": {
       "base": {
-        "material": [0,0,0,0,0,0],
+        "material": [0, 0, 0, 0, 0, 0],
         "effect": "",
         "requirement": [],
         "description": ""
@@ -77,14 +77,14 @@
     },
     "consumable": {
       "templates": ["base"],
-      "size": [1,1],
+      "size": [1, 1],
       "timing": "",
       "mod": 0
     },
     "equipment": {
       "templates": ["base"],
       "type": "",
-      "size": [1,1]
+      "size": [1, 1]
     },
     "food": {
       "templates": ["base"],
@@ -99,7 +99,7 @@
       "ruby": "",
       "color": "",
       "ability": "",
-      "alert" : {
+      "alert": {
         "min": 0,
         "max": 0
       },

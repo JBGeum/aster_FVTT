@@ -1,20 +1,25 @@
-import {onManageActiveEffect, prepareActiveEffectCategories} from "../helpers/effects.mjs";
+import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
  * @extends {ActorSheet}
  */
 export class AsterActorSheet extends ActorSheet {
-
   /** @override */
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["aster", "sheet", "actor"],
       template: "systems/aster/templates/actor/actor-sheet.html",
       width: 650,
       height: 800,
-      tabs: [{ navSelector: ".sheet-main-tabs", contentSelector: ".sheet-container", initial: "character" },
-        { navSelector: ".sheet-sub-tabs", contentSelector: ".sheet-bottom", initial: "inventory" }]
+      tabs: [
+        {
+          navSelector: ".sheet-main-tabs",
+          contentSelector: ".sheet-container",
+          initial: "character",
+        },
+        { navSelector: ".sheet-sub-tabs", contentSelector: ".sheet-bottom", initial: "inventory" },
+      ],
     });
   }
 
@@ -32,7 +37,7 @@ export class AsterActorSheet extends ActorSheet {
     // sheets are the actor object, the data object, whether or not it's
     // editable, the items array, and the effects array.
     const context = super.getData();
-    context.config = CONFIG.ASTER;  //schmm CONFIG 쓰려면 꼭 추가하기!!!!
+    context.config = CONFIG.ASTER; //schmm CONFIG 쓰려면 꼭 추가하기!!!!
 
     // Use a safe clone of the actor data for further operations.
     const actorData = this.actor.toObject(false);
@@ -41,14 +46,12 @@ export class AsterActorSheet extends ActorSheet {
     context.system = actorData.system;
     context.flags = actorData.flags;
 
-    // Prepare character data and items.
-    if (actorData.type == 'character') {
+    if (actorData.type === "character") {
       this._prepareItems(context);
       this._prepareCharacterData(context);
     }
 
-    // Prepare NPC data and items.
-    if (actorData.type == 'npc') {
+    if (actorData.type === "npc") {
       this._prepareItems(context);
     }
 
@@ -69,11 +72,11 @@ export class AsterActorSheet extends ActorSheet {
    * @return {undefined}
    */
   _prepareCharacterData(context) {
-   // Handle ability scores.
-    for (let [k, v] of Object.entries(context.system.ability)) {
+    // Handle ability scores.
+    for (const [k, v] of Object.entries(context.system.ability)) {
       v.label = game.i18n.localize(CONFIG.ASTER.ability[k]) ?? k;
     }
-    for (let [k, v] of Object.entries(context.system.aster)) {
+    for (const [k, v] of Object.entries(context.system.aster)) {
       v.label = game.i18n.localize(CONFIG.ASTER.aster[k]) ?? k;
     }
   }
@@ -99,23 +102,23 @@ export class AsterActorSheet extends ActorSheet {
       6: [],
       7: [],
       8: [],
-      9: []
+      9: [],
     };
 
     // Iterate through items, allocating to containers
-    for (let i of context.items) {
-      i.img = i.img || DEFAULT_TOKEN;
+    for (const i of context.items) {
+      i.img = i.img || CONST.DEFAULT_TOKEN;
       // Append to gear.
-      if (i.type === 'item') {
+      if (i.type === "item") {
         gear.push(i);
       }
       // Append to features.
-      else if (i.type === 'feature') {
+      else if (i.type === "feature") {
         features.push(i);
       }
       // Append to spells.
-      else if (i.type === 'spell') {
-        if (i.system.spellLevel != undefined) {
+      else if (i.type === "spell") {
+        if (i.system.spellLevel != null) {
           spells[i.system.spellLevel].push(i);
         }
       }
@@ -134,7 +137,7 @@ export class AsterActorSheet extends ActorSheet {
     super.activateListeners(html);
 
     // Render the item sheet for viewing/editing prior to the editable check.
-    html.find('.item-edit').click(ev => {
+    html.find(".item-edit").click((ev) => {
       const li = $(ev.currentTarget).parents(".item");
       const item = this.actor.items.get(li.data("itemId"));
       item.sheet.render(true);
@@ -145,10 +148,10 @@ export class AsterActorSheet extends ActorSheet {
     if (!this.isEditable) return;
 
     // Add Inventory Item
-    html.find('.item-create').click(this._onItemCreate.bind(this));
+    html.find(".item-create").click(this._onItemCreate.bind(this));
 
     // Delete Inventory Item
-    html.find('.item-delete').click(ev => {
+    html.find(".item-delete").click((ev) => {
       const li = $(ev.currentTarget).parents(".item");
       const item = this.actor.items.get(li.data("itemId"));
       item.delete();
@@ -156,33 +159,32 @@ export class AsterActorSheet extends ActorSheet {
     });
 
     // Active Effect management
-    html.find(".effect-control").click(ev => onManageActiveEffect(ev, this.actor));
+    html.find(".effect-control").click((ev) => onManageActiveEffect(ev, this.actor));
 
     // Rollable abilities.
-    html.find('.rollable').click(this._onRoll.bind(this));
-    html.find('.roll-opt-abl').click(()=>{
-      $('#roll-dc').val('7');
+    html.find(".rollable").click(this._onRoll.bind(this));
+    html.find(".roll-opt-abl").click(() => {
+      $("#roll-dc").val("7");
       this.actor.system.dc = 7;
     });
-    html.find('.roll-opt-vs').click(()=>{$('#roll-dc').val('');
-      this.actor.system.dc = 0;});
+    html.find(".roll-opt-vs").click(() => {
+      $("#roll-dc").val("");
+      this.actor.system.dc = 0;
+    });
 
     // Drag events for macros.
     if (this.actor.isOwner) {
-      let handler = ev => this._onDragStart(ev);
-      html.find('li.item').each((i, li) => {
+      const handler = (ev) => this._onDragStart(ev);
+      html.find("li.item").each((i, li) => {
         if (li.classList.contains("inventory-header")) return;
         li.setAttribute("draggable", true);
         li.addEventListener("dragstart", handler, false);
       });
     }
     //어빌리티 4종 굴리기
-    html.find('.abl-roll').click(this._onAblRoll.bind(this));
+    html.find(".abl-roll").click(this._onAblRoll.bind(this));
     //정동판정
-    html.find('.emo-roll').click(this._onEmoRoll.bind(this));
-
-
-
+    html.find(".emo-roll").click(this._onEmoRoll.bind(this));
   }
 
   /**
@@ -196,20 +198,20 @@ export class AsterActorSheet extends ActorSheet {
     // Get the type of item to create.
     const type = header.dataset.type;
     // Grab any data associated with this control.
-    const data = duplicate(header.dataset);
+    const data = foundry.utils.duplicate(header.dataset);
     // Initialize a default name.
     const name = `New ${type.capitalize()}`;
     // Prepare the item object.
     const itemData = {
       name: name,
       type: type,
-      system: data
+      system: data,
     };
     // Remove the type from the dataset since it's in the itemData.type prop.
     delete itemData.system["type"];
 
     // Finally, create the item!
-    return await Item.create(itemData, {parent: this.actor});
+    return await Item.create(itemData, { parent: this.actor });
   }
 
   /**
@@ -222,10 +224,9 @@ export class AsterActorSheet extends ActorSheet {
     const element = event.currentTarget;
     const dataset = element.dataset;
 
-    // Handle item rolls.
     if (dataset.rollType) {
-      if (dataset.rollType == 'item') {
-        const itemId = element.closest('.item').dataset.itemId;
+      if (dataset.rollType === "item") {
+        const itemId = element.closest(".item").dataset.itemId;
         const item = this.actor.items.get(itemId);
         if (item) return item.roll();
       }
@@ -233,12 +234,12 @@ export class AsterActorSheet extends ActorSheet {
 
     // Handle rolls that supply the formula directly.
     if (dataset.roll) {
-      let label = dataset.label ? `[ability] ${dataset.label}` : '';
-      let roll = new Roll(dataset.roll, this.actor.getRollData());
+      const label = dataset.label ? `[ability] ${dataset.label}` : "";
+      const roll = new Roll(dataset.roll, this.actor.getRollData());
       roll.toMessage({
         speaker: ChatMessage.getSpeaker({ actor: this.actor }),
         flavor: label,
-        rollMode: game.settings.get('core', 'rollMode'),
+        rollMode: game.settings.get("core", "rollMode"),
       });
       return roll;
     }
@@ -248,12 +249,12 @@ export class AsterActorSheet extends ActorSheet {
     event.preventDefault();
     const element = event.currentTarget;
     const dataset = element.dataset;
-    this.actor.rollAbility(dataset.ability, dataset.label, {event: event});
+    this.actor.rollAbility(dataset.ability, dataset.label, { event: event });
   }
   _onEmoRoll(event) {
     event.preventDefault();
     const element = event.currentTarget;
     const dataset = element.dataset;
-    this.actor.rollEmotion(dataset.aster, dataset.label, {event: event});
+    this.actor.rollEmotion(dataset.aster, dataset.label, { event: event });
   }
 }

@@ -1,12 +1,31 @@
 # IDE
 .idea/
 .vs/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 
-# Node Modules
+# Node
 node_modules/
 npm-debug.log
+.npm/
+*.log
+
+# Build outputs
+dist/
+.vite/
+*.tsbuildinfo
+
+# CSS build artifacts (regenerated from SCSS)
+css/
+scss/aster.css
+scss/aster.css.map
 
 # Foundry
 *.lock
 jsconfig.json
-foundry
+foundry/
+
+# OS
+.DS_Store
+Thumbs.db

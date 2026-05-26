@@ -1,24 +1,55 @@
 {
   "name": "aster",
-  "version": "1.0.0",
-  "description": "CSS compiler for the Aster system",
-  "scripts": {
-    "build": "gulp build",
-    "compile": "gulp css",
-    "watch": "gulp",
-    "gulp": "gulp"
-  },
-  "browserslist": [
-    "last 3 versions"
-  ],
-  "author": "John Doe",
-  "license": "MIT",
+  "version": "2.0.0-dev.0",
+  "description": "Aster - 마녀와 채애의 아스테르 Foundry VTT system (V13+)",
+  "type": "module",
   "private": true,
+  "license": "MIT",
+  "author": "Scheree",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite build --mode development --watch",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "link:foundry": "tsx tools/link-to-foundry.mts",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,mjs,ts,mts,cjs,cts}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,scss,css,html,hbs,handlebars,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
-    "gulp": "^4.0.2",
-    "gulp-autoprefixer": "^8.0.0",
-    "gulp-sass": "^5.1.0",
-    "gulp-sourcemaps": "^3.0.0",
-    "sass": "^1.53.0"
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.10.0",
+    "eslint": "^10.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5",
+    "prettier": "^3.8.3",
+    "sass": "^1.100.0",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.0",
+    "vite": "^8.0.14",
+    "vite-plugin-static-copy": "^4.1.0",
+    "vitest": "^4.1.7"
   }
 }

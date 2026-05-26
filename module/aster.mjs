@@ -1,10 +1,13 @@
-// Import document classes.
+// SCSS는 Vite가 번들 시 CSS로 추출합니다.
+import "../scss/aster.scss";
+
+// Documents
 import { AsterActor } from "./documents/actor.mjs";
 import { AsterItem } from "./documents/item.mjs";
-// Import sheet classes.
+// Sheets
 import { AsterActorSheet } from "./sheets/actor-sheet.mjs";
 import { AsterItemSheet } from "./sheets/item-sheet.mjs";
-// Import helper/utility classes and constants.
+// Helpers
 import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
 import { ASTER } from "./helpers/config.mjs";
 
@@ -12,39 +15,33 @@ import { ASTER } from "./helpers/config.mjs";
 /*  Init Hook                                   */
 /* -------------------------------------------- */
 
-Hooks.once('init', async function() {
-
-  // Add utility classes to the global game object so that they're more easily
-  // accessible in global contexts.
+Hooks.once("init", async function () {
   game.aster = {
     AsterActor,
     AsterItem,
-    rollItemMacro
+    rollItemMacro,
   };
 
-  // Add custom constants for configuration.
   CONFIG.ASTER = ASTER;
 
-  /**
-   * Set an initiative formula for the system
-   * @type {String}
-   */
   CONFIG.Combat.initiative = {
     formula: "1d20 + @abilities.dex.mod",
-    decimals: 2
+    decimals: 2,
   };
 
-  // Define custom Document classes
   CONFIG.Actor.documentClass = AsterActor;
   CONFIG.Item.documentClass = AsterItem;
 
-  // Register sheet application classes
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("aster", AsterActorSheet, { makeDefault: true });
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("aster", AsterItemSheet, { makeDefault: true });
+  // V13: 시트 컬렉션은 foundry.documents.collections 네임스페이스 사용 권장
+  // (전역 Actors/Items도 아직 동작하지만 deprecation warning 발생)
+  const ActorsCls = foundry.documents.collections?.Actors ?? Actors;
+  const ItemsCls = foundry.documents.collections?.Items ?? Items;
 
-  // Preload Handlebars templates.
+  ActorsCls.unregisterSheet("core", ActorSheet);
+  ActorsCls.registerSheet("aster", AsterActorSheet, { makeDefault: true });
+  ItemsCls.unregisterSheet("core", ItemSheet);
+  ItemsCls.registerSheet("aster", AsterItemSheet, { makeDefault: true });
+
   return preloadHandlebarsTemplates();
 });
 
@@ -52,31 +49,28 @@ Hooks.once('init', async function() {
 /*  Handlebars Helpers                          */
 /* -------------------------------------------- */
 
-// If you need to add Handlebars helpers, here are a few useful examples:
-Handlebars.registerHelper('concat', function() {
-  var outStr = '';
-  for (var arg in arguments) {
-    if (typeof arguments[arg] != 'object') {
-      outStr += arguments[arg];
-    }
-  }
-  return outStr;
+Handlebars.registerHelper("concat", function (...args) {
+  // 마지막 인자는 Handlebars의 options 객체이므로 제외
+  return args
+    .slice(0, -1)
+    .filter((a) => typeof a !== "object")
+    .join("");
 });
 
-Handlebars.registerHelper('ifEquals', function(arg1, arg2, options) {
-  return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+Handlebars.registerHelper("ifEquals", function (arg1, arg2, options) {
+  // eslint-disable-next-line eqeqeq -- 템플릿 헬퍼는 문자열/숫자 비교를 느슨하게 허용
+  return arg1 == arg2 ? options.fn(this) : options.inverse(this);
 });
 
-Handlebars.registerHelper('toLowerCase', function(str) {
-  return str.toLowerCase();
+Handlebars.registerHelper("toLowerCase", function (str) {
+  return String(str ?? "").toLowerCase();
 });
 
 /* -------------------------------------------- */
 /*  Ready Hook                                  */
 /* -------------------------------------------- */
 
-Hooks.once("ready", async function() {
-  // Wait to register hotbar drop hook on ready so that modules could register earlier if they want to
+Hooks.once("ready", async function () {
   Hooks.on("hotbarDrop", (bar, data, slot) => createItemMacro(data, slot));
 });
 
@@ -86,30 +80,27 @@ Hooks.once("ready", async function() {
 
 /**
  * Create a Macro from an Item drop.
- * Get an existing item macro if one exists, otherwise create a new one.
- * @param {Object} data     The dropped data
- * @param {number} slot     The hotbar slot to use
- * @returns {Promise}
+ * @param {object} data
+ * @param {number} slot
+ * @returns {Promise<boolean>}
  */
 async function createItemMacro(data, slot) {
-  // First, determine if this is a valid owned item.
-  if (data.type !== "Item") return;
-  if (!data.uuid.includes('Actor.') && !data.uuid.includes('Token.')) {
-    return ui.notifications.warn("You can only create macro buttons for owned Items");
+  if (data.type !== "Item") return false;
+  if (!data.uuid.includes("Actor.") && !data.uuid.includes("Token.")) {
+    ui.notifications.warn("You can only create macro buttons for owned Items");
+    return false;
   }
-  // If it is, retrieve it based on the uuid.
   const item = await Item.fromDropData(data);
-
-  // Create the macro command using the uuid.
   const command = `game.aster.rollItemMacro("${data.uuid}");`;
-  let macro = game.macros.find(m => (m.name === item.name) && (m.command === command));
+
+  let macro = game.macros.find((m) => m.name === item.name && m.command === command);
   if (!macro) {
     macro = await Macro.create({
       name: item.name,
       type: "script",
       img: item.img,
-      command: command,
-      flags: { "aster.itemMacro": true }
+      command,
+      flags: { "aster.itemMacro": true },
     });
   }
   game.user.assignHotbarMacro(macro, slot);
@@ -117,25 +108,18 @@ async function createItemMacro(data, slot) {
 }
 
 /**
- * Create a Macro from an Item drop.
- * Get an existing item macro if one exists, otherwise create a new one.
  * @param {string} itemUuid
  */
 function rollItemMacro(itemUuid) {
-  // Reconstruct the drop data so that we can load the item.
-  const dropData = {
-    type: 'Item',
-    uuid: itemUuid
-  };
-  // Load the item from the uuid.
-  Item.fromDropData(dropData).then(item => {
-    // Determine if the item loaded and if it's an owned item.
+  const dropData = { type: "Item", uuid: itemUuid };
+  Item.fromDropData(dropData).then((item) => {
     if (!item || !item.parent) {
       const itemName = item?.name ?? itemUuid;
-      return ui.notifications.warn(`Could not find item ${itemName}. You may need to delete and recreate this macro.`);
+      ui.notifications.warn(
+        `Could not find item ${itemName}. You may need to delete and recreate this macro.`,
+      );
+      return;
     }
-
-    // Trigger the item roll
     item.roll();
   });
 }

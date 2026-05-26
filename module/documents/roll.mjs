@@ -1,8 +1,13 @@
-export async function asterRoll(ablValue, rollData){
-  let roll;
-  // let r = new Roll("2d20kh + @prof + @strMod", {prof: 2, strMod: 4});
-  roll = new Roll("2d6 + @ablValue", {ablValue: ablValue});
-  //https://foundryvtt.com/api/classes/client.Roll.html#dice
-  await roll.evaluate({async: true});
+/**
+ * Aster 기본 능력 판정 굴림.
+ * V13: `Roll#evaluate`는 더 이상 `{async: true}` 옵션을 받지 않습니다.
+ *
+ * @param {number} ablValue
+ * @param {object} _rollData
+ * @returns {Promise<Roll>}
+ */
+export async function asterRoll(ablValue, _rollData) {
+  const roll = new Roll("2d6 + @ablValue", { ablValue });
+  await roll.evaluate();
   return roll;
 }

@@ -1,0 +1,8 @@
+node_modules
+dist
+css
+scss/aster.css
+scss/aster.css.map
+lib
+package-lock.json
+foundry

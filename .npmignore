@@ -1,7 +1,11 @@
-# IDE
-.idea/
-.vs/
-
-# Node Modules
-node_modules/
-npm-debug.log
+.idea
+.vscode
+.vs
+node_modules
+dist
+.vite
+*.log
+foundry
+test
+tools
+*.tsbuildinfo

@@ -1,126 +1,121 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-  <link rel="stylesheet" href="../../scss/aster.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+    <link rel="stylesheet" href="../../scss/aster.css" />
+  </head>
+  <body>
+    <form class="{{cssClass}} {{actor.type}} flexcol aster" autocomplete="off">
+      <header class="sheet-header">
+        <div class="grid char-header">
+          <div class="char-left">
+            <div class="grid features">
+              <div class="born">
+                <label class="chardata">출생</label>
+                <input name="born" type="text" value="{{features.born.title}}" placeholder="출생" />
+              </div>
+              <div class="past">
+                <label class="chardata">경험</label>
+                <input name="past" type="text" value="{{features.past.title}}" placeholder="경험" />
+              </div>
+              <div class="purpose">
+                <label class="chardata">목적</label>
+                <input name="purpose" type="text" value="{{features.purpose.title}}" placeholder="목적" />
+              </div>
+            </div>
+          </div>
+          <div class="char-middle">
+            <div class="profile-img">
+              <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+            </div>
+          </div>
+          <div class="char-right">
+            <div class="grid container">
+              <div class="color">
+                <div class="color-logo"></div>
+                <input name="name" type="text" value="{{system.color}}" placeholder="마기사 색" />
+              </div>
+              <div class="charname">
+                <label class="chardata">이름</label>
+                <input name="name" type="text" value="{{actor.name}}" placeholder="캐릭터이름" />
+              </div>
+              <div class="player">
+                <label class="chardata">PL</label>
+                <input name="system.player" type="text" value="{{system.player}}" placeholder="플레이어" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
 
-<form class="{{cssClass}} {{actor.type}} flexcol aster" autocomplete="off">
-  <header class="sheet-header">
-    <div class="grid char-header">
-      <div class="char-left">
-        <div class="grid features">
-          <div class="born">
-            <label class="chardata">출생</label>
-            <input name="born" type="text" value="{{features.born.title}}" placeholder="출생"/>
+      <section class="sheet-center">
+        <div class="left-side">
+          <div class="abilities-top">
+            <div class="grid ability">
+              <div class="abl-name">활발</div>
+              <div class="abl-value">
+                <input type="number" value="system.ability.{{key}}.value" />
+              </div>
+              <div class="abl-base">
+                <input type="number" value="system.ability.{{key}}.base" />
+              </div>
+              <div class="abl-mod">
+                <input type="number" value="system.ability.{{key}}.mod" />
+              </div>
+            </div>
+            <div class="derived-abl">
+              <div class="dex">
+                민첩
+                <input type="number" value="system.ability.{{key}}.mod" disabled />
+              </div>
+              <div class="dex">
+                회피
+                <input type="number" value="system.ability.{{key}}.mod" disabled />
+              </div>
+            </div>
           </div>
-          <div class="past">
-            <label class="chardata">경험</label>
-            <input name="past" type="text" value="{{features.past.title}}" placeholder="경험"/>
+          <div class="grid abilities-bottom">
+            <div class="health">
+              건강
+              <input type="number" value="system.ability.{{key}}.mod" />
+            </div>
+            <div class="satiety">
+              포만도
+              <input type="number" value="system.ability.{{key}}.mod" />
+            </div>
           </div>
-          <div class="purpose">
-            <label class="chardata">목적</label>
-            <input name="purpose" type="text" value="{{features.purpose.title}}" placeholder="목적"/>
-          </div>
-        </div>
-      </div>
-      <div class="char-middle">
-        <div class="profile-img">
-          <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
-        </div>
-      </div>
-      <div class="char-right">
-        <div class="grid container">
-          <div class="color">
-            <div class="color-logo"></div>
-            <input name="name" type="text" value="{{system.color}}" placeholder="마기사 색"/>
-          </div>
-          <div class="charname">
-            <label class="chardata">이름</label>
-            <input name="name" type="text" value="{{actor.name}}" placeholder="캐릭터이름"/>
-          </div>
-          <div class="player">
-            <label class="chardata">PL</label>
-            <input name="system.player" type="text" value="{{system.player}}" placeholder="플레이어"/>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-  
-  
-  <section class="sheet-center">
-    <div class="left-side">
-      <div class="abilities-top">
-        <div class="grid ability">
-          <div class="abl-name">
-            활발
-          </div>
-          <div class="abl-value">
-            <input type="number" value="system.ability.{{key}}.value">
-          </div>
-          <div class="abl-base">
-            <input type="number" value="system.ability.{{key}}.base">
-          </div>
-          <div class="abl-mod">
-            <input type="number" value="system.ability.{{key}}.mod">
-          </div>
-        </div>
-        <div class="derived-abl">
-          <div class="dex">
-            민첩
-            <input type="number" value="system.ability.{{key}}.mod" disabled>
-          </div>
-          <div class="dex">
-            회피
-            <input type="number" value="system.ability.{{key}}.mod" disabled>
-          </div>
-        </div>
-      </div>
-      <div class="grid abilities-bottom">
-        <div class="health">
-          건강
-          <input type="number" value="system.ability.{{key}}.mod">
-        </div>
-        <div class="satiety">
-          포만도
-          <input type="number" value="system.ability.{{key}}.mod">
-        </div>
-      </div>
-      
-      <div class="aster-container">
-        <div class="aster red-aster">
-          <input type="number" value=5 />
-        </div>
-        <div class="aster-down blue-aster">
-          <input type="number" value=5 />
-        </div>
-        <div class="aster white-aster">
-          <input type="number" value=5 />
-        </div>
-        <div class="aster-down green-aster">
-          <input type="number" value=5 />
-        </div>
-        <div class="aster yellow-aster">
-          <input type="number" value=5 />
-        </div>
-      </div>
-    </div>
-    
-    <div class="right-side">
-      <div class="badstatus">
-        <div class="bs-">상태이상</div>
-        <div class="bs-">부상</div>
-        <div class="bs-">큰 부상</div>
-        <div class="bs-">졸림</div>
-        <div class="bs-">피로</div>
-        <div class="bs-">배고픔</div>
-      </div>
-    </div>
-  </section>
-</form>
 
-</body>
+          <div class="aster-container">
+            <div class="aster red-aster">
+              <input type="number" value="5" />
+            </div>
+            <div class="aster-down blue-aster">
+              <input type="number" value="5" />
+            </div>
+            <div class="aster white-aster">
+              <input type="number" value="5" />
+            </div>
+            <div class="aster-down green-aster">
+              <input type="number" value="5" />
+            </div>
+            <div class="aster yellow-aster">
+              <input type="number" value="5" />
+            </div>
+          </div>
+        </div>
+
+        <div class="right-side">
+          <div class="badstatus">
+            <div class="bs-">상태이상</div>
+            <div class="bs-">부상</div>
+            <div class="bs-">큰 부상</div>
+            <div class="bs-">졸림</div>
+            <div class="bs-">피로</div>
+            <div class="bs-">배고픔</div>
+          </div>
+        </div>
+      </section>
+    </form>
+  </body>
 </html>
