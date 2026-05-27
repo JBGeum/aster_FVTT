@@ -60,6 +60,9 @@ export class CharacterDataModel extends BaseActorModel {
         hungry: new fields.BooleanField({ initial: false }),
       }),
       player: new fields.StringField({ initial: "" }),
+      craft: new fields.SchemaField({
+        acquired: new fields.ObjectField({ initial: {} }),
+      }),
     };
   }
 

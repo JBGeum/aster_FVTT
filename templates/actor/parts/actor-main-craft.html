@@ -1,1 +1,44 @@
-craft
+<div class="craft-tab">
+  {{!-- 자원 요약 바 --}}
+  <div class="craft-summary{{#if craft.overBudget}} over{{/if}}">
+    <span class="sum-item">◆ {{craft.cost.material}} / {{craft.resources.material}}</span>
+    <span class="sum-item">◇ {{craft.asterTotal}} / {{craft.asterHave}}</span>
+    {{#if craft.overBudget}}
+    <span class="over-badge">{{localize "ASTER.craft.over"}}</span>
+    {{/if}}
+  </div>
+
+  {{!-- 카테고리별 스킬 체인 --}} {{#each craft.categories as |cat|}}
+  <div class="craft-category" data-category="{{cat.id}}">
+    <h3 class="cat-title">{{localize cat.label}}</h3>
+    <div class="craft-chains">
+      {{#each cat.chains as |chain|}}
+      <div class="craft-chain">
+        {{#each chain as |node|}}
+        <div
+          class="craft-node{{#if node.acquired}} acquired{{/if}}{{#if node.locked}} locked{{/if}}"
+          data-skill-id="{{node.id}}"
+        >
+          <label class="node-label">
+            <input
+              type="checkbox"
+              data-action="toggleSkill"
+              data-skill-id="{{node.id}}"
+              {{checked
+              node.acquired}}
+              {{node.disabledAttr}}
+            />
+            <span class="node-title"> {{localize node.label}}<span class="lv"> Lv.{{node.level}}</span> </span>
+          </label>
+          <div class="node-cost">{{node.costLabel}}</div>
+        </div>
+        {{/each}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/each}} {{!-- 전체 초기화 --}}
+  <div class="craft-footer">
+    <button type="button" data-action="craftReset" class="craft-reset">{{localize "ASTER.craft.reset"}}</button>
+  </div>
+</div>

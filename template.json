@@ -57,7 +57,10 @@
         "exhaustion": false,
         "hungry": false
       },
-      "player": ""
+      "player": "",
+      "craft": {
+        "acquired": {}
+      }
     },
     "npc": {
       "templates": ["base"],

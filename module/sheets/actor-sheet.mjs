@@ -1,5 +1,7 @@
 import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
 import { checkBagCapacity, checkStorageAdd } from "../helpers/inventory-capacity.mjs";
+import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
+import { prereqMet, sumCost, checkAffordable } from "../helpers/craft-cost.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -66,6 +68,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       this._prepareCharacterData(context);
       this._prepareItems(context);
       this._prepareInventory(context);
+      this._prepareCraft(context);
     } else if (this.actor.type === "npc") {
       this._prepareItems(context);
     }
@@ -151,6 +154,69 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           locationLabel: inStorageLabel,
         })),
       ],
+    };
+  }
+
+  _prepareCraft(context) {
+    const acquired = this.actor.system.craft?.acquired ?? {};
+    const resources = {
+      material: this.actor.system.material ?? 0,
+      aster: {
+        red: this.actor.system.aster?.red?.value ?? 0,
+        blue: this.actor.system.aster?.blue?.value ?? 0,
+        green: this.actor.system.aster?.green?.value ?? 0,
+        yellow: this.actor.system.aster?.yellow?.value ?? 0,
+        white: this.actor.system.aster?.white?.value ?? 0,
+      },
+    };
+
+    // 카테고리별로 label 기준 체인 그룹화
+    const byCat = {};
+    const chainMap = {};
+    const chainOrder = {};
+    for (const cat of CRAFT_TREE.categories) {
+      byCat[cat.id] = { ...cat, chains: [] };
+      chainMap[cat.id] = {};
+      chainOrder[cat.id] = [];
+    }
+
+    for (const node of CRAFT_TREE.nodes) {
+      const isAcquired = acquired[node.id] === true;
+      const unlocked = prereqMet(node.id, acquired);
+      const isLocked = !unlocked && !isAcquired;
+      const displayNode = {
+        ...node,
+        acquired: isAcquired,
+        unlocked,
+        locked: isLocked,
+        disabledAttr: isLocked ? "disabled" : "",
+        costLabel: _formatCraftCost(node.cost),
+      };
+      if (!chainMap[node.category][node.label]) {
+        chainMap[node.category][node.label] = [];
+        chainOrder[node.category].push(node.label);
+      }
+      chainMap[node.category][node.label].push(displayNode);
+    }
+
+    for (const cat of CRAFT_TREE.categories) {
+      byCat[cat.id].chains = chainOrder[cat.id].map((lbl) => chainMap[cat.id][lbl]);
+    }
+
+    const cost = sumCost(acquired);
+    const afford = checkAffordable(acquired, resources);
+    const asterTotal =
+      cost.aster.red + cost.aster.blue + cost.aster.green + cost.aster.yellow + cost.anyAster;
+    const asterHave = Object.values(resources.aster).reduce((s, v) => s + v, 0);
+
+    context.craft = {
+      categories: CRAFT_TREE.categories.map((c) => byCat[c.id]),
+      overBudget: !afford.ok,
+      overReasons: afford.reasons,
+      cost,
+      resources,
+      asterTotal,
+      asterHave,
     };
   }
 
@@ -403,4 +469,14 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async #onSubmit(_event, _form, formData) {
     await this.actor.update(formData.object);
   }
+}
+
+function _formatCraftCost(cost) {
+  const parts = [];
+  if (cost.material) parts.push(`◆${cost.material}`);
+  const a = cost.aster;
+  if (a.red || a.blue || a.green || a.yellow)
+    parts.push(`◇${a.red}/${a.blue}/${a.green}/${a.yellow}`);
+  if (cost.anyAster) parts.push(`◇임의 ${cost.anyAster}`);
+  return parts.join(" ");
 }
