@@ -13,6 +13,9 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       cellClick: AsterActorSheet.#onCellClick,
       itemUnplace: AsterActorSheet.#onItemUnplace,
       foodSelect: AsterActorSheet.#onFoodSelect,
+      itemChat: AsterActorSheet.#onItemChat,
+      itemEdit: AsterActorSheet.#onItemEdit,
+      itemDelete: AsterActorSheet.#onItemDelete,
     },
   };
 
@@ -105,6 +108,9 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         }))
       : [];
 
+    const inBagLabel = game.i18n.localize("ASTER.inventory.inBag");
+    const inStorageLabel = game.i18n.localize("ASTER.inventory.inStorage");
+
     context.inv = {
       bag: bag
         ? {
@@ -129,6 +135,22 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         limit: storageLimit,
         over: inStorage.length > storageLimit,
       },
+      allItems: [
+        ...inBag.map((i) => ({
+          id: i.id,
+          name: i.name,
+          img: i.img,
+          location: "bag",
+          locationLabel: inBagLabel,
+        })),
+        ...inStorage.map((i) => ({
+          id: i.id,
+          name: i.name,
+          img: i.img,
+          location: "storage",
+          locationLabel: inStorageLabel,
+        })),
+      ],
     };
   }
 
@@ -351,6 +373,31 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async #onFoodSelect(_event, _target) {
     // food 선택 로직: STEP5에서 확장
+  }
+
+  static async #onItemChat(_event, target) {
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item) return;
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content: `<b>${item.name}</b>`,
+      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+    });
+  }
+
+  static async #onItemEdit(_event, target) {
+    const item = this.actor.items.get(target.dataset.itemId);
+    item?.sheet.render(true);
+  }
+
+  static async #onItemDelete(_event, target) {
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item) return;
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("ASTER.inventory.deleteConfirm") },
+      content: `<p>${game.i18n.format("ASTER.inventory.deleteMsg", { name: item.name })}</p>`,
+    });
+    if (confirmed) await item.delete();
   }
 
   static async #onSubmit(_event, _form, formData) {

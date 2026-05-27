@@ -81,7 +81,7 @@
     },
     "consumable": {
       "templates": ["base"],
-      "size": [1, 1],
+      "size": { "w": 1, "h": 1 },
       "container": "",
       "grid": { "x": 0, "y": 0 },
       "timing": "",
@@ -90,7 +90,7 @@
     "equipment": {
       "templates": ["base"],
       "type": "",
-      "size": [1, 1],
+      "size": { "w": 1, "h": 1 },
       "container": "",
       "grid": { "x": 0, "y": 0 }
     },

@@ -44,7 +44,15 @@
       "storage": "창고",
       "basket": "바구니",
       "equipment": "장비",
-      "companion": "사역마"
+      "companion": "사역마",
+      "inBag": "가방",
+      "inStorage": "창고",
+      "toChat": "채팅창에 출력",
+      "edit": "수정",
+      "delete": "삭제",
+      "deleteConfirm": "아이템 삭제",
+      "deleteMsg": "{name}을(를) 삭제하시겠습니까?",
+      "noItems": "아이템이 없습니다."
     }
   }
 }

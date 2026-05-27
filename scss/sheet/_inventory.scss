@@ -1,6 +1,13 @@
 .aster {
-  // ── 전체 레이아웃: 가방(왼쪽) + 슬롯 패널(오른쪽) ──────────────────────────
-  .inventory-layout {
+  // ── 전체 래퍼 ──────────────────────────────────────────────────────────────
+  .inventory-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  // ── 상단: 가방(왼쪽 1/2) + 아이템 리스트(오른쪽 1/2) ─────────────────────
+  .inventory-top {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px;
@@ -73,22 +80,120 @@
     font-size: 0.85rem;
   }
 
-  // ── 오른쪽: basket / equipment×2 / companion (1×3) ────────────────────────
-  .inv-right {
+  // ── 오른쪽: 아이템 리스트 ──────────────────────────────────────────────────
+  .inv-item-list {
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+  }
 
-    > .inv-slot,
-    > .inv-equip-row {
-      flex: 1;
-      min-height: 0;
+  .inv-list-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 3px 3px 0 0;
+  }
+
+  .inv-list-footer {
+    flex-shrink: 0;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-top: none;
+    border-radius: 0 0 3px 3px;
+    padding: 3px 6px;
+  }
+
+  .inv-list-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 6px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.12);
+    transition: background 0.1s;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
     }
   }
 
-  .inv-equip-row {
+  .inv-list-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 2px;
+  }
+
+  .inv-list-name {
+    flex: 1;
+    font-size: 0.82rem;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    transition: color 0.1s;
+
+    &:hover {
+      text-decoration: underline;
+      color: rgba(180, 210, 255, 0.95);
+    }
+  }
+
+  .inv-list-badge {
+    font-size: 0.66rem;
+    padding: 1px 5px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+
+    &.loc-bag {
+      background: rgba(80, 150, 90, 0.3);
+      color: rgba(140, 220, 150, 0.9);
+    }
+
+    &.loc-storage {
+      background: rgba(150, 130, 60, 0.3);
+      color: rgba(220, 200, 110, 0.9);
+    }
+  }
+
+  .inv-list-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 4px;
+    color: rgba(180, 180, 180, 0.6);
+    font-size: 0.78rem;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: color 0.1s;
+
+    &:hover {
+      color: rgba(200, 220, 255, 0.9);
+    }
+
+    &.danger:hover {
+      color: rgba(220, 80, 60, 0.95);
+    }
+  }
+
+  .inv-list-empty {
+    font-style: italic;
+    color: #888;
+    font-size: 0.82rem;
+    padding: 10px;
+    text-align: center;
+  }
+
+  // ── 하단 슬롯: 바구니(3fr) | 장비(1fr) | 장비(1fr) | 사역마(1fr) ──────────
+  .inventory-slots {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 3fr 1fr 1fr 1fr;
     gap: 4px;
   }
 
@@ -96,57 +201,109 @@
     border: 1px solid rgba(128, 128, 128, 0.5);
     background: rgba(255, 255, 255, 0.04);
     display: flex;
-    align-items: center;
-    justify-content: center;
-
-    .slot-label {
-      font-size: 0.72rem;
-      color: rgba(200, 200, 200, 0.6);
-      user-select: none;
-    }
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
   }
 
-  // ── 하단: food 슬롯 + 창고 카운터 ────────────────────────────────────────────
-  .food-slot {
+  .slot-header {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-top: 6px;
+    justify-content: space-between;
+    padding: 3px 6px;
+    flex-shrink: 0;
+  }
 
-    label {
-      font-weight: bold;
-      font-size: 0.85rem;
-      flex-shrink: 0;
-    }
+  .slot-label {
+    font-size: 0.68rem;
+    color: rgba(200, 200, 200, 0.6);
+    user-select: none;
+  }
 
-    .food-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
+  // ── 바구니 슬롯: 헤더(좌:라벨 우:수정삭제) + 본문(아이콘 1fr | 이름 3fr) ──
+  .basket-slot {
+    padding: 3px 6px;
+    gap: 2px;
+  }
 
-      img {
-        width: 24px;
-        height: 24px;
-        object-fit: contain;
-      }
-    }
+  .basket-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
 
-    .food-empty {
-      color: #888;
-      font-style: italic;
-      font-size: 0.85rem;
+  .basket-label {
+    font-size: 0.68rem;
+    color: rgba(200, 200, 200, 0.6);
+    user-select: none;
+  }
+
+  .basket-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .basket-body {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .basket-icon-wrap {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 2px;
     }
   }
 
+  .basket-name-wrap {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .basket-item-name {
+    font-size: 0.78rem;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    transition: color 0.1s;
+
+    &:hover {
+      text-decoration: underline;
+      color: rgba(180, 210, 255, 0.95);
+    }
+  }
+
+  .basket-empty {
+    font-size: 0.72rem;
+    color: #888;
+    font-style: italic;
+  }
+
+  // ── 창고 카운터 (아이템 리스트 footer) ───────────────────────────────────────
   .storage-counter {
-    margin-top: 4px;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     display: flex;
     align-items: center;
     gap: 4px;
+    color: rgba(200, 200, 200, 0.7);
 
     input[type="number"] {
-      width: 48px;
+      width: 40px;
       text-align: center;
     }
 
