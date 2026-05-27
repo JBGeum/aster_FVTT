@@ -1,64 +1,49 @@
-/**
- * Extend the basic ItemSheet with some very simple modifications
- * @extends {ItemSheet}
- */
-export class AsterItemSheet extends ItemSheet {
-  /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["aster", "sheet", "item"],
-      width: 400,
-      height: 480,
-      tabs: [
-        { navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description" },
-      ],
-    });
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { ItemSheetV2 } = foundry.applications.sheets;
+
+export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
+  static DEFAULT_OPTIONS = {
+    classes: ["aster", "sheet", "item"],
+    position: { width: 400, height: 480 },
+    window: { resizable: true },
+    form: { submitOnChange: true, closeOnSubmit: false },
+  };
+
+  // consumable/equipment/food는 전용 템플릿이 없으므로 item-sheet.html 사용
+  static PARTS = {
+    bag: { template: "systems/aster/templates/item/item-bag-sheet.html" },
+    consumable: { template: "systems/aster/templates/item/item-sheet.html" },
+    equipment: { template: "systems/aster/templates/item/item-sheet.html" },
+    food: { template: "systems/aster/templates/item/item-sheet.html" },
+    spell: { template: "systems/aster/templates/item/item-spell-sheet.html" },
+    feature: { template: "systems/aster/templates/item/item-feature-sheet.html" },
+  };
+
+  get title() {
+    return this.item.name;
   }
 
-  /** @override */
-  get template() {
-    const path = "systems/aster/templates/item";
-    // Return a single sheet for all item types.
-    // return `${path}/item-sheet.html`;
-
-    // Alternatively, you could use the following return statement to do a
-    // unique item sheet by type, like `weapon-sheet.html`.
-    return `${path}/item-${this.item.type}-sheet.html`;
+  _configureRenderOptions(options) {
+    super._configureRenderOptions(options);
+    options.parts = [this.document.type];
   }
 
-  /* -------------------------------------------- */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
 
-  /** @override */
-  getData() {
-    // Retrieve base data structure.
-    const context = super.getData();
-
-    // Use a safe clone of the item data for further operations.
-    const itemData = context.item;
-
-    // Retrieve the roll data for TinyMCE editors.
-    context.rollData = {};
-    const actor = this.object?.parent ?? null;
-    if (actor) {
-      context.rollData = actor.getRollData();
-    }
-
-    // Add the actor's data to context.data for easier access, as well as flags.
+    const itemData = this.item.toObject(false);
+    context.item = this.item;
     context.system = itemData.system;
     context.flags = itemData.flags;
+    context.editable = this.isEditable;
+    context.owner = this.item.isOwner;
+    context.rollData = this.item.actor?.getRollData() ?? {};
 
     return context;
   }
 
-  /* -------------------------------------------- */
-
-  /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
-
-    // Everything below here is only needed if the sheet is editable
-    if (!this.isEditable) return;
-
-    // Roll handlers, click handlers, etc. would go here.
+  _onRender(_context, _options) {
+    super._onRender(_context, _options);
+    // 필요 시 추가 리스너 등록
   }
 }

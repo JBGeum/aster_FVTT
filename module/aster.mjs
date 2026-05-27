@@ -7,8 +7,17 @@ import { AsterItem } from "./documents/item.mjs";
 // Sheets
 import { AsterActorSheet } from "./sheets/actor-sheet.mjs";
 import { AsterItemSheet } from "./sheets/item-sheet.mjs";
+// DataModels
+import { CharacterDataModel } from "./data/actors/character.mjs";
+import { NpcDataModel } from "./data/actors/npc.mjs";
+import { BagDataModel } from "./data/items/bag.mjs";
+import { ConsumableDataModel } from "./data/items/consumable.mjs";
+import { EquipmentDataModel } from "./data/items/equipment.mjs";
+import { FoodDataModel } from "./data/items/food.mjs";
+import { SpellDataModel } from "./data/items/spell.mjs";
+import { FeatureDataModel } from "./data/items/feature.mjs";
 // Helpers
-import { preloadHandlebarsTemplates } from "./helpers/templates.mjs";
+import { preloadHandlebarsTemplates, registerHandlebarsHelpers } from "./helpers/templates.mjs";
 import { ASTER } from "./helpers/config.mjs";
 
 /* -------------------------------------------- */
@@ -32,6 +41,19 @@ Hooks.once("init", async function () {
   CONFIG.Actor.documentClass = AsterActor;
   CONFIG.Item.documentClass = AsterItem;
 
+  CONFIG.Actor.dataModels = {
+    character: CharacterDataModel,
+    npc: NpcDataModel,
+  };
+  CONFIG.Item.dataModels = {
+    bag: BagDataModel,
+    consumable: ConsumableDataModel,
+    equipment: EquipmentDataModel,
+    food: FoodDataModel,
+    spell: SpellDataModel,
+    feature: FeatureDataModel,
+  };
+
   // V13: 시트 컬렉션은 foundry.documents.collections 네임스페이스 사용 권장
   // (전역 Actors/Items도 아직 동작하지만 deprecation warning 발생)
   const ActorsCls = foundry.documents.collections?.Actors ?? Actors;
@@ -42,7 +64,31 @@ Hooks.once("init", async function () {
   ItemsCls.unregisterSheet("core", ItemSheet);
   ItemsCls.registerSheet("aster", AsterItemSheet, { makeDefault: true });
 
+  registerHandlebarsHelpers();
   return preloadHandlebarsTemplates();
+});
+
+/* -------------------------------------------- */
+/*  Item Creation Constraints                   */
+/* -------------------------------------------- */
+
+const SINGLETON_TYPES = ["bag", "food"];
+
+Hooks.on("preCreateItem", (item, _data, _options, _userId) => {
+  const actor = item.parent;
+  if (!actor || actor.documentName !== "Actor") return true;
+  if (!SINGLETON_TYPES.includes(item.type)) return true;
+
+  const already = actor.items.some((i) => i.type === item.type);
+  if (already) {
+    ui.notifications.warn(
+      game.i18n.format("ASTER.inventory.warn.singleton", {
+        type: game.i18n.localize(`TYPES.Item.${item.type}`),
+      }),
+    );
+    return false;
+  }
+  return true;
 });
 
 /* -------------------------------------------- */
@@ -72,6 +118,7 @@ Handlebars.registerHelper("toLowerCase", function (str) {
 
 Hooks.once("ready", async function () {
   Hooks.on("hotbarDrop", (bar, data, slot) => createItemMacro(data, slot));
+  await migrateInventoryFields();
 });
 
 /* -------------------------------------------- */
@@ -105,6 +152,24 @@ async function createItemMacro(data, slot) {
   }
   game.user.assignHotbarMacro(macro, slot);
   return false;
+}
+
+/* -------------------------------------------- */
+/*  Data Migration                              */
+/* -------------------------------------------- */
+
+async function migrateInventoryFields() {
+  if (!game.user.isGM) return;
+  for (const item of game.items.filter((i) => i.type === "bag")) {
+    if (!item.system.grid?.cols) {
+      await item.update({ "system.grid": { cols: 6, rows: 4 } });
+    }
+  }
+  for (const actor of game.actors.filter((a) => a.type === "character")) {
+    if (actor.system.storage?.limit == null) {
+      await actor.update({ "system.storage.limit": 20 });
+    }
+  }
 }
 
 /**

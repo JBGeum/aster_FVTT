@@ -41,9 +41,7 @@
         <div class="color">
           <div class="color-logo"></div>
           <select name="system.color">
-            {{#select system.color}} {{#each config.color as |value key|}}
-            <option value="{{key}}">{{localize value}}</option>
-            {{/each}} {{/select}}
+            {{selectOptions config.color selected=system.color localize=true}}
           </select>
           <!--<input name="system.color" type="text" value="{{system.color}}" placeholder="마기사 색"/>-->
         </div>

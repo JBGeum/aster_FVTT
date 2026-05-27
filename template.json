@@ -42,6 +42,9 @@
         "yellow": { "value": 0 }
       },
       "material": 0,
+      "storage": {
+        "limit": 20
+      },
       "features": {
         "born": { "title": "", "description": "" },
         "past": { "title": "", "description": "" },
@@ -73,18 +76,23 @@
     },
     "bag": {
       "templates": ["base"],
-      "storageImg": ""
+      "storageImg": "",
+      "grid": { "cols": 6, "rows": 4 }
     },
     "consumable": {
       "templates": ["base"],
       "size": [1, 1],
+      "container": "",
+      "grid": { "x": 0, "y": 0 },
       "timing": "",
       "mod": 0
     },
     "equipment": {
       "templates": ["base"],
       "type": "",
-      "size": [1, 1]
+      "size": [1, 1],
+      "container": "",
+      "grid": { "x": 0, "y": 0 }
     },
     "food": {
       "templates": ["base"],

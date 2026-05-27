@@ -19,54 +19,9 @@ export class AsterActor extends Actor {
     // documents or derived data.
   }
 
-  /**
-   * @override
-   */
+  /** @override */
   prepareDerivedData() {
-    const actorData = this;
-    const systemData = actorData.system;
-    const flags = actorData.flags.aster || {};
-
-    this._prepareCharacterData(actorData);
-    this._prepareNpcData(actorData);
-  }
-
-  /**
-   * Prepare Character type specific data
-   */
-  _prepareCharacterData(actorData) {
-    if (actorData.type !== "character") return;
-
-    // Make modifications to data here. For example:
-    const systemData = actorData.system;
-
-    //schmm speed, dodge 계산
-    for (const [key, ability] of Object.entries(systemData.ability)) {
-      ability.total = ability.base + ability.mod;
-    }
-    systemData.speed = (systemData.ability.knowledge.total + systemData.ability.worldly.total) / 2;
-    systemData.dodge = systemData.ability.active.total + systemData.ability.dexterity.total;
-    systemData.health.percent = Math.round((systemData.health.value / systemData.health.max) * 100);
-    systemData.satiety.percent = Math.round(
-      (systemData.satiety.value / systemData.satiety.max) * 100,
-    );
-
-    /* //Loop through ability scores, and add their modifiers to our sheet output.
-    for (let [key, ability] of Object.entries(systemData.abilities)) {
-      // Calculate the modifier using d20 rules.
-      ability.mod = Math.floor((ability.value - 10) / 2);
-    }*/
-  }
-
-  /**
-   * Prepare NPC type specific data.
-   */
-  _prepareNpcData(actorData) {
-    if (actorData.type !== "npc") return;
-
-    // Make modifications to data here. For example:
-    // const systemData = actorData.system;
-    // systemData.xp = (systemData.cr * systemData.cr) * 100;
+    super.prepareDerivedData();
   }
 
   /**
@@ -105,7 +60,7 @@ export class AsterActor extends Actor {
   /**
    * Prepare NPC roll data.
    */
-  _getNpcRollData(data) {
+  _getNpcRollData(_data) {
     if (this.type !== "npc") return;
 
     // Process additional NPC data here.

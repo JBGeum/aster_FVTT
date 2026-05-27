@@ -1,25 +1,23 @@
-// Add custom fonts by visiting and search https://fonts.google.com
+// Utils
+@use "utils/typography";
+@use "utils/colors";
+@use "utils/mixins";
+@use "utils/variables";
+
+// Global
+@use "global/window";
+@use "global/grid";
+@use "global/flex";
+
+// Sheet (각 파일 내부에 .aster {} 래퍼 포함)
+@use "sheet/forms";
+@use "sheet/actor";
+@use "sheet/resource";
+@use "sheet/items";
+@use "sheet/effects";
+
+// Component
+@use "component/chatcard";
+
+// CSS @import — 구글 폰트 (CSS 규칙이므로 @use 뒤에 위치)
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
-
-// Import utilities.
-@import "utils/typography";
-@import "utils/colors";
-@import "utils/mixins";
-@import "utils/variables";
-
-/* Global styles */
-@import "global/window";
-@import "global/grid";
-@import "global/flex";
-
-/* Styles limited to aster sheets */
-.aster {
-  @import "sheet/forms";
-  @import "sheet/actor";
-  @import "sheet/resource";
-  @import "sheet/items";
-  @import "sheet/effects";
-}
-.aster-chatcard {
-  @import "component/chatcard";
-}

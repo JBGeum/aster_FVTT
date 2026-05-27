@@ -1,23 +1,28 @@
-.item-form {
-  font-family: $font-primary;
-}
+@use "../utils/typography" as t;
+@use "../utils/colors" as c;
 
-.sheet-tabs {
-  flex: 0;
-}
-
-.sheet-body,
-.sheet-body .tab,
-.sheet-body .tab .editor {
-  height: 100%;
-}
-
-.tox {
-  .tox-editor-container {
-    background: $c-white;
+.aster {
+  .item-form {
+    font-family: t.$font-primary;
   }
 
-  .tox-edit-area {
-    padding: 0 8px;
+  .sheet-tabs {
+    flex: 0;
+  }
+
+  .sheet-body,
+  .sheet-body .tab,
+  .sheet-body .tab .editor {
+    height: 100%;
+  }
+
+  .tox {
+    .tox-editor-container {
+      background: c.$c-white;
+    }
+
+    .tox-edit-area {
+      padding: 0 8px;
+    }
   }
 }

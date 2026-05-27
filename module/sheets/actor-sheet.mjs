@@ -1,78 +1,58 @@
 import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
 
-/**
- * Extend the basic ActorSheet with some very simple modifications
- * @extends {ActorSheet}
- */
-export class AsterActorSheet extends ActorSheet {
-  /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["aster", "sheet", "actor"],
-      template: "systems/aster/templates/actor/actor-sheet.html",
-      width: 650,
-      height: 800,
-      tabs: [
-        {
-          navSelector: ".sheet-main-tabs",
-          contentSelector: ".sheet-container",
-          initial: "character",
-        },
-        { navSelector: ".sheet-sub-tabs", contentSelector: ".sheet-bottom", initial: "inventory" },
-      ],
-    });
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { ActorSheetV2 } = foundry.applications.sheets;
+
+export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
+  static DEFAULT_OPTIONS = {
+    classes: ["aster", "sheet", "actor"],
+    position: { width: 650, height: 800 },
+    window: { resizable: true },
+    form: { submitOnChange: true, closeOnSubmit: false },
+  };
+
+  static PARTS = {
+    character: { template: "systems/aster/templates/actor/actor-character-sheet.html" },
+    npc: { template: "systems/aster/templates/actor/actor-npc-sheet.html" },
+  };
+
+  tabGroups = { main: "character", sub: "inventory" };
+
+  get title() {
+    return this.actor.name;
   }
 
-  /** @override */
-  get template() {
-    return `systems/aster/templates/actor/actor-${this.actor.type}-sheet.html`;
+  _configureRenderOptions(options) {
+    super._configureRenderOptions(options);
+    options.parts = [this.document.type];
   }
 
-  /* -------------------------------------------- */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
 
-  /** @override */
-  getData() {
-    // Retrieve the data structure from the base sheet. You can inspect or log
-    // the context variable to see the structure, but some key properties for
-    // sheets are the actor object, the data object, whether or not it's
-    // editable, the items array, and the effects array.
-    const context = super.getData();
-    context.config = CONFIG.ASTER; //schmm CONFIG 쓰려면 꼭 추가하기!!!!
-
-    // Use a safe clone of the actor data for further operations.
     const actorData = this.actor.toObject(false);
-
-    // Add the actor's data to context.data for easier access, as well as flags.
+    context.actor = this.actor;
     context.system = actorData.system;
     context.flags = actorData.flags;
-
-    if (actorData.type === "character") {
-      this._prepareItems(context);
-      this._prepareCharacterData(context);
-    }
-
-    if (actorData.type === "npc") {
-      this._prepareItems(context);
-    }
-
-    // Add roll data for TinyMCE editors.
-    context.rollData = context.actor.getRollData();
-
-    // Prepare active effects
+    context.items = this.actor.items.map((i) => i.toObject(false));
     context.effects = prepareActiveEffectCategories(this.actor.effects);
+    context.rollData = this.actor.getRollData();
+    context.config = CONFIG.ASTER;
+    context.cssClass = this.isEditable ? "editable" : "locked";
+    context.editable = this.isEditable;
+    context.owner = this.actor.isOwner;
+
+    if (this.actor.type === "character") {
+      this._prepareCharacterData(context);
+      this._prepareItems(context);
+    } else if (this.actor.type === "npc") {
+      this._prepareItems(context);
+    }
 
     return context;
   }
 
-  /**
-   * Organize and classify Items for Character sheets.
-   *
-   * @param {Object} actorData The actor to prepare.
-   *
-   * @return {undefined}
-   */
   _prepareCharacterData(context) {
-    // Handle ability scores.
     for (const [k, v] of Object.entries(context.system.ability)) {
       v.label = game.i18n.localize(CONFIG.ASTER.ability[k]) ?? k;
     }
@@ -81,158 +61,115 @@ export class AsterActorSheet extends ActorSheet {
     }
   }
 
-  /**
-   * Organize and classify Items for Character sheets.
-   *
-   * @param {Object} actorData The actor to prepare.
-   *
-   * @return {undefined}
-   */
   _prepareItems(context) {
-    // Initialize containers.
-    const gear = [];
     const features = [];
-    const spells = {
-      0: [],
-      1: [],
-      2: [],
-      3: [],
-      4: [],
-      5: [],
-      6: [],
-      7: [],
-      8: [],
-      9: [],
-    };
+    const spells = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [] };
 
-    // Iterate through items, allocating to containers
     for (const i of context.items) {
       i.img = i.img || CONST.DEFAULT_TOKEN;
-      // Append to gear.
-      if (i.type === "item") {
-        gear.push(i);
-      }
-      // Append to features.
-      else if (i.type === "feature") {
-        features.push(i);
-      }
-      // Append to spells.
-      else if (i.type === "spell") {
-        if (i.system.spellLevel != null) {
-          spells[i.system.spellLevel].push(i);
-        }
-      }
+      if (i.type === "feature") features.push(i);
+      else if (i.type === "spell" && i.system.spellLevel != null)
+        spells[i.system.spellLevel].push(i);
     }
 
-    // Assign and return
-    context.gear = gear;
     context.features = features;
     context.spells = spells;
   }
 
-  /* -------------------------------------------- */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    const html = this.element;
 
-  /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
+    // 탭 초기 상태 적용 (data-action="tab" 요소가 있으므로 클릭은 ApplicationV2가 자동 처리)
+    for (const [group, tab] of Object.entries(this.tabGroups)) {
+      this.changeTab(tab, group, { force: true });
+    }
 
-    // Render the item sheet for viewing/editing prior to the editable check.
-    html.find(".item-edit").click((ev) => {
-      const li = $(ev.currentTarget).parents(".item");
-      const item = this.actor.items.get(li.data("itemId"));
-      item.sheet.render(true);
-    });
+    // 아이템 시트 열기
+    html.querySelectorAll(".item-edit").forEach((el) =>
+      el.addEventListener("click", (ev) => {
+        const item = this.actor.items.get(ev.currentTarget.closest(".item")?.dataset.itemId);
+        item?.sheet.render(true);
+      }),
+    );
 
-    // -------------------------------------------------------------
-    // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
 
-    // Add Inventory Item
-    html.find(".item-create").click(this._onItemCreate.bind(this));
+    // 아이템 생성
+    html
+      .querySelectorAll(".item-create")
+      .forEach((el) => el.addEventListener("click", this._onItemCreate.bind(this)));
 
-    // Delete Inventory Item
-    html.find(".item-delete").click((ev) => {
-      const li = $(ev.currentTarget).parents(".item");
-      const item = this.actor.items.get(li.data("itemId"));
-      item.delete();
-      li.slideUp(200, () => this.render(false));
+    // 아이템 삭제
+    html.querySelectorAll(".item-delete").forEach((el) =>
+      el.addEventListener("click", (ev) => {
+        const item = this.actor.items.get(ev.currentTarget.closest(".item")?.dataset.itemId);
+        item?.delete().then(() => this.render(false));
+      }),
+    );
+
+    // 액티브 이펙트
+    html
+      .querySelectorAll(".effect-control")
+      .forEach((el) => el.addEventListener("click", (ev) => onManageActiveEffect(ev, this.actor)));
+
+    // 일반 롤
+    html
+      .querySelectorAll(".rollable")
+      .forEach((el) => el.addEventListener("click", this._onRoll.bind(this)));
+
+    // 판정 옵션: 일반 / 대항
+    html.querySelector(".roll-opt-abl")?.addEventListener("click", () => {
+      const input = html.querySelector("#roll-dc");
+      if (input) input.value = "7";
+      this.actor.update({ "system.dc": 7 });
+    });
+    html.querySelector(".roll-opt-vs")?.addEventListener("click", () => {
+      const input = html.querySelector("#roll-dc");
+      if (input) input.value = "";
+      this.actor.update({ "system.dc": 0 });
     });
 
-    // Active Effect management
-    html.find(".effect-control").click((ev) => onManageActiveEffect(ev, this.actor));
+    // 능력치 롤
+    html
+      .querySelectorAll(".abl-roll")
+      .forEach((el) => el.addEventListener("click", this._onAblRoll.bind(this)));
 
-    // Rollable abilities.
-    html.find(".rollable").click(this._onRoll.bind(this));
-    html.find(".roll-opt-abl").click(() => {
-      $("#roll-dc").val("7");
-      this.actor.system.dc = 7;
-    });
-    html.find(".roll-opt-vs").click(() => {
-      $("#roll-dc").val("");
-      this.actor.system.dc = 0;
-    });
+    // 정동 판정 롤
+    html
+      .querySelectorAll(".emo-roll")
+      .forEach((el) => el.addEventListener("click", this._onEmoRoll.bind(this)));
 
-    // Drag events for macros.
+    // 핫바 매크로용 드래그
     if (this.actor.isOwner) {
-      const handler = (ev) => this._onDragStart(ev);
-      html.find("li.item").each((i, li) => {
-        if (li.classList.contains("inventory-header")) return;
+      const onDragStart = (ev) => this._onDragStart(ev);
+      html.querySelectorAll("li.item:not(.inventory-header)").forEach((li) => {
         li.setAttribute("draggable", true);
-        li.addEventListener("dragstart", handler, false);
+        li.addEventListener("dragstart", onDragStart, false);
       });
     }
-    //어빌리티 4종 굴리기
-    html.find(".abl-roll").click(this._onAblRoll.bind(this));
-    //정동판정
-    html.find(".emo-roll").click(this._onEmoRoll.bind(this));
   }
 
-  /**
-   * Handle creating a new Owned Item for the actor using initial data defined in the HTML dataset
-   * @param {Event} event   The originating click event
-   * @private
-   */
   async _onItemCreate(event) {
     event.preventDefault();
     const header = event.currentTarget;
-    // Get the type of item to create.
     const type = header.dataset.type;
-    // Grab any data associated with this control.
     const data = foundry.utils.duplicate(header.dataset);
-    // Initialize a default name.
-    const name = `New ${type.capitalize()}`;
-    // Prepare the item object.
-    const itemData = {
-      name: name,
-      type: type,
-      system: data,
-    };
-    // Remove the type from the dataset since it's in the itemData.type prop.
+    const name = `New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+    const itemData = { name, type, system: data };
     delete itemData.system["type"];
-
-    // Finally, create the item!
-    return await Item.create(itemData, { parent: this.actor });
+    return Item.create(itemData, { parent: this.actor });
   }
 
-  /**
-   * Handle clickable rolls.
-   * @param {Event} event   The originating click event
-   * @private
-   */
   _onRoll(event) {
     event.preventDefault();
-    const element = event.currentTarget;
-    const dataset = element.dataset;
+    const dataset = event.currentTarget.dataset;
 
-    if (dataset.rollType) {
-      if (dataset.rollType === "item") {
-        const itemId = element.closest(".item").dataset.itemId;
-        const item = this.actor.items.get(itemId);
-        if (item) return item.roll();
-      }
+    if (dataset.rollType === "item") {
+      const item = this.actor.items.get(event.currentTarget.closest(".item")?.dataset.itemId);
+      if (item) return item.roll();
     }
 
-    // Handle rolls that supply the formula directly.
     if (dataset.roll) {
       const label = dataset.label ? `[ability] ${dataset.label}` : "";
       const roll = new Roll(dataset.roll, this.actor.getRollData());
@@ -247,14 +184,13 @@ export class AsterActorSheet extends ActorSheet {
 
   _onAblRoll(event) {
     event.preventDefault();
-    const element = event.currentTarget;
-    const dataset = element.dataset;
-    this.actor.rollAbility(dataset.ability, dataset.label, { event: event });
+    const { ability, label } = event.currentTarget.dataset;
+    this.actor.rollAbility(ability, label, { event });
   }
+
   _onEmoRoll(event) {
     event.preventDefault();
-    const element = event.currentTarget;
-    const dataset = element.dataset;
-    this.actor.rollEmotion(dataset.aster, dataset.label, { event: event });
+    const { aster, label } = event.currentTarget.dataset;
+    this.actor.rollEmotion(aster, label, { event });
   }
 }

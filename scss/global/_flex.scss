@@ -2,13 +2,18 @@
 .flex {
   display: flex;
 }
-.flex-center,
-.flex-left,
-.flex-right {
+
+@mixin flex-center {
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+
+.flex-center,
+.flex-left,
+.flex-right {
+  @include flex-center;
 }
 
 .flex-left {

@@ -1,8 +1,8 @@
 <form class="{{cssClass}} {{actor.type}}" autocomplete="off">
   <nav class="sheet-main-tabs tabs" data-group="main">
-    <a class="item" data-tab="character">character</a>
-    <a class="item" data-tab="craft">craft</a>
-    <a class="item" data-tab="record">record</a>
+    <a class="item" data-group="main" data-action="tab" data-tab="character">character</a>
+    <a class="item" data-group="main" data-action="tab" data-tab="craft">craft</a>
+    <a class="item" data-group="main" data-action="tab" data-tab="record">record</a>
   </nav>
   <section class="sheet-container">
     <div class="tab character" data-group="main" data-tab="character">
@@ -18,8 +18,8 @@
 
   {{!-- Sheet Tab Navigation --}}
   <nav class="sheet-sub-tabs tabs" data-group="sub">
-    <a class="item" data-tab="inventory">inventory</a>
-    <a class="item" data-tab="spell">spell</a>
+    <a class="item" data-group="sub" data-action="tab" data-tab="inventory">inventory</a>
+    <a class="item" data-group="sub" data-action="tab" data-tab="spell">spell</a>
   </nav>
 
   <section class="sheet-bottom">

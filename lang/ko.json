@@ -26,6 +26,11 @@
       "sleepy": "졸림",
       "exhaustion": "피로",
       "hungry": "배고픔"
+    },
+    "inventory": {
+      "warn": {
+        "singleton": "{type}은(는) 1개만 소지할 수 있습니다."
+      }
     }
   }
 }
