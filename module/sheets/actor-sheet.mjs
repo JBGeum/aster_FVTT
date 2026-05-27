@@ -45,6 +45,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (this.actor.type === "character") {
       this._prepareCharacterData(context);
       this._prepareItems(context);
+      this._prepareInventory(context);
     } else if (this.actor.type === "npc") {
       this._prepareItems(context);
     }
@@ -59,6 +60,57 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     for (const [k, v] of Object.entries(context.system.aster)) {
       v.label = game.i18n.localize(CONFIG.ASTER.aster[k]) ?? k;
     }
+  }
+
+  _prepareInventory(context) {
+    const bag = this.actor.items.find((i) => i.type === "bag") ?? null;
+    const food = this.actor.items.find((i) => i.type === "food") ?? null;
+
+    const inBag = bag
+      ? this.actor.items.filter(
+          (i) => ["consumable", "equipment"].includes(i.type) && i.system.container === bag.id,
+        )
+      : [];
+
+    const inStorage = this.actor.items.filter(
+      (i) => ["consumable", "equipment"].includes(i.type) && !i.system.container,
+    );
+
+    const storageLimit = this.actor.system.storage?.limit ?? 0;
+
+    const bagGrid = bag?.system.grid ?? { cols: 6, rows: 4 };
+    const cells = bag
+      ? Array.from({ length: bagGrid.cols * bagGrid.rows }, (_, i) => ({
+          index: i,
+          light: (Math.floor(i / bagGrid.cols) + (i % bagGrid.cols)) % 2 === 0,
+        }))
+      : [];
+
+    context.inv = {
+      bag: bag
+        ? {
+            id: bag.id,
+            name: bag.name,
+            grid: bagGrid,
+            cells,
+            items: inBag.map((i) => ({
+              id: i.id,
+              name: i.name,
+              img: i.img,
+              w: i.system.size[0],
+              h: i.system.size[1],
+              x: i.system.grid?.x ?? 0,
+              y: i.system.grid?.y ?? 0,
+            })),
+          }
+        : null,
+      food: food ? { id: food.id, name: food.name, img: food.img } : null,
+      storage: {
+        count: inStorage.length,
+        limit: storageLimit,
+        over: inStorage.length > storageLimit,
+      },
+    };
   }
 
   _prepareItems(context) {

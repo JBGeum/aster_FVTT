@@ -30,7 +30,14 @@
     "inventory": {
       "warn": {
         "singleton": "{type}은(는) 1개만 소지할 수 있습니다."
-      }
+      },
+      "noBag": "소지한 가방이 없습니다.",
+      "food": "휴대 식량",
+      "foodEmpty": "(없음)",
+      "storage": "창고",
+      "basket": "바구니",
+      "equipment": "장비",
+      "companion": "사역마"
     }
   }
 }

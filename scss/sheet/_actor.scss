@@ -2,6 +2,25 @@
 @use "../global/flex" as f;
 
 .aster {
+  form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  section.sheet-container {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  section.sheet-bottom {
+    flex: 0 1 260px;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
   input {
     width: 80%;
   }

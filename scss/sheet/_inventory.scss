@@ -1,0 +1,142 @@
+.aster {
+  // ── 전체 레이아웃: 가방(왼쪽) + 슬롯 패널(오른쪽) ──────────────────────────
+  .inventory-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    align-items: stretch;
+  }
+
+  // ── 왼쪽: 가방 격자 ──────────────────────────────────────────────────────────
+  .inv-left {
+    min-width: 0;
+  }
+
+  .bag-block {
+    h3 {
+      margin: 0 0 3px;
+      font-size: 0.8rem;
+    }
+  }
+
+  .inv-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), 1fr);
+    grid-template-rows: repeat(var(--rows), 1fr);
+    gap: 2px;
+    aspect-ratio: var(--cols) / var(--rows);
+    width: 100%;
+  }
+
+  .inv-cell {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(128, 128, 128, 0.5);
+    cursor: pointer;
+
+    &.cell-light {
+      background: rgba(255, 255, 255, 0.11);
+    }
+  }
+
+  .inv-item {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid #999;
+    overflow: hidden;
+    z-index: 1;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  .no-bag {
+    font-style: italic;
+    color: #888;
+    font-size: 0.85rem;
+  }
+
+  // ── 오른쪽: basket / equipment×2 / companion (1×3) ────────────────────────
+  .inv-right {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    > .inv-slot,
+    > .inv-equip-row {
+      flex: 1;
+      min-height: 0;
+    }
+  }
+
+  .inv-equip-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+
+  .inv-slot {
+    border: 1px solid rgba(128, 128, 128, 0.5);
+    background: rgba(255, 255, 255, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .slot-label {
+      font-size: 0.72rem;
+      color: rgba(200, 200, 200, 0.6);
+      user-select: none;
+    }
+  }
+
+  // ── 하단: food 슬롯 + 창고 카운터 ────────────────────────────────────────────
+  .food-slot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+
+    label {
+      font-weight: bold;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .food-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      img {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+      }
+    }
+
+    .food-empty {
+      color: #888;
+      font-style: italic;
+      font-size: 0.85rem;
+    }
+  }
+
+  .storage-counter {
+    margin-top: 4px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    input[type="number"] {
+      width: 48px;
+      text-align: center;
+    }
+
+    &.over .count {
+      color: #c0392b;
+      font-weight: bold;
+    }
+  }
+}

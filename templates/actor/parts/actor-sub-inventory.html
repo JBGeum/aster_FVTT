@@ -1,17 +1,63 @@
-<div class="inven-etc">
-  <div class="item-bag">가방</div>
-  <div class="equipment flexrow">
-    <div class="equip-item">장비 1</div>
-    <div class="equip-item">장비 2</div>
+<div class="inventory-layout">
+  {{!-- 왼쪽: 가방 격자 --}}
+  <div class="inv-left">
+    {{#if inv.bag}}
+    <div class="bag-block">
+      <h3>{{inv.bag.name}}</h3>
+      <div class="inv-grid" style="--cols: {{inv.bag.grid.cols}}; --rows: {{inv.bag.grid.rows}};">
+        {{#each inv.bag.cells as |cell|}}
+        <div class="inv-cell {{#if cell.light}}cell-light{{/if}}" data-cell-index="{{cell.index}}"></div>
+        {{/each}} {{#each inv.bag.items as |it|}}
+        <div
+          class="inv-item"
+          data-item-id="{{it.id}}"
+          style="grid-column: {{add it.x 1}} / span {{it.w}};
+                      grid-row: {{add it.y 1}} / span {{it.h}};"
+        >
+          <img src="{{it.img}}" alt="{{it.name}}" draggable="false" />
+        </div>
+        {{/each}}
+      </div>
+    </div>
+    {{else}}
+    <p class="no-bag">{{localize "ASTER.inventory.noBag"}}</p>
+    {{/if}}
   </div>
-  <div class="basket">바구니</div>
-  <div class="companion">사역마</div>
+
+  {{!-- 오른쪽: basket / equipment×2 / companion (1×3) --}}
+  <div class="inv-right">
+    <div class="inv-slot basket-slot">
+      <span class="slot-label">{{localize "ASTER.inventory.basket"}}</span>
+    </div>
+    <div class="inv-equip-row">
+      <div class="inv-slot equip-slot">
+        <span class="slot-label">{{localize "ASTER.inventory.equipment"}}</span>
+      </div>
+      <div class="inv-slot equip-slot">
+        <span class="slot-label">{{localize "ASTER.inventory.equipment"}}</span>
+      </div>
+    </div>
+    <div class="inv-slot companion-slot">
+      <span class="slot-label">{{localize "ASTER.inventory.companion"}}</span>
+    </div>
+  </div>
 </div>
 
-<div class="inventory">
-  <div class="item-list">
-    <div class="item-card">아이템1</div>
-    <div class="item-card">아이템2</div>
-    <div class="item-card">아이템3</div>
+{{!-- 하단: food 슬롯 + 창고 카운터 --}}
+<div class="food-slot">
+  <label>{{localize "ASTER.inventory.food"}}</label>
+  {{#if inv.food}}
+  <div class="food-item" data-item-id="{{inv.food.id}}">
+    <img src="{{inv.food.img}}" alt="{{inv.food.name}}" />
+    <span>{{inv.food.name}}</span>
   </div>
+  {{else}}
+  <div class="food-empty">{{localize "ASTER.inventory.foodEmpty"}}</div>
+  {{/if}}
+</div>
+
+<div class="storage-counter {{#if inv.storage.over}}over{{/if}}">
+  {{localize "ASTER.inventory.storage"}}:
+  <span class="count">{{inv.storage.count}}</span> /
+  <input type="number" name="system.storage.limit" value="{{inv.storage.limit}}" min="0" />
 </div>

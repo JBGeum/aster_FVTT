@@ -19,6 +19,13 @@
         <div class="detail-input">
           <input type="text" name="system.requirement" value="{{system.requirement}}" />
         </div>
+        <div class="detail-lbl">격자 크기</div>
+        <div class="detail-input flexrow align-center">
+          <label>열</label>
+          <input type="number" name="system.grid.cols" value="{{system.grid.cols}}" min="1" />
+          <label>행</label>
+          <input type="number" name="system.grid.rows" value="{{system.grid.rows}}" min="1" />
+        </div>
       </div>
       <div class="bag-storage-img">
         <img class="bag-storage-img" src="{{system.storageImg}}" data-edit="system.storageImg" />

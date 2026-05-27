@@ -24,4 +24,7 @@ export function registerHandlebarsHelpers() {
   Handlebars.registerHelper("checked", function (condition) {
     return condition ? "checked" : "";
   });
+  Handlebars.registerHelper("add", (a, b) => Number(a) + Number(b));
+  Handlebars.registerHelper("multiply", (a, b) => Number(a) * Number(b));
+  Handlebars.registerHelper("range", (n) => Array.from({ length: Number(n) }, (_, i) => i));
 }
