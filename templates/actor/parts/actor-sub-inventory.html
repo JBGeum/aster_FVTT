@@ -6,10 +6,16 @@
       <h3>{{inv.bag.name}}</h3>
       <div class="inv-grid" style="--cols: {{inv.bag.grid.cols}}; --rows: {{inv.bag.grid.rows}};">
         {{#each inv.bag.cells as |cell|}}
-        <div class="inv-cell {{#if cell.light}}cell-light{{/if}}" data-cell-index="{{cell.index}}"></div>
+        <div
+          class="inv-cell {{#if cell.light}}cell-light{{/if}}"
+          data-action="cellClick"
+          data-cell-index="{{cell.index}}"
+          style="grid-column: {{add cell.x 1}}; grid-row: {{add cell.y 1}};"
+        ></div>
         {{/each}} {{#each inv.bag.items as |it|}}
         <div
           class="inv-item"
+          data-action="itemUnplace"
           data-item-id="{{it.id}}"
           style="grid-column: {{add it.x 1}} / span {{it.w}};
                       grid-row: {{add it.y 1}} / span {{it.h}};"
@@ -44,7 +50,7 @@
 </div>
 
 {{!-- 하단: food 슬롯 + 창고 카운터 --}}
-<div class="food-slot">
+<div class="food-slot" data-action="foodSelect">
   <label>{{localize "ASTER.inventory.food"}}</label>
   {{#if inv.food}}
   <div class="food-item" data-item-id="{{inv.food.id}}">

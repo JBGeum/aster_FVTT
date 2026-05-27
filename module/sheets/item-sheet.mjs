@@ -6,17 +6,39 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     classes: ["aster", "sheet", "item"],
     position: { width: 400, height: 480 },
     window: { resizable: true },
-    form: { submitOnChange: true, closeOnSubmit: false },
   };
 
-  // consumable/equipment/food는 전용 템플릿이 없으므로 item-sheet.html 사용
+  static #formConfig = {
+    handler: AsterItemSheet.#onSubmit,
+    submitOnChange: true,
+    closeOnSubmit: false,
+  };
+
   static PARTS = {
-    bag: { template: "systems/aster/templates/item/item-bag-sheet.html" },
-    consumable: { template: "systems/aster/templates/item/item-sheet.html" },
-    equipment: { template: "systems/aster/templates/item/item-sheet.html" },
-    food: { template: "systems/aster/templates/item/item-sheet.html" },
-    spell: { template: "systems/aster/templates/item/item-spell-sheet.html" },
-    feature: { template: "systems/aster/templates/item/item-feature-sheet.html" },
+    bag: {
+      template: "systems/aster/templates/item/item-bag-sheet.html",
+      forms: { form: AsterItemSheet.#formConfig },
+    },
+    consumable: {
+      template: "systems/aster/templates/item/item-consumable-sheet.html",
+      forms: { form: AsterItemSheet.#formConfig },
+    },
+    equipment: {
+      template: "systems/aster/templates/item/item-sheet.html",
+      forms: { form: AsterItemSheet.#formConfig },
+    },
+    food: {
+      template: "systems/aster/templates/item/item-sheet.html",
+      forms: { form: AsterItemSheet.#formConfig },
+    },
+    spell: {
+      template: "systems/aster/templates/item/item-spell-sheet.html",
+      forms: { form: AsterItemSheet.#formConfig },
+    },
+    feature: {
+      template: "systems/aster/templates/item/item-feature-sheet.html",
+      forms: { form: AsterItemSheet.#formConfig },
+    },
   };
 
   get title() {
@@ -44,6 +66,9 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
   _onRender(_context, _options) {
     super._onRender(_context, _options);
-    // 필요 시 추가 리스너 등록
+  }
+
+  static async #onSubmit(_event, _form, formData) {
+    await this.item.update(formData.object);
   }
 }

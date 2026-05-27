@@ -6,8 +6,9 @@ export class ConsumableDataModel extends BaseItemModel {
   static defineSchema() {
     return {
       ...super.defineSchema(),
-      size: new fields.ArrayField(new fields.NumberField({ initial: 1, integer: true, min: 1 }), {
-        initial: () => [1, 1],
+      size: new fields.SchemaField({
+        w: new fields.NumberField({ initial: 1, integer: true, min: 1 }),
+        h: new fields.NumberField({ initial: 1, integer: true, min: 1 }),
       }),
       container: new fields.StringField({ initial: "" }),
       grid: new fields.SchemaField({

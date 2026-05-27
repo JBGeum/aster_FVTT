@@ -29,9 +29,16 @@
     },
     "inventory": {
       "warn": {
-        "singleton": "{type}은(는) 1개만 소지할 수 있습니다."
+        "singleton": "{type}은(는) 1개만 소지할 수 있습니다.",
+        "AREA_EXCEEDED": "가방 용량을 초과했습니다.",
+        "WIDTH_EXCEEDED": "아이템 가로가 가방보다 큽니다.",
+        "HEIGHT_EXCEEDED": "아이템 세로가 가방보다 큽니다.",
+        "STORAGE_FULL": "창고가 가득 차 꺼낼 수 없습니다."
       },
       "noBag": "소지한 가방이 없습니다.",
+      "noCandidate": "배치할 아이템이 창고에 없습니다.",
+      "choose": "배치할 아이템 선택",
+      "place": "배치",
       "food": "휴대 식량",
       "foodEmpty": "(없음)",
       "storage": "창고",

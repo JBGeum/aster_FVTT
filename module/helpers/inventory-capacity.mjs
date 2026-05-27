@@ -1,6 +1,6 @@
-/** 아이템 면적. size=[w,h]. */
+/** 아이템 면적. size={w,h}. */
 export function itemArea(size) {
-  const [w, h] = size ?? [1, 1];
+  const { w = 1, h = 1 } = size ?? {};
   return (w || 1) * (h || 1);
 }
 
@@ -11,12 +11,12 @@ export function usedArea(items) {
 
 /**
  * 가방 용량 판정 (경고용). 막지 않음.
- * @param {{ newItemSize:[number,number], itemsInBag:Array<{size:[number,number]}>, grid:{cols:number,rows:number} }} p
+ * @param {{ newItemSize:{w:number,h:number}, itemsInBag:Array<{size:{w:number,h:number}}>, grid:{cols:number,rows:number} }} p
  * @returns {{ ok:boolean, reasons:string[] }}
  */
 export function checkBagCapacity({ newItemSize, itemsInBag, grid }) {
   const reasons = [];
-  const [w, h] = newItemSize ?? [1, 1];
+  const { w = 1, h = 1 } = newItemSize ?? {};
   if (usedArea(itemsInBag) + itemArea(newItemSize) > grid.cols * grid.rows) {
     reasons.push("AREA_EXCEEDED");
   }

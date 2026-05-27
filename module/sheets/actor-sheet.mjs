@@ -1,4 +1,5 @@
 import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
+import { checkBagCapacity, checkStorageAdd } from "../helpers/inventory-capacity.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -8,12 +9,28 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     classes: ["aster", "sheet", "actor"],
     position: { width: 650, height: 800 },
     window: { resizable: true },
-    form: { submitOnChange: true, closeOnSubmit: false },
+    actions: {
+      cellClick: AsterActorSheet.#onCellClick,
+      itemUnplace: AsterActorSheet.#onItemUnplace,
+      foodSelect: AsterActorSheet.#onFoodSelect,
+    },
+  };
+
+  static #formConfig = {
+    handler: AsterActorSheet.#onSubmit,
+    submitOnChange: true,
+    closeOnSubmit: false,
   };
 
   static PARTS = {
-    character: { template: "systems/aster/templates/actor/actor-character-sheet.html" },
-    npc: { template: "systems/aster/templates/actor/actor-npc-sheet.html" },
+    character: {
+      template: "systems/aster/templates/actor/actor-character-sheet.html",
+      forms: { form: AsterActorSheet.#formConfig },
+    },
+    npc: {
+      template: "systems/aster/templates/actor/actor-npc-sheet.html",
+      forms: { form: AsterActorSheet.#formConfig },
+    },
   };
 
   tabGroups = { main: "character", sub: "inventory" };
@@ -82,6 +99,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const cells = bag
       ? Array.from({ length: bagGrid.cols * bagGrid.rows }, (_, i) => ({
           index: i,
+          x: i % bagGrid.cols,
+          y: Math.floor(i / bagGrid.cols),
           light: (Math.floor(i / bagGrid.cols) + (i % bagGrid.cols)) % 2 === 0,
         }))
       : [];
@@ -97,8 +116,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
               id: i.id,
               name: i.name,
               img: i.img,
-              w: i.system.size[0],
-              h: i.system.size[1],
+              w: i.system.size?.w ?? 1,
+              h: i.system.size?.h ?? 1,
               x: i.system.grid?.x ?? 0,
               y: i.system.grid?.y ?? 0,
             })),
@@ -244,5 +263,97 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     event.preventDefault();
     const { aster, label } = event.currentTarget.dataset;
     this.actor.rollEmotion(aster, label, { event });
+  }
+
+  #cellToXY(cellIndex, grid) {
+    return { x: cellIndex % grid.cols, y: Math.floor(cellIndex / grid.cols) };
+  }
+
+  #clampStart(x, y, size, grid) {
+    const w = size?.w ?? 1;
+    const h = size?.h ?? 1;
+    return {
+      x: Math.max(0, Math.min(x, grid.cols - w)),
+      y: Math.max(0, Math.min(y, grid.rows - h)),
+    };
+  }
+
+  async #promptItemChoice(candidates) {
+    const options = candidates
+      .map(
+        (i) =>
+          `<option value="${i.id}">${i.name} (${i.system.size?.w ?? 1}×${i.system.size?.h ?? 1})</option>`,
+      )
+      .join("");
+    const content = `<select name="choice" style="width:100%">${options}</select>`;
+    return foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.inventory.choose") },
+      content,
+      ok: {
+        label: game.i18n.localize("ASTER.inventory.place"),
+        callback: (_event, button) => button.form.elements.choice.value,
+      },
+    }).catch(() => null);
+  }
+
+  static async #onCellClick(_event, target) {
+    const bag = this.actor.items.find((i) => i.type === "bag");
+    if (!bag) return;
+    const grid = bag.system.grid;
+    const cellIndex = Number(target.dataset.cellIndex);
+    const { x, y } = this.#cellToXY(cellIndex, grid);
+
+    const candidates = this.actor.items.filter(
+      (i) => ["consumable", "equipment"].includes(i.type) && !i.system.container,
+    );
+    if (!candidates.length) {
+      ui.notifications.info(game.i18n.localize("ASTER.inventory.noCandidate"));
+      return;
+    }
+
+    const choiceId = await this.#promptItemChoice(candidates);
+    if (!choiceId) return;
+    const item = this.actor.items.get(choiceId);
+
+    const start = this.#clampStart(x, y, item.system.size, grid);
+
+    const itemsInBag = this.actor.items
+      .filter((i) => i.system.container === bag.id && ["consumable", "equipment"].includes(i.type))
+      .map((i) => ({ size: i.system.size }));
+    const cap = checkBagCapacity({
+      newItemSize: item.system.size,
+      itemsInBag,
+      grid,
+    });
+    if (!cap.ok) {
+      const msg = cap.reasons.map((r) => game.i18n.localize(`ASTER.inventory.warn.${r}`)).join(" ");
+      ui.notifications.warn(msg);
+    }
+
+    await item.update({ "system.container": bag.id, "system.grid": start });
+  }
+
+  static async #onItemUnplace(_event, target) {
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (!item) return;
+
+    const currentCount = this.actor.items.filter(
+      (i) => ["consumable", "equipment"].includes(i.type) && !i.system.container,
+    ).length;
+    const limit = this.actor.system.storage?.limit ?? 0;
+    const { allowed } = checkStorageAdd({ currentCount, limit });
+    if (!allowed) {
+      ui.notifications.warn(game.i18n.localize("ASTER.inventory.warn.STORAGE_FULL"));
+      return;
+    }
+    await item.update({ "system.container": "", "system.grid": { x: 0, y: 0 } });
+  }
+
+  static async #onFoodSelect(_event, _target) {
+    // food 선택 로직: STEP5에서 확장
+  }
+
+  static async #onSubmit(_event, _form, formData) {
+    await this.actor.update(formData.object);
   }
 }
