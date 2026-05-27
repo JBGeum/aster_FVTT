@@ -69,6 +69,27 @@ Hooks.once("init", async function () {
 });
 
 /* -------------------------------------------- */
+/*  Bag Deletion → Storage Transfer             */
+/* -------------------------------------------- */
+
+Hooks.on("preDeleteItem", (item, _options, _userId) => {
+  if (item.type !== "bag") return true;
+  const actor = item.parent;
+  if (!actor) return true;
+
+  const orphans = actor.items.filter((i) => i.system.container === item.id);
+  Hooks.once("deleteItem", async () => {
+    const updates = orphans.map((i) => ({
+      _id: i.id,
+      "system.container": "",
+      "system.grid": { x: 0, y: 0 },
+    }));
+    if (updates.length) await actor.updateEmbeddedDocuments("Item", updates);
+  });
+  return true;
+});
+
+/* -------------------------------------------- */
 /*  Item Creation Constraints                   */
 /* -------------------------------------------- */
 
