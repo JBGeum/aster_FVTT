@@ -1,25 +1,16 @@
 .aster {
-  // ── 전체 래퍼 ──────────────────────────────────────────────────────────────
+  // ── 전체 래퍼: 세로 1열, 높이 채움 ─────────────────────────────────────────
   .inventory-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-  }
-
-  // ── 상단: 가방(왼쪽 1/2) + 아이템 리스트(오른쪽 1/2) ─────────────────────
-  .inventory-top {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    align-items: stretch;
-  }
-
-  // ── 왼쪽: 가방 격자 ──────────────────────────────────────────────────────────
-  .inv-left {
-    min-width: 0;
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
   }
 
   .bag-block {
+    flex-shrink: 0;
+
     h3 {
       margin: 0 0 3px;
       font-size: 0.8rem;
@@ -32,7 +23,7 @@
     grid-template-rows: repeat(var(--rows), 1fr);
     gap: 2px;
     aspect-ratio: var(--cols) / var(--rows);
-    width: 100%;
+    max-width: 320px;
   }
 
   .inv-cell {
@@ -80,11 +71,12 @@
     font-size: 0.85rem;
   }
 
-  // ── 오른쪽: 아이템 리스트 ──────────────────────────────────────────────────
+  // ── 아이템 리스트: 남은 높이 채움 ────────────────────────────────────────────
   .inv-item-list {
-    min-width: 0;
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
   }
 
   .inv-list-scroll {
@@ -190,11 +182,12 @@
     text-align: center;
   }
 
-  // ── 하단 슬롯: 바구니(3fr) | 장비(1fr) | 장비(1fr) | 사역마(1fr) ──────────
+  // ── 슬롯: 바구니(3fr) | 장비(1fr) | 장비(1fr) | 사역마(1fr) (inv-left 내부) ─
   .inventory-slots {
     display: grid;
     grid-template-columns: 3fr 1fr 1fr 1fr;
     gap: 4px;
+    flex-shrink: 0;
   }
 
   .inv-slot {

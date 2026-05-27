@@ -7,7 +7,7 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["aster", "sheet", "actor"],
-    position: { width: 650, height: 800 },
+    position: { width: 960, height: 800 },
     window: { resizable: true },
     actions: {
       cellClick: AsterActorSheet.#onCellClick,

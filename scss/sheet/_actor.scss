@@ -2,6 +2,7 @@
 @use "../global/flex" as f;
 
 .aster {
+  // ── 폼 기본 ──────────────────────────────────────────────────────────────────
   form {
     display: flex;
     flex-direction: column;
@@ -9,257 +10,420 @@
     overflow: hidden;
   }
 
+  // ── 전체 탭 콘텐츠 컨테이너 — 높이를 자식에게 전달 ──────────────────────────
   section.sheet-container {
     flex: 1 1 0;
     min-height: 0;
-    overflow-y: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
 
-    .sheet-bottom {
-      min-height: 0;
+  // 탭 자체가 container 높이를 채우도록
+  .sheet-container > .tab {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  // ── character 탭: 좌(캐릭터 정보) | 우(인벤토리) 2열 ─────────────────────────
+  .character-layout {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    height: 100%;
+  }
+
+  .sheet-left {
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 8px;
+    border-right: 1px solid rgba(128, 128, 128, 0.2);
+  }
+
+  .sheet-right {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .sheet-bottom {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+    padding: 8px;
+  }
+
+  // 인벤토리/스펠 탭 본문이 sheet-bottom 높이를 채우도록
+  .sheet-bottom > .tab {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  // ── character 상단 2행 그리드 ──────────────────────────────────────────────────
+  .sheet-top {
+    display: grid;
+    gap: 8px;
+  }
+
+  // 행 1: 헤더 단독 (col-basic 전체 폭)
+  .row-1 {
+    // 단일 열 — grid 불필요
+  }
+
+  // 행 2: 능력치(3fr) | ROLL(1fr)
+  .row-2 {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 8px;
+    align-items: start;
+  }
+
+  // 행 3: 건강+포만도(1fr) | 민첩+회피(auto)
+  .row-3 {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: start;
+  }
+
+  // 행 4: 상태이상(1fr) | 아스테르+마테리얼(1fr)
+  .row-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-items: start;
+  }
+
+  // ── 1열: 기본정보 (초상화 + 특성 + 이름) ──────────────────────────────────────
+  .col-basic {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .char-portrait {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    overflow: hidden;
+
+    img.profile-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border: none;
     }
   }
 
-  input {
-    width: 80%;
+  .char-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
-  header.sheet-header {
-    margin: 5px;
-    display: block;
+  .char-features {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    > div {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      label {
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        width: 28px;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        width: auto;
+      }
+    }
   }
-  .char-header {
-    grid-template-columns: 1fr 160px 1fr;
-    height: 160px;
-    @include g.grid-test;
+
+  .char-name-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+
+    .color {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      .color-logo {
+        width: 16px;
+        height: 16px;
+        border: 2px solid grey;
+        background: grey;
+        flex-shrink: 0;
+      }
+
+      select {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
+    .charname,
+    .player {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      label {
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        width: 28px;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        width: auto;
+      }
+    }
+  }
+
+  // ── row-2: 능력치 열 ─────────────────────────────────────────────────────────
+  .col-abilities {
+    min-width: 0;
+  }
+
+  // ── row-2: 민첩+회피 열 ───────────────────────────────────────────────────────
+  .col-derived {
+    min-width: 0;
+  }
+
+  // ── row-3: ROLL 열 ────────────────────────────────────────────────────────────
+  .col-roll {
+    min-width: 0;
+  }
+
+  // ── row-4: 상태이상 (3×2, 첫칸=레이블) ──────────────────────────────────────
+  .col-badstatus {
+    min-width: 0;
+
+    .badstatus-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+
+      > div {
+        text-align: center;
+        border: 1px solid grey;
+      }
+
+      .bs-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: bold;
+        color: rgba(200, 200, 200, 0.8);
+        border-color: rgba(200, 200, 200, 0.3);
+      }
+    }
+  }
+
+  // ── row-3: 건강+포만도 열 ─────────────────────────────────────────────────────
+  .col-resources {
+    min-width: 0;
+  }
+
+  .abl-health {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+    align-items: center;
+
+    .health-container,
+    .satiety-container {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .health-input,
+    .satiety-input {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2px;
+
+      input {
+        width: 38%;
+        text-align: center;
+      }
+    }
+
+    .health-bar,
+    .satiety-bar {
+      height: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .health-fill,
+    .satiety-fill {
+      height: 100%;
+      background-color: #2e7d32;
+      transition: width 0.3s;
+    }
+
+    .satiety-fill {
+      background-color: #1565c0;
+    }
+  }
+
+  .abl-derived {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+    align-items: center;
 
     input {
-      height: 70%;
+      width: auto;
     }
-    .char-left > .features,
-    .char-right > .container {
-      height: 100%;
+  }
+
+  .abl-label {
+    font-size: 0.75rem;
+    text-align: right;
+    padding-right: 4px;
+  }
+
+  // ── 행 2 — 아스테르 ───────────────────────────────────────────────────────────
+  .col-aster {
+    min-width: 0;
+  }
+
+  .aster-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+
+    input {
+      background: transparent;
+      border: 1px solid grey;
+      text-align: center;
+    }
+
+    .aster {
+      border: 1px solid grey;
+      display: grid;
+      grid-template-rows: auto auto;
+
+      div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2px 0;
+      }
+
+      input {
+        width: 80%;
+        border: none;
+        font-size: 1rem;
+        padding: 2px 0;
+      }
+    }
+  }
+
+  // ── abilities-top: 능력치 4개만 ───────────────────────────────────────────────
+  .abilities-top {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+
+    .grid.ability {
+      grid-template-columns: 1fr 1fr;
+
       > div {
         @include f.flex-center;
-        > label {
-          flex-shrink: 0;
-          width: 50px;
-          padding: 0 5px;
-        }
-        > input {
-          flex-grow: 1;
-          padding: 0 10px;
-        }
       }
-    }
-    .char-left {
-      padding: 10px;
-    }
 
-    .char-middle {
-      height: 160px;
-      width: 160px;
-      border-radius: 50px;
-      .profile-img {
-        height: 100%;
-      }
-      img.profile-img {
-        border: none;
-        width: 100%;
-        height: 100%;
-      }
-    }
-    .char-right {
-      position: relative;
-      padding: 10px;
-      .container {
-        .color {
-          .color-logo {
-            width: 60px;
-            height: 60px;
-            border: 4px solid grey;
-            background: grey;
-            position: absolute;
-            left: -30px;
-            top: -10px;
-          }
-          > input {
-            margin-left: 30px;
-          }
-        }
-      }
-    }
-  }
-  section.sheet-center {
-    display: grid;
-    grid-template-columns: 6fr 1fr;
-    padding: 10px;
-    .left-side {
-      grid-column: 1 / span 1;
-      grid-row: 1 / span 1;
-      padding: 10px;
-    }
-    .right-side {
-      grid-column: 2 / span 1;
-      grid-row: 1 / span 1;
-      padding: 10px;
-    }
-  }
-
-  .left-side {
-    .abilities-top {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      height: 100px;
-      gap: 5px;
-      .grid.ability {
-        grid-template-columns: 1fr 1fr;
-        > div {
-          @include f.flex-center;
-        }
-        .abl-name {
-          grid-column: 1 / span 2;
-          grid-row: 1 / span 1;
-          text-align: center;
-        }
-        .abl-value {
-          grid-column: 1 / span 2;
-          grid-row: 2 / span 1;
-        }
-      }
-      .roll-option {
-        .roll-opt-header {
-          display: grid;
-        }
-        .roll-option-list {
-        }
-      }
-    }
-    .abilities-bottom {
-      grid-template-columns: 4fr 1fr;
-      padding-top: 5px;
-      .abl-health {
-        display: grid;
-        grid-template-columns: 50px 1fr;
-        grid-template-rows: 1fr 1fr;
-        gap: 5px;
-        .health-container,
-        .satiety-container {
-          display: grid;
-          grid-template-columns: 1fr 2fr;
-        }
-        .health-input,
-        .satiety-input {
-          display: flex;
-          justify-content: space-evenly;
-          input {
-            width: 40%;
-            text-align: center;
-          }
-        }
-        .health-fill,
-        .satiety-fill {
-          background-color: #000;
-          height: 100%;
-        }
-      }
-      .abl-derived {
-        display: grid;
-        grid-template-columns: 40px 1fr;
-        grid-template-rows: 1fr 1fr;
-        gap: 5px;
-      }
-    }
-
-    .aster-container {
-      display: flex;
-      justify-content: space-evenly;
-      align-items: flex-start;
-      input {
-        background: transparent;
-        border: 1px solid grey;
+      .abl-name {
+        grid-column: 1 / span 2;
+        grid-row: 1 / span 1;
         text-align: center;
       }
-      .aster {
-        border: 1px solid grey;
-        width: 80px;
-        height: 90px;
-        display: grid;
-        grid-template-rows: 1fr 3fr;
-        div {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-        input {
-          width: 50%;
-          height: 50%;
-          border: none;
-          font-size: 2rem;
-        }
-      }
-    }
-  }
-  .right-side {
-    .badstatus-grid {
-      .badstatus {
-        input[type="checkbox"] {
-          display: none;
-        }
-        &.checked {
-          background-color: rgba(0, 0, 0, 0.5);
-          color: #ffffff;
-          border: 1px solid white;
-        }
-        .bs-input {
-          width: 0.8rem;
-        }
-        input.bs-input {
-          border: none;
-          font-size: 1rem;
-          &.checked {
-            color: #ffffff;
-            border: none;
-            background: none;
-          }
-        }
-        &.bs-num {
-          justify-content: space-between;
-        }
-      }
-      > div {
-        text-align: center;
-        border: 1px solid grey;
-      }
 
-      height: 100%;
-    }
-  }
-  section.sheet-bottom {
-    .inven-etc {
-      display: grid;
-      grid-template-columns: 1fr 2fr repeat(2, 1fr);
-      gap: 10px;
-      height: 80px;
-      > div {
-        border: 1px solid grey;
-      }
-      .equipment {
+      .abl-value {
+        grid-column: 1 / span 2;
+        grid-row: 2 / span 1;
       }
     }
 
-    .inventory {
-      .item-list {
+    .roll-option {
+      .roll-opt-header {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 5px;
-        > div {
-          border: 1px solid grey;
-        }
-      }
-      .item-bag {
-      }
-      .item-list {
       }
     }
+  }
+
+  // ── 상태이상 공통 ────────────────────────────────────────────────────────────
+  .badstatus {
+    input[type="checkbox"] {
+      display: none;
+    }
+
+    &.checked {
+      background-color: rgba(0, 0, 0, 0.5);
+      color: #ffffff;
+      border: 1px solid white;
+    }
+
+    label.badstatus {
+      cursor: pointer;
+      padding: 2px 6px;
+      font-size: 0.8rem;
+      display: block;
+    }
+  }
+
+  // ── record 탭: 출생/경험/목적 ─────────────────────────────────────────────
+  .record-wrapper {
+    padding: 8px;
+  }
+
+  .record-features {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .record-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .record-label {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    width: 32px;
+  }
+
+  // ── 공통 input 너비 재정의 ────────────────────────────────────────────────────
+  input {
+    width: 80%;
   }
 }
