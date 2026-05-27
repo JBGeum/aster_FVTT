@@ -19,26 +19,29 @@
     flex-direction: column;
   }
 
-  // 탭 자체가 container 높이를 채우도록
   .sheet-container > .tab {
     flex: 1;
     min-height: 0;
     overflow: hidden;
   }
 
-  // ── character 탭: 좌(캐릭터 정보) | 우(인벤토리) 2열 ─────────────────────────
+  // ── character 탭: 좌(나머지) | 우(px 고정) ──────────────────────────────────
   .character-layout {
     display: grid;
-    grid-template-columns: 1.3fr 1fr;
+    grid-template-columns: 1fr 380px;
     height: 100%;
+    gap: 12px;
   }
 
   .sheet-left {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
     min-height: 0;
     overflow-y: auto;
     padding: 8px;
     border-right: 1px solid rgba(128, 128, 128, 0.2);
+    container-type: inline-size;
   }
 
   .sheet-right {
@@ -55,7 +58,6 @@
     padding: 8px;
   }
 
-  // 인벤토리/스펠 탭 본문이 sheet-bottom 높이를 채우도록
   .sheet-bottom > .tab {
     height: 100%;
     display: flex;
@@ -63,101 +65,53 @@
     min-height: 0;
   }
 
-  // ── character 상단 2행 그리드 ──────────────────────────────────────────────────
+  // ── sheet-left 내부: flex 세로 스택 ─────────────────────────────────────────
   .sheet-top {
-    display: grid;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
     gap: 8px;
   }
 
-  // 행 1: 헤더 단독 (col-basic 전체 폭)
+  // ── 행 1: 1fr(초상화+이름) | 1fr(색상+ROLL) ─────────────────────────────────
   .row-1 {
-    // 단일 열 — grid 불필요
-  }
-
-  // 행 2: 능력치(3fr) | ROLL(1fr)
-  .row-2 {
-    display: grid;
-    grid-template-columns: 3fr 1fr;
-    gap: 8px;
-    align-items: start;
-  }
-
-  // 행 3: 건강+포만도(1fr) | 민첩+회피(auto)
-  .row-3 {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
-    align-items: start;
-  }
-
-  // 행 4: 상태이상(1fr) | 아스테르+마테리얼(1fr)
-  .row-4 {
+    flex-shrink: 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
     align-items: start;
   }
 
-  // ── 1열: 기본정보 (초상화 + 특성 + 이름) ──────────────────────────────────────
-  .col-basic {
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-    min-width: 0;
-  }
-
-  .char-portrait {
-    flex-shrink: 0;
-    width: 80px;
-    height: 80px;
-    border-radius: 6px;
-    overflow: hidden;
-
-    img.profile-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border: none;
-    }
-  }
-
-  .char-info {
-    flex: 1;
-    min-width: 0;
+  .col-portrait {
     display: flex;
     flex-direction: column;
     gap: 4px;
-  }
 
-  .char-features {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    img.profile-img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 6px;
+      border: none;
+      display: block;
+      cursor: pointer;
+    }
 
-    > div {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-
-      label {
-        flex-shrink: 0;
-        font-size: 0.75rem;
-        width: 28px;
-      }
-
-      input {
-        flex: 1;
-        min-width: 0;
-        width: auto;
-      }
+    .char-name input {
+      width: 100%;
+      text-align: center;
     }
   }
 
-  .char-name-row {
+  // ── ROLL 열 (색상 드롭다운 위, 좌측 구분선) ──────────────────────────────────
+  .col-roll {
+    min-width: 0;
+    border-left: 1px solid rgba(128, 128, 128, 0.3);
+    padding-left: 6px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    position: relative;
+    gap: 6px;
 
     .color {
       display: flex;
@@ -165,8 +119,8 @@
       gap: 4px;
 
       .color-logo {
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
         border: 2px solid grey;
         background: grey;
         flex-shrink: 0;
@@ -177,87 +131,40 @@
         min-width: 0;
       }
     }
-
-    .charname,
-    .player {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-
-      label {
-        flex-shrink: 0;
-        font-size: 0.75rem;
-        width: 28px;
-      }
-
-      input {
-        flex: 1;
-        min-width: 0;
-        width: auto;
-      }
-    }
   }
 
-  // ── row-2: 능력치 열 ─────────────────────────────────────────────────────────
+  // ── 행 2: 능력치 4개 — 자연 높이 ─────────────────────────────────────────────
+  .row-2 {
+    flex-shrink: 0;
+  }
+
   .col-abilities {
     min-width: 0;
   }
 
-  // ── row-2: 민첩+회피 열 ───────────────────────────────────────────────────────
-  .col-derived {
-    min-width: 0;
+  // ── 행 3: 건강+포만도(1fr) | 민첩+회피(auto) — 자연 높이 ────────────────────
+  .row-3 {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: start;
   }
 
-  // ── row-3: ROLL 열 ────────────────────────────────────────────────────────────
-  .col-roll {
-    min-width: 0;
-  }
-
-  // ── row-4: 상태이상 (3×2, 첫칸=레이블) ──────────────────────────────────────
-  .col-badstatus {
-    min-width: 0;
-
-    .badstatus-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 4px;
-
-      > div {
-        text-align: center;
-        border: 1px solid grey;
-      }
-
-      .bs-label {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
-        font-weight: bold;
-        color: rgba(200, 200, 200, 0.8);
-        border-color: rgba(200, 200, 200, 0.3);
-      }
-    }
-  }
-
-  // ── row-3: 건강+포만도 열 ─────────────────────────────────────────────────────
   .col-resources {
+    min-width: 0;
+  }
+
+  .col-derived {
     min-width: 0;
   }
 
   .abl-health {
     display: grid;
     grid-template-columns: 36px 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-rows: auto auto;
     gap: 4px;
     align-items: center;
-
-    .health-container,
-    .satiety-container {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 4px;
-      align-items: center;
-    }
 
     .health-input,
     .satiety-input {
@@ -270,25 +177,6 @@
         width: 38%;
         text-align: center;
       }
-    }
-
-    .health-bar,
-    .satiety-bar {
-      height: 12px;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .health-fill,
-    .satiety-fill {
-      height: 100%;
-      background-color: #2e7d32;
-      transition: width 0.3s;
-    }
-
-    .satiety-fill {
-      background-color: #1565c0;
     }
   }
 
@@ -310,15 +198,60 @@
     padding-right: 4px;
   }
 
-  // ── 행 2 — 아스테르 ───────────────────────────────────────────────────────────
-  .col-aster {
-    min-width: 0;
+  // ── 행 상태이상 — 자연 높이 ──────────────────────────────────────────────────
+  .row-badstatus {
+    flex-shrink: 0;
   }
 
+  .bs-section-label {
+    font-size: 0.7rem;
+    color: rgba(200, 200, 200, 0.6);
+    margin-bottom: 3px;
+    user-select: none;
+  }
+
+  // 기본: 5열 × 1행
+  .badstatus-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+
+    > div {
+      text-align: center;
+      border: 1px solid grey;
+    }
+  }
+
+  .badstatus {
+    input[type="checkbox"] {
+      display: none;
+    }
+
+    &.checked {
+      background-color: rgba(0, 0, 0, 0.5);
+      color: #ffffff;
+      border: 1px solid white;
+    }
+
+    label.badstatus {
+      cursor: pointer;
+      padding: 2px 6px;
+      font-size: 0.8rem;
+      display: block;
+    }
+  }
+
+  // ── 행 아스테르 — 자연 높이 ──────────────────────────────────────────────────
+  .row-aster {
+    flex-shrink: 0;
+  }
+
+  // 기본: 6열 × 1행
   .aster-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 5px;
+    align-content: start;
 
     input {
       background: transparent;
@@ -347,7 +280,7 @@
     }
   }
 
-  // ── abilities-top: 능력치 4개만 ───────────────────────────────────────────────
+  // ── abilities-top: 능력치 4개 ────────────────────────────────────────────────
   .abilities-top {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -379,27 +312,44 @@
     }
   }
 
-  // ── 상태이상 공통 ────────────────────────────────────────────────────────────
-  .badstatus {
-    input[type="checkbox"] {
-      display: none;
+  // ── 행 메모 — 남는 세로 공간 흡수 ────────────────────────────────────────────
+  .row-memo {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    .memo-label {
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      color: rgba(200, 200, 200, 0.6);
+      user-select: none;
     }
 
-    &.checked {
-      background-color: rgba(0, 0, 0, 0.5);
-      color: #ffffff;
-      border: 1px solid white;
-    }
-
-    label.badstatus {
-      cursor: pointer;
-      padding: 2px 6px;
+    textarea {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      resize: none;
+      background: rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(128, 128, 128, 0.3);
+      border-radius: 3px;
+      padding: 4px 6px;
       font-size: 0.8rem;
-      display: block;
+      color: inherit;
+      font-family: inherit;
+      line-height: 1.4;
+      box-sizing: border-box;
+
+      &:focus {
+        outline: none;
+        border-color: rgba(180, 180, 255, 0.5);
+      }
     }
   }
 
-  // ── record 탭: 출생/경험/목적 ─────────────────────────────────────────────
+  // ── record 탭: 출생/경험/목적 ─────────────────────────────────────────────────
   .record-wrapper {
     padding: 8px;
   }
@@ -425,5 +375,40 @@
   // ── 공통 input 너비 재정의 ────────────────────────────────────────────────────
   input {
     width: 80%;
+  }
+}
+
+// ── 컨테이너 쿼리 (기준: .sheet-left의 inline-size) ──────────────────────────────
+// .aster 접두사 포함 — 일반 규칙과 명시도 동등하게 유지
+
+// 아스테르: 6×1 → 3×2
+@container (max-width: 360px) {
+  .aster .aster-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// 상태이상: 5×1 → 2+3 (6 unit 그리드로 첫 행 2칸, 둘째 행 3칸)
+@container (max-width: 360px) {
+  .aster .badstatus-grid {
+    grid-template-columns: repeat(6, 1fr);
+
+    // 첫 행: 2칸 (각 3 unit)
+    > div:nth-child(1) {
+      grid-column: span 3;
+    }
+    > div:nth-child(2) {
+      grid-column: span 3;
+    }
+    // 둘째 행: 3칸 (각 2 unit)
+    > div:nth-child(3) {
+      grid-column: span 2;
+    }
+    > div:nth-child(4) {
+      grid-column: span 2;
+    }
+    > div:nth-child(5) {
+      grid-column: span 2;
+    }
   }
 }
