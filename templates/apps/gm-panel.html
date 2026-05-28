@@ -1,0 +1,24 @@
+<div class="gm-panel-body">
+  {{#each values as |v|}}
+  <div class="world-value" data-key="{{v.key}}">
+    <div class="wv-label">{{localize v.label}}</div>
+    <div class="wv-controls">
+      <button type="button" class="wv-btn" data-action="adjust" data-key="{{v.key}}" data-delta="-1">&minus;</button>
+      <input type="number" name="{{v.key}}" value="{{v.current}}" />
+      <button type="button" class="wv-btn" data-action="adjust" data-key="{{v.key}}" data-delta="1">&plus;</button>
+      <button type="button" class="wv-set" data-action="setValue" data-key="{{v.key}}">
+        {{localize "ASTER.world.set"}}
+      </button>
+      {{#if v.rollable}}
+      <button type="button" class="wv-roll" data-action="rangeRoll" data-key="{{v.key}}">
+        {{localize "ASTER.world.rangeRoll"}}
+      </button>
+      {{/if}} {{#if v.witchHunt}}
+      <button type="button" class="wv-hunt" data-action="witchHunt" data-key="{{v.key}}">
+        {{localize "ASTER.world.witchHunt"}}
+      </button>
+      {{/if}}
+    </div>
+  </div>
+  {{/each}}
+</div>

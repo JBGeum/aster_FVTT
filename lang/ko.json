@@ -76,15 +76,23 @@
         "GENERIC": "취득할 수 없습니다."
       }
     },
-    "roll": {
-      "range": "경계도",
-      "rangeTitle": "경계도 굴림",
-      "rangeFlavor": "경계도 {min}~{max}",
+    "world": {
+      "panelTitle": "GM 패널",
+      "alert": "경계도",
+      "set": "적용",
+      "rangeRoll": "범위 굴림",
+      "rangeTitle": "범위 굴림",
+      "rangeFlavor": "경계도 굴림 {min}~{max}: {result}",
+      "rangeFlavorAdd": "경계도 +{delta} (누적 {total})",
       "min": "최소치",
       "max": "최대치",
-      "do": "굴리기",
+      "addToCurrent": "현재 경계도에 더하기",
+      "roll": "굴리기",
       "invalidRange": "최소치는 최대치보다 작거나 같아야 합니다.",
-      "alertLabel": "경계도"
+      "gmOnly": "GM만 사용할 수 있습니다.",
+      "witchHunt": "마녀사냥",
+      "witchHuntSuccess": "마녀사냥 판정: d100={roll} vs 경계도 {alert} → 성공",
+      "witchHuntFail": "마녀사냥 판정: d100={roll} vs 경계도 {alert} → 실패"
     },
     "inventory": {
       "warn": {

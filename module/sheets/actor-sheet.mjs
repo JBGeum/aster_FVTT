@@ -26,7 +26,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       itemDelete: AsterActorSheet.#onItemDelete,
       toggleSkill: AsterActorSheet.#onToggleSkill,
       craftReset: AsterActorSheet.#onCraftReset,
-      rangeRoll: AsterActorSheet.#onRangeRoll,
     },
   };
 
@@ -81,8 +80,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     } else if (this.actor.type === "npc") {
       this._prepareItems(context);
     }
-
-    context.alertLevel = game.aster?.alertLevel ?? game.settings.get("aster", "alertLevel") ?? 1;
 
     return context;
   }
@@ -617,52 +614,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       delete acquired[skillId];
     }
     await this.actor.update({ "system.craft.acquired": acquired });
-  }
-
-  static async #onRangeRoll(_event, _target) {
-    const result = await foundry.applications.api.DialogV2.prompt({
-      window: { title: game.i18n.localize("ASTER.roll.rangeTitle") },
-      content: `
-        <div class="form-group">
-          <label>${game.i18n.localize("ASTER.roll.min")}</label>
-          <input type="number" name="min" value="1" min="1" />
-        </div>
-        <div class="form-group">
-          <label>${game.i18n.localize("ASTER.roll.max")}</label>
-          <input type="number" name="max" value="5" min="1" />
-        </div>
-      `,
-      ok: {
-        label: game.i18n.localize("ASTER.roll.do"),
-        callback: (_ev, button) => ({
-          min: Number(button.form.elements.min.value),
-          max: Number(button.form.elements.max.value),
-        }),
-      },
-    }).catch(() => null);
-    if (!result) return;
-
-    const { min, max } = result;
-    if (!Number.isInteger(min) || !Number.isInteger(max) || min > max) {
-      ui.notifications.warn(game.i18n.localize("ASTER.roll.invalidRange"));
-      return;
-    }
-
-    const n = max - min + 1;
-    const formula = n === 1 ? String(min) : `1d${n}${min > 1 ? `+${min - 1}` : ""}`;
-    const roll = new Roll(formula);
-    await roll.evaluate();
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: game.i18n.format("ASTER.roll.rangeFlavor", { min, max }),
-    });
-
-    if (game.user.isGM) {
-      const current = game.settings.get("aster", "alertLevel") ?? 0;
-      const next = current + roll.total;
-      game.aster.alertLevel = next;
-      await game.settings.set("aster", "alertLevel", next);
-    }
   }
 
   static async #onCraftReset(_event, _target) {

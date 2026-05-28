@@ -7,6 +7,8 @@ import { AsterItem } from "./documents/item.mjs";
 // Sheets
 import { AsterActorSheet } from "./sheets/actor-sheet.mjs";
 import { AsterItemSheet } from "./sheets/item-sheet.mjs";
+// Apps
+import { AsterGMPanel } from "./apps/gm-panel.mjs";
 // DataModels
 import { CharacterDataModel } from "./data/actors/character.mjs";
 import { NpcDataModel } from "./data/actors/npc.mjs";
@@ -19,6 +21,7 @@ import { FeatureDataModel } from "./data/items/feature.mjs";
 // Helpers
 import { preloadHandlebarsTemplates, registerHandlebarsHelpers } from "./helpers/templates.mjs";
 import { ASTER } from "./helpers/config.mjs";
+import { WORLD_VALUES } from "./helpers/world-values.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -29,6 +32,7 @@ Hooks.once("init", async function () {
     AsterActor,
     AsterItem,
     rollItemMacro,
+    openGMPanel: () => AsterGMPanel.show(),
   };
 
   CONFIG.ASTER = ASTER;
@@ -64,12 +68,15 @@ Hooks.once("init", async function () {
   ItemsCls.unregisterSheet("core", ItemSheet);
   ItemsCls.registerSheet("aster", AsterItemSheet, { makeDefault: true });
 
-  game.settings.register("aster", "alertLevel", {
-    scope: "world",
-    config: false,
-    default: 1,
-    type: Number,
-  });
+  // world 값 일괄 등록 (config:false → 기본 설정 창에는 숨기고 GM 패널로만 관리)
+  for (const v of WORLD_VALUES) {
+    game.settings.register("aster", v.key, {
+      scope: "world",
+      config: false,
+      type: Number,
+      default: v.default ?? 0,
+    });
+  }
 
   registerHandlebarsHelpers();
   return preloadHandlebarsTemplates();
@@ -141,22 +148,40 @@ Handlebars.registerHelper("toLowerCase", function (str) {
 });
 
 /* -------------------------------------------- */
+/*  GM Panel — Scene Control 버튼               */
+/* -------------------------------------------- */
+
+// V13: controls는 name으로 키된 객체, 각 control의 tools도 name 키 객체.
+Hooks.on("getSceneControlButtons", (controls) => {
+  const tokens = controls.tokens;
+  if (!tokens?.tools) return;
+  tokens.tools["aster-gm-panel"] = {
+    name: "aster-gm-panel",
+    title: "ASTER.world.panelTitle",
+    icon: "fa-solid fa-sliders",
+    order: Object.keys(tokens.tools).length,
+    button: true,
+    visible: game.user.isGM,
+    onChange: () => AsterGMPanel.show(),
+  };
+});
+
+/* -------------------------------------------- */
 /*  Ready Hook                                  */
 /* -------------------------------------------- */
 
 Hooks.once("ready", async function () {
-  game.aster.alertLevel = game.settings.get("aster", "alertLevel") ?? 1;
-
   Hooks.on("hotbarDrop", (bar, data, slot) => createItemMacro(data, slot));
-  Hooks.on("updateSetting", (setting, changes) => {
-    if (setting.key !== "aster.alertLevel") return;
-    game.aster.alertLevel = changes?.value ?? game.settings.get("aster", "alertLevel") ?? 1;
-    for (const actor of game.actors) {
-      for (const app of Object.values(actor.apps ?? {})) {
-        if (app instanceof AsterActorSheet) app.render();
-      }
+
+  // world 값 변경 시 열려있는 GM 패널을 동기화 (다른 클라이언트 포함)
+  const worldKeys = new Set(WORLD_VALUES.map((v) => `aster.${v.key}`));
+  Hooks.on("updateSetting", (setting) => {
+    if (!worldKeys.has(setting.key)) return;
+    for (const app of foundry.applications.instances.values()) {
+      if (app instanceof AsterGMPanel) app.render();
     }
   });
+
   await migrateInventoryFields();
 });
 

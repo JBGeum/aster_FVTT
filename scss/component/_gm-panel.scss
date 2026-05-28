@@ -1,0 +1,53 @@
+.aster.gm-panel {
+  .gm-panel-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 8px;
+  }
+
+  .world-value {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .wv-label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: rgba(220, 220, 220, 0.9);
+  }
+
+  .wv-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+
+    input[type="number"] {
+      width: 56px;
+      flex-shrink: 0;
+      text-align: center;
+    }
+
+    .wv-btn {
+      width: 28px;
+      flex-shrink: 0;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .wv-set,
+    .wv-roll,
+    .wv-hunt {
+      flex: 1 1 auto;
+      min-width: 0;
+      white-space: nowrap;
+      font-size: 0.78rem;
+    }
+
+    .wv-hunt {
+      border-color: rgba(192, 57, 43, 0.5);
+    }
+  }
+}
