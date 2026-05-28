@@ -39,6 +39,10 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       template: "systems/aster/templates/item/item-feature-sheet.html",
       forms: { form: AsterItemSheet.#formConfig },
     },
+    record: {
+      template: "systems/aster/templates/item/item-record-sheet.html",
+      forms: { form: AsterItemSheet.#formConfig },
+    },
   };
 
   get title() {

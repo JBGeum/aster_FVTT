@@ -116,6 +116,28 @@
       "extraN": "추가 다이스 개수",
       "extraFlavor": "{name} — 추가 {n}d6 = {sum}"
     },
+    "features": {
+      "born": "출생",
+      "past": "경험",
+      "purpose": "목적"
+    },
+    "record": {
+      "city": "체재도시",
+      "alert": "경계도",
+      "felka": "펠카",
+      "scenarioCount": "체재 시나리오 수",
+      "favor": "우호도",
+      "scenes": "체재지의 모습",
+      "people": "관련된 사람들",
+      "memo": "임의 메모",
+      "updatedAt": "갱신일",
+      "add": "새 기록",
+      "edit": "편집",
+      "delete": "기록 삭제",
+      "deleteConfirm": "이 기록을 삭제할까요?",
+      "newName": "새 기록",
+      "empty": "기록이 없습니다. 새 기록을 추가하세요."
+    },
     "inventory": {
       "warn": {
         "singleton": "{type}은(는) 1개만 소지할 수 있습니다.",

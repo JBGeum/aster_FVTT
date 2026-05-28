@@ -28,6 +28,10 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       toggleSkill: AsterActorSheet.#onToggleSkill,
       craftReset: AsterActorSheet.#onCraftReset,
       spellCast: AsterActorSheet.#onSpellCast,
+      recordPrev: AsterActorSheet.#onRecordPrev,
+      recordNext: AsterActorSheet.#onRecordNext,
+      recordAdd: AsterActorSheet.#onRecordAdd,
+      recordDelete: AsterActorSheet.#onRecordDelete,
     },
   };
 
@@ -80,6 +84,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       this._prepareInventory(context);
       this._prepareCraft(context);
       this._prepareSpellList(context);
+      this._prepareRecord(context);
     } else if (this.actor.type === "npc") {
       this._prepareItems(context);
     }
@@ -363,6 +368,35 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ? game.i18n.localize(`ASTER.ability.${spell.system.ability}`)
       : "?";
     return `${c}+${a}(${spell.system.target ?? "?"})`;
+  }
+
+  _prepareRecord(context) {
+    // 상단 고정 배경 (born/past/purpose)
+    context.features = this.actor.system.features;
+
+    // 세션 기록 카드 (record 아이템) — 책 넘기기
+    const records = this.actor.items.filter((i) => i.type === "record");
+    context.records = records.map((r) => ({
+      id: r.id,
+      name: r.name,
+      city: r.system.city,
+      alert: r.system.alert,
+      felka: r.system.felka,
+      scenarioCount: r.system.scenarioCount,
+      favor: r.system.favor,
+      scenes: r.system.scenes,
+      people: r.system.people,
+      memo: r.system.memo,
+      updatedAt: r.system.updatedAt,
+    }));
+    context.recordCount = records.length;
+    // _recordIndex는 현재 페이지(비영속 인스턴스 상태)
+    context.currentIndex = Math.min(this._recordIndex ?? 0, Math.max(0, records.length - 1));
+    context.currentRecord = context.records[context.currentIndex] ?? null;
+    context.currentPage = records.length ? context.currentIndex + 1 : 0;
+    // disabled 속성은 미리 계산(템플릿 태그 속성에 블록 헬퍼 사용 불가)
+    context.recordPrevDisabled = context.currentIndex <= 0 ? "disabled" : "";
+    context.recordNextDisabled = context.currentIndex >= records.length - 1 ? "disabled" : "";
   }
 
   _onRender(context, options) {
@@ -699,6 +733,38 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       content,
       flags: { aster: { spellCard: true, spellId: spell.id, actorId: this.actor.id } },
     });
+  }
+
+  static #onRecordPrev(_event, _target) {
+    this._recordIndex = Math.max(0, (this._recordIndex ?? 0) - 1);
+    this.render();
+  }
+
+  static #onRecordNext(_event, _target) {
+    const count = this.actor.items.filter((i) => i.type === "record").length;
+    this._recordIndex = Math.min(count - 1, (this._recordIndex ?? 0) + 1);
+    this.render();
+  }
+
+  static async #onRecordAdd(_event, _target) {
+    await Item.create(
+      { name: game.i18n.localize("ASTER.record.newName"), type: "record" },
+      { parent: this.actor },
+    );
+    // 새로 추가된 마지막 카드로 이동
+    this._recordIndex = this.actor.items.filter((i) => i.type === "record").length - 1;
+    this.render();
+  }
+
+  static async #onRecordDelete(_event, target) {
+    const ok = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("ASTER.record.delete") },
+      content: game.i18n.localize("ASTER.record.deleteConfirm"),
+    }).catch(() => false);
+    if (!ok) return;
+    await this.actor.items.get(target.dataset.itemId)?.delete();
+    this._recordIndex = Math.max(0, (this._recordIndex ?? 0) - 1);
+    this.render();
   }
 
   static async #onSubmit(_event, _form, formData) {

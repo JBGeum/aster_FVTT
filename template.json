@@ -68,7 +68,7 @@
     }
   },
   "Item": {
-    "types": ["bag", "consumable", "equipment", "food", "spell", "feature"],
+    "types": ["bag", "consumable", "equipment", "food", "spell", "feature", "record"],
     "templates": {
       "base": {
         "material": [0, 0, 0, 0, 0, 0],
@@ -119,6 +119,17 @@
         "fumble": ""
       },
       "description": ""
+    },
+    "record": {
+      "city": "",
+      "alert": "",
+      "felka": "",
+      "scenarioCount": "",
+      "favor": "",
+      "scenes": ["", "", ""],
+      "people": "",
+      "memo": "",
+      "updatedAt": ""
     }
   }
 }

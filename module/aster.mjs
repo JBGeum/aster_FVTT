@@ -18,6 +18,7 @@ import { EquipmentDataModel } from "./data/items/equipment.mjs";
 import { FoodDataModel } from "./data/items/food.mjs";
 import { SpellDataModel } from "./data/items/spell.mjs";
 import { FeatureDataModel } from "./data/items/feature.mjs";
+import { RecordDataModel } from "./data/items/record.mjs";
 // Helpers
 import { preloadHandlebarsTemplates, registerHandlebarsHelpers } from "./helpers/templates.mjs";
 import { ASTER } from "./helpers/config.mjs";
@@ -56,6 +57,7 @@ Hooks.once("init", async function () {
     food: FoodDataModel,
     spell: SpellDataModel,
     feature: FeatureDataModel,
+    record: RecordDataModel,
   };
 
   // V13: 시트 컬렉션은 foundry.documents.collections 네임스페이스 사용 권장

@@ -17,6 +17,21 @@
   "styles": ["aster.css"],
   "scripts": [],
   "packs": [],
+  "documentTypes": {
+    "Actor": {
+      "character": {},
+      "npc": {}
+    },
+    "Item": {
+      "bag": {},
+      "consumable": {},
+      "equipment": {},
+      "food": {},
+      "spell": {},
+      "feature": {},
+      "record": {}
+    }
+  },
   "languages": [
     {
       "lang": "ko",

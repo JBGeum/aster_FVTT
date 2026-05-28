@@ -1,22 +1,91 @@
-<div class="record-wrapper">
-  {{!-- 캐릭터 배경 정보 --}}
-  <div class="record-features">
-    <div class="record-row">
-      <label class="record-label">출생</label>
-      <input name="system.features.born.title" type="text" value="{{system.features.born.title}}" placeholder="출생" />
-    </div>
-    <div class="record-row">
-      <label class="record-label">경험</label>
-      <input name="system.features.past.title" type="text" value="{{system.features.past.title}}" placeholder="경험" />
-    </div>
-    <div class="record-row">
-      <label class="record-label">목적</label>
+<div class="record-tab">
+  {{!-- 상단: 캐릭터 배경 (출생/경험/목적 가로 나열, 고정) --}}
+  <div class="record-bio">
+    <div class="bio-item">
+      <label>{{localize "ASTER.features.born"}}</label>
       <input
-        name="system.features.purpose.title"
         type="text"
-        value="{{system.features.purpose.title}}"
-        placeholder="목적"
+        name="system.features.born.title"
+        value="{{features.born.title}}"
+        placeholder="{{localize 'ASTER.features.born'}}"
       />
+      <textarea name="system.features.born.description">{{features.born.description}}</textarea>
     </div>
+    <div class="bio-item">
+      <label>{{localize "ASTER.features.past"}}</label>
+      <input
+        type="text"
+        name="system.features.past.title"
+        value="{{features.past.title}}"
+        placeholder="{{localize 'ASTER.features.past'}}"
+      />
+      <textarea name="system.features.past.description">{{features.past.description}}</textarea>
+    </div>
+    <div class="bio-item">
+      <label>{{localize "ASTER.features.purpose"}}</label>
+      <input
+        type="text"
+        name="system.features.purpose.title"
+        value="{{features.purpose.title}}"
+        placeholder="{{localize 'ASTER.features.purpose'}}"
+      />
+      <textarea name="system.features.purpose.description">{{features.purpose.description}}</textarea>
+    </div>
+  </div>
+
+  {{!-- 하단: 세션 기록 책 넘기기 --}}
+  <div class="record-book">
+    <div class="book-nav">
+      <button type="button" data-action="recordPrev" {{recordPrevDisabled}}>◀</button>
+      <span class="page-indicator">{{currentPage}} / {{recordCount}}</span>
+      <button type="button" data-action="recordNext" {{recordNextDisabled}}>▶</button>
+      <button type="button" data-action="recordAdd" class="add-btn">+ {{localize "ASTER.record.add"}}</button>
+      {{#if currentRecord}}
+      <button type="button" data-action="itemEdit" data-item-id="{{currentRecord.id}}">
+        {{localize "ASTER.record.edit"}}
+      </button>
+      <button type="button" data-action="recordDelete" data-item-id="{{currentRecord.id}}">🗑</button>
+      {{/if}}
+    </div>
+
+    {{#if currentRecord}}
+    <div class="record-card" data-item-id="{{currentRecord.id}}">
+      <div class="card-boxes">
+        <div class="box">
+          <span class="k">{{localize "ASTER.record.city"}}</span>
+          <span class="v">{{currentRecord.city}}</span>
+          <span class="k">{{localize "ASTER.record.alert"}}</span>
+          <span class="v">{{currentRecord.alert}}</span>
+        </div>
+        <div class="box">
+          <span class="k">{{localize "ASTER.record.felka"}}</span>
+          <span class="v">{{currentRecord.felka}}</span>
+          <span class="k">{{localize "ASTER.record.scenarioCount"}}</span>
+          <span class="v">{{currentRecord.scenarioCount}}</span>
+          <span class="k">{{localize "ASTER.record.favor"}}</span>
+          <span class="v">{{currentRecord.favor}}</span>
+        </div>
+      </div>
+      <div class="card-scenes">
+        <label>{{localize "ASTER.record.scenes"}}</label>
+        {{#each currentRecord.scenes as |s|}}
+        <div class="scene">◇ {{s}}</div>
+        {{/each}}
+      </div>
+      <div class="card-people">
+        <label>{{localize "ASTER.record.people"}}</label>
+        <div class="people-text">{{currentRecord.people}}</div>
+      </div>
+      <div class="card-memo">
+        <label>{{localize "ASTER.record.memo"}}</label>
+        <div class="memo-scroll">{{currentRecord.memo}}</div>
+      </div>
+      {{#if currentRecord.updatedAt}}
+      <div class="card-updated">{{localize "ASTER.record.updatedAt"}}: {{currentRecord.updatedAt}}</div>
+      {{/if}}
+    </div>
+    {{else}}
+    <p class="no-record">{{localize "ASTER.record.empty"}}</p>
+    {{/if}}
   </div>
 </div>

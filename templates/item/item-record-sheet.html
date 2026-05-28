@@ -1,0 +1,62 @@
+<form class="record-item-sheet {{cssClass}}" autocomplete="off">
+  <header class="record-head">
+    <img class="record-portrait" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+    <input
+      class="record-name-input"
+      name="name"
+      type="text"
+      value="{{item.name}}"
+      placeholder="{{localize 'ASTER.record.newName'}}"
+    />
+  </header>
+
+  <section class="record-sheet">
+    <div class="form-row">
+      <div class="form-group">
+        <label>{{localize "ASTER.record.city"}}</label>
+        <input type="text" name="system.city" value="{{system.city}}" />
+      </div>
+      <div class="form-group">
+        <label>{{localize "ASTER.record.alert"}}</label>
+        <input type="text" name="system.alert" value="{{system.alert}}" />
+      </div>
+      <div class="form-group">
+        <label>{{localize "ASTER.record.felka"}}</label>
+        <input type="text" name="system.felka" value="{{system.felka}}" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>{{localize "ASTER.record.scenarioCount"}}</label>
+        <input type="text" name="system.scenarioCount" value="{{system.scenarioCount}}" />
+      </div>
+      <div class="form-group">
+        <label>{{localize "ASTER.record.favor"}}</label>
+        <input type="text" name="system.favor" value="{{system.favor}}" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "ASTER.record.scenes"}}</label>
+      {{#each system.scenes as |scene i|}}
+      <div class="scene-row">◇ <input type="text" name="system.scenes.{{i}}" value="{{scene}}" /></div>
+      {{/each}}
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "ASTER.record.people"}}</label>
+      <textarea name="system.people">{{system.people}}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "ASTER.record.memo"}}</label>
+      <textarea name="system.memo" class="memo-area">{{system.memo}}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label>{{localize "ASTER.record.updatedAt"}}</label>
+      <input type="text" name="system.updatedAt" value="{{system.updatedAt}}" />
+    </div>
+  </section>
+</form>

@@ -353,29 +353,6 @@
     }
   }
 
-  // ── record 탭: 출생/경험/목적 ─────────────────────────────────────────────────
-  .record-wrapper {
-    padding: 8px;
-  }
-
-  .record-features {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .record-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .record-label {
-    flex-shrink: 0;
-    font-size: 0.75rem;
-    width: 32px;
-  }
-
   // ── 공통 input 너비 재정의 ────────────────────────────────────────────────────
   input {
     width: 80%;
