@@ -133,6 +133,32 @@
     }
   }
 
+  .alert-level-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    padding-top: 4px;
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
+
+    .alert-label {
+      color: rgba(200, 200, 200, 0.7);
+      flex-shrink: 0;
+    }
+
+    .alert-value {
+      font-weight: bold;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .range-roll-btn {
+      margin-left: auto;
+      font-size: 0.78rem;
+      padding: 1px 6px;
+    }
+  }
+
   // ── 행 2: 능력치 4개 — 자연 높이 ─────────────────────────────────────────────
   .row-2 {
     flex-shrink: 0;

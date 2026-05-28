@@ -13,10 +13,10 @@
 export const CRAFT_TREE = {
   categories: [
     { id: "potion", label: "ASTER.craft.cat.potion" },
-    { id: "talisman", label: "ASTER.craft.cat.talisman" },
+    { id: "divination", label: "ASTER.craft.cat.divination" },
     { id: "cooking", label: "ASTER.craft.cat.cooking" },
     { id: "supply", label: "ASTER.craft.cat.supply" },
-    { id: "divination", label: "ASTER.craft.cat.divination" },
+    { id: "talisman", label: "ASTER.craft.cat.talisman" },
     { id: "familiar", label: "ASTER.craft.cat.familiar" },
     { id: "furniture", label: "ASTER.craft.cat.furniture" },
   ],
@@ -311,7 +311,7 @@ export const CRAFT_TREE = {
     n("fam_snake", "familiar", "ASTER.craft.snake", 1, { material: 80, anyAster: 4 }, []),
     n("fam_mouse", "familiar", "ASTER.craft.mouse", 1, { material: 80, anyAster: 4 }, []),
     n("fam_frog", "familiar", "ASTER.craft.frog", 1, { material: 80, anyAster: 4 }, []),
-    n("fam_cat", "familiar", "ASTER.craft.cat", 1, { material: 80, anyAster: 4 }, []),
+    n("fam_cat", "familiar", "ASTER.craft.blackcat", 1, { material: 80, anyAster: 4 }, []),
 
     // ===== 가구, 기타 =====
     n("fur_treasure_1", "furniture", "ASTER.craft.treasure", 1, { material: 20, anyAster: 2 }, []),

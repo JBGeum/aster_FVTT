@@ -12,26 +12,103 @@
     gap: 10px;
   }
 
-  // ── 자원 요약 바 ─────────────────────────────────────────────────────────────
+  // ── 자원 요약 (3행 9열) ──────────────────────────────────────────────────────
   .craft-summary {
     display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 6px 10px;
+    flex-direction: column;
+    gap: 0;
+    padding: 6px 8px;
     border: 1px solid rgba(128, 128, 128, 0.3);
     border-radius: 4px;
-    font-size: 0.85rem;
     flex-shrink: 0;
 
     &.over {
-      border-color: rgba(192, 57, 43, 0.5);
-      background: rgba(192, 57, 43, 0.06);
+      border-color: rgba(192, 57, 43, 0.4);
+      background: rgba(192, 57, 43, 0.05);
     }
 
     .over-badge {
-      margin-left: auto;
+      font-size: 0.72rem;
       color: #c0392b;
       font-weight: bold;
+      text-align: right;
+      margin-top: 3px;
+    }
+  }
+
+  // 3행 공용 9열 그리드
+  .craft-res-row {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    column-gap: 3px;
+  }
+
+  // 행 1: 레이블
+  .res-label-cell {
+    text-align: center;
+    font-size: 0.65rem;
+    padding: 2px 1px;
+    border: 1px solid rgba(128, 128, 128, 0.35);
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    border-radius: 3px 3px 0 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &.craft-col-red {
+      color: rgba(220, 90, 90, 0.9);
+    }
+    &.craft-col-blue {
+      color: rgba(90, 130, 220, 0.9);
+    }
+    &.craft-col-green {
+      color: rgba(70, 180, 70, 0.9);
+    }
+    &.craft-col-yellow {
+      color: rgba(200, 165, 0, 0.9);
+    }
+    &.craft-col-white {
+      color: rgba(200, 200, 200, 0.9);
+    }
+    &.craft-col-material {
+      color: rgba(180, 145, 90, 0.9);
+    }
+    &.craft-col-any {
+      color: rgba(160, 130, 200, 0.9);
+    }
+    &.craft-col-self {
+      color: rgba(130, 195, 195, 0.9);
+    }
+    &.craft-col-total {
+      color: rgba(210, 205, 120, 0.9);
+    }
+  }
+
+  // 행 2: 보유량
+  .res-have-cell {
+    text-align: center;
+    font-size: 0.85rem;
+    padding: 2px 1px;
+    border-left: 1px solid rgba(128, 128, 128, 0.35);
+    border-right: 1px solid rgba(128, 128, 128, 0.35);
+    min-width: 0;
+  }
+
+  // 행 3: 사용량 합계
+  .res-cost-cell {
+    text-align: center;
+    font-size: 0.82rem;
+    padding: 2px 1px;
+    border: 1px solid rgba(128, 128, 128, 0.35);
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
+    border-radius: 0 0 3px 3px;
+    min-width: 0;
+
+    &.over {
+      color: #c0392b;
+      font-weight: bold;
+      border-color: rgba(192, 57, 43, 0.4);
     }
   }
 
@@ -49,15 +126,21 @@
   .craft-chains {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
   }
 
-  // ── 스킬 체인 (수평 나열) ─────────────────────────────────────────────────────
+  // ── 스킬 체인 (열 정렬 그리드) ───────────────────────────────────────────────
   .craft-chain {
-    display: flex;
-    align-items: stretch;
-    flex-wrap: wrap;
-    gap: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--col-count, 1), 1fr);
+    gap: 4px;
+  }
+
+  // ── 사역마 전용 레이아웃 (6×1 단일 행) ──────────────────────────────────────
+  .craft-nodes--familiar {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
   }
 
   // ── 개별 노드 카드 ────────────────────────────────────────────────────────────
@@ -67,18 +150,7 @@
     padding: 4px 8px;
     border: 1px solid rgba(128, 128, 128, 0.5);
     border-radius: 4px;
-    min-width: 80px;
-    flex-shrink: 0;
-
-    // 체인 내 연속 노드 — 왼쪽 경계 제거로 연결 표현
-    & + & {
-      border-left: none;
-      border-radius: 0 4px 4px 0;
-    }
-
-    &:first-child:not(:only-child) {
-      border-radius: 4px 0 0 4px;
-    }
+    min-width: 0; // grid 내 overflow 방지
 
     &.acquired {
       background: rgba(60, 160, 60, 0.15);
@@ -107,6 +179,8 @@
       font-size: 0.8rem;
       font-weight: 500;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
       .lv {
         font-size: 0.7rem;

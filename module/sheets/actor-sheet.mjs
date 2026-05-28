@@ -1,7 +1,13 @@
 import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
 import { checkBagCapacity, checkStorageAdd } from "../helpers/inventory-capacity.mjs";
 import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
-import { prereqMet, sumCost, checkAffordable } from "../helpers/craft-cost.mjs";
+import {
+  prereqMet,
+  sumCost,
+  checkAffordable,
+  canAcquire,
+  canRelease,
+} from "../helpers/craft-cost.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -18,6 +24,9 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       itemChat: AsterActorSheet.#onItemChat,
       itemEdit: AsterActorSheet.#onItemEdit,
       itemDelete: AsterActorSheet.#onItemDelete,
+      toggleSkill: AsterActorSheet.#onToggleSkill,
+      craftReset: AsterActorSheet.#onCraftReset,
+      rangeRoll: AsterActorSheet.#onRangeRoll,
     },
   };
 
@@ -72,6 +81,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     } else if (this.actor.type === "npc") {
       this._prepareItems(context);
     }
+
+    context.alertLevel = game.aster?.alertLevel ?? game.settings.get("aster", "alertLevel") ?? 1;
 
     return context;
   }
@@ -170,12 +181,28 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       },
     };
 
-    // 카테고리별로 label 기준 체인 그룹화
+    // 선행 깊이 계산 (depth 0 = 선행 없음, col = depth + 1)
+    const nodeMap = Object.fromEntries(CRAFT_TREE.nodes.map((n) => [n.id, n]));
+    const depthCache = {};
+    const nodeDepth = (id) => {
+      if (depthCache[id] !== undefined) return depthCache[id];
+      const n = nodeMap[id];
+      if (!n || n.requires.length === 0) return (depthCache[id] = 0);
+      return (depthCache[id] = Math.max(...n.requires.map(nodeDepth)) + 1);
+    };
+
+    // 카테고리별로 label 기준 체인 그룹화 + col 계산
     const byCat = {};
     const chainMap = {};
     const chainOrder = {};
     for (const cat of CRAFT_TREE.categories) {
-      byCat[cat.id] = { ...cat, chains: [] };
+      byCat[cat.id] = {
+        ...cat,
+        chains: [],
+        nodes: [],
+        colCount: 1,
+        isFamiliar: cat.id === "familiar",
+      };
       chainMap[cat.id] = {};
       chainOrder[cat.id] = [];
     }
@@ -184,6 +211,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const isAcquired = acquired[node.id] === true;
       const unlocked = prereqMet(node.id, acquired);
       const isLocked = !unlocked && !isAcquired;
+      const col = nodeDepth(node.id) + 1;
       const displayNode = {
         ...node,
         acquired: isAcquired,
@@ -191,7 +219,10 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         locked: isLocked,
         disabledAttr: isLocked ? "disabled" : "",
         costLabel: _formatCraftCost(node.cost),
+        col,
       };
+      if (col > byCat[node.category].colCount) byCat[node.category].colCount = col;
+      byCat[node.category].nodes.push(displayNode);
       if (!chainMap[node.category][node.label]) {
         chainMap[node.category][node.label] = [];
         chainOrder[node.category].push(node.label);
@@ -205,9 +236,59 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     const cost = sumCost(acquired);
     const afford = checkAffordable(acquired, resources);
-    const asterTotal =
+
+    const asterColors = ["red", "blue", "green", "yellow", "white"];
+    const asterHaveTotal = asterColors.reduce((s, c) => s + (resources.aster[c] ?? 0), 0);
+    const asterUsedTotal =
       cost.aster.red + cost.aster.blue + cost.aster.green + cost.aster.yellow + cost.anyAster;
-    const asterHave = Object.values(resources.aster).reduce((s, v) => s + v, 0);
+
+    const summaryColumns = [
+      ...asterColors.map((c) => ({
+        key: c,
+        labelKey: `ASTER.aster.${c}`,
+        have: resources.aster[c] ?? 0,
+        used: cost.aster[c],
+        haveEmpty: false,
+        usedEmpty: false,
+        over: cost.aster[c] > (resources.aster[c] ?? 0),
+      })),
+      {
+        key: "material",
+        label: "마테리얼",
+        have: resources.material ?? 0,
+        used: cost.material,
+        haveEmpty: false,
+        usedEmpty: false,
+        over: cost.material > (resources.material ?? 0),
+      },
+      {
+        key: "any",
+        label: "임의",
+        have: null,
+        used: cost.anyAster,
+        haveEmpty: true,
+        usedEmpty: false,
+        over: false,
+      },
+      {
+        key: "self",
+        label: "자속성",
+        have: null,
+        used: null,
+        haveEmpty: true,
+        usedEmpty: true,
+        over: false,
+      },
+      {
+        key: "total",
+        label: "총합",
+        have: asterHaveTotal,
+        used: asterUsedTotal,
+        haveEmpty: false,
+        usedEmpty: false,
+        over: afford.reasons.includes("ASTER_TOTAL_SHORT"),
+      },
+    ];
 
     context.craft = {
       categories: CRAFT_TREE.categories.map((c) => byCat[c.id]),
@@ -215,9 +296,43 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       overReasons: afford.reasons,
       cost,
       resources,
-      asterTotal,
-      asterHave,
+      summaryColumns,
     };
+  }
+
+  #craftResources() {
+    const a = this.actor.system.aster ?? {};
+    return {
+      material: this.actor.system.material ?? 0,
+      aster: {
+        red: a.red?.value ?? 0,
+        blue: a.blue?.value ?? 0,
+        green: a.green?.value ?? 0,
+        yellow: a.yellow?.value ?? 0,
+        white: a.white?.value ?? 0,
+      },
+    };
+  }
+
+  #craftWarn(reasons, dependents) {
+    const map = {
+      PREREQ: "ASTER.craft.warn.PREREQ",
+      MATERIAL_SHORT: "ASTER.craft.warn.MATERIAL_SHORT",
+      ASTER_TOTAL_SHORT: "ASTER.craft.warn.ASTER_SHORT",
+      ASTER_RED_SHORT: "ASTER.craft.warn.ASTER_SHORT",
+      ASTER_BLUE_SHORT: "ASTER.craft.warn.ASTER_SHORT",
+      ASTER_GREEN_SHORT: "ASTER.craft.warn.ASTER_SHORT",
+      ASTER_YELLOW_SHORT: "ASTER.craft.warn.ASTER_SHORT",
+      HAS_DEPENDENTS: "ASTER.craft.warn.HAS_DEPENDENTS",
+      ALREADY: "ASTER.craft.warn.ALREADY",
+      FAMILIAR_ONE: "ASTER.craft.warn.FAMILIAR_ONE",
+    };
+    const key = map[reasons[0]] ?? "ASTER.craft.warn.GENERIC";
+    let msg = game.i18n.localize(key);
+    if (reasons[0] === "HAS_DEPENDENTS" && dependents?.length) {
+      msg += " (" + dependents.join(", ") + ")";
+    }
+    ui.notifications.warn(msg);
   }
 
   _prepareItems(context) {
@@ -464,6 +579,99 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       content: `<p>${game.i18n.format("ASTER.inventory.deleteMsg", { name: item.name })}</p>`,
     });
     if (confirmed) await item.delete();
+  }
+
+  static async #onToggleSkill(_event, target) {
+    const skillId = target.dataset.skillId;
+    const acquired = foundry.utils.deepClone(this.actor.system.craft?.acquired ?? {});
+    const isAcquired = acquired[skillId] === true;
+
+    if (!isAcquired) {
+      // 사역마 카테고리 배타 취득 검사
+      const node = CRAFT_TREE.nodes.find((n) => n.id === skillId);
+      if (node?.category === "familiar") {
+        const hasOther = CRAFT_TREE.nodes.some(
+          (n) => n.category === "familiar" && n.id !== skillId && acquired[n.id],
+        );
+        if (hasOther) {
+          target.checked = false;
+          this.#craftWarn(["FAMILIAR_ONE"]);
+          return;
+        }
+      }
+
+      const r = canAcquire(skillId, acquired, this.#craftResources());
+      if (!r.ok) {
+        target.checked = false;
+        this.#craftWarn(r.reasons);
+        return;
+      }
+      acquired[skillId] = true;
+    } else {
+      const r = canRelease(skillId, acquired);
+      if (!r.ok) {
+        target.checked = true;
+        this.#craftWarn(r.reasons, r.dependents);
+        return;
+      }
+      delete acquired[skillId];
+    }
+    await this.actor.update({ "system.craft.acquired": acquired });
+  }
+
+  static async #onRangeRoll(_event, _target) {
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.roll.rangeTitle") },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.localize("ASTER.roll.min")}</label>
+          <input type="number" name="min" value="1" min="1" />
+        </div>
+        <div class="form-group">
+          <label>${game.i18n.localize("ASTER.roll.max")}</label>
+          <input type="number" name="max" value="5" min="1" />
+        </div>
+      `,
+      ok: {
+        label: game.i18n.localize("ASTER.roll.do"),
+        callback: (_ev, button) => ({
+          min: Number(button.form.elements.min.value),
+          max: Number(button.form.elements.max.value),
+        }),
+      },
+    }).catch(() => null);
+    if (!result) return;
+
+    const { min, max } = result;
+    if (!Number.isInteger(min) || !Number.isInteger(max) || min > max) {
+      ui.notifications.warn(game.i18n.localize("ASTER.roll.invalidRange"));
+      return;
+    }
+
+    const n = max - min + 1;
+    const formula = n === 1 ? String(min) : `1d${n}${min > 1 ? `+${min - 1}` : ""}`;
+    const roll = new Roll(formula);
+    await roll.evaluate();
+    await roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      flavor: game.i18n.format("ASTER.roll.rangeFlavor", { min, max }),
+    });
+
+    if (game.user.isGM) {
+      const current = game.settings.get("aster", "alertLevel") ?? 0;
+      const next = current + roll.total;
+      game.aster.alertLevel = next;
+      await game.settings.set("aster", "alertLevel", next);
+    }
+  }
+
+  static async #onCraftReset(_event, _target) {
+    const ok = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("ASTER.craft.reset") },
+      content: game.i18n.localize("ASTER.craft.resetConfirm"),
+    }).catch(() => false);
+    if (!ok) return;
+    await this.actor.update({ "system.craft.acquired": {} });
   }
 
   static async #onSubmit(_event, _form, formData) {

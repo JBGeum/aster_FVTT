@@ -64,6 +64,13 @@ Hooks.once("init", async function () {
   ItemsCls.unregisterSheet("core", ItemSheet);
   ItemsCls.registerSheet("aster", AsterItemSheet, { makeDefault: true });
 
+  game.settings.register("aster", "alertLevel", {
+    scope: "world",
+    config: false,
+    default: 1,
+    type: Number,
+  });
+
   registerHandlebarsHelpers();
   return preloadHandlebarsTemplates();
 });
@@ -138,7 +145,18 @@ Handlebars.registerHelper("toLowerCase", function (str) {
 /* -------------------------------------------- */
 
 Hooks.once("ready", async function () {
+  game.aster.alertLevel = game.settings.get("aster", "alertLevel") ?? 1;
+
   Hooks.on("hotbarDrop", (bar, data, slot) => createItemMacro(data, slot));
+  Hooks.on("updateSetting", (setting, changes) => {
+    if (setting.key !== "aster.alertLevel") return;
+    game.aster.alertLevel = changes?.value ?? game.settings.get("aster", "alertLevel") ?? 1;
+    for (const actor of game.actors) {
+      for (const app of Object.values(actor.apps ?? {})) {
+        if (app instanceof AsterActorSheet) app.render();
+      }
+    }
+  });
   await migrateInventoryFields();
 });
 

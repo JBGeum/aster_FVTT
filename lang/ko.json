@@ -30,12 +30,12 @@
     "craft": {
       "cat": {
         "potion": "약 제조",
-        "talisman": "부적 만들기",
+        "divination": "점술",
         "cooking": "요리",
         "supply": "서플리",
-        "divination": "점술",
+        "talisman": "부적 만들기",
         "familiar": "사역마",
-        "furniture": "가구, 기타"
+        "furniture": "가구・기타"
       },
       "cauldron": "가마솥",
       "mortar": "약연",
@@ -55,7 +55,7 @@
       "snake": "뱀",
       "mouse": "생쥐",
       "frog": "개구리",
-      "cat": "검은 고양이",
+      "blackcat": "검은 고양이",
       "treasure": "소중한 물건",
       "swing": "그네",
       "desk": "책상",
@@ -64,7 +64,27 @@
       "shelf": "책장",
       "storage": "저장고",
       "over": "비용 초과",
-      "reset": "전체 초기화"
+      "reset": "전체 초기화",
+      "resetConfirm": "취득한 모든 공방 스킬을 초기화할까요?",
+      "warn": {
+        "PREREQ": "선행 스킬을 먼저 취득해야 합니다.",
+        "MATERIAL_SHORT": "마테리얼이 부족합니다.",
+        "ASTER_SHORT": "아스테르가 부족합니다.",
+        "HAS_DEPENDENTS": "후속 스킬이 취득되어 있어 해제할 수 없습니다.",
+        "ALREADY": "이미 취득한 스킬입니다.",
+        "FAMILIAR_ONE": "사역마는 하나만 취득할 수 있습니다.",
+        "GENERIC": "취득할 수 없습니다."
+      }
+    },
+    "roll": {
+      "range": "경계도",
+      "rangeTitle": "경계도 굴림",
+      "rangeFlavor": "경계도 {min}~{max}",
+      "min": "최소치",
+      "max": "최대치",
+      "do": "굴리기",
+      "invalidRange": "최소치는 최대치보다 작거나 같아야 합니다.",
+      "alertLabel": "경계도"
     },
     "inventory": {
       "warn": {
