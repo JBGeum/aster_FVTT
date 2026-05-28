@@ -24,6 +24,7 @@ export class CharacterDataModel extends BaseActorModel {
         dexterity: abilityField(),
         worldly: abilityField(),
       }),
+      // 특기색: spell 판정 시 색 일치하면 +1. "red"|"blue"|"green"|"yellow"|"" (미지정 허용)
       color: new fields.StringField({ initial: "" }),
       speed: new fields.NumberField({ initial: 0 }),
       dodge: new fields.NumberField({ initial: 0 }),

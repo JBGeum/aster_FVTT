@@ -17,10 +17,12 @@
 @use "sheet/effects";
 @use "sheet/inventory";
 @use "sheet/craft";
+@use "sheet/spell";
 
 // Component
 @use "component/chatcard";
 @use "component/gm-panel";
+@use "component/spell-card";
 
 // CSS @import — 구글 폰트 (CSS 규칙이므로 @use 뒤에 위치)
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");

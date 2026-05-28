@@ -1,0 +1,195 @@
+.aster {
+  .spell-tab {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .spell-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+
+    .spell-create {
+      width: auto;
+      font-size: 0.78rem;
+      padding: 2px 8px;
+    }
+  }
+
+  // 1열 세로 리스트
+  .spell-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .spell-card {
+    display: grid;
+    grid-template-columns: 36px 1fr auto auto;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 6px;
+    min-width: 0;
+  }
+
+  .spell-img {
+    width: 36px;
+    height: 36px;
+    object-fit: cover;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .spell-body {
+    min-width: 0;
+  }
+
+  .spell-name {
+    width: auto;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .spell-meta {
+    font-size: 0.75rem;
+
+    .formula {
+      &.spell-color-red {
+        color: #c0392b;
+      }
+      &.spell-color-blue {
+        color: #2980b9;
+      }
+      &.spell-color-green {
+        color: #27ae60;
+      }
+      &.spell-color-yellow {
+        color: #d4a017;
+      }
+    }
+  }
+
+  .icon-btn {
+    width: auto;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+
+  .spell-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: rgba(200, 200, 200, 0.5);
+    font-size: 0.8rem;
+    padding: 12px 0;
+  }
+
+  // ── spell 아이템 시트 헤더 (아이콘 고정 + 이름/색) ───────────────────────────
+  .spell-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 8px 0;
+
+    .spell-portrait {
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+      object-fit: cover;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .spell-head-fields {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .spell-name-input {
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 1rem;
+      }
+
+      .spell-head-color {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        label {
+          flex-shrink: 0;
+          font-size: 0.75rem;
+          color: rgba(200, 200, 200, 0.7);
+        }
+
+        select {
+          flex: 1;
+          min-width: 0;
+          width: auto;
+        }
+      }
+    }
+  }
+
+  // ── spell 아이템 시트 입력 폼 ─────────────────────────────────────────────────
+  .spell-sheet {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+
+      .form-group {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+
+      label {
+        font-size: 0.75rem;
+        color: rgba(200, 200, 200, 0.7);
+      }
+
+      // .aster input { width: 80% } 전역 규칙 재정의
+      input,
+      select,
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      textarea {
+        min-height: 60px;
+        resize: vertical;
+        font-family: inherit;
+      }
+    }
+  }
+}

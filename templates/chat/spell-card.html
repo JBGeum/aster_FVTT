@@ -1,0 +1,40 @@
+<div class="aster-spell-card spell-color-{{color}}">
+  <header class="card-header">
+    <img src="{{img}}" alt="{{name}}" />
+    <div class="title">
+      <div class="name">{{name}}</div>
+      <div class="formula">{{formula}}</div>
+    </div>
+  </header>
+
+  <div class="roll-block">
+    <div class="dice">[{{diceText}}]</div>
+    <div class="breakdown">
+      2d({{breakdown.base}}) + {{breakdown.ability}} {{#if breakdown.specialty}}+ {{localize
+      "ASTER.spell.specialty"}}({{breakdown.specialty}}){{/if}} {{#if breakdown.extra}}+ {{localize
+      "ASTER.spell.extra"}}({{breakdown.extra}}){{/if}} = <strong>{{achievement}}</strong>
+      / {{localize "ASTER.spell.target"}} {{target}}
+    </div>
+    <div class="verdict {{#if success}}success{{else}}fail{{/if}}">
+      {{#if success}}{{localize "ASTER.spell.success"}}{{else}}{{localize "ASTER.spell.fail"}}{{/if}}
+    </div>
+  </div>
+
+  {{#if effect}}
+  <div class="effect">
+    <div class="label">{{localize "ASTER.spell.effect"}}</div>
+    <div class="text">{{{effectEnriched}}}</div>
+  </div>
+  {{/if}}
+
+  <div class="alert-block">
+    <div class="label">{{localize "ASTER.spell.alert"}}</div>
+    <div class="value">{{alert.min}} ~ {{alert.max}}</div>
+  </div>
+
+  <footer class="card-actions">
+    <button type="button" data-action="spell-extra-roll" data-spell-id="{{spellId}}" data-actor-id="{{actorId}}">
+      {{localize "ASTER.spell.extraRoll"}}
+    </button>
+  </footer>
+</div>

@@ -60,9 +60,13 @@
 
   .sheet-bottom > .tab {
     height: 100%;
+    min-height: 0;
+  }
+
+  // 활성 탭만 표시 (비활성은 Foundry 기본 .tab:not(.active) 숨김에 맡김)
+  .sheet-bottom > .tab.active {
     display: flex;
     flex-direction: column;
-    min-height: 0;
   }
 
   // ── sheet-left 내부: flex 세로 스택 ─────────────────────────────────────────
@@ -89,18 +93,13 @@
     gap: 4px;
 
     img.profile-img {
-      width: 100%;
+      width: 200px;
       aspect-ratio: 1;
       object-fit: cover;
       border-radius: 6px;
       border: none;
       display: block;
       cursor: pointer;
-    }
-
-    .char-name input {
-      width: 100%;
-      text-align: center;
     }
   }
 
@@ -112,6 +111,11 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
+
+    .char-name input {
+      width: 100%;
+      text-align: center;
+    }
 
     .color {
       display: flex;

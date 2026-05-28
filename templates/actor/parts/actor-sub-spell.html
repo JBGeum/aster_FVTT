@@ -1,10 +1,28 @@
-<div class="inven-etc">
-  spell
-  <div class="inventory">
-    <div class="item-list">
-      <div class="item-card">아이템1</div>
-      <div class="item-card">아이템2</div>
-      <div class="item-card">아이템3</div>
-    </div>
+<section class="spell-tab">
+  <div class="spell-toolbar">
+    <button type="button" class="item-create spell-create" data-type="spell">
+      <i class="fas fa-plus"></i> {{localize "ASTER.spell.add"}}
+    </button>
   </div>
-</div>
+  <div class="spell-list">
+    {{#each spells as |s|}}
+    <div class="spell-card" data-item-id="{{s.id}}">
+      <img class="spell-img" src="{{s.img}}" alt="{{s.name}}" data-action="itemEdit" data-item-id="{{s.id}}" />
+      <div class="spell-body">
+        <button type="button" class="spell-name" data-action="spellCast" data-item-id="{{s.id}}">{{s.name}}</button>
+        <div class="spell-meta">
+          <span class="formula spell-color-{{s.color}}">{{s.formula}}</span>
+        </div>
+      </div>
+      <button type="button" class="icon-btn" data-action="itemEdit" data-item-id="{{s.id}}">
+        <i class="fas fa-edit"></i>
+      </button>
+      <button type="button" class="icon-btn" data-action="itemDelete" data-item-id="{{s.id}}">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+    {{else}}
+    <p class="spell-empty">{{localize "ASTER.spell.empty"}}</p>
+    {{/each}}
+  </div>
+</section>

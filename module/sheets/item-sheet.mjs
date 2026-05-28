@@ -60,6 +60,7 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.editable = this.isEditable;
     context.owner = this.item.isOwner;
     context.rollData = this.item.actor?.getRollData() ?? {};
+    context.config = CONFIG.ASTER;
 
     return context;
   }

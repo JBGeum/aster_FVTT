@@ -167,6 +167,49 @@ Hooks.on("getSceneControlButtons", (controls) => {
 });
 
 /* -------------------------------------------- */
+/*  Spell Chat Card — 추가 굴림 버튼            */
+/* -------------------------------------------- */
+
+// V13: renderChatMessage → renderChatMessageHTML (html은 HTMLElement)
+Hooks.on("renderChatMessageHTML", (_message, html) => {
+  const btn = html.querySelector("[data-action='spell-extra-roll']");
+  if (!btn) return;
+  btn.addEventListener("click", async () => {
+    const actor = game.actors.get(btn.dataset.actorId);
+    const spell = actor?.items.get(btn.dataset.spellId);
+    if (!actor || !spell) return;
+
+    const n = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.spell.extraTitle") },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.localize("ASTER.spell.extraN")}</label>
+          <input type="number" name="n" value="1" min="1" />
+        </div>
+      `,
+      ok: {
+        label: game.i18n.localize("ASTER.spell.extraRoll"),
+        callback: (_e, button) => Number(button.form.elements.n.value),
+      },
+    }).catch(() => null);
+    if (!n || n < 1) return;
+
+    // 아스테르 차감 없이 굴리기만 (수동 차감). 자동 차감은 후속 작업.
+    const extraRoll = new Roll(`${n}d6`);
+    await extraRoll.evaluate();
+    const extraDice = extraRoll.dice[0].results.map((r) => r.result);
+    await extraRoll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      flavor: game.i18n.format("ASTER.spell.extraFlavor", {
+        name: spell.name,
+        n,
+        sum: extraDice.reduce((a, b) => a + b, 0),
+      }),
+    });
+  });
+});
+
+/* -------------------------------------------- */
 /*  Ready Hook                                  */
 /* -------------------------------------------- */
 
@@ -183,6 +226,7 @@ Hooks.once("ready", async function () {
   });
 
   await migrateInventoryFields();
+  await migrateSpellTarget();
 });
 
 /* -------------------------------------------- */
@@ -232,6 +276,24 @@ async function migrateInventoryFields() {
   for (const actor of game.actors.filter((a) => a.type === "character")) {
     if (actor.system.storage?.limit == null) {
       await actor.update({ "system.storage.limit": 20 });
+    }
+  }
+}
+
+// spell.system.target 신설 보정. DataModel이 initial을 런타임 적용하므로
+// _source(저장값)에 target이 없는 기존 아이템만 영구 기록한다.
+async function migrateSpellTarget() {
+  if (!game.user.isGM) return;
+  for (const item of game.items.filter((i) => i.type === "spell")) {
+    if (item._source.system.target == null) await item.update({ "system.target": 7 });
+  }
+  for (const actor of game.actors) {
+    const spells = actor.items.filter((i) => i.type === "spell" && i._source.system.target == null);
+    if (spells.length) {
+      await actor.updateEmbeddedDocuments(
+        "Item",
+        spells.map((s) => ({ _id: s.id, "system.target": 7 })),
+      );
     }
   }
 }

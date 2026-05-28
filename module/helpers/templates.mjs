@@ -20,6 +20,9 @@ export const preloadHandlebarsTemplates = async function () {
 
     // Apps
     "systems/aster/templates/apps/gm-panel.html",
+
+    // Chat (spell)
+    "systems/aster/templates/chat/spell-card.html",
   ]);
 };
 

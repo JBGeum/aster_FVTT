@@ -8,6 +8,7 @@ import {
   canAcquire,
   canRelease,
 } from "../helpers/craft-cost.mjs";
+import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell-roll.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -26,6 +27,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       itemDelete: AsterActorSheet.#onItemDelete,
       toggleSkill: AsterActorSheet.#onToggleSkill,
       craftReset: AsterActorSheet.#onCraftReset,
+      spellCast: AsterActorSheet.#onSpellCast,
     },
   };
 
@@ -77,6 +79,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       this._prepareItems(context);
       this._prepareInventory(context);
       this._prepareCraft(context);
+      this._prepareSpellList(context);
     } else if (this.actor.type === "npc") {
       this._prepareItems(context);
     }
@@ -334,17 +337,32 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   _prepareItems(context) {
     const features = [];
-    const spells = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [] };
-
     for (const i of context.items) {
       i.img = i.img || CONST.DEFAULT_TOKEN;
       if (i.type === "feature") features.push(i);
-      else if (i.type === "spell" && i.system.spellLevel != null)
-        spells[i.system.spellLevel].push(i);
     }
-
     context.features = features;
-    context.spells = spells;
+  }
+
+  _prepareSpellList(context) {
+    const spells = this.actor.items.filter((i) => i.type === "spell");
+    context.spells = spells.map((s) => ({
+      id: s.id,
+      name: s.name,
+      img: s.img,
+      color: s.system.color,
+      ability: s.system.ability,
+      target: s.system.target,
+      formula: this.#formatFormula(s), // "녹+박식(12)"
+    }));
+  }
+
+  #formatFormula(spell) {
+    const c = spell.system.color ? game.i18n.localize(`ASTER.aster.${spell.system.color}`) : "?";
+    const a = spell.system.ability
+      ? game.i18n.localize(`ASTER.ability.${spell.system.ability}`)
+      : "?";
+    return `${c}+${a}(${spell.system.target ?? "?"})`;
   }
 
   _onRender(context, options) {
@@ -623,6 +641,64 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }).catch(() => false);
     if (!ok) return;
     await this.actor.update({ "system.craft.acquired": {} });
+  }
+
+  static async #onSpellCast(_event, target) {
+    const spell = this.actor.items.get(target.dataset.itemId);
+    if (!spell) return;
+
+    const sys = spell.system;
+    const abilityTotal = getAbilityTotal(this.actor, sys.ability);
+    const specialty = isSpecialty(this.actor, sys.color);
+    const targetVal = sys.target ?? 0;
+
+    // 2d6 기본 굴림 (추가 다이스는 채팅 카드 버튼에서 별도 굴림)
+    const baseRoll = new Roll("2d6");
+    await baseRoll.evaluate();
+
+    const result = computeSpellRoll({
+      diceTotal: baseRoll.total,
+      abilityValue: abilityTotal,
+      specialty,
+      extraDice: [],
+      target: targetVal,
+    });
+
+    // effect의 인라인 문법(@ability.*, [[/r ...]])을 Foundry 표준으로 치환
+    const effectEnriched = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      sys.effect ?? "",
+      { rollData: this.actor.getRollData() },
+    );
+
+    const cardData = {
+      spellId: spell.id,
+      actorId: this.actor.id,
+      name: spell.name,
+      img: spell.img,
+      color: sys.color,
+      formula: this.#formatFormula(spell),
+      target: targetVal,
+      achievement: result.achievement,
+      success: result.success,
+      breakdown: result.breakdown,
+      diceText: baseRoll.dice[0].results.map((r) => r.result).join(", "),
+      effect: sys.effect,
+      effectEnriched,
+      alert: sys.alert,
+    };
+
+    const content = await foundry.applications.handlebars.renderTemplate(
+      "systems/aster/templates/chat/spell-card.html",
+      cardData,
+    );
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      rolls: [baseRoll],
+      sound: CONFIG.sounds.dice,
+      content,
+      flags: { aster: { spellCard: true, spellId: spell.id, actorId: this.actor.id } },
+    });
   }
 
   static async #onSubmit(_event, _form, formData) {
