@@ -1,3 +1,4 @@
+// @ts-check
 import { CRAFT_TREE } from "./craft-tree.mjs";
 
 const NODE_MAP = Object.fromEntries(CRAFT_TREE.nodes.map((n) => [n.id, n]));

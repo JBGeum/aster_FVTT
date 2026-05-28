@@ -611,7 +611,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       content: `<b>${item.name}</b>`,
-      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
     });
   }
 

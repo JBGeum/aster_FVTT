@@ -60,10 +60,9 @@ Hooks.once("init", async function () {
     record: RecordDataModel,
   };
 
-  // V13: 시트 컬렉션은 foundry.documents.collections 네임스페이스 사용 권장
-  // (전역 Actors/Items도 아직 동작하지만 deprecation warning 발생)
-  const ActorsCls = foundry.documents.collections?.Actors ?? Actors;
-  const ItemsCls = foundry.documents.collections?.Items ?? Items;
+  // V13: 시트 컬렉션은 foundry.documents.collections 네임스페이스 사용
+  const ActorsCls = foundry.documents.collections.Actors;
+  const ItemsCls = foundry.documents.collections.Items;
 
   ActorsCls.unregisterSheet("core", ActorSheet);
   ActorsCls.registerSheet("aster", AsterActorSheet, { makeDefault: true });

@@ -1,3 +1,4 @@
+// @ts-check
 /** 아이템 면적. size={w,h}. */
 export function itemArea(size) {
   const { w = 1, h = 1 } = size ?? {};

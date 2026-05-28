@@ -73,7 +73,6 @@ export class AsterActor extends Actor {
     const resultDiceset = roll.dice[0].values;
 
     const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
-    const style = CONST.CHAT_MESSAGE_STYLES?.OTHER ?? 3;
 
     if (!this.system.dc) {
       // 대항판정
@@ -88,7 +87,7 @@ export class AsterActor extends Actor {
         "systems/aster/templates/chatcard/roll-asterabl-vs.html",
         templateData,
       );
-      ChatMessage.create({ content, speaker, style });
+      ChatMessage.create({ content, speaker });
     } else {
       // 일반 판정
       const isSpecial = resultDiceset[0] === 6 && resultDiceset[1] === 6;
@@ -106,7 +105,7 @@ export class AsterActor extends Actor {
         "systems/aster/templates/chatcard/roll-asterabl.html",
         templateData,
       );
-      ChatMessage.create({ content, speaker, style });
+      ChatMessage.create({ content, speaker });
     }
   }
 
@@ -137,7 +136,6 @@ export class AsterActor extends Actor {
     ChatMessage.create({
       content,
       speaker: ChatMessage.getSpeaker({ alias: game.user.name }),
-      style: CONST.CHAT_MESSAGE_STYLES?.OTHER ?? 3,
     });
   }
 }
