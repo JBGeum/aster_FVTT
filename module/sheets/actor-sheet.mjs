@@ -1,4 +1,4 @@
-import { onManageActiveEffect, prepareActiveEffectCategories } from "../helpers/effects.mjs";
+import { prepareActiveEffectCategories } from "../helpers/effects.mjs";
 import { checkBagCapacity, checkStorageAdd } from "../helpers/inventory-capacity.mjs";
 import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
 import {
@@ -32,6 +32,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       recordNext: AsterActorSheet.#onRecordNext,
       recordAdd: AsterActorSheet.#onRecordAdd,
       recordDelete: AsterActorSheet.#onRecordDelete,
+      ablRoll: AsterActorSheet.#onAblRoll,
+      emoRoll: AsterActorSheet.#onEmoRoll,
+      rollOptNormal: AsterActorSheet.#onRollOptNormal,
+      rollOptVs: AsterActorSheet.#onRollOptVs,
+      itemCreate: AsterActorSheet.#onItemCreate,
     },
   };
 
@@ -401,120 +406,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   _onRender(context, options) {
     super._onRender(context, options);
-    const html = this.element;
 
-    // 탭 초기 상태 적용 (data-action="tab" 요소가 있으므로 클릭은 ApplicationV2가 자동 처리)
+    // 탭 초기 상태 적용 (data-action="tab" 클릭은 ApplicationV2가 자동 처리)
     for (const [group, tab] of Object.entries(this.tabGroups)) {
       this.changeTab(tab, group, { force: true });
     }
-
-    // 아이템 시트 열기
-    html.querySelectorAll(".item-edit").forEach((el) =>
-      el.addEventListener("click", (ev) => {
-        const item = this.actor.items.get(ev.currentTarget.closest(".item")?.dataset.itemId);
-        item?.sheet.render(true);
-      }),
-    );
-
-    if (!this.isEditable) return;
-
-    // 아이템 생성
-    html
-      .querySelectorAll(".item-create")
-      .forEach((el) => el.addEventListener("click", this._onItemCreate.bind(this)));
-
-    // 아이템 삭제
-    html.querySelectorAll(".item-delete").forEach((el) =>
-      el.addEventListener("click", (ev) => {
-        const item = this.actor.items.get(ev.currentTarget.closest(".item")?.dataset.itemId);
-        item?.delete().then(() => this.render(false));
-      }),
-    );
-
-    // 액티브 이펙트
-    html
-      .querySelectorAll(".effect-control")
-      .forEach((el) => el.addEventListener("click", (ev) => onManageActiveEffect(ev, this.actor)));
-
-    // 일반 롤
-    html
-      .querySelectorAll(".rollable")
-      .forEach((el) => el.addEventListener("click", this._onRoll.bind(this)));
-
-    // 판정 옵션: 일반 / 대항
-    html.querySelector(".roll-opt-abl")?.addEventListener("click", () => {
-      const input = html.querySelector("#roll-dc");
-      if (input) input.value = "7";
-      this.actor.update({ "system.dc": 7 });
-    });
-    html.querySelector(".roll-opt-vs")?.addEventListener("click", () => {
-      const input = html.querySelector("#roll-dc");
-      if (input) input.value = "";
-      this.actor.update({ "system.dc": 0 });
-    });
-
-    // 능력치 롤
-    html
-      .querySelectorAll(".abl-roll")
-      .forEach((el) => el.addEventListener("click", this._onAblRoll.bind(this)));
-
-    // 정동 판정 롤
-    html
-      .querySelectorAll(".emo-roll")
-      .forEach((el) => el.addEventListener("click", this._onEmoRoll.bind(this)));
-
-    // 핫바 매크로용 드래그
-    if (this.actor.isOwner) {
-      const onDragStart = (ev) => this._onDragStart(ev);
-      html.querySelectorAll("li.item:not(.inventory-header)").forEach((li) => {
-        li.setAttribute("draggable", true);
-        li.addEventListener("dragstart", onDragStart, false);
-      });
-    }
-  }
-
-  async _onItemCreate(event) {
-    event.preventDefault();
-    const header = event.currentTarget;
-    const type = header.dataset.type;
-    const data = foundry.utils.duplicate(header.dataset);
-    const name = `New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
-    const itemData = { name, type, system: data };
-    delete itemData.system["type"];
-    return Item.create(itemData, { parent: this.actor });
-  }
-
-  _onRoll(event) {
-    event.preventDefault();
-    const dataset = event.currentTarget.dataset;
-
-    if (dataset.rollType === "item") {
-      const item = this.actor.items.get(event.currentTarget.closest(".item")?.dataset.itemId);
-      if (item) return item.roll();
-    }
-
-    if (dataset.roll) {
-      const label = dataset.label ? `[ability] ${dataset.label}` : "";
-      const roll = new Roll(dataset.roll, this.actor.getRollData());
-      roll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-        flavor: label,
-        rollMode: game.settings.get("core", "rollMode"),
-      });
-      return roll;
-    }
-  }
-
-  _onAblRoll(event) {
-    event.preventDefault();
-    const { ability, label } = event.currentTarget.dataset;
-    this.actor.rollAbility(ability, label, { event });
-  }
-
-  _onEmoRoll(event) {
-    event.preventDefault();
-    const { aster, label } = event.currentTarget.dataset;
-    this.actor.rollEmotion(aster, label, { event });
   }
 
   #cellToXY(cellIndex, grid) {
@@ -764,6 +660,34 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await this.actor.items.get(target.dataset.itemId)?.delete();
     this._recordIndex = Math.max(0, (this._recordIndex ?? 0) - 1);
     this.render();
+  }
+
+  static async #onItemCreate(_event, target) {
+    if (!this.isEditable) return;
+    const type = target.dataset.type;
+    const data = foundry.utils.duplicate(target.dataset);
+    const name = `New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+    const itemData = { name, type, system: data };
+    delete itemData.system["type"];
+    return Item.create(itemData, { parent: this.actor });
+  }
+
+  static #onAblRoll(_event, target) {
+    const { ability, label } = target.dataset;
+    this.actor.rollAbility(ability, label, {});
+  }
+
+  static #onEmoRoll(_event, target) {
+    const { aster, label } = target.dataset;
+    this.actor.rollEmotion(aster, label, {});
+  }
+
+  static #onRollOptNormal(_event, _target) {
+    this.actor.update({ "system.dc": 7 });
+  }
+
+  static #onRollOptVs(_event, _target) {
+    this.actor.update({ "system.dc": 0 });
   }
 
   static async #onSubmit(_event, _form, formData) {
