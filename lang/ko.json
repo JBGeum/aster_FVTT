@@ -13,6 +13,16 @@
       "green": "녹",
       "yellow": "황"
     },
+    "emo": {
+      "roll": "정동판정",
+      "rollLabel": "정동판정",
+      "favLabel": "특기색",
+      "generate": "아스테르 발생",
+      "generateTitle": "정동판정 — 아스테르 발생",
+      "generateHint": "발생할 색별 개수를 입력하세요. (1인당 1~5개)",
+      "generated": "아스테르 발생",
+      "invalidTotal": "발생 개수 합계는 1~5개여야 합니다."
+    },
     "label": {
       "speed": "민첩",
       "dodge": "회피",

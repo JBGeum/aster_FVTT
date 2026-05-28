@@ -71,6 +71,7 @@ export class AsterActor extends Actor {
     const ablValue = this.system.ability[ability].total;
     const roll = await asterRoll(ablValue, this.getRollData());
     const resultDiceset = roll.dice[0].values;
+    const diceText = resultDiceset.join(", ");
 
     const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
 
@@ -82,6 +83,7 @@ export class AsterActor extends Actor {
         result: roll.result,
         total: roll.total,
         resultDiceset,
+        diceText,
       };
       const content = await renderTemplate(
         "systems/aster/templates/chatcard/roll-asterabl-vs.html",
@@ -100,6 +102,7 @@ export class AsterActor extends Actor {
         isSuccess,
         isSpecial,
         resultDiceset,
+        diceText,
       };
       const content = await renderTemplate(
         "systems/aster/templates/chatcard/roll-asterabl.html",
@@ -109,11 +112,10 @@ export class AsterActor extends Actor {
     }
   }
 
-  async rollEmotion(aster, label, _options = {}) {
+  async rollEmotion(label, _options = {}) {
     const renderTemplate = foundry.applications.handlebars.renderTemplate;
-    const isFavColor = aster === this.system.color;
-    const formula = isFavColor ? "2d6+1" : "2d6";
-    const roll = new Roll(formula);
+    // 룰: 정동판정 달성치는 어떤 효과로도 증감되지 않음. 항상 2d6.
+    const roll = new Roll("2d6");
     await roll.evaluate();
     const resultDiceset = roll.dice[0].values;
 
@@ -122,12 +124,16 @@ export class AsterActor extends Actor {
     const templateData = {
       label,
       total: roll.total,
-      aster,
       result: roll.result,
-      isFavColor,
+      diceText: resultDiceset.join(", "),
       isSpecial,
       isSuccess,
       resultDiceset,
+      // 특기색은 PL이 수동 +1 할 때 참고하도록 표시만 한다(자동 가산 안 함).
+      favColor: this.system.color,
+      favColorLabel: this.system.color
+        ? game.i18n.localize(`ASTER.aster.${this.system.color}`)
+        : "",
     };
     const content = await renderTemplate(
       "systems/aster/templates/chatcard/roll-asterabl-emo.html",

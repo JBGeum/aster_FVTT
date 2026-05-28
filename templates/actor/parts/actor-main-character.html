@@ -157,9 +157,7 @@
       {{#each system.aster as |aster key|}}
       <div class="aster aster-{{key}}">
         <div class="aster-name">
-          <span class="aster-label emo-roll" data-action="emoRoll" data-aster="{{key}}" data-label="{{aster.label}}"
-            >{{aster.label}}</span
-          >
+          <span class="aster-label">{{aster.label}}</span>
         </div>
         <div class="aster-value">
           <input type="number" name="system.aster.{{key}}.value" value="{{aster.value}}" />
@@ -173,6 +171,9 @@
         </div>
       </div>
     </div>
+    <button type="button" class="emo-roll-btn" data-action="emoRoll" data-label="ASTER.emo.rollLabel">
+      {{localize "ASTER.emo.roll"}}
+    </button>
   </div>
 
   {{!-- 행 메모 — 남는 세로 공간 흡수 (system.biography) --}}

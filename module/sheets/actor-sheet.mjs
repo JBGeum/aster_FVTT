@@ -678,8 +678,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static #onEmoRoll(_event, target) {
-    const { aster, label } = target.dataset;
-    this.actor.rollEmotion(aster, label, {});
+    const { label } = target.dataset;
+    this.actor.rollEmotion(label, {});
   }
 
   static #onRollOptNormal(_event, _target) {

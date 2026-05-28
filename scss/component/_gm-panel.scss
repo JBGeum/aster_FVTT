@@ -6,6 +6,19 @@
     padding: 8px;
   }
 
+  // 발생기 등 패널 하단 독립 액션
+  .gm-panel-actions {
+    display: flex;
+    gap: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(128, 128, 128, 0.25);
+
+    .wv-emo {
+      flex: 1;
+      font-size: 0.8rem;
+    }
+  }
+
   .world-value {
     display: flex;
     flex-direction: column;

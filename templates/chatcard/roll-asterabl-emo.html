@@ -1,34 +1,22 @@
-<div class="chatcard aster-chatcard text-align">
-  <div class="roll-abl-chatcard">
-    <div class="roll-title">
-      <div class="chatcard-abl-name flex-center">정동 판정</div>
-      <div class="roll-type">{{localize label}}</div>
+<div class="aster-chat-card emo-card">
+  <header class="card-header">
+    <div class="title">
+      <div class="name">{{localize label}}</div>
+      <div class="formula">2d6 &ge; 7</div>
     </div>
-    <div class="diceset-area flexrow align-center">
-      {{#each resultDiceset}}
-      <div class="die-result flexcol">
-        <div class="die-area">
-          <i class="dNum-{{this}} fa-duotone fa-square-{{this}}"></i>
-        </div>
-      </div>
-      {{/each}}
-      <div class="die-result flexcol">
-        <div class="mod-area">{{#if isFavColor}} 특기 {{/if}}</div>
-      </div>
-      <div class="roll-result-text">
-        {{#if isSpecial}} 스페셜 {{else}} {{#if isSuccess}} 성공 {{else}} 실패 {{/if}} {{/if}}
-      </div>
-    </div>
-    <div class="roll-dc">
-      <div class="roll-dc-lbl"></div>
-      <div class="roll-dc-formula align-center">{{result}} >= 7</div>
-    </div>
-    <div class="roll-emo flexrow align-center">
-      <div class="roll-emo-option flexcol">적</div>
-      <div class="roll-emo-option flexcol">청</div>
-      <div class="roll-emo-option flexcol">백</div>
-      <div class="roll-emo-option flexcol">황</div>
-      <div class="roll-emo-option flexcol">녹</div>
+  </header>
+
+  <div class="roll-block">
+    <div class="dice">[{{diceText}}]</div>
+    <div class="verdict {{#if isSuccess}}success{{else}}fail{{/if}}">
+      {{#if isSpecial}}스페셜{{else}}{{#if isSuccess}}성공{{else}}실패{{/if}}{{/if}}
     </div>
   </div>
+
+  {{#if isSuccess}} {{#if favColorLabel}}
+  <div class="emo-fav">
+    <span class="label">{{localize "ASTER.emo.favLabel"}}</span>
+    <span class="value">{{favColorLabel}}</span>
+  </div>
+  {{/if}} {{/if}}
 </div>

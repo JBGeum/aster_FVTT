@@ -17,6 +17,7 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       setValue: AsterGMPanel.#onSetValue,
       rangeRoll: AsterGMPanel.#onRangeRoll,
       witchHunt: AsterGMPanel.#onWitchHunt,
+      emoGenerate: AsterGMPanel.#onEmoGenerate,
     },
   };
 
@@ -138,6 +139,56 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
           alert: threshold,
         },
       ),
+    });
+  }
+
+  static async #onEmoGenerate(_event, _target) {
+    const COLORS = [
+      { key: "red", label: game.i18n.localize("ASTER.aster.red") },
+      { key: "blue", label: game.i18n.localize("ASTER.aster.blue") },
+      { key: "white", label: game.i18n.localize("ASTER.aster.white") },
+      { key: "yellow", label: game.i18n.localize("ASTER.aster.yellow") },
+      { key: "green", label: game.i18n.localize("ASTER.aster.green") },
+    ];
+
+    const rows = COLORS.map(
+      (c) => `
+        <div class="form-group">
+          <label>${c.label}</label>
+          <input type="number" name="${c.key}" value="0" min="0" max="5" />
+        </div>`,
+    ).join("");
+
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.emo.generateTitle") },
+      content: `<p class="emo-gen-hint">${game.i18n.localize("ASTER.emo.generateHint")}</p>${rows}`,
+      ok: {
+        label: game.i18n.localize("ASTER.emo.generate"),
+        callback: (_e, b) =>
+          Object.fromEntries(COLORS.map((c) => [c.key, Number(b.form.elements[c.key].value) || 0])),
+      },
+    }).catch(() => null);
+    if (!result) return;
+
+    // 룰: 1인당 1~5개. 1색 1개도 유효하므로 하한 1.
+    const total = Object.values(result).reduce((a, n) => a + n, 0);
+    if (total < 1 || total > 5) {
+      ui.notifications.warn(game.i18n.localize("ASTER.emo.invalidTotal"));
+      return;
+    }
+
+    const parts = COLORS.filter((c) => result[c.key] > 0).map((c) => `${c.label} ${result[c.key]}`);
+    await ChatMessage.create({
+      content: `
+        <div class="aster-chat-card emo-card">
+          <header class="card-header">
+            <div class="title">
+              <div class="name">${game.i18n.localize("ASTER.emo.generated")}</div>
+            </div>
+          </header>
+          <div class="emo-gen-list">${parts.join(" / ")}</div>
+        </div>`,
+      speaker: ChatMessage.getSpeaker({ alias: game.i18n.localize("ASTER.world.panelTitle") }),
     });
   }
 }
