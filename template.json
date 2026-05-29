@@ -59,7 +59,8 @@
       },
       "player": "",
       "craft": {
-        "acquired": {}
+        "acquired": {},
+        "locked": false
       }
     },
     "npc": {

@@ -1,13 +1,7 @@
 import { prepareActiveEffectCategories } from "../helpers/effects.mjs";
 import { checkBagCapacity, checkStorageAdd } from "../helpers/inventory-capacity.mjs";
 import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
-import {
-  prereqMet,
-  sumCost,
-  checkAffordable,
-  canAcquire,
-  canRelease,
-} from "../helpers/craft-cost.mjs";
+import { prereqMet, sumCost, canAcquire, canRelease } from "../helpers/craft-cost.mjs";
 import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell-roll.mjs";
 import { detectCritFumble } from "../helpers/roll-result.mjs";
 
@@ -28,6 +22,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       itemDelete: AsterActorSheet.#onItemDelete,
       toggleSkill: AsterActorSheet.#onToggleSkill,
       craftReset: AsterActorSheet.#onCraftReset,
+      craftLockToggle: AsterActorSheet.#onCraftLockToggle,
       spellCast: AsterActorSheet.#onSpellCast,
       recordPrev: AsterActorSheet.#onRecordPrev,
       recordNext: AsterActorSheet.#onRecordNext,
@@ -181,6 +176,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   _prepareCraft(context) {
     const acquired = this.actor.system.craft?.acquired ?? {};
+    const craftLocked = this.actor.system.craft?.locked ?? false;
     const resources = {
       material: this.actor.system.material ?? 0,
       aster: {
@@ -228,7 +224,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         acquired: isAcquired,
         unlocked,
         locked: isLocked,
-        disabledAttr: isLocked ? "disabled" : "",
+        // 선행 미충족(isLocked)이거나 탭이 잠긴 경우 체크박스를 비활성화한다.
+        disabledAttr: isLocked || craftLocked ? "disabled" : "",
         costLabel: _formatCraftCost(node.cost),
         col,
       };
@@ -246,7 +243,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
 
     const cost = sumCost(acquired);
-    const afford = checkAffordable(acquired, resources);
 
     const asterColors = ["red", "blue", "green", "yellow", "white"];
     const asterHaveTotal = asterColors.reduce((s, c) => s + (resources.aster[c] ?? 0), 0);
@@ -261,7 +257,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         used: cost.aster[c],
         haveEmpty: false,
         usedEmpty: false,
-        over: cost.aster[c] > (resources.aster[c] ?? 0),
+        editable: true,
+        inputName: `system.aster.${c}.value`,
       })),
       {
         key: "material",
@@ -270,7 +267,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         used: cost.material,
         haveEmpty: false,
         usedEmpty: false,
-        over: cost.material > (resources.material ?? 0),
+        editable: true,
+        inputName: "system.material",
       },
       {
         key: "any",
@@ -279,7 +277,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         used: cost.anyAster,
         haveEmpty: true,
         usedEmpty: false,
-        over: false,
+        editable: false,
       },
       {
         key: "self",
@@ -288,7 +286,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         used: null,
         haveEmpty: true,
         usedEmpty: true,
-        over: false,
+        editable: false,
       },
       {
         key: "total",
@@ -297,31 +295,18 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         used: asterUsedTotal,
         haveEmpty: false,
         usedEmpty: false,
-        over: afford.reasons.includes("ASTER_TOTAL_SHORT"),
+        editable: false,
       },
     ];
 
     context.craft = {
       categories: CRAFT_TREE.categories.map((c) => byCat[c.id]),
-      overBudget: !afford.ok,
-      overReasons: afford.reasons,
       cost,
       resources,
       summaryColumns,
-    };
-  }
-
-  #craftResources() {
-    const a = this.actor.system.aster ?? {};
-    return {
-      material: this.actor.system.material ?? 0,
-      aster: {
-        red: a.red?.value ?? 0,
-        blue: a.blue?.value ?? 0,
-        green: a.green?.value ?? 0,
-        yellow: a.yellow?.value ?? 0,
-        white: a.white?.value ?? 0,
-      },
+      locked: craftLocked,
+      lockIcon: craftLocked ? "fa-lock" : "fa-lock-open",
+      lockTitle: craftLocked ? "ASTER.craft.unlock" : "ASTER.craft.lock",
     };
   }
 
@@ -411,6 +396,18 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     // 탭 초기 상태 적용 (data-action="tab" 클릭은 ApplicationV2가 자동 처리)
     for (const [group, tab] of Object.entries(this.tabGroups)) {
       this.changeTab(tab, group, { force: true });
+    }
+
+    // craft 탭 자원 input은 메인 탭과 같은 필드(system.aster.*, system.material)를 가리킨다.
+    // 폼 name으로 두면 한 form 안에 같은 name이 둘이 되어 제출 시 값이 배열로 묶여 검증 오류가 난다.
+    // 따라서 name 없이 직접 update로 처리한다.
+    for (const input of this.element.querySelectorAll(".craft-res-input")) {
+      input.addEventListener("change", (ev) => {
+        const field = ev.currentTarget.dataset.field;
+        if (!field) return;
+        const value = Number(ev.currentTarget.value);
+        this.actor.update({ [field]: Number.isFinite(value) ? value : 0 });
+      });
     }
   }
 
@@ -532,9 +529,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const isAcquired = acquired[skillId] === true;
 
     if (!isAcquired) {
-      // 사역마 카테고리 배타 취득 검사
       const node = CRAFT_TREE.nodes.find((n) => n.id === skillId);
-      if (node?.category === "familiar") {
+      if (!node) return;
+
+      // 사역마 카테고리 배타 취득 검사
+      if (node.category === "familiar") {
         const hasOther = CRAFT_TREE.nodes.some(
           (n) => n.category === "familiar" && n.id !== skillId && acquired[n.id],
         );
@@ -545,13 +544,46 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         }
       }
 
-      const r = canAcquire(skillId, acquired, this.#craftResources());
+      const r = canAcquire(skillId, acquired);
       if (!r.ok) {
         target.checked = false;
         this.#craftWarn(r.reasons);
         return;
       }
-      acquired[skillId] = true;
+
+      // 취득 + 비용 차감: 고정색 + 마테리얼만 자동 차감(음수 허용). 임의색(anyAster)은 수동 조정.
+      const update = { [`system.craft.acquired.${skillId}`]: true };
+      const shortList = [];
+      for (const c of ["red", "blue", "green", "yellow"]) {
+        const amount = node.cost.aster[c];
+        if (amount > 0) {
+          const newVal = (this.actor.system.aster?.[c]?.value ?? 0) - amount;
+          update[`system.aster.${c}.value`] = newVal;
+          if (newVal < 0) {
+            shortList.push(
+              game.i18n.format("ASTER.craft.warn.NEGATIVE", {
+                resource: game.i18n.localize(`ASTER.aster.${c}`),
+                value: newVal,
+              }),
+            );
+          }
+        }
+      }
+      if (node.cost.material > 0) {
+        const newMat = (this.actor.system.material ?? 0) - node.cost.material;
+        update["system.material"] = newMat;
+        if (newMat < 0) {
+          shortList.push(
+            game.i18n.format("ASTER.craft.warn.NEGATIVE", {
+              resource: game.i18n.localize("ASTER.label.material"),
+              value: newMat,
+            }),
+          );
+        }
+      }
+      await this.actor.update(update);
+      // 음수가 된 자원은 차단하지 않고 알림으로 수정 유도(음수 허용 정책).
+      if (shortList.length) ui.notifications.warn(shortList.join(" / "));
     } else {
       const r = canRelease(skillId, acquired);
       if (!r.ok) {
@@ -559,9 +591,22 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         this.#craftWarn(r.reasons, r.dependents);
         return;
       }
-      delete acquired[skillId];
+      // 환불: 차감의 거울 동작(anyAster 제외). ObjectField 키는 삭제 구문(-=)으로 제거.
+      const node = CRAFT_TREE.nodes.find((n) => n.id === skillId);
+      const update = { [`system.craft.acquired.-=${skillId}`]: null };
+      if (node) {
+        for (const c of ["red", "blue", "green", "yellow"]) {
+          const amount = node.cost.aster[c];
+          if (amount > 0) {
+            update[`system.aster.${c}.value`] = (this.actor.system.aster?.[c]?.value ?? 0) + amount;
+          }
+        }
+        if (node.cost.material > 0) {
+          update["system.material"] = (this.actor.system.material ?? 0) + node.cost.material;
+        }
+      }
+      await this.actor.update(update);
     }
-    await this.actor.update({ "system.craft.acquired": acquired });
   }
 
   static async #onCraftReset(_event, _target) {
@@ -570,7 +615,30 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       content: game.i18n.localize("ASTER.craft.resetConfirm"),
     }).catch(() => false);
     if (!ok) return;
-    await this.actor.update({ "system.craft.acquired": {} });
+
+    const acquired = this.actor.system.craft?.acquired ?? {};
+    if (Object.keys(acquired).length === 0) return;
+
+    // 취득 노드 비용 합계로 일괄 환불(anyAster는 차감 대상이 아니었으므로 환불도 제외).
+    // 빈 객체를 머지하면 기존 키가 남으므로, 취득한 키를 각각 삭제 구문(-=)으로 제거.
+    const cost = sumCost(acquired);
+    const update = {};
+    for (const k of Object.keys(acquired)) update[`system.craft.acquired.-=${k}`] = null;
+    for (const c of ["red", "blue", "green", "yellow"]) {
+      if (cost.aster[c] > 0) {
+        update[`system.aster.${c}.value`] =
+          (this.actor.system.aster?.[c]?.value ?? 0) + cost.aster[c];
+      }
+    }
+    if (cost.material > 0) {
+      update["system.material"] = (this.actor.system.material ?? 0) + cost.material;
+    }
+    await this.actor.update(update);
+  }
+
+  static async #onCraftLockToggle(_event, _target) {
+    const locked = this.actor.system.craft?.locked ?? false;
+    await this.actor.update({ "system.craft.locked": !locked });
   }
 
   static async #onSpellCast(_event, target) {

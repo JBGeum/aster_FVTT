@@ -1,6 +1,13 @@
-<div class="craft-tab">
+<div class="craft-tab{{#if craft.locked}} locked{{/if}}">
+  {{!-- 수정 잠금/해제 토글 --}}
+  <div class="craft-header">
+    <button type="button" class="craft-lock" data-action="craftLockToggle" title="{{localize craft.lockTitle}}">
+      <i class="fa-solid {{craft.lockIcon}}"></i>
+    </button>
+  </div>
+
   {{!-- 자원 요약 (3행 9열 그리드) --}}
-  <div class="craft-summary{{#if craft.overBudget}} over{{/if}}">
+  <div class="craft-summary">
     {{!-- 행 1: 레이블 --}}
     <div class="craft-res-row craft-label-row">
       {{#each craft.summaryColumns as |col|}}
@@ -9,21 +16,22 @@
       </div>
       {{/each}}
     </div>
-    {{!-- 행 2: 보유량 (임의·자속성·총합 제외) --}}
+    {{!-- 행 2: 보유량 (아스테르·마테리얼은 직접 수정 가능, 임의·자속성·총합은 표시만) --}}
     <div class="craft-res-row craft-have-row">
       {{#each craft.summaryColumns as |col|}}
-      <div class="res-have-cell">{{#unless col.haveEmpty}}{{col.have}}{{/unless}}</div>
+      <div class="res-have-cell">
+        {{#if col.editable}}
+        <input type="number" class="craft-res-input" data-field="{{col.inputName}}" value="{{col.have}}" />
+        {{else}}{{#unless col.haveEmpty}}{{col.have}}{{/unless}}{{/if}}
+      </div>
       {{/each}}
     </div>
     {{!-- 행 3: 사용량 합계 --}}
     <div class="craft-res-row craft-cost-row">
       {{#each craft.summaryColumns as |col|}}
-      <div class="res-cost-cell{{#if col.over}} over{{/if}}">{{#unless col.usedEmpty}}{{col.used}}{{/unless}}</div>
+      <div class="res-cost-cell">{{#unless col.usedEmpty}}{{col.used}}{{/unless}}</div>
       {{/each}}
     </div>
-    {{#if craft.overBudget}}
-    <div class="over-badge">{{localize "ASTER.craft.over"}}</div>
-    {{/if}}
   </div>
 
   {{#each craft.categories as |cat|}}

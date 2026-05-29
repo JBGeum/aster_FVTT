@@ -35,7 +35,7 @@ export class CharacterDataModel extends BaseActorModel {
         green: new fields.SchemaField({ value: new fields.NumberField({ initial: 0 }) }),
         yellow: new fields.SchemaField({ value: new fields.NumberField({ initial: 0 }) }),
       }),
-      material: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
+      material: new fields.NumberField({ initial: 0, integer: true }),
       storage: new fields.SchemaField({
         limit: new fields.NumberField({ initial: 20, integer: true, min: 0 }),
       }),
@@ -63,6 +63,7 @@ export class CharacterDataModel extends BaseActorModel {
       player: new fields.StringField({ initial: "" }),
       craft: new fields.SchemaField({
         acquired: new fields.ObjectField({ initial: {} }),
+        locked: new fields.BooleanField({ initial: false }),
       }),
     };
   }

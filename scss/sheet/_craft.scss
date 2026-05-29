@@ -12,6 +12,34 @@
     gap: 10px;
   }
 
+  // ── 수정 잠금/해제 헤더 ──────────────────────────────────────────────────────
+  .craft-header {
+    display: flex;
+    justify-content: flex-end;
+
+    .craft-lock {
+      width: auto;
+      flex: 0 0 auto;
+      padding: 2px 8px;
+      line-height: 1.4;
+      cursor: pointer;
+    }
+  }
+
+  // 잠금 상태: 체크박스는 disabled 속성으로, 입력·리셋 버튼은 pointer-events로 막는다.
+  // (입력/리셋에 disabled를 핸들바 조건부 속성으로 넣으면 Prettier HTML 파서가 깨져 CSS로 처리)
+  .craft-tab.locked {
+    .node-label input:disabled {
+      opacity: 0.6;
+    }
+
+    .craft-res-input,
+    .craft-reset {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+  }
+
   // ── 자원 요약 (3행 9열) ──────────────────────────────────────────────────────
   .craft-summary {
     display: flex;
@@ -21,19 +49,6 @@
     border: 1px solid rgba(128, 128, 128, 0.3);
     border-radius: 4px;
     flex-shrink: 0;
-
-    &.over {
-      border-color: rgba(192, 57, 43, 0.4);
-      background: rgba(192, 57, 43, 0.05);
-    }
-
-    .over-badge {
-      font-size: 0.72rem;
-      color: #c0392b;
-      font-weight: bold;
-      text-align: right;
-      margin-top: 3px;
-    }
   }
 
   // 3행 공용 9열 그리드
@@ -85,7 +100,7 @@
     }
   }
 
-  // 행 2: 보유량
+  // 행 2: 보유량 (아스테르·마테리얼은 input으로 직접 수정)
   .res-have-cell {
     text-align: center;
     font-size: 0.85rem;
@@ -93,6 +108,16 @@
     border-left: 1px solid rgba(128, 128, 128, 0.35);
     border-right: 1px solid rgba(128, 128, 128, 0.35);
     min-width: 0;
+
+    input {
+      width: 100%;
+      min-width: 0;
+      text-align: center;
+      font-size: 0.85rem;
+      padding: 0;
+      border: none;
+      background: transparent;
+    }
   }
 
   // 행 3: 사용량 합계
@@ -104,12 +129,6 @@
     border-top: 1px solid rgba(128, 128, 128, 0.2);
     border-radius: 0 0 3px 3px;
     min-width: 0;
-
-    &.over {
-      color: #c0392b;
-      font-weight: bold;
-      border-color: rgba(192, 57, 43, 0.4);
-    }
   }
 
   // ── 카테고리 블록 ────────────────────────────────────────────────────────────

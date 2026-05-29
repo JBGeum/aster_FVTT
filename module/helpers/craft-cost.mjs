@@ -62,18 +62,16 @@ export function checkAffordable(acquired, resources) {
 }
 
 /**
- * 취득 시도 판정: 선행 + 비용을 한 번에 검사 (예정 집합으로).
+ * 취득 시도 판정: 선행 등 구조적 조건만 검사한다.
+ * 비용(아스테르·마테리얼) 부족은 차단하지 않는다 — 취득 시 비용은 즉시 차감되며
+ * 보유량이 음수가 되어도 허용(수동 조정 전제). 비용 표시는 요약표가 담당.
  * @returns {{ ok: boolean, reasons: string[] }}
  */
-export function canAcquire(skillId, acquired, resources) {
+export function canAcquire(skillId, acquired) {
   if (acquired[skillId]) return { ok: false, reasons: ["ALREADY"] };
 
   const reasons = [];
   if (!prereqMet(skillId, acquired)) reasons.push("PREREQ");
-
-  const next = { ...acquired, [skillId]: true };
-  const afford = checkAffordable(next, resources);
-  if (!afford.ok) reasons.push(...afford.reasons);
 
   return { ok: reasons.length === 0, reasons };
 }
