@@ -9,5 +9,22 @@
   <div class="roll-block">
     <div class="dice">[{{diceText}}] + {{ablValue}}</div>
     <div class="breakdown">= {{total}}</div>
+    {{#if isCritical}}
+    <div class="verdict critical">{{localize "ASTER.roll.critical"}}</div>
+    {{else if isFumble}}
+    <div class="verdict fumble">{{localize "ASTER.roll.fumble"}}</div>
+    {{/if}}
   </div>
+
+  {{#if isPC}} {{#if isCritical}}
+  <footer class="card-actions">
+    <button type="button" data-action="crit-aster-gain" data-actor-id="{{actorId}}">
+      {{localize "ASTER.roll.critGain"}}
+    </button>
+  </footer>
+  {{/if}} {{#if isFumble}}
+  <footer class="card-actions">
+    <button type="button" data-action="fumble-alert">{{localize "ASTER.roll.fumbleAlert"}}</button>
+  </footer>
+  {{/if}} {{/if}}
 </div>

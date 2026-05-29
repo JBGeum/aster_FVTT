@@ -23,6 +23,20 @@
       "generated": "아스테르 발생",
       "invalidTotal": "발생 개수 합계는 1~5개여야 합니다."
     },
+    "roll": {
+      "critical": "대성공",
+      "fumble": "대실패",
+      "success": "성공",
+      "fail": "실패",
+      "critGain": "아스테르 2개 획득",
+      "critGainTitle": "대성공 — 아스테르 획득",
+      "critGainHint": "획득할 색별 개수를 입력하세요. (합계 2개)",
+      "critGainTotal2": "합계는 정확히 2개여야 합니다.",
+      "critGained": "{actor} — 대성공 아스테르 획득",
+      "critOwnerOnly": "본인 또는 GM만 획득 처리할 수 있습니다.",
+      "fumbleAlert": "경계도 +1d6",
+      "fumbleAlertFlavor": "대실패 — 경계도 +{delta} (누적 {total})"
+    },
     "label": {
       "speed": "민첩",
       "dodge": "회피",

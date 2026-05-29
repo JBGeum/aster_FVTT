@@ -9,6 +9,7 @@ import {
   canRelease,
 } from "../helpers/craft-cost.mjs";
 import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell-roll.mjs";
+import { detectCritFumble } from "../helpers/roll-result.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -34,8 +35,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       recordDelete: AsterActorSheet.#onRecordDelete,
       ablRoll: AsterActorSheet.#onAblRoll,
       emoRoll: AsterActorSheet.#onEmoRoll,
-      rollOptNormal: AsterActorSheet.#onRollOptNormal,
-      rollOptVs: AsterActorSheet.#onRollOptVs,
       itemCreate: AsterActorSheet.#onItemCreate,
     },
   };
@@ -104,6 +103,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     for (const [k, v] of Object.entries(context.system.aster)) {
       v.label = game.i18n.localize(CONFIG.ASTER.aster[k]) ?? k;
     }
+    context.rollModeNormal = context.system.rollMode === "normal";
+    context.rollModeVs = context.system.rollMode === "vs";
   }
 
   _prepareInventory(context) {
@@ -593,6 +594,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       target: targetVal,
     });
 
+    // 대성공/대실패가 달성치 성공 판정을 덮어쓴다.
+    const dice = baseRoll.dice[0].results.map((r) => r.result);
+    const cf = detectCritFumble(dice);
+    const finalSuccess = cf.critical || (!cf.fumble && result.success);
+
     // effect의 인라인 문법(@ability.*, [[/r ...]])을 Foundry 표준으로 치환
     const effectEnriched = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
       sys.effect ?? "",
@@ -608,9 +614,12 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       formula: this.#formatFormula(spell),
       target: targetVal,
       achievement: result.achievement,
-      success: result.success,
+      success: finalSuccess,
+      isCritical: cf.critical,
+      isFumble: cf.fumble,
+      isPC: this.actor.type === "character",
       breakdown: result.breakdown,
-      diceText: baseRoll.dice[0].results.map((r) => r.result).join(", "),
+      diceText: dice.join(", "),
       effect: sys.effect,
       effectEnriched,
       alert: sys.alert,
@@ -680,14 +689,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onEmoRoll(_event, target) {
     const { label } = target.dataset;
     this.actor.rollEmotion(label, {});
-  }
-
-  static #onRollOptNormal(_event, _target) {
-    this.actor.update({ "system.dc": 7 });
-  }
-
-  static #onRollOptVs(_event, _target) {
-    this.actor.update({ "system.dc": 0 });
   }
 
   static async #onSubmit(_event, _form, formData) {

@@ -211,6 +211,99 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
 });
 
 /* -------------------------------------------- */
+/*  대성공/대실패 후속 버튼                      */
+/* -------------------------------------------- */
+
+const CRIT_COLORS = ["red", "blue", "white", "yellow", "green"];
+
+Hooks.on("renderChatMessageHTML", (_message, html) => {
+  // ----- 대성공: PL이 색 선택해 아스테르 2개 획득 -----
+  html.querySelectorAll("[data-action='crit-aster-gain']").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const actor = game.actors.get(btn.dataset.actorId);
+      if (!actor) return;
+
+      // 권한 체크: 본인 또는 GM만(룰: 대성공 아스테르 2개는 PL이 색 선택)
+      if (!actor.isOwner) {
+        ui.notifications.warn(game.i18n.localize("ASTER.roll.critOwnerOnly"));
+        return;
+      }
+
+      const rows = CRIT_COLORS.map((k) => {
+        const label = game.i18n.localize(`ASTER.aster.${k}`);
+        return `<div class="form-group"><label>${label}</label>
+                <input type="number" name="${k}" value="0" min="0" max="2" /></div>`;
+      }).join("");
+
+      const result = await foundry.applications.api.DialogV2.prompt({
+        window: { title: game.i18n.localize("ASTER.roll.critGainTitle") },
+        content: `<p>${game.i18n.localize("ASTER.roll.critGainHint")}</p>${rows}`,
+        ok: {
+          label: game.i18n.localize("ASTER.roll.critGain"),
+          callback: (_e, b) =>
+            Object.fromEntries(CRIT_COLORS.map((k) => [k, Number(b.form.elements[k].value) || 0])),
+        },
+      }).catch(() => null);
+      if (!result) return;
+
+      const total = Object.values(result).reduce((a, n) => a + n, 0);
+      if (total !== 2) {
+        ui.notifications.warn(game.i18n.localize("ASTER.roll.critGainTotal2"));
+        return;
+      }
+
+      // 액터 시트에 직접 가산
+      const update = {};
+      for (const k of CRIT_COLORS) {
+        if (result[k] > 0) {
+          const cur = actor.system.aster?.[k]?.value ?? 0;
+          update[`system.aster.${k}.value`] = cur + result[k];
+        }
+      }
+      await actor.update(update);
+
+      const parts = CRIT_COLORS.filter((k) => result[k] > 0).map(
+        (k) => `${game.i18n.localize(`ASTER.aster.${k}`)} ${result[k]}`,
+      );
+      await ChatMessage.create({
+        content: `<div class="aster-chat-card">
+          <header class="card-header"><div class="title"><div class="name">
+            ${game.i18n.format("ASTER.roll.critGained", { actor: actor.name })}
+          </div></div></header>
+          <div class="emo-gen-list">${parts.join(" / ")}</div>
+        </div>`,
+        speaker: ChatMessage.getSpeaker({ actor }),
+      });
+    });
+  });
+
+  // ----- 대실패: 경계도 +1d6 -----
+  html.querySelectorAll("[data-action='fumble-alert']").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      // 권한: GM만 (경계도는 world setting, GM만 변경 가능)
+      if (!game.user.isGM) {
+        ui.notifications.warn(game.i18n.localize("ASTER.world.gmOnly"));
+        return;
+      }
+      const roll = new Roll("1d6");
+      await roll.evaluate();
+      const cur = Number(game.settings.get("aster", "alertLevel")) || 0;
+      const next = cur + roll.total;
+      await game.settings.set("aster", "alertLevel", next);
+      await roll.toMessage({
+        flavor: game.i18n.format("ASTER.roll.fumbleAlertFlavor", {
+          delta: roll.total,
+          total: next,
+        }),
+        speaker: ChatMessage.getSpeaker({
+          alias: game.i18n.localize("ASTER.world.panelTitle"),
+        }),
+      });
+    });
+  });
+});
+
+/* -------------------------------------------- */
 /*  Ready Hook                                  */
 /* -------------------------------------------- */
 

@@ -9,8 +9,23 @@
   <div class="roll-block">
     <div class="dice">[{{diceText}}] + {{ablValue}}</div>
     <div class="breakdown">{{result}} &ge; {{rollDC}}</div>
-    <div class="verdict {{#if isSuccess}}success{{else}}fail{{/if}}">
-      {{#if isSpecial}}스페셜{{else}}{{#if isSuccess}}성공{{else}}실패{{/if}}{{/if}}
+    <div
+      class="verdict {{#if isCritical}}critical{{else if isFumble}}fumble{{else if isSuccess}}success{{else}}fail{{/if}}"
+    >
+      {{#if isCritical}}{{localize "ASTER.roll.critical"}} {{else if isFumble}}{{localize "ASTER.roll.fumble"}} {{else
+      if isSuccess}}{{localize "ASTER.roll.success"}} {{else}}{{localize "ASTER.roll.fail"}} {{/if}}
     </div>
   </div>
+
+  {{#if isPC}} {{#if isCritical}}
+  <footer class="card-actions">
+    <button type="button" data-action="crit-aster-gain" data-actor-id="{{actorId}}">
+      {{localize "ASTER.roll.critGain"}}
+    </button>
+  </footer>
+  {{/if}} {{#if isFumble}}
+  <footer class="card-actions">
+    <button type="button" data-action="fumble-alert">{{localize "ASTER.roll.fumbleAlert"}}</button>
+  </footer>
+  {{/if}} {{/if}}
 </div>

@@ -1,4 +1,5 @@
 import { asterRoll } from "./roll.mjs";
+import { detectCritFumble } from "../helpers/roll-result.mjs";
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
  * @extends {Actor}
@@ -72,11 +73,14 @@ export class AsterActor extends Actor {
     const roll = await asterRoll(ablValue, this.getRollData());
     const resultDiceset = roll.dice[0].values;
     const diceText = resultDiceset.join(", ");
+    const cf = detectCritFumble(resultDiceset);
 
     const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
 
-    if (!this.system.dc) {
-      // 대항판정
+    if (this.system.rollMode === "vs") {
+      // 대결판정 — 자동 패배 분기(능동측 대실패) 외에는 상대측 굴림이 필요하므로,
+      // 현 단계에서는 본 액터의 대성공/대실패 정보만 카드에 노출한다.
+      // resolveOpposed는 GM이 양측 결과를 모은 뒤 별도로 호출(향후 작업).
       const templateData = {
         label,
         ablValue,
@@ -84,6 +88,10 @@ export class AsterActor extends Actor {
         total: roll.total,
         resultDiceset,
         diceText,
+        isCritical: cf.critical,
+        isFumble: cf.fumble,
+        actorId: this.id,
+        isPC: this.type === "character",
       };
       const content = await renderTemplate(
         "systems/aster/templates/chatcard/roll-asterabl-vs.html",
@@ -91,18 +99,21 @@ export class AsterActor extends Actor {
       );
       ChatMessage.create({ content, speaker });
     } else {
-      // 일반 판정
-      const isSpecial = resultDiceset[0] === 6 && resultDiceset[1] === 6;
-      const isSuccess = roll.total >= this.system.dc;
+      // 일반 판정 — 대성공/대실패가 달성치를 덮어쓴다.
+      const dcOk = roll.total >= this.system.dc;
+      const isSuccess = cf.critical || (!cf.fumble && dcOk);
       const templateData = {
         label,
         ablValue,
         rollDC: this.system.dc,
         result: roll.result,
         isSuccess,
-        isSpecial,
+        isCritical: cf.critical,
+        isFumble: cf.fumble,
         resultDiceset,
         diceText,
+        actorId: this.id,
+        isPC: this.type === "character",
       };
       const content = await renderTemplate(
         "systems/aster/templates/chatcard/roll-asterabl.html",
@@ -118,15 +129,18 @@ export class AsterActor extends Actor {
     const roll = new Roll("2d6");
     await roll.evaluate();
     const resultDiceset = roll.dice[0].values;
+    const cf = detectCritFumble(resultDiceset);
 
-    const isSpecial = resultDiceset[0] === 6 && resultDiceset[1] === 6;
-    const isSuccess = roll.total >= 7;
+    // 룰: 대성공이면 자동 성공, 대실패면 자동 실패(달성치 무시).
+    const baseOk = roll.total >= 7;
+    const isSuccess = cf.critical || (!cf.fumble && baseOk);
     const templateData = {
       label,
       total: roll.total,
       result: roll.result,
       diceText: resultDiceset.join(", "),
-      isSpecial,
+      isCritical: cf.critical,
+      isFumble: cf.fumble,
       isSuccess,
       resultDiceset,
       // 특기색은 PL이 수동 +1 할 때 참고하도록 표시만 한다(자동 가산 안 함).
@@ -134,6 +148,8 @@ export class AsterActor extends Actor {
       favColorLabel: this.system.color
         ? game.i18n.localize(`ASTER.aster.${this.system.color}`)
         : "",
+      actorId: this.id,
+      isPC: this.type === "character",
     };
     const content = await renderTemplate(
       "systems/aster/templates/chatcard/roll-asterabl-emo.html",

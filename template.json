@@ -4,7 +4,7 @@
     "templates": {
       "base": {
         "dc": 7,
-        "rollFlag": 1,
+        "rollMode": "normal",
         "health": {
           "value": 20,
           "min": 0,

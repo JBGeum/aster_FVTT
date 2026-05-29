@@ -135,6 +135,61 @@
         min-width: 0;
       }
     }
+
+    .roll-option {
+      .roll-opt-header {
+        text-align: center;
+        font-weight: bold;
+      }
+
+      .roll-option-list {
+        gap: 4px;
+        justify-content: center;
+      }
+
+      // 라디오 입력은 숨기고 라벨을 토글 버튼처럼 표시한다.
+      .roll-option-btn {
+        flex: 1;
+        text-align: center;
+        white-space: nowrap;
+        padding: 2px 6px;
+        border: 1px solid rgba(128, 128, 128, 0.5);
+        border-radius: 4px;
+        cursor: pointer;
+        user-select: none;
+
+        input[type="radio"] {
+          display: none;
+        }
+
+        &:has(input:checked) {
+          background: rgba(128, 128, 128, 0.25);
+          font-weight: bold;
+        }
+      }
+
+      .roll-input {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+
+        label {
+          font-size: 0.78rem;
+          opacity: 0.8;
+        }
+
+        input {
+          width: 3rem;
+          text-align: center;
+        }
+      }
+
+      .emo-roll-btn {
+        width: 100%;
+        font-size: 0.8rem;
+      }
+    }
   }
 
   // ── 행 2: 능력치 4개 — 자연 높이 ─────────────────────────────────────────────
@@ -306,12 +361,6 @@
       .abl-value {
         grid-column: 1 / span 2;
         grid-row: 2 / span 1;
-      }
-    }
-
-    .roll-option {
-      .roll-opt-header {
-        display: grid;
       }
     }
   }

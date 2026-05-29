@@ -59,6 +59,13 @@
       &.fail {
         color: #c0392b;
       }
+      &.critical {
+        color: #d4a017;
+        text-shadow: 0 0 4px rgba(212, 160, 23, 0.5);
+      }
+      &.fumble {
+        color: #8e44ad;
+      }
     }
   }
 

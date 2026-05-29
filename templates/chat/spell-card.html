@@ -15,8 +15,11 @@
       "ASTER.spell.extra"}}({{breakdown.extra}}){{/if}} = <strong>{{achievement}}</strong>
       / {{localize "ASTER.spell.target"}} {{target}}
     </div>
-    <div class="verdict {{#if success}}success{{else}}fail{{/if}}">
-      {{#if success}}{{localize "ASTER.spell.success"}}{{else}}{{localize "ASTER.spell.fail"}}{{/if}}
+    <div
+      class="verdict {{#if isCritical}}critical{{else if isFumble}}fumble{{else if success}}success{{else}}fail{{/if}}"
+    >
+      {{#if isCritical}}{{localize "ASTER.roll.critical"}} {{else if isFumble}}{{localize "ASTER.roll.fumble"}} {{else
+      if success}}{{localize "ASTER.spell.success"}} {{else}}{{localize "ASTER.spell.fail"}} {{/if}}
     </div>
   </div>
 
@@ -36,5 +39,12 @@
     <button type="button" data-action="spell-extra-roll" data-spell-id="{{spellId}}" data-actor-id="{{actorId}}">
       {{localize "ASTER.spell.extraRoll"}}
     </button>
+    {{#if isPC}} {{#if isCritical}}
+    <button type="button" data-action="crit-aster-gain" data-actor-id="{{actorId}}">
+      {{localize "ASTER.roll.critGain"}}
+    </button>
+    {{/if}} {{#if isFumble}}
+    <button type="button" data-action="fumble-alert">{{localize "ASTER.roll.fumbleAlert"}}</button>
+    {{/if}} {{/if}}
   </footer>
 </div>

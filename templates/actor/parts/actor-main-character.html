@@ -17,12 +17,22 @@
       <div class="roll-option flexcol align-center">
         <div class="roll-opt-header">ROLL</div>
         <div class="roll-option-list flexrow">
-          <div class="roll-option-btn roll-opt-abl" data-action="rollOptNormal">일반</div>
-          <div class="roll-option-btn roll-opt-vs" data-action="rollOptVs">대항</div>
+          <label class="roll-option-btn">
+            <input type="radio" name="system.rollMode" value="normal" {{checked rollModeNormal}} />
+            <span>일반</span>
+          </label>
+          <label class="roll-option-btn">
+            <input type="radio" name="system.rollMode" value="vs" {{checked rollModeVs}} />
+            <span>대항</span>
+          </label>
         </div>
         <div class="roll-input">
+          <label for="roll-dc">목표치</label>
           <input type="number" id="roll-dc" name="system.dc" value="{{system.dc}}" />
         </div>
+        <button type="button" class="emo-roll-btn" data-action="emoRoll" data-label="ASTER.emo.rollLabel">
+          {{localize "ASTER.emo.roll"}}
+        </button>
       </div>
     </div>
   </div>
@@ -171,9 +181,6 @@
         </div>
       </div>
     </div>
-    <button type="button" class="emo-roll-btn" data-action="emoRoll" data-label="ASTER.emo.rollLabel">
-      {{localize "ASTER.emo.roll"}}
-    </button>
   </div>
 
   {{!-- 행 메모 — 남는 세로 공간 흡수 (system.biography) --}}

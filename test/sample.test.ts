@@ -9,10 +9,4 @@ describe("sanity", () => {
   it("vitest 환경이 정상적으로 동작한다", () => {
     expect(1 + 1).toBe(2);
   });
-
-  it("emotion roll 보정치는 favColor일 때 +1", () => {
-    const computeFormula = (isFavColor: boolean) => (isFavColor ? "2d6+1" : "2d6");
-    expect(computeFormula(true)).toBe("2d6+1");
-    expect(computeFormula(false)).toBe("2d6");
-  });
 });
