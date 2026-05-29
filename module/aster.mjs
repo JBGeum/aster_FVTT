@@ -218,6 +218,17 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
 const CRIT_COLORS = ["red", "blue", "white", "yellow", "green"];
 
 Hooks.on("renderChatMessageHTML", (_message, html) => {
+  // 대실패 경계도 버튼은 GM 전용 — 비-GM 뷰어에게는 버튼을 제거한다.
+  // (crit-aster-gain은 owner/PL용이므로 이 훅 자체를 early-return하지 않는다.)
+  if (!game.user.isGM) {
+    html.querySelectorAll("[data-action='fumble-alert']").forEach((btn) => {
+      const footer = btn.closest("footer");
+      btn.remove();
+      // 단독 footer는 비워졌으니 정리, 공유 footer(spell-extra-roll 등)는 보존
+      if (footer && !footer.querySelector("button")) footer.remove();
+    });
+  }
+
   // ----- 대성공: PL이 색 선택해 아스테르 2개 획득 -----
   html.querySelectorAll("[data-action='crit-aster-gain']").forEach((btn) => {
     btn.addEventListener("click", async () => {
@@ -313,6 +324,12 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
 let pendingOpposed = null;
 
 Hooks.on("renderChatMessageHTML", (message, html) => {
+  // 결합 버튼은 모두 GM 전용 — 비-GM 뷰어에게는 footer 통째 제거 후 종료.
+  if (!game.user.isGM) {
+    html.querySelector(".opposed-actions")?.remove();
+    return;
+  }
+
   // 능동측 지정
   html.querySelectorAll("[data-action='opposed-set-active']").forEach((btn) => {
     btn.addEventListener("click", () => {
