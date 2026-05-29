@@ -26,5 +26,9 @@
   <footer class="card-actions">
     <button type="button" data-action="fumble-alert">{{localize "ASTER.roll.fumbleAlert"}}</button>
   </footer>
-  {{/if}} {{/if}}
+  {{/if}} {{/if}} {{!-- 대결판정 결합 (GM 권한 체크는 핸들러에서) --}}
+  <footer class="card-actions opposed-actions">
+    <button type="button" data-action="opposed-set-active">{{localize "ASTER.opposed.setActive"}}</button>
+    <button type="button" data-action="opposed-set-passive">{{localize "ASTER.opposed.setPassive"}}</button>
+  </footer>
 </div>

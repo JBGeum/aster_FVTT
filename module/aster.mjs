@@ -23,6 +23,7 @@ import { RecordDataModel } from "./data/items/record.mjs";
 import { preloadHandlebarsTemplates, registerHandlebarsHelpers } from "./helpers/templates.mjs";
 import { ASTER } from "./helpers/config.mjs";
 import { WORLD_VALUES } from "./helpers/world-values.mjs";
+import { resolveOpposed } from "./helpers/roll-result.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -298,6 +299,93 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
         speaker: ChatMessage.getSpeaker({
           alias: game.i18n.localize("ASTER.world.panelTitle"),
         }),
+      });
+    });
+  });
+});
+
+/* -------------------------------------------- */
+/*  대결판정 결합 (능동/수동 지정 → 결과 카드)    */
+/* -------------------------------------------- */
+
+// 모듈 스코프 상태: pending 능동측 메시지 ID와 데이터.
+// 단순 메모리 — 새로고침 시 사라지나, 다시 [능동 지정]을 누르면 됨.
+let pendingOpposed = null;
+
+Hooks.on("renderChatMessageHTML", (message, html) => {
+  // 능동측 지정
+  html.querySelectorAll("[data-action='opposed-set-active']").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!game.user.isGM) {
+        ui.notifications.warn(game.i18n.localize("ASTER.world.gmOnly"));
+        return;
+      }
+      const data = message.getFlag("aster", "opposedRoll");
+      if (!data) {
+        ui.notifications.warn(game.i18n.localize("ASTER.opposed.notOpposedCard"));
+        return;
+      }
+      // 같은 카드 다시 누르면 해제 (취소 동작)
+      if (pendingOpposed?.messageId === message.id) {
+        pendingOpposed = null;
+        ui.notifications.info(game.i18n.localize("ASTER.opposed.activeCleared"));
+        return;
+      }
+      pendingOpposed = { messageId: message.id, ...data };
+      ui.notifications.info(game.i18n.format("ASTER.opposed.activeSet", { actor: data.actorName }));
+    });
+  });
+
+  // 수동측 지정 → 결과 카드 생성
+  html.querySelectorAll("[data-action='opposed-set-passive']").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!game.user.isGM) {
+        ui.notifications.warn(game.i18n.localize("ASTER.world.gmOnly"));
+        return;
+      }
+      const passive = message.getFlag("aster", "opposedRoll");
+      if (!passive) {
+        ui.notifications.warn(game.i18n.localize("ASTER.opposed.notOpposedCard"));
+        return;
+      }
+      if (!pendingOpposed) {
+        ui.notifications.warn(game.i18n.localize("ASTER.opposed.noActive"));
+        return;
+      }
+      if (pendingOpposed.messageId === message.id) {
+        ui.notifications.warn(game.i18n.localize("ASTER.opposed.sameCard"));
+        return;
+      }
+
+      const active = pendingOpposed;
+      pendingOpposed = null; // 즉시 해제 (중복 처리 방지)
+
+      const result = resolveOpposed({
+        activeAchievement: active.total,
+        passiveAchievement: passive.total,
+        activeCF: { critical: active.isCritical, fumble: active.isFumble },
+        passiveCF: { critical: passive.isCritical, fumble: passive.isFumble },
+      });
+
+      const cardData = {
+        active: { ...active, diceText: active.dice.join(", ") },
+        passive: { ...passive, diceText: passive.dice.join(", ") },
+        winnerKey: result.winner,
+        winnerName: result.winner === "active" ? active.actorName : passive.actorName,
+        isActiveWinner: result.winner === "active",
+        isPassiveWinner: result.winner === "passive",
+        reasonKey: result.reason,
+        reasonText: game.i18n.localize(`ASTER.opposed.reason.${result.reason}`),
+      };
+
+      const content = await foundry.applications.handlebars.renderTemplate(
+        "systems/aster/templates/chatcard/opposed-result.html",
+        cardData,
+      );
+      await ChatMessage.create({
+        content,
+        speaker: ChatMessage.getSpeaker({ alias: game.i18n.localize("ASTER.world.panelTitle") }),
+        flags: { aster: { opposedResult: true } },
       });
     });
   });

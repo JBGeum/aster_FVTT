@@ -1,0 +1,35 @@
+<div class="aster-chat-card opposed-result">
+  <header class="card-header">
+    <div class="title">
+      <div class="name">{{localize "ASTER.opposed.resultTitle"}}</div>
+    </div>
+  </header>
+
+  <div class="opposed-side {{#if isActiveWinner}}winner{{/if}}">
+    <div class="side-label">{{localize "ASTER.opposed.active"}}</div>
+    <div class="side-actor">{{active.actorName}}</div>
+    <div class="side-roll">
+      [{{active.diceText}}] + {{active.ablValue}} = <strong>{{active.total}}</strong> {{#if active.isCritical}}<span
+        class="badge critical"
+        >{{localize "ASTER.roll.critical"}}</span
+      >{{/if}} {{#if active.isFumble}}<span class="badge fumble">{{localize "ASTER.roll.fumble"}}</span>{{/if}}
+    </div>
+  </div>
+
+  <div class="opposed-side {{#if isPassiveWinner}}winner{{/if}}">
+    <div class="side-label">{{localize "ASTER.opposed.passive"}}</div>
+    <div class="side-actor">{{passive.actorName}}</div>
+    <div class="side-roll">
+      [{{passive.diceText}}] + {{passive.ablValue}} = <strong>{{passive.total}}</strong> {{#if passive.isCritical}}<span
+        class="badge critical"
+        >{{localize "ASTER.roll.critical"}}</span
+      >{{/if}} {{#if passive.isFumble}}<span class="badge fumble">{{localize "ASTER.roll.fumble"}}</span>{{/if}}
+    </div>
+  </div>
+
+  <div class="opposed-verdict">
+    <span class="winner-label">{{localize "ASTER.opposed.winner"}}</span>
+    <span class="winner-name">{{winnerName}}</span>
+    <span class="reason">({{reasonText}})</span>
+  </div>
+</div>

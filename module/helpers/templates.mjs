@@ -17,6 +17,7 @@ export const preloadHandlebarsTemplates = async function () {
     "systems/aster/templates/chatcard/roll-asterabl.html",
     "systems/aster/templates/chatcard/roll-asterabl-emo.html",
     "systems/aster/templates/chatcard/roll-asterabl-vs.html",
+    "systems/aster/templates/chatcard/opposed-result.html",
 
     // Apps
     "systems/aster/templates/apps/gm-panel.html",

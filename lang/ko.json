@@ -37,6 +37,27 @@
       "fumbleAlert": "경계도 +1d6",
       "fumbleAlertFlavor": "대실패 — 경계도 +{delta} (누적 {total})"
     },
+    "opposed": {
+      "setActive": "능동 지정",
+      "setPassive": "수동 지정",
+      "active": "능동측",
+      "passive": "수동측",
+      "winner": "승자",
+      "resultTitle": "대결판정 결과",
+      "activeSet": "{actor} — 능동측으로 등록되었습니다. 다른 카드의 [수동 지정]을 누르세요.",
+      "activeCleared": "능동측 지정이 해제되었습니다.",
+      "noActive": "먼저 다른 카드에서 [능동 지정]을 누르세요.",
+      "sameCard": "같은 카드를 능동·수동으로 동시에 지정할 수 없습니다.",
+      "notOpposedCard": "이 카드는 대결판정 카드가 아닙니다.",
+      "reason": {
+        "activeFumble": "능동 대실패 — 자동 수동 승",
+        "bothCritical": "양측 대성공 — 수동 승",
+        "activeCritical": "능동 대성공",
+        "passiveCritical": "수동 대성공",
+        "higherAchievement": "달성치 우위",
+        "tieToPassive": "동률 — 수동 우선"
+      }
+    },
     "label": {
       "speed": "민첩",
       "dodge": "회피",

@@ -97,7 +97,26 @@ export class AsterActor extends Actor {
         "systems/aster/templates/chatcard/roll-asterabl-vs.html",
         templateData,
       );
-      ChatMessage.create({ content, speaker });
+      await ChatMessage.create({
+        content,
+        speaker,
+        rolls: [roll],
+        flags: {
+          aster: {
+            opposedRoll: {
+              actorId: this.id,
+              actorName: this.name,
+              label,
+              ability,
+              ablValue,
+              total: roll.total,
+              dice: resultDiceset,
+              isCritical: cf.critical,
+              isFumble: cf.fumble,
+            },
+          },
+        },
+      });
     } else {
       // 일반 판정 — 대성공/대실패가 달성치를 덮어쓴다.
       const dcOk = roll.total >= this.system.dc;

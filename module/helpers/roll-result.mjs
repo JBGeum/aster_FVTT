@@ -25,25 +25,31 @@ export function detectCritFumble(twoDice) {
 
 /**
  * 대결판정 승부 결정.
- * 룰 분기:
- *  - 능동측 대실패 → 수동 승리 (수동 굴림 불요)
- *  - 양측 대성공 → 수동 승리 (예외)
- *  - 능동측만 대성공 → 능동 승리
- *  - 수동측만 대성공 → 수동 승리
- *  - 둘 다 아님 → 달성치 비교 (동률은 수동 승리 — 룰북 미명시 기본값)
+ * 룰 분기를 사유와 함께 반환한다. 결과 카드에 사유 표시 가능.
+ *
+ * reason 값:
+ *  - "activeFumble"       — 능동 대실패 → 수동 자동 승
+ *  - "bothCritical"       — 양측 대성공 → 수동 승
+ *  - "activeCritical"     — 능동만 대성공 → 능동 승
+ *  - "passiveCritical"    — 수동만 대성공 → 수동 승
+ *  - "higherAchievement"  — 달성치 우위
+ *  - "tieToPassive"       — 동률 (룰북 미명시 기본)
  *
  * @param {object} p
  * @param {number} p.activeAchievement
  * @param {number} p.passiveAchievement
  * @param {{critical:boolean, fumble:boolean}} p.activeCF
  * @param {{critical:boolean, fumble:boolean}} p.passiveCF
- * @returns {"active" | "passive"}
+ * @returns {{ winner: "active" | "passive", reason: string }}
  */
 export function resolveOpposed({ activeAchievement, passiveAchievement, activeCF, passiveCF }) {
-  if (activeCF.fumble) return "passive";
-  if (activeCF.critical && passiveCF.critical) return "passive";
-  if (activeCF.critical) return "active";
-  if (passiveCF.critical) return "passive";
-  if (activeAchievement > passiveAchievement) return "active";
-  return "passive";
+  if (activeCF.fumble) return { winner: "passive", reason: "activeFumble" };
+  if (activeCF.critical && passiveCF.critical) return { winner: "passive", reason: "bothCritical" };
+  if (activeCF.critical) return { winner: "active", reason: "activeCritical" };
+  if (passiveCF.critical) return { winner: "passive", reason: "passiveCritical" };
+  if (activeAchievement > passiveAchievement)
+    return { winner: "active", reason: "higherAchievement" };
+  if (passiveAchievement > activeAchievement)
+    return { winner: "passive", reason: "higherAchievement" };
+  return { winner: "passive", reason: "tieToPassive" };
 }
