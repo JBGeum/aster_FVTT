@@ -27,11 +27,28 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 
   async _prepareContext() {
     return {
-      values: WORLD_VALUES.map((v) => ({
-        ...v,
-        current: game.settings.get("aster", v.key),
-      })),
+      values: WORLD_VALUES.map((v) => {
+        const current = game.settings.get("aster", v.key);
+        const isSelect = v.type === "select";
+        return {
+          ...v,
+          current,
+          isSelect,
+          options: isSelect
+            ? v.options.map((opt) => ({ ...opt, isSelected: opt.key === current }))
+            : undefined,
+        };
+      }),
     };
+  }
+
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    // ApplicationV2의 data-action은 click 전용 — <select>의 change는 여기서 수동 등록한다.
+    for (const sel of this.element.querySelectorAll("select.wv-select")) {
+      sel.addEventListener("change", (ev) => AsterGMPanel.#onSetPhase(ev));
+    }
   }
 
   /** GM만 패널을 열 수 있습니다. */
@@ -190,5 +207,29 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         </div>`,
       speaker: ChatMessage.getSpeaker({ alias: game.i18n.localize("ASTER.world.panelTitle") }),
     });
+  }
+
+  /**
+   * 세션 페이즈 select 변경 핸들러. _onRender에서 change 이벤트에 수동 등록된다.
+   * @param {Event} event  change 이벤트 (currentTarget = <select>)
+   */
+  static async #onSetPhase(event) {
+    const sel = event.currentTarget;
+    const key = sel.dataset.key;
+    if (!key) return;
+    const newPhase = sel.value;
+    await game.settings.set("aster", key, newPhase);
+
+    // 페이즈 변경 채팅 안내
+    const label = game.i18n.localize(`ASTER.phase.${newPhase}`);
+    await ChatMessage.create({
+      content: `<div class="aster-chat-card phase-change-card">
+        <header class="card-header"><div class="title"><div class="name">
+          ${game.i18n.format("ASTER.phase.changed", { phase: label })}
+        </div></div></header>
+      </div>`,
+      speaker: ChatMessage.getSpeaker({ alias: game.i18n.localize("ASTER.world.panelTitle") }),
+    });
+    // updateSetting hook이 패널 재렌더링 처리 (aster.mjs)
   }
 }

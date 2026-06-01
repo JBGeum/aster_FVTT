@@ -140,7 +140,18 @@
       "gmOnly": "GM만 사용할 수 있습니다.",
       "witchHunt": "마녀사냥",
       "witchHuntSuccess": "마녀사냥 판정: d100={roll} vs 경계도 {alert} → 성공",
-      "witchHuntFail": "마녀사냥 판정: d100={roll} vs 경계도 {alert} → 실패"
+      "witchHuntFail": "마녀사냥 판정: d100={roll} vs 경계도 {alert} → 실패",
+      "phase": "세션 페이즈"
+    },
+    "phase": {
+      "prep": "준비",
+      "opening": "오프닝",
+      "info": "정보수집",
+      "exploration": "탐색",
+      "climax": "클라이막스",
+      "talk": "환담",
+      "result": "리절트",
+      "changed": "현재 페이즈: {phase}"
     },
     "spell": {
       "name": "이름",

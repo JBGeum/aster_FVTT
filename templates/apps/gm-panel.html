@@ -3,6 +3,13 @@
   <div class="world-value" data-key="{{v.key}}">
     <div class="wv-label">{{localize v.label}}</div>
     <div class="wv-controls">
+      {{#if v.isSelect}}
+      <select class="wv-select" name="{{v.key}}" data-key="{{v.key}}">
+        {{#each v.options as |opt|}}
+        <option value="{{opt.key}}" {{selected opt.isSelected}}>{{localize opt.label}}</option>
+        {{/each}}
+      </select>
+      {{else}}
       <button type="button" class="wv-btn" data-action="adjust" data-key="{{v.key}}" data-delta="-1">&minus;</button>
       <input type="number" name="{{v.key}}" value="{{v.current}}" />
       <button type="button" class="wv-btn" data-action="adjust" data-key="{{v.key}}" data-delta="1">&plus;</button>
@@ -17,7 +24,7 @@
       <button type="button" class="wv-hunt" data-action="witchHunt" data-key="{{v.key}}">
         {{localize "ASTER.world.witchHunt"}}
       </button>
-      {{/if}}
+      {{/if}} {{/if}}
     </div>
   </div>
   {{/each}}

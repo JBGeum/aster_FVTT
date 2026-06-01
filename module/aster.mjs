@@ -72,11 +72,13 @@ Hooks.once("init", async function () {
 
   // world 값 일괄 등록 (config:false → 기본 설정 창에는 숨기고 GM 패널로만 관리)
   for (const v of WORLD_VALUES) {
+    const settingType = v.type === "select" ? String : Number;
+    const defaultValue = v.default ?? (settingType === Number ? 0 : "");
     game.settings.register("aster", v.key, {
       scope: "world",
       config: false,
-      type: Number,
-      default: v.default ?? 0,
+      type: settingType,
+      default: defaultValue,
     });
   }
 
