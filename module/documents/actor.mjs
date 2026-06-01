@@ -101,6 +101,10 @@ export class AsterActor extends Actor {
     const diceText = resultDiceset.join(", ");
     const cf = detectCritFumble(resultDiceset);
 
+    // 졸림: 달성치 -2 (룰: 모든 판정에 적용). 정동판정은 rollEmotion에서 별도 처리하므로 여기는 일반/대결만.
+    const sleepyPenalty = this.system.badstatus?.sleepy ? -2 : 0;
+    const adjustedTotal = roll.total + sleepyPenalty;
+
     const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
 
     if (this.system.rollMode === "vs") {
@@ -111,7 +115,9 @@ export class AsterActor extends Actor {
         label,
         ablValue,
         result: roll.result,
-        total: roll.total,
+        total: adjustedTotal,
+        rawTotal: roll.total,
+        sleepyPenalty,
         resultDiceset,
         diceText,
         isCritical: cf.critical,
@@ -135,7 +141,7 @@ export class AsterActor extends Actor {
               label,
               ability,
               ablValue,
-              total: roll.total,
+              total: adjustedTotal,
               dice: resultDiceset,
               isCritical: cf.critical,
               isFumble: cf.fumble,
@@ -145,13 +151,15 @@ export class AsterActor extends Actor {
       });
     } else {
       // 일반 판정 — 대성공/대실패가 달성치를 덮어쓴다.
-      const dcOk = roll.total >= this.system.dc;
+      const dcOk = adjustedTotal >= this.system.dc;
       const isSuccess = cf.critical || (!cf.fumble && dcOk);
       const templateData = {
         label,
         ablValue,
         rollDC: this.system.dc,
-        result: roll.result,
+        total: adjustedTotal,
+        rawTotal: roll.total,
+        sleepyPenalty,
         isSuccess,
         isCritical: cf.critical,
         isFumble: cf.fumble,
@@ -165,6 +173,12 @@ export class AsterActor extends Actor {
         templateData,
       );
       ChatMessage.create({ content, speaker });
+
+      // 졸림 자동 해제: 룰 "한 번 판정에 실패하면 해제" — 일반판정 실패에만 적용.
+      // AE는 _onUpdate hook에서 자동 삭제됨 (C-1 동기화).
+      if (sleepyPenalty < 0 && !isSuccess) {
+        await this.update({ "system.badstatus.sleepy": false });
+      }
     }
   }
 
