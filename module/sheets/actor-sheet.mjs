@@ -650,6 +650,9 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const specialty = isSpecialty(this.actor, sys.color);
     const targetVal = sys.target ?? 0;
 
+    // 졸림: 마법판정 달성치 -2 (룰: 모든 판정에 적용. 마법판정은 일반판정의 한 종류).
+    const sleepyPenalty = this.actor.system.badstatus?.sleepy ? -2 : 0;
+
     // 2d6 기본 굴림 (추가 다이스는 채팅 카드 버튼에서 별도 굴림)
     const baseRoll = new Roll("2d6");
     await baseRoll.evaluate();
@@ -660,6 +663,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       specialty,
       extraDice: [],
       target: targetVal,
+      statusPenalty: sleepyPenalty,
     });
 
     // 대성공/대실패가 달성치 성공 판정을 덮어쓴다.
@@ -705,6 +709,12 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       content,
       flags: { aster: { spellCard: true, spellId: spell.id, actorId: this.actor.id } },
     });
+
+    // 졸림 자동 해제: 룰 "한 번 판정에 실패하면 해제" — 일반 마법판정 실패에만 적용.
+    // AE는 actor의 _onUpdate hook에서 자동 삭제됨 (C-1 동기화).
+    if (sleepyPenalty < 0 && !finalSuccess) {
+      await this.actor.update({ "system.badstatus.sleepy": false });
+    }
   }
 
   static #onRecordPrev(_event, _target) {

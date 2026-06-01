@@ -12,7 +12,8 @@
     <div class="breakdown">
       2d({{breakdown.base}}) + {{breakdown.ability}} {{#if breakdown.specialty}}+ {{localize
       "ASTER.spell.specialty"}}({{breakdown.specialty}}){{/if}} {{#if breakdown.extra}}+ {{localize
-      "ASTER.spell.extra"}}({{breakdown.extra}}){{/if}} = <strong>{{achievement}}</strong>
+      "ASTER.spell.extra"}}({{breakdown.extra}}){{/if}} {{#if breakdown.statusPenalty}}{{breakdown.statusPenalty}}
+      ({{localize "ASTER.badstatus.sleepy"}}){{/if}} = <strong>{{achievement}}</strong>
       / {{localize "ASTER.spell.target"}} {{target}}
     </div>
     <div

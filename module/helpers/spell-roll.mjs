@@ -8,12 +8,20 @@
  * @param {boolean} p.specialty      특기색 일치 여부
  * @param {number[]} [p.extraDice]   아스테르로 추가 굴린 d6 결과 배열(없으면 [])
  * @param {number} p.target          목표치
+ * @param {number} [p.statusPenalty] 상태이상 보정(졸림 -2 등). 기본 0.
  * @returns {{ achievement:number, success:boolean, breakdown:object }}
  */
-export function computeSpellRoll({ diceTotal, abilityValue, specialty, extraDice = [], target }) {
+export function computeSpellRoll({
+  diceTotal,
+  abilityValue,
+  specialty,
+  extraDice = [],
+  target,
+  statusPenalty = 0,
+}) {
   const specialtyBonus = specialty ? 1 : 0;
   const extraSum = extraDice.reduce((a, b) => a + b, 0);
-  const achievement = diceTotal + abilityValue + specialtyBonus + extraSum;
+  const achievement = diceTotal + abilityValue + specialtyBonus + extraSum + statusPenalty;
   return {
     achievement,
     success: achievement >= target,
@@ -24,6 +32,7 @@ export function computeSpellRoll({ diceTotal, abilityValue, specialty, extraDice
       extra: extraSum,
       extraDice,
       target,
+      statusPenalty,
     },
   };
 }
