@@ -159,10 +159,18 @@
       "success": "성공",
       "fail": "실패",
       "alert": "경계도",
-      "extraRoll": "아스테르 추가 굴림",
-      "extraTitle": "추가 아스테르 소비",
+      "castLabel": "판정",
+      "castWithExtra": "추가 다이스 사용",
+      "extraTitle": "마법판정 — 추가 다이스",
       "extraN": "추가 다이스 개수",
-      "extraFlavor": "{name} — 추가 {n}d6 = {sum}"
+      "extraHaveAster": "보유: {color} 아스테르 {n}개",
+      "extraUsed": "추가 사용",
+      "discarded": "제외됨",
+      "step1Note": "다음 업데이트에서 다이스 선택 UI가 추가됩니다.",
+      "warn": {
+        "noColor": "이 마법은 속성 색이 지정되지 않았습니다.",
+        "notEnoughAster": "{color} 아스테르가 부족합니다 (필요 {need} / 보유 {have})"
+      }
     },
     "features": {
       "born": "출생",

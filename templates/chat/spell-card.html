@@ -8,12 +8,23 @@
   </header>
 
   <div class="roll-block">
-    <div class="dice">[{{diceText}}]</div>
+    <div class="dice">
+      {{#if extraN}}
+      <div class="extra-info">{{localize "ASTER.spell.extraUsed"}}: {{extraColorLabel}} × {{extraN}}</div>
+      {{/if}}
+      <div class="selected-dice">[{{diceText}}]</div>
+      {{#if discardedDiceText}}
+      <div class="discarded-dice">
+        {{localize "ASTER.spell.discarded"}}: ({{discardedDiceText}})
+        <small class="tmp-note">{{localize "ASTER.spell.step1Note"}}</small>
+      </div>
+      {{/if}}
+    </div>
     <div class="breakdown">
       2d({{breakdown.base}}) + {{breakdown.ability}} {{#if breakdown.specialty}}+ {{localize
-      "ASTER.spell.specialty"}}({{breakdown.specialty}}){{/if}} {{#if breakdown.extra}}+ {{localize
-      "ASTER.spell.extra"}}({{breakdown.extra}}){{/if}} {{#if breakdown.statusPenalty}}{{breakdown.statusPenalty}}
-      ({{localize "ASTER.badstatus.sleepy"}}){{/if}} = <strong>{{achievement}}</strong>
+      "ASTER.spell.specialty"}}({{breakdown.specialty}}){{/if}} {{#if
+      breakdown.statusPenalty}}{{breakdown.statusPenalty}} ({{localize "ASTER.badstatus.sleepy"}}){{/if}} =
+      <strong>{{achievement}}</strong>
       / {{localize "ASTER.spell.target"}} {{target}}
     </div>
     <div
@@ -36,10 +47,8 @@
     <div class="value">{{alert.min}} ~ {{alert.max}}</div>
   </div>
 
+  {{!-- 사후 "추가 굴림" 버튼 제거 — 사전 다이얼로그(+다이스 버튼)로 통합 --}}
   <footer class="card-actions">
-    <button type="button" data-action="spell-extra-roll" data-spell-id="{{spellId}}" data-actor-id="{{actorId}}">
-      {{localize "ASTER.spell.extraRoll"}}
-    </button>
     {{#if isPC}} {{#if isCritical}}
     <button type="button" data-action="crit-aster-gain" data-actor-id="{{actorId}}">
       {{localize "ASTER.roll.critGain"}}

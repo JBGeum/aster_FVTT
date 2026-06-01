@@ -8,7 +8,7 @@
  *
  * 미확인/미구현:
  *   - 소중한 물건 Lv3-4의 "임의 2종류×2개" 제약 → anyAster:4 총합 처리
- *   - 책장의 "자숙성" 아스테르 → anyAster 총합 처리 (종류 미확정)
+ *   - 책장의 "자속성" 아스테르 → anyAster 총합 처리 (종류 미확정)
  */
 export const CRAFT_TREE = {
   categories: [
@@ -434,7 +434,7 @@ export const CRAFT_TREE = {
       ["fur_mirror_2"],
     ),
 
-    // 책장: "자숙성" 아스테르 — 종류 미확정, anyAster 총합 처리
+    // 책장: "자속성" 아스테르 — 종류 미확정, anyAster 총합 처리
     n("fur_shelf_1", "furniture", "ASTER.craft.shelf", 1, { material: 30, anyAster: 2 }, []),
     n("fur_shelf_2", "furniture", "ASTER.craft.shelf", 2, { material: 60, anyAster: 3 }, [
       "fur_shelf_1",

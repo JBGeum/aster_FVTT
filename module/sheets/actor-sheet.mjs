@@ -24,6 +24,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       craftReset: AsterActorSheet.#onCraftReset,
       craftLockToggle: AsterActorSheet.#onCraftLockToggle,
       spellCast: AsterActorSheet.#onSpellCast,
+      spellCastWithExtra: AsterActorSheet.#onSpellCastWithExtra,
       recordPrev: AsterActorSheet.#onRecordPrev,
       recordNext: AsterActorSheet.#onRecordNext,
       recordAdd: AsterActorSheet.#onRecordAdd,
@@ -645,20 +646,96 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const spell = this.actor.items.get(target.dataset.itemId);
     if (!spell) return;
 
+    // 마법명 클릭 — 추가 다이스 0, 2d6 즉시 판정 (기존 동작 유지).
+    const roll = new Roll("2d6");
+    await roll.evaluate();
+    const dice = roll.dice[0].results.map((r) => r.result);
+
+    await this.#processSpellRoll(spell, roll, dice, [], { color: spell.system.color, n: 0 });
+  }
+
+  static async #onSpellCastWithExtra(_event, target) {
+    const spell = this.actor.items.get(target.dataset.itemId);
+    if (!spell) return;
+
+    const sys = spell.system;
+    const color = sys.color;
+    if (!color) {
+      ui.notifications.warn(game.i18n.localize("ASTER.spell.warn.noColor"));
+      return;
+    }
+
+    const haveAster = this.actor.system.aster?.[color]?.value ?? 0;
+    const colorLabel = game.i18n.localize(`ASTER.aster.${color}`);
+
+    // 다이얼로그: 추가 다이스 개수 (룰: 마법 속성 색 아스테르 1개당 다이스 1개. 보유량 한도).
+    const n = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.spell.extraTitle") },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.format("ASTER.spell.extraHaveAster", { color: colorLabel, n: haveAster })}</label>
+        </div>
+        <div class="form-group">
+          <label>${game.i18n.localize("ASTER.spell.extraN")}</label>
+          <input type="number" name="n" value="1" min="0" max="${haveAster}" />
+        </div>
+      `,
+      ok: {
+        label: game.i18n.localize("ASTER.spell.castLabel"),
+        callback: (_e, b) => Number(b.form.elements.n.value) || 0,
+      },
+    }).catch(() => null);
+
+    if (n === null) return; // 취소
+    if (n < 0 || n > haveAster) {
+      ui.notifications.warn(
+        game.i18n.format("ASTER.spell.warn.notEnoughAster", {
+          color: colorLabel,
+          need: n,
+          have: haveAster,
+        }),
+      );
+      return;
+    }
+
+    // 자원 차감 (n=0이면 차감 없음). 룰: 판정 전 소비.
+    if (n > 0) {
+      await this.actor.update({ [`system.aster.${color}.value`]: haveAster - n });
+    }
+
+    // 굴림: (2+n)d6 한 번에
+    const roll = new Roll(`${2 + n}d6`);
+    await roll.evaluate();
+    const allDice = roll.dice[0].results.map((r) => r.result);
+
+    // ⚠️ STEP 1 임시: 다이스 3개+ 굴림 시 "처음 2개"를 선택된 것으로 처리.
+    //    룰은 PL이 2개를 고르도록 명시. STEP 2에서 선택 UI 도입.
+    const selectedDice = allDice.slice(0, 2);
+    const extraDice = allDice.slice(2);
+
+    await this.#processSpellRoll(spell, roll, selectedDice, extraDice, { color, n });
+  }
+
+  /**
+   * 마법판정 공통 처리 — 선택된 2개로 달성치/대성공·대실패 산출, 카드 생성, 졸림 자동 해제.
+   * @param {Item} spell
+   * @param {Roll} roll                 평가 완료된 Roll (채팅 첨부용)
+   * @param {number[]} selectedDice     달성치에 합산할 2개
+   * @param {number[]} extraDice        선택 제외된 다이스 (표시 전용, 계산 제외)
+   * @param {{color:string, n:number}} ctx
+   */
+  async #processSpellRoll(spell, roll, selectedDice, extraDice, ctx) {
     const sys = spell.system;
     const abilityTotal = getAbilityTotal(this.actor, sys.ability);
     const specialty = isSpecialty(this.actor, sys.color);
     const targetVal = sys.target ?? 0;
-
-    // 졸림: 마법판정 달성치 -2 (룰: 모든 판정에 적용. 마법판정은 일반판정의 한 종류).
     const sleepyPenalty = this.actor.system.badstatus?.sleepy ? -2 : 0;
 
-    // 2d6 기본 굴림 (추가 다이스는 채팅 카드 버튼에서 별도 굴림)
-    const baseRoll = new Roll("2d6");
-    await baseRoll.evaluate();
-
+    // 선택 A: extraDice는 합산하지 않고(빈 배열 전달) 카드에서 별도 표시.
+    // 선택된 2개의 합만 diceTotal로 넘긴다.
+    const diceTotal = selectedDice.reduce((a, b) => a + b, 0);
     const result = computeSpellRoll({
-      diceTotal: baseRoll.total,
+      diceTotal,
       abilityValue: abilityTotal,
       specialty,
       extraDice: [],
@@ -666,9 +743,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       statusPenalty: sleepyPenalty,
     });
 
-    // 대성공/대실패가 달성치 성공 판정을 덮어쓴다.
-    const dice = baseRoll.dice[0].results.map((r) => r.result);
-    const cf = detectCritFumble(dice);
+    // 대성공/대실패는 선택된 2개로 판단 (룰: "2개를 고른 후 판단").
+    const cf = detectCritFumble(selectedDice);
     const finalSuccess = cf.critical || (!cf.fumble && result.success);
 
     // effect의 인라인 문법(@ability.*, [[/r ...]])을 Foundry 표준으로 치환
@@ -691,7 +767,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       isFumble: cf.fumble,
       isPC: this.actor.type === "character",
       breakdown: result.breakdown,
-      diceText: dice.join(", "),
+      diceText: selectedDice.join(", "),
+      discardedDiceText: extraDice.length ? extraDice.join(", ") : "",
+      extraN: ctx.n,
+      extraColor: ctx.color,
+      extraColorLabel: ctx.n > 0 ? game.i18n.localize(`ASTER.aster.${ctx.color}`) : "",
       effect: sys.effect,
       effectEnriched,
       alert: sys.alert,
@@ -704,7 +784,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      rolls: [baseRoll],
+      rolls: [roll],
       sound: CONFIG.sounds.dice,
       content,
       flags: { aster: { spellCard: true, spellId: spell.id, actorId: this.actor.id } },

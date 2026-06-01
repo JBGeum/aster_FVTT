@@ -14,6 +14,15 @@
           <span class="formula spell-color-{{s.color}}">{{s.formula}}</span>
         </div>
       </div>
+      <button
+        type="button"
+        class="icon-btn spell-cast-extra"
+        data-action="spellCastWithExtra"
+        data-item-id="{{s.id}}"
+        title="{{localize 'ASTER.spell.castWithExtra'}}"
+      >
+        <i class="fas fa-dice-d6"></i>
+      </button>
       <button type="button" class="icon-btn" data-action="itemEdit" data-item-id="{{s.id}}">
         <i class="fas fa-edit"></i>
       </button>

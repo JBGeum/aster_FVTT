@@ -169,49 +169,6 @@ Hooks.on("getSceneControlButtons", (controls) => {
 });
 
 /* -------------------------------------------- */
-/*  Spell Chat Card — 추가 굴림 버튼            */
-/* -------------------------------------------- */
-
-// V13: renderChatMessage → renderChatMessageHTML (html은 HTMLElement)
-Hooks.on("renderChatMessageHTML", (_message, html) => {
-  const btn = html.querySelector("[data-action='spell-extra-roll']");
-  if (!btn) return;
-  btn.addEventListener("click", async () => {
-    const actor = game.actors.get(btn.dataset.actorId);
-    const spell = actor?.items.get(btn.dataset.spellId);
-    if (!actor || !spell) return;
-
-    const n = await foundry.applications.api.DialogV2.prompt({
-      window: { title: game.i18n.localize("ASTER.spell.extraTitle") },
-      content: `
-        <div class="form-group">
-          <label>${game.i18n.localize("ASTER.spell.extraN")}</label>
-          <input type="number" name="n" value="1" min="1" />
-        </div>
-      `,
-      ok: {
-        label: game.i18n.localize("ASTER.spell.extraRoll"),
-        callback: (_e, button) => Number(button.form.elements.n.value),
-      },
-    }).catch(() => null);
-    if (!n || n < 1) return;
-
-    // 아스테르 차감 없이 굴리기만 (수동 차감). 자동 차감은 후속 작업.
-    const extraRoll = new Roll(`${n}d6`);
-    await extraRoll.evaluate();
-    const extraDice = extraRoll.dice[0].results.map((r) => r.result);
-    await extraRoll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor }),
-      flavor: game.i18n.format("ASTER.spell.extraFlavor", {
-        name: spell.name,
-        n,
-        sum: extraDice.reduce((a, b) => a + b, 0),
-      }),
-    });
-  });
-});
-
-/* -------------------------------------------- */
 /*  대성공/대실패 후속 버튼                      */
 /* -------------------------------------------- */
 
@@ -224,7 +181,7 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
     html.querySelectorAll("[data-action='fumble-alert']").forEach((btn) => {
       const footer = btn.closest("footer");
       btn.remove();
-      // 단독 footer는 비워졌으니 정리, 공유 footer(spell-extra-roll 등)는 보존
+      // 단독 footer는 비워졌으니 정리, 다른 버튼이 남은 footer는 보존
       if (footer && !footer.querySelector("button")) footer.remove();
     });
   }
