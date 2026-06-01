@@ -72,8 +72,10 @@ export class CharacterDataModel extends BaseActorModel {
     for (const ability of Object.values(this.ability)) {
       ability.total = ability.base + ability.mod;
     }
-    this.speed = (this.ability.knowledge.total + this.ability.worldly.total) / 2;
-    this.dodge = this.ability.active.total + this.ability.dexterity.total;
+    // 룰: 민첩 = 박식 + 요령
+    this.speed = this.ability.knowledge.total + this.ability.dexterity.total;
+    // 룰: 회피 = (활발 + 처세) / 2 (버림)
+    this.dodge = Math.floor((this.ability.active.total + this.ability.worldly.total) / 2);
     if (this.health.max > 0) {
       this.health.percent = Math.round((this.health.value / this.health.max) * 100);
     }

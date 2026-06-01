@@ -246,8 +246,9 @@
     gap: 4px;
     align-items: center;
 
-    input {
-      width: auto;
+    .derived-value {
+      display: inline-block;
+      text-align: center;
     }
   }
 

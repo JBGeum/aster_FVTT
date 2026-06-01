@@ -53,7 +53,7 @@
             >
           </div>
           <div class="abl-value">
-            <input type="number" name="system.ability.{{key}}.total" value="{{ability.total}}" disabled />
+            <span class="derived-value">{{ability.total}}</span>
           </div>
           <div class="abl-base">
             <input type="number" name="system.ability.{{key}}.base" value="{{ability.base}}" />
@@ -89,11 +89,11 @@
       <div class="abl-derived">
         <div class="abl-label">민첩</div>
         <div class="speed">
-          <input type="number" name="system.speed" value="{{system.speed}}" />
+          <span class="derived-value">{{system.speed}}</span>
         </div>
         <div class="abl-label">회피</div>
         <div class="dodge">
-          <input type="number" name="system.dodge" value="{{system.dodge}}" />
+          <span class="derived-value">{{system.dodge}}</span>
         </div>
       </div>
     </div>
