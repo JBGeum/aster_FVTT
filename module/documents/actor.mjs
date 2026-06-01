@@ -1,5 +1,6 @@
 import { asterRoll } from "./roll.mjs";
 import { detectCritFumble } from "../helpers/roll-result.mjs";
+import { syncBadstatusEffect } from "../helpers/badstatus-effects.mjs";
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
  * @extends {Actor}
@@ -23,6 +24,31 @@ export class AsterActor extends Actor {
   /** @override */
   prepareDerivedData() {
     super.prepareDerivedData();
+  }
+
+  /** @override */
+  async _preUpdate(changes, options, user) {
+    await super._preUpdate(changes, options, user);
+
+    // badstatus 변경 감지 후 AE 동기화 예약 (실제 동기화는 _onUpdate에서)
+    const bs = changes?.system?.badstatus;
+    if (!bs) return;
+    options.aster ??= {};
+    options.aster.badstatusChanged = Object.keys(bs);
+  }
+
+  /** @override */
+  _onUpdate(changes, options, userId) {
+    super._onUpdate(changes, options, userId);
+    if (game.userId !== userId) return; // 자기 변경에만 반응
+
+    const keys = options?.aster?.badstatusChanged;
+    if (!keys?.length) return;
+
+    for (const k of keys) {
+      const active = this.system.badstatus?.[k] === true;
+      syncBadstatusEffect(this, k, active); // fire & forget
+    }
   }
 
   /**
