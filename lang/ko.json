@@ -166,11 +166,19 @@
       "extraHaveAster": "보유: {color} 아스테르 {n}개",
       "extraUsed": "추가 사용",
       "discarded": "제외됨",
-      "step1Note": "다음 업데이트에서 다이스 선택 UI가 추가됩니다.",
+      "pickTitle": "{name} — 다이스 선택",
+      "pickHint": "달성치에 합산할 2개를 선택하세요. 선택하지 않은 다이스는 계산에서 제외됩니다.",
+      "cancelled": "마법 판정이 취소되었습니다.",
       "warn": {
         "noColor": "이 마법은 속성 색이 지정되지 않았습니다.",
         "notEnoughAster": "{color} 아스테르가 부족합니다 (필요 {need} / 보유 {have})"
       }
+    },
+    "dice": {
+      "pickTitle": "다이스 선택",
+      "pickHint": "{count}개를 선택하세요.",
+      "pickConfirm": "확정",
+      "pickWrongCount": "정확히 {count}개를 선택해야 합니다."
     },
     "features": {
       "born": "출생",

@@ -4,6 +4,7 @@ import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
 import { prereqMet, sumCost, canAcquire, canRelease } from "../helpers/craft-cost.mjs";
 import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell-roll.mjs";
 import { detectCritFumble } from "../helpers/roll-result.mjs";
+import { pickDiceDialog } from "../helpers/dice-select.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -708,12 +709,25 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await roll.evaluate();
     const allDice = roll.dice[0].results.map((r) => r.result);
 
-    // ⚠️ STEP 1 임시: 다이스 3개+ 굴림 시 "처음 2개"를 선택된 것으로 처리.
-    //    룰은 PL이 2개를 고르도록 명시. STEP 2에서 선택 UI 도입.
-    const selectedDice = allDice.slice(0, 2);
-    const extraDice = allDice.slice(2);
+    // 다이스 선택 — 3개+면 다이얼로그(2개 선택), 2개면 그대로 통과 (룰: "2개를 고른 후 판단").
+    let pick = await pickDiceDialog({
+      dice: allDice,
+      count: 2,
+      title: game.i18n.format("ASTER.spell.pickTitle", { name: spell.name }),
+      hint: game.i18n.localize("ASTER.spell.pickHint"),
+    });
 
-    await this.#processSpellRoll(spell, roll, selectedDice, extraDice, { color, n });
+    // 잘못된 선택(2개 아님) 시 1회 재시도
+    if (!pick) {
+      pick = await pickDiceDialog({ dice: allDice, count: 2 });
+      if (!pick) {
+        // 취소 — 자원은 이미 차감됨(정책 A: 환불 안 함).
+        ui.notifications.info(game.i18n.localize("ASTER.spell.cancelled"));
+        return;
+      }
+    }
+
+    await this.#processSpellRoll(spell, roll, pick.selected, pick.discarded, { color, n });
   }
 
   /**
