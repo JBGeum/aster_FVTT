@@ -18,6 +18,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       cellClick: AsterActorSheet.#onCellClick,
       itemUnplace: AsterActorSheet.#onItemUnplace,
       foodSelect: AsterActorSheet.#onFoodSelect,
+      picnicDeclare: AsterActorSheet.#onPicnicDeclare,
       itemChat: AsterActorSheet.#onItemChat,
       itemEdit: AsterActorSheet.#onItemEdit,
       itemDelete: AsterActorSheet.#onItemDelete,
@@ -499,6 +500,50 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async #onFoodSelect(_event, _target) {
     // food 선택 로직: STEP5에서 확장
+  }
+
+  /**
+   * 피크닉. 탐색 페이즈에서만 가능 (룰북 502).
+   * GM 수락 단계 없이 본인 포만을 즉시 회복하고, PC 화자로 결과 카드를 출력한다.
+   */
+  static async #onPicnicDeclare(_event, target) {
+    const itemId = target.dataset.itemId;
+    const item = this.actor.items.get(itemId);
+    if (!item || item.type !== "food") return;
+
+    // 페이즈 체크 — 탐색 페이즈에서만 가능
+    const phase = game.settings.get("aster", "currentPhase");
+    if (phase !== "exploration") {
+      ui.notifications.warn(game.i18n.localize("ASTER.food.warn.notExploration"));
+      return;
+    }
+
+    // 포만 회복 (현재값 + restore, max 클램프) — 자동 적용
+    const restore = item.system.restore ?? 0;
+    const cur = this.actor.system.satiety?.value ?? 0;
+    const max = this.actor.system.satiety?.max ?? 20;
+    const next = Math.min(max, cur + restore);
+    await this.actor.update({ "system.satiety.value": next });
+
+    const bonusEffect = item.system.bonusEffect ?? "";
+    const content = await foundry.applications.handlebars.renderTemplate(
+      "systems/aster/templates/chat/picnic-card.html",
+      {
+        actorName: this.actor.name,
+        itemName: item.name,
+        itemImg: item.img,
+        restore,
+        satietyBefore: cur,
+        satietyAfter: next,
+        bonusEffect,
+        hasBonus: !!bonusEffect.trim(),
+      },
+    );
+
+    await ChatMessage.create({
+      content,
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+    });
   }
 
   static async #onItemChat(_event, target) {

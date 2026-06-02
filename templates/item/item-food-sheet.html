@@ -1,0 +1,37 @@
+<form class="aster {{cssClass}}" autocomplete="off">
+  <div class="item item-sheet" data-item-id="{{data._id}}">
+    <div class="item-container bag-sheet-body">
+      <div class="item-header">
+        <input type="text" name="name" value="{{item.name}}" placeholder="Name" />
+      </div>
+      <div class="item-detail">
+        <div class="detail-lbl">재료</div>
+        <div class="detail-input flexrow align-center">
+          {{#each system.material}}
+          <input type="number" name="system.material" value="{{this}}" />
+          {{/each}}
+        </div>
+        <div class="detail-lbl">{{localize "ASTER.food.restore"}}</div>
+        <div class="detail-input">
+          <input type="number" name="system.restore" value="{{system.restore}}" min="0" />
+        </div>
+        <div class="detail-lbl">{{localize "ASTER.food.bonusEffect"}}</div>
+        <div class="detail-input">
+          <textarea name="system.bonusEffect" rows="2">{{system.bonusEffect}}</textarea>
+          <p class="hint">{{localize "ASTER.food.bonusEffectHint"}}</p>
+        </div>
+        <div class="detail-lbl">효과</div>
+        <div class="detail-input">
+          <input type="text" name="system.effect" value="{{system.effect}}" />
+        </div>
+        <div class="detail-lbl">요구</div>
+        <div class="detail-input">
+          <input type="text" name="system.requirement" value="{{system.requirement}}" />
+        </div>
+      </div>
+      <div class="item-desc">
+        {{editor system.description target="system.description" button=true editable=editable}}
+      </div>
+    </div>
+  </div>
+</form>

@@ -100,7 +100,8 @@
     },
     "food": {
       "templates": ["base"],
-      "effect": ""
+      "restore": 0,
+      "bonusEffect": ""
     },
     "feature": {
       "type": "",

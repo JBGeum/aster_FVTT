@@ -24,6 +24,9 @@ export const preloadHandlebarsTemplates = async function () {
 
     // Chat (spell)
     "systems/aster/templates/chat/spell-card.html",
+
+    // Chat (picnic)
+    "systems/aster/templates/chat/picnic-card.html",
   ]);
 };
 

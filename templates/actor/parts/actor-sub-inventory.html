@@ -35,6 +35,15 @@
           <button
             type="button"
             class="inv-list-btn"
+            data-action="picnicDeclare"
+            data-item-id="{{inv.food.id}}"
+            title="{{localize 'ASTER.food.picnic'}}"
+          >
+            <i class="fas fa-utensils"></i>
+          </button>
+          <button
+            type="button"
+            class="inv-list-btn"
             data-action="itemEdit"
             data-item-id="{{inv.food.id}}"
             title="{{localize 'ASTER.inventory.edit'}}"

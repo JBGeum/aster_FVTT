@@ -1,0 +1,25 @@
+<div class="aster-chat-card picnic-card">
+  <header class="card-header">
+    <div class="title">
+      <div class="name">{{localize "ASTER.food.picnic"}}</div>
+    </div>
+  </header>
+
+  <div class="picnic-body">
+    <div class="picnic-item">
+      <img src="{{itemImg}}" alt="{{itemName}}" />
+      <div class="picnic-info">
+        <div class="picnic-item-name">{{itemName}}</div>
+        <div class="picnic-restore">
+          {{localize "ASTER.food.restore"}}: {{satietyBefore}} → <strong>{{satietyAfter}}</strong> (+{{restore}})
+        </div>
+        {{#if hasBonus}}
+        <div class="picnic-bonus">
+          <div class="bonus-label">{{localize "ASTER.food.bonusEffectFor" actor=actorName}}</div>
+          <div class="bonus-text">{{bonusEffect}}</div>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</div>
