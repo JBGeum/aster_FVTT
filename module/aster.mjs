@@ -298,6 +298,113 @@ const DAMAGE_STATUSES = [
 ];
 
 /**
+ * 대미지 다이얼로그 — 대미지 수치 + 상태이상 체크박스. 취소 시 null 반환.
+ * applyDamageFromCard / applyDamageFromOpposed 공통 사용.
+ *
+ * @param {Actor} targetActor
+ * @param {number} defaultDamage
+ * @returns {Promise<{amount: number, status: string[]}|null>}
+ */
+async function promptDamageDialog(targetActor, defaultDamage) {
+  const statusRows = DAMAGE_STATUSES.map(
+    (s) =>
+      `<label><input type="checkbox" name="status" value="${s.key}" /> ${game.i18n.localize(`ASTER.badstatus.${s.i18n}`)}</label>`,
+  ).join("");
+
+  return foundry.applications.api.DialogV2.prompt({
+    window: { title: game.i18n.localize("ASTER.damage.dialogTitle") },
+    content: `
+      <p class="damage-target-info">${game.i18n.format("ASTER.damage.targetInfo", { name: targetActor.name })}</p>
+      <div class="form-group">
+        <label>${game.i18n.localize("ASTER.damage.amount")}</label>
+        <input type="number" name="amount" value="${defaultDamage}" min="0" />
+      </div>
+      <fieldset class="damage-status-group">
+        <legend>${game.i18n.localize("ASTER.damage.inflictLegend")}</legend>
+        ${statusRows}
+      </fieldset>
+    `,
+    ok: {
+      callback: (_e, b) => ({
+        amount: Number(b.form.elements.amount.value) || 0,
+        status: Array.from(b.form.querySelectorAll('input[name="status"]:checked')).map(
+          (el) => el.value,
+        ),
+      }),
+    },
+  }).catch(() => null);
+}
+
+/**
+ * 건강 차감 + 상태이상 부여. 상태이상은 false→true만 (D16 AE 자동 동기).
+ *
+ * @param {Actor} targetActor
+ * @param {number} amount
+ * @param {string[]} statusList
+ * @returns {Promise<{hBefore: number, hAfter: number, statusApplied: string[]}>}
+ */
+async function applyDamageAndStatus(targetActor, amount, statusList) {
+  const hBefore = targetActor.system.health?.value ?? 0;
+  let hAfter = hBefore;
+  if (amount > 0 && hBefore > 0) {
+    hAfter = Math.max(0, hBefore - amount);
+    await targetActor.update({ "system.health.value": hAfter });
+  }
+
+  const statusApplied = [];
+  const statusUpdate = {};
+  for (const key of statusList) {
+    if (!(targetActor.system.badstatus?.[key] ?? false)) {
+      statusUpdate[`system.badstatus.${key}`] = true;
+      statusApplied.push(key);
+    }
+  }
+  if (Object.keys(statusUpdate).length > 0) await targetActor.update(statusUpdate);
+
+  return { hBefore, hAfter, statusApplied };
+}
+
+/**
+ * 대미지 적용 결과 카드 렌더링. applyDamageFromCard / applyDamageFromOpposed 공통 사용.
+ *
+ * @param {Actor} targetActor
+ * @param {{amount: number, hBefore: number, hAfter: number, statusApplied: string[]}} info
+ */
+async function renderDamageResultCard(targetActor, { amount, hBefore, hAfter, statusApplied }) {
+  const lines = [];
+  if (amount > 0) {
+    lines.push(
+      game.i18n.format("ASTER.damage.healthLine", {
+        before: hBefore,
+        after: hAfter,
+        delta: hAfter - hBefore,
+      }),
+    );
+    if (hAfter === 0) {
+      lines.push(`<span class="warn-zero">${game.i18n.localize("ASTER.damage.healthZero")}</span>`);
+    }
+  }
+  if (statusApplied.length > 0) {
+    const names = statusApplied.map((k) => {
+      const def = DAMAGE_STATUSES.find((s) => s.key === k);
+      return game.i18n.localize(`ASTER.badstatus.${def?.i18n ?? k}`);
+    });
+    lines.push(game.i18n.format("ASTER.damage.statusLine", { names: names.join(", ") }));
+  }
+  if (lines.length === 0) lines.push(game.i18n.localize("ASTER.damage.noChange"));
+
+  await ChatMessage.create({
+    content: `<div class="aster-chat-card damage-result-card">
+      <header class="card-header"><div class="title"><div class="name">
+        ${game.i18n.format("ASTER.damage.applied", { target: targetActor.name })}
+      </div></div></header>
+      <ul class="damage-lines">${lines.map((l) => `<li>${l}</li>`).join("")}</ul>
+    </div>`,
+    speaker: ChatMessage.getSpeaker({ actor: targetActor }),
+  });
+}
+
+/**
  * 채팅 카드의 "대미지 적용" 버튼 처리 (GM 전용).
  * combatAction(돌던지기) 또는 spellCast(마법) flag에서 대상을 식별하고,
  * 다이얼로그로 대미지 수치 + 상태이상을 받아 대상 액터에 적용한다.
@@ -332,89 +439,72 @@ async function applyDamageFromCard(message) {
     return;
   }
 
-  const statusRows = DAMAGE_STATUSES.map(
-    (s) =>
-      `<label><input type="checkbox" name="status" value="${s.key}" /> ${game.i18n.localize(`ASTER.badstatus.${s.i18n}`)}</label>`,
-  ).join("");
-
-  const result = await foundry.applications.api.DialogV2.prompt({
-    window: { title: game.i18n.localize("ASTER.damage.dialogTitle") },
-    content: `
-      <p class="damage-target-info">${game.i18n.format("ASTER.damage.targetInfo", { name: targetActor.name })}</p>
-      <div class="form-group">
-        <label>${game.i18n.localize("ASTER.damage.amount")}</label>
-        <input type="number" name="amount" value="${data.defaultDamage ?? 0}" min="0" />
-      </div>
-      <fieldset class="damage-status-group">
-        <legend>${game.i18n.localize("ASTER.damage.inflictLegend")}</legend>
-        ${statusRows}
-      </fieldset>
-    `,
-    ok: {
-      callback: (_e, b) => ({
-        amount: Number(b.form.elements.amount.value) || 0,
-        status: Array.from(b.form.querySelectorAll('input[name="status"]:checked')).map(
-          (el) => el.value,
-        ),
-      }),
-    },
-  }).catch(() => null);
+  const result = await promptDamageDialog(targetActor, data.defaultDamage ?? 0);
   if (result === null) return; // 취소
 
-  // 1. 건강 차감 (이미 0이면 변화 없음)
-  const hBefore = targetActor.system.health?.value ?? 0;
-  let hAfter = hBefore;
-  if (result.amount > 0 && hBefore > 0) {
-    hAfter = Math.max(0, hBefore - result.amount);
-    await targetActor.update({ "system.health.value": hAfter });
-  }
+  const { hBefore, hAfter, statusApplied } = await applyDamageAndStatus(
+    targetActor,
+    result.amount,
+    result.status,
+  );
 
-  // 2. 상태이상 부여 — false→true만 (이미 true면 변화 없음). D16 AE 자동 동기.
-  const statusApplied = [];
-  const statusUpdate = {};
-  for (const key of result.status) {
-    if (!(targetActor.system.badstatus?.[key] ?? false)) {
-      statusUpdate[`system.badstatus.${key}`] = true;
-      statusApplied.push(key);
-    }
-  }
-  if (Object.keys(statusUpdate).length > 0) await targetActor.update(statusUpdate);
-
-  // 3. flag 갱신 — 중복 적용 방지
+  // flag 갱신 — 중복 적용 방지
   const flagKey = combatAction ? "combatAction" : "spellCast";
   await message.setFlag("aster", flagKey, { ...data, damageApplied: true });
 
-  // 4. 결과 카드
-  const lines = [];
-  if (result.amount > 0) {
-    lines.push(
-      game.i18n.format("ASTER.damage.healthLine", {
-        before: hBefore,
-        after: hAfter,
-        delta: hAfter - hBefore,
-      }),
-    );
-    if (hAfter === 0) {
-      lines.push(`<span class="warn-zero">${game.i18n.localize("ASTER.damage.healthZero")}</span>`);
-    }
-  }
-  if (statusApplied.length > 0) {
-    const names = statusApplied.map((k) => {
-      const def = DAMAGE_STATUSES.find((s) => s.key === k);
-      return game.i18n.localize(`ASTER.badstatus.${def?.i18n ?? k}`);
-    });
-    lines.push(game.i18n.format("ASTER.damage.statusLine", { names: names.join(", ") }));
-  }
-  if (lines.length === 0) lines.push(game.i18n.localize("ASTER.damage.noChange"));
+  await renderDamageResultCard(targetActor, {
+    amount: result.amount,
+    hBefore,
+    hAfter,
+    statusApplied,
+  });
+}
 
-  await ChatMessage.create({
-    content: `<div class="aster-chat-card damage-result-card">
-      <header class="card-header"><div class="title"><div class="name">
-        ${game.i18n.format("ASTER.damage.applied", { target: targetActor.name })}
-      </div></div></header>
-      <ul class="damage-lines">${lines.map((l) => `<li>${l}</li>`).join("")}</ul>
-    </div>`,
-    speaker: ChatMessage.getSpeaker({ actor: targetActor }),
+/**
+ * resolveOpposed 결과 카드의 "대미지 적용" 처리 (GM 전용).
+ * 회피 패배 측(opposedDamage flag의 targetActorId)을 대상으로 GM이 수치·상태이상을 입력.
+ * 자동 추출 없음 (기본 수치 0). 회피 승리·미포함 카드는 opposedDamage flag가 없어 진입 불가.
+ *
+ * @param {ChatMessage} message
+ */
+async function applyDamageFromOpposed(message) {
+  if (!game.user.isGM) {
+    ui.notifications.warn(game.i18n.localize("ASTER.world.gmOnly"));
+    return;
+  }
+
+  const data = message.getFlag("aster", "opposedDamage");
+  if (!data) {
+    ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.noCardData"));
+    return;
+  }
+  if (data.damageApplied) {
+    ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.alreadyApplied"));
+    return;
+  }
+  const targetActor = game.actors.get(data.targetActorId);
+  if (!targetActor) {
+    ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.targetNotFound"));
+    return;
+  }
+
+  const result = await promptDamageDialog(targetActor, 0);
+  if (result === null) return; // 취소
+
+  const { hBefore, hAfter, statusApplied } = await applyDamageAndStatus(
+    targetActor,
+    result.amount,
+    result.status,
+  );
+
+  // 중복 적용 방지
+  await message.setFlag("aster", "opposedDamage", { ...data, damageApplied: true });
+
+  await renderDamageResultCard(targetActor, {
+    amount: result.amount,
+    hBefore,
+    hAfter,
+    statusApplied,
   });
 }
 
@@ -429,6 +519,11 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
   // 대미지 적용 (돌던지기·마법 카드)
   html.querySelectorAll("[data-action='apply-damage']").forEach((btn) => {
     btn.addEventListener("click", () => applyDamageFromCard(message));
+  });
+
+  // 대미지 적용 (대결판정 결과 카드 — 회피 패배 측)
+  html.querySelectorAll("[data-action='apply-damage-opposed']").forEach((btn) => {
+    btn.addEventListener("click", () => applyDamageFromOpposed(message));
   });
 
   // 능동측 지정
@@ -485,6 +580,13 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
         passiveCF: { critical: passive.isCritical, fumble: passive.isFumble },
       });
 
+      // 회피 측 식별 — 회피 카드(isDodge)만 대미지 분기 대상. 둘 다 일반이면 hasDodge=false.
+      const dodgeSide = active.isDodge ? "active" : passive.isDodge ? "passive" : null;
+      const hasDodge = dodgeSide !== null;
+      const dodger = dodgeSide === "active" ? active : dodgeSide === "passive" ? passive : null;
+      const dodgeWon = hasDodge && result.winner === dodgeSide;
+      const dodgeLost = hasDodge && result.winner !== dodgeSide;
+
       const cardData = {
         active: { ...active, diceText: active.dice.join(", ") },
         passive: { ...passive, diceText: passive.dice.join(", ") },
@@ -494,6 +596,9 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
         isPassiveWinner: result.winner === "passive",
         reasonKey: result.reason,
         reasonText: game.i18n.localize(`ASTER.opposed.reason.${result.reason}`),
+        hasDodge,
+        dodgeWon,
+        dodgeLost,
       };
 
       const content = await foundry.applications.handlebars.renderTemplate(
@@ -503,7 +608,19 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
       await ChatMessage.create({
         content,
         speaker: ChatMessage.getSpeaker({ alias: game.i18n.localize("ASTER.world.panelTitle") }),
-        flags: { aster: { opposedResult: true } },
+        flags: {
+          aster: {
+            opposedResult: true,
+            // 회피 패배 시에만 대미지 적용 정보 부여 — 버튼 핸들러가 null 체크로 분기.
+            opposedDamage: dodgeLost
+              ? {
+                  targetActorId: dodger.actorId,
+                  targetName: dodger.actorName,
+                  damageApplied: false,
+                }
+              : null,
+          },
+        },
       });
     });
   });

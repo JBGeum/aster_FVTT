@@ -169,6 +169,29 @@
         opacity: 0.8;
       }
     }
+
+    .dodge-result {
+      text-align: center;
+      margin-top: 4px;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 0.85rem;
+
+      .dodge-label {
+        font-weight: bold;
+        margin-right: 4px;
+      }
+
+      &.dodge-won {
+        background: rgba(39, 174, 96, 0.15);
+        color: #1e8449;
+      }
+
+      &.dodge-lost {
+        background: rgba(192, 57, 43, 0.15);
+        color: #c0392b;
+      }
+    }
   }
 
   // ── 마법 카드 전용: 색별 좌측 강조 바 ────────────────────────────────────────

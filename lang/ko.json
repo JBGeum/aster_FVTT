@@ -49,6 +49,8 @@
       "noActive": "먼저 다른 카드에서 [능동 지정]을 누르세요.",
       "sameCard": "같은 카드를 능동·수동으로 동시에 지정할 수 없습니다.",
       "notOpposedCard": "이 카드는 대결판정 카드가 아닙니다.",
+      "dodgeWon": "회피 성공 — 대미지·상태이상 무효",
+      "dodgeLost": "회피 실패",
       "reason": {
         "activeFumble": "능동 대실패 — 자동 수동 승",
         "bothCritical": "양측 대성공 — 수동 승",

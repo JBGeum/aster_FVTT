@@ -32,4 +32,19 @@
     <span class="winner-name">{{winnerName}}</span>
     <span class="reason">({{reasonText}})</span>
   </div>
+
+  {{#if hasDodge}} {{#if dodgeWon}}
+  <div class="dodge-result dodge-won">
+    <span class="dodge-label">{{localize "ASTER.dodge.label"}}</span>
+    <span class="dodge-verdict">{{localize "ASTER.opposed.dodgeWon"}}</span>
+  </div>
+  {{/if}} {{#if dodgeLost}}
+  <div class="dodge-result dodge-lost">
+    <span class="dodge-label">{{localize "ASTER.dodge.label"}}</span>
+    <span class="dodge-verdict">{{localize "ASTER.opposed.dodgeLost"}}</span>
+  </div>
+  <footer class="card-actions damage-actions">
+    <button type="button" data-action="apply-damage-opposed">{{localize "ASTER.damage.applyBtn"}}</button>
+  </footer>
+  {{/if}} {{/if}}
 </div>
