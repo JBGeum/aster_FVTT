@@ -157,6 +157,12 @@
       "injuryLine": "건강 {before} → {after} ({delta}) — 부상",
       "healthZero": "⚠ 건강 0 — 행동불능"
     },
+    "combat": {
+      "tracker": "전투 트래커",
+      "roundStart": "라운드 {round} 시작",
+      "actionPoints": "액션 포인트",
+      "roundEnd": "라운드 종료"
+    },
     "phase": {
       "prep": "준비",
       "opening": "오프닝",

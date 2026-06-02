@@ -15,3 +15,14 @@
     display: none;
   }
 }
+
+// 라운드별 액션 포인트(1d6, 룰북 590)를 Combat Tracker 행에 표시.
+// renderCombatTracker hook이 이니셔티브 옆에 .aster-ap 요소를 주입한다.
+.aster-ap {
+  margin-left: 0.5em;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(255, 200, 0, 0.2);
+  font-size: 0.85em;
+  font-weight: bold;
+}

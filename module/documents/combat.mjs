@@ -50,4 +50,56 @@ export class AsterCombat extends Combat {
     }
     if (updates.length) await this.updateEmbeddedDocuments("Combatant", updates);
   }
+
+  /**
+   * 라운드 시작 처리 (룰북 568 셋업/이니셔티브 단계).
+   * 1. 모든 Combatant의 이니셔티브를 현재 민첩값으로 갱신 (룰 575 — AE 변화 반영).
+   * 2. PC의 액션 포인트를 1d6 굴려 Combatant flag(`aster.actionPoint`)에 저장 (룰 590).
+   * 3. 라운드 시작 채팅 카드 (PC별 액션 포인트 통합 표시).
+   *
+   * GM만 실행 (hook이 모든 클라이언트에서 발화하므로 가드 필수).
+   * 라운드 1은 `combatStart`, 라운드 2+는 `combatRound`에서 호출 (상호 배타적 발화).
+   *
+   * @returns {Promise<void>}
+   */
+  async _startRound() {
+    if (!game.user.isGM) return;
+
+    // 1. 이니셔티브 갱신 (모든 Combatant — 현재 system.speed 기준)
+    const initiativeUpdates = [];
+    for (const c of this.combatants) {
+      const speed = Number(c.actor?.system?.speed ?? 0);
+      if (c.initiative !== speed) initiativeUpdates.push({ _id: c.id, initiative: speed });
+    }
+    if (initiativeUpdates.length) {
+      await this.updateEmbeddedDocuments("Combatant", initiativeUpdates);
+    }
+
+    // 2. PC 액션 포인트 굴림 (NPC 제외)
+    const apResults = []; // { name, ap } — 채팅 카드용
+    for (const c of this.combatants) {
+      if (c.actor?.type !== "character") continue;
+      const roll = new Roll("1d6");
+      await roll.evaluate();
+      await c.setFlag("aster", "actionPoint", roll.total);
+      apResults.push({ name: c.actor.name, ap: roll.total });
+    }
+
+    // 3. 라운드 시작 채팅 카드
+    if (apResults.length) {
+      const list = apResults.map((r) => `<li>${r.name}: <strong>${r.ap}</strong></li>`).join("");
+      await ChatMessage.create({
+        content: `<div class="aster-chat-card combat-round-card">
+          <header class="card-header"><div class="title"><div class="name">
+            ${game.i18n.format("ASTER.combat.roundStart", { round: this.round })}
+          </div></div></header>
+          <div class="ap-label">${game.i18n.localize("ASTER.combat.actionPoints")}</div>
+          <ul class="ap-list">${list}</ul>
+        </div>`,
+        speaker: ChatMessage.getSpeaker({
+          alias: game.i18n.localize("ASTER.combat.tracker"),
+        }),
+      });
+    }
+  }
 }

@@ -404,11 +404,38 @@ Hooks.on("createCombatant", async (combatant) => {
   await combat._autoRollInitiative(combatant.id);
 });
 
-// 안전망: Combat 시작 시 이니셔티브가 비어 있는 액터를 일괄 적용.
+// 라운드 시작 처리 (이니셔티브 갱신 + 액션 포인트 굴림 + 채팅 카드).
+// 라운드 1은 combatStart, 라운드 2+는 combatRound에서 발화 (상호 배타적).
+// combatStart의 _startRound가 전체 이니셔티브를 갱신하므로 G1 백업(_autoRollInitiative)을 포섭.
 Hooks.on("combatStart", async (combat) => {
-  if (!game.user.isGM || !combat?._autoRollInitiative) return;
-  const missing = combat.combatants.filter((c) => c.initiative == null).map((c) => c.id);
-  if (missing.length) await combat._autoRollInitiative(missing);
+  if (combat instanceof AsterCombat) await combat._startRound();
+});
+Hooks.on("combatRound", async (combat) => {
+  if (combat instanceof AsterCombat) await combat._startRound();
+});
+
+// Combat Tracker 각 PC 행에 액션 포인트 표시 (flag 변경 시 자동 재렌더로 갱신).
+Hooks.on("renderCombatTracker", (_app, element) => {
+  const combat = game.combat;
+  if (!combat) return;
+  // V13 ApplicationV2: element는 HTMLElement.
+  for (const row of element.querySelectorAll(".combatant")) {
+    const id = row.dataset.combatantId;
+    if (!id) continue;
+    const c = combat.combatants.get(id);
+    if (c?.actor?.type !== "character") continue;
+    const ap = c.getFlag("aster", "actionPoint");
+    if (ap == null) continue;
+
+    let apEl = row.querySelector(".aster-ap");
+    if (!apEl) {
+      apEl = document.createElement("span");
+      apEl.classList.add("aster-ap");
+      apEl.title = game.i18n.localize("ASTER.combat.actionPoints");
+      (row.querySelector(".token-initiative") ?? row).appendChild(apEl);
+    }
+    apEl.textContent = `AP ${ap}`;
+  }
 });
 
 /* -------------------------------------------- */
