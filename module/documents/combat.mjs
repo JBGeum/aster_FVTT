@@ -102,4 +102,93 @@ export class AsterCombat extends Combat {
       });
     }
   }
+
+  /**
+   * 행동완료(턴 종료) 시 부상/큰부상 건강 감소 (룰 518/520).
+   * V13 표준 오버라이드 포인트 — 턴이 끝난 Combatant를 직접 받고, 단일 GM에서만 실행되며,
+   * 라운드 경계의 마지막 Combatant도 누락 없이 발화한다(combatTurn hook 우회보다 견고).
+   * 부상·큰부상 동시 체크 시 둘 다 누적 적용(룰북 미명시 → 보수적 해석, 사용자 확정).
+   *
+   * @param {Combatant} combatant  턴이 끝난 Combatant
+   * @param {object} context
+   * @returns {Promise<void>}
+   * @override
+   */
+  async _onEndTurn(combatant, context) {
+    await super._onEndTurn(combatant, context);
+    const actor = combatant?.actor;
+    if (!actor) return;
+
+    const injury = await actor._applyInjuryHealthLoss();
+    const bigInjury = await actor._applyBigInjuryHealthLoss();
+    if (!injury.applied && !bigInjury.applied) return;
+
+    const lines = [];
+    if (injury.applied) {
+      lines.push(
+        game.i18n.format("ASTER.combat.injuryLine", {
+          before: injury.before,
+          after: injury.after,
+          delta: injury.delta,
+        }),
+      );
+    }
+    if (bigInjury.applied) {
+      lines.push(
+        game.i18n.format("ASTER.combat.bigInjuryLine", {
+          before: bigInjury.before,
+          after: bigInjury.after,
+          delta: bigInjury.delta,
+        }),
+      );
+    }
+
+    // 둘 다 적용되면 -2 → -5 순서로 update되므로 최종 건강은 큰부상 결과.
+    const finalHealth = bigInjury.applied ? bigInjury.after : injury.after;
+    if (finalHealth === 0) {
+      lines.push(`<span class="warn-zero">${game.i18n.localize("ASTER.combat.healthZero")}</span>`);
+    }
+
+    await ChatMessage.create({
+      content: `<div class="aster-chat-card combat-injury-card">
+        <header class="card-header"><div class="title"><div class="name">
+          ${actor.name}
+        </div></div></header>
+        <ul class="injury-lines">${lines.map((l) => `<li>${l}</li>`).join("")}</ul>
+      </div>`,
+      speaker: ChatMessage.getSpeaker({ actor }),
+    });
+  }
+
+  /**
+   * 전투 종료 시 큰부상 → 부상 전이 (룰 520). `deleteCombat` hook에서 호출.
+   * hook은 모든 클라이언트에서 발화하므로 GM 가드 필수.
+   *
+   * @returns {Promise<void>}
+   */
+  async _endCombat() {
+    if (!game.user.isGM) return;
+
+    const transitioned = [];
+    for (const c of this.combatants) {
+      if (c.actor?.type !== "character") continue;
+      const did = await c.actor._transitionBigInjuryToInjury();
+      if (did) transitioned.push(c.actor.name);
+    }
+
+    if (transitioned.length) {
+      const list = transitioned.map((n) => `<li>${n}</li>`).join("");
+      await ChatMessage.create({
+        content: `<div class="aster-chat-card combat-end-card">
+          <header class="card-header"><div class="title"><div class="name">
+            ${game.i18n.localize("ASTER.combat.endTransition")}
+          </div></div></header>
+          <ul class="transition-list">${list}</ul>
+        </div>`,
+        speaker: ChatMessage.getSpeaker({
+          alias: game.i18n.localize("ASTER.combat.tracker"),
+        }),
+      });
+    }
+  }
 }

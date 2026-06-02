@@ -210,21 +210,16 @@ export class AsterActor extends Actor {
   }
 
   /**
-   * 탐색 페이즈일 때만 부상 PC에 건강 -2.
-   * 룰 518: 부상 상태는 전투중 행동완료 또는 탐색 페이즈 이동 타이밍에 건강 -2.
+   * 부상 PC에 건강 -2 (트리거 무관, 호출자가 트리거 책임).
+   * 룰 518: 부상 = 전투중 행동완료 또는 탐색 페이즈 이동 타이밍.
    * 룰 536: 건강 0 도달 시 행동불능 — 시스템은 수치만 갱신, 후속 처리는 GM(D12).
    *
-   * `_decreaseSatietyIfExploration`과 동일 패턴(D19 메커니즘에서 외부 호출). 단,
-   * 호출자가 카드에 표시할 정보가 더 풍부(부상 PC만 분기 + 건강 0 경고)하므로 결과 객체를 반환.
-   *
    * @returns {Promise<{before:number, after:number, delta:number, applied:boolean}>}
-   *   applied=false면 조건 미충족(부상 아님·페이즈 외·이미 0). 호출자가 채팅 표시 결정.
+   *   applied=false면 조건 미충족(부상 아님·이미 0·NPC). 호출자가 채팅 표시 결정.
    */
-  async _applyInjuryHealthLossIfExploration() {
+  async _applyInjuryHealthLoss() {
     const skip = { before: 0, after: 0, delta: 0, applied: false };
     if (this.type !== "character") return skip;
-    const phase = game.settings.get("aster", "currentPhase");
-    if (phase !== "exploration") return skip;
     if (this.system.badstatus?.injury !== true) return skip;
 
     const before = this.system.health?.value ?? 0;
@@ -233,6 +228,54 @@ export class AsterActor extends Actor {
     const after = Math.max(0, before - 2);
     await this.update({ "system.health.value": after });
     return { before, after, delta: after - before, applied: true };
+  }
+
+  /**
+   * 큰부상 PC에 건강 -5 (전투 중 행동완료 트리거).
+   * 룰 520: 큰 부상 = 전투중 행동완료 시 건강 -5.
+   *
+   * @returns {Promise<{before:number, after:number, delta:number, applied:boolean}>}
+   */
+  async _applyBigInjuryHealthLoss() {
+    const skip = { before: 0, after: 0, delta: 0, applied: false };
+    if (this.type !== "character") return skip;
+    if (this.system.badstatus?.bigInj !== true) return skip;
+
+    const before = this.system.health?.value ?? 0;
+    if (before <= 0) return { ...skip, before, after: before };
+
+    const after = Math.max(0, before - 5);
+    await this.update({ "system.health.value": after });
+    return { before, after, delta: after - before, applied: true };
+  }
+
+  /**
+   * 탐색 페이즈 이동 시 부상 적용 (D19 흐름).
+   * 페이즈 체크만 담당하고 본 로직은 _applyInjuryHealthLoss에 위임.
+   *
+   * @returns {Promise<{before:number, after:number, delta:number, applied:boolean}>}
+   */
+  async _applyInjuryHealthLossIfExploration() {
+    const skip = { before: 0, after: 0, delta: 0, applied: false };
+    const phase = game.settings.get("aster", "currentPhase");
+    if (phase !== "exploration") return skip;
+    return this._applyInjuryHealthLoss();
+  }
+
+  /**
+   * 큰부상 → 부상 전이 (전투 종료 시).
+   * 룰 520: 전투 종료시에 [부상]으로 변경된다.
+   *
+   * @returns {Promise<boolean>}  전이가 일어났으면 true.
+   */
+  async _transitionBigInjuryToInjury() {
+    if (this.type !== "character") return false;
+    if (this.system.badstatus?.bigInj !== true) return false;
+    await this.update({
+      "system.badstatus.bigInj": false,
+      "system.badstatus.injury": true,
+    });
+    return true;
   }
 
   async rollEmotion(label, _options = {}) {

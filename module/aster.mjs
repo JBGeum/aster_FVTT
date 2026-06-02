@@ -414,6 +414,11 @@ Hooks.on("combatRound", async (combat) => {
   if (combat instanceof AsterCombat) await combat._startRound();
 });
 
+// 전투 종료 시 큰부상 → 부상 전이 (행동완료 시 부상 감소는 AsterCombat._onEndTurn 오버라이드가 처리).
+Hooks.on("deleteCombat", async (combat) => {
+  if (combat instanceof AsterCombat) await combat._endCombat();
+});
+
 // Combat Tracker 각 PC 행에 액션 포인트 표시 (flag 변경 시 자동 재렌더로 갱신).
 Hooks.on("renderCombatTracker", (_app, element) => {
   const combat = game.combat;

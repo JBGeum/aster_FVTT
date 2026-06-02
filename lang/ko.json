@@ -161,7 +161,11 @@
       "tracker": "전투 트래커",
       "roundStart": "라운드 {round} 시작",
       "actionPoints": "액션 포인트",
-      "roundEnd": "라운드 종료"
+      "roundEnd": "라운드 종료",
+      "injuryLine": "부상: 건강 {before} → {after} ({delta})",
+      "bigInjuryLine": "큰 부상: 건강 {before} → {after} ({delta})",
+      "healthZero": "⚠ 건강 0 — 행동불능",
+      "endTransition": "전투 종료 — 큰 부상이 부상으로 변경"
     },
     "phase": {
       "prep": "준비",
