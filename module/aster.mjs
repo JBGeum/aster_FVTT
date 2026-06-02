@@ -4,6 +4,7 @@ import "../scss/aster.scss";
 // Documents
 import { AsterActor } from "./documents/actor.mjs";
 import { AsterItem } from "./documents/item.mjs";
+import { AsterCombat } from "./documents/combat.mjs";
 // Sheets
 import { AsterActorSheet } from "./sheets/actor-sheet.mjs";
 import { AsterItemSheet } from "./sheets/item-sheet.mjs";
@@ -39,13 +40,17 @@ Hooks.once("init", async function () {
 
   CONFIG.ASTER = ASTER;
 
+  // 룰북 574: 이니셔티브 = 민첩 비교 (다이스 굴림 없음).
+  // system.speed는 D15 derived + D16 Active Effect 가산 후 최종값.
+  // getRollData()가 system 키를 최상위로 펼쳐 반환하므로 `@speed`로 참조 (not `@system.speed`).
   CONFIG.Combat.initiative = {
-    formula: "1d20 + @abilities.dex.mod",
-    decimals: 2,
+    formula: "@speed",
+    decimals: 0,
   };
 
   CONFIG.Actor.documentClass = AsterActor;
   CONFIG.Item.documentClass = AsterItem;
+  CONFIG.Combat.documentClass = AsterCombat;
 
   CONFIG.Actor.dataModels = {
     character: CharacterDataModel,
@@ -385,6 +390,25 @@ Hooks.once("ready", async function () {
 
   await migrateInventoryFields();
   await migrateSpellTarget();
+});
+
+/* -------------------------------------------- */
+/*  Combat Hooks                                */
+/* -------------------------------------------- */
+
+// 액터 추가 시 자동 이니셔티브(=민첩). GM만 처리해 중복 update 방지.
+Hooks.on("createCombatant", async (combatant) => {
+  if (!game.user.isGM) return;
+  const combat = combatant.parent;
+  if (!combat?._autoRollInitiative) return;
+  await combat._autoRollInitiative(combatant.id);
+});
+
+// 안전망: Combat 시작 시 이니셔티브가 비어 있는 액터를 일괄 적용.
+Hooks.on("combatStart", async (combat) => {
+  if (!game.user.isGM || !combat?._autoRollInitiative) return;
+  const missing = combat.combatants.filter((c) => c.initiative == null).map((c) => c.id);
+  if (missing.length) await combat._autoRollInitiative(missing);
 });
 
 /* -------------------------------------------- */

@@ -40,6 +40,7 @@ export default tseslint.config(
         Macro: "readonly",
         Item: "readonly",
         Actor: "readonly",
+        Combat: "readonly",
         Actors: "readonly",
         Items: "readonly",
         ActorSheet: "readonly",

@@ -1,0 +1,17 @@
+// Combat Tracker
+//
+// 이니셔티브는 다이스 굴림이 아니라 민첩 비교(룰북 574)이며 액터 추가 시 자동 적용된다.
+// 따라서 굴림(d20) 컨트롤을 숨겨 "굴려야 한다"는 잘못된 신호를 제거한다.
+// 이니셔티브 *값* 표시(.token-initiative의 숫자)는 유지한다 — 굴림 버튼만 숨긴다.
+//
+// V13 Combat Tracker의 DOM은 버전에 따라 data-control / data-action을 혼용하므로
+// 두 형태를 모두 커버한다. (실제 DOM은 런타임에서 확인 후 조정 가능)
+.combat-tracker,
+#combat-tracker {
+  .combatant-control[data-control="rollInitiative"],
+  .combatant-control[data-action="rollInitiative"],
+  .token-initiative [data-action="rollInitiative"],
+  .token-initiative a.roll {
+    display: none;
+  }
+}
