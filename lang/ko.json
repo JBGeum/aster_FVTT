@@ -152,7 +152,10 @@
       "noCharacters": "캐릭터 액터가 없습니다.",
       "noSelection": "한 명 이상 선택해야 합니다.",
       "noChange": "변화 없음",
-      "notExploration": "탐색 페이즈가 아니므로 포만 감소가 적용되지 않았습니다."
+      "notExploration": "탐색 페이즈가 아니므로 포만 감소가 적용되지 않았습니다.",
+      "satietyLine": "포만 {before} → {after} ({delta})",
+      "injuryLine": "건강 {before} → {after} ({delta}) — 부상",
+      "healthZero": "⚠ 건강 0 — 행동불능"
     },
     "phase": {
       "prep": "준비",

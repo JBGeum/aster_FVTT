@@ -286,23 +286,63 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const phase = game.settings.get("aster", "currentPhase");
     const isExploration = phase === "exploration";
 
-    const changes = []; // { actorName, before, after, delta } — 채팅 출력용
+    const changes = []; // PC별 포만·부상 처리 결과 — 채팅 출력용
     for (const id of selectedIds) {
       const actor = game.actors.get(id);
       if (!actor) continue;
-      const before = actor.system.satiety?.value ?? 0;
+
+      // 포만 감소
+      const satBefore = actor.system.satiety?.value ?? 0;
       await actor._decreaseSatietyIfExploration();
-      const after = actor.system.satiety?.value ?? 0;
-      changes.push({ actorName: actor.name, before, after, delta: after - before });
+      const satAfter = actor.system.satiety?.value ?? 0;
+
+      // 부상 PC 건강 -2 (탐색 페이즈)
+      const injury = await actor._applyInjuryHealthLossIfExploration();
+
+      changes.push({
+        actorName: actor.name,
+        satietyBefore: satBefore,
+        satietyAfter: satAfter,
+        satietyDelta: satAfter - satBefore,
+        injuryApplied: injury.applied,
+        healthBefore: injury.before,
+        healthAfter: injury.after,
+        healthDelta: injury.delta,
+        healthZero: injury.applied && injury.after === 0,
+      });
     }
 
-    // 4. 채팅 안내 카드
+    // 4. 채팅 안내 카드 — PC별 그룹, 변경 항목을 들여쓰기로 표시
     const listHtml = changes
-      .map((c) =>
-        c.delta === 0
-          ? `<li>${c.actorName} — ${game.i18n.localize("ASTER.scene.noChange")}</li>`
-          : `<li>${c.actorName}: ${c.before} → ${c.after} (${c.delta})</li>`,
-      )
+      .map((c) => {
+        const lines = [];
+        lines.push(
+          c.satietyDelta === 0
+            ? game.i18n.localize("ASTER.scene.noChange")
+            : game.i18n.format("ASTER.scene.satietyLine", {
+                before: c.satietyBefore,
+                after: c.satietyAfter,
+                delta: c.satietyDelta,
+              }),
+        );
+        if (c.injuryApplied) {
+          lines.push(
+            game.i18n.format("ASTER.scene.injuryLine", {
+              before: c.healthBefore,
+              after: c.healthAfter,
+              delta: c.healthDelta,
+            }),
+          );
+          if (c.healthZero) {
+            lines.push(
+              `<span class="warn-zero">${game.i18n.localize("ASTER.scene.healthZero")}</span>`,
+            );
+          }
+        }
+        return `<li><strong>${c.actorName}</strong><ul class="scene-pc-detail">${lines
+          .map((l) => `<li>${l}</li>`)
+          .join("")}</ul></li>`;
+      })
       .join("");
 
     const noteHtml = isExploration

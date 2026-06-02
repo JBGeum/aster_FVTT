@@ -209,6 +209,32 @@ export class AsterActor extends Actor {
     await this.update({ "system.satiety.value": next });
   }
 
+  /**
+   * 탐색 페이즈일 때만 부상 PC에 건강 -2.
+   * 룰 518: 부상 상태는 전투중 행동완료 또는 탐색 페이즈 이동 타이밍에 건강 -2.
+   * 룰 536: 건강 0 도달 시 행동불능 — 시스템은 수치만 갱신, 후속 처리는 GM(D12).
+   *
+   * `_decreaseSatietyIfExploration`과 동일 패턴(D19 메커니즘에서 외부 호출). 단,
+   * 호출자가 카드에 표시할 정보가 더 풍부(부상 PC만 분기 + 건강 0 경고)하므로 결과 객체를 반환.
+   *
+   * @returns {Promise<{before:number, after:number, delta:number, applied:boolean}>}
+   *   applied=false면 조건 미충족(부상 아님·페이즈 외·이미 0). 호출자가 채팅 표시 결정.
+   */
+  async _applyInjuryHealthLossIfExploration() {
+    const skip = { before: 0, after: 0, delta: 0, applied: false };
+    if (this.type !== "character") return skip;
+    const phase = game.settings.get("aster", "currentPhase");
+    if (phase !== "exploration") return skip;
+    if (this.system.badstatus?.injury !== true) return skip;
+
+    const before = this.system.health?.value ?? 0;
+    if (before <= 0) return { ...skip, before, after: before };
+
+    const after = Math.max(0, before - 2);
+    await this.update({ "system.health.value": after });
+    return { before, after, delta: after - before, applied: true };
+  }
+
   async rollEmotion(label, _options = {}) {
     const renderTemplate = foundry.applications.handlebars.renderTemplate;
     // 룰: 정동판정 달성치는 어떤 효과로도 증감되지 않음. 항상 2d6.
