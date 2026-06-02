@@ -8,7 +8,8 @@
  * @param {boolean} p.specialty      특기색 일치 여부
  * @param {number[]} [p.extraDice]   아스테르로 추가 굴린 d6 결과 배열(없으면 [])
  * @param {number} p.target          목표치
- * @param {number} [p.statusPenalty] 상태이상 보정(졸림 -2 등). 기본 0.
+ * @param {{sleepy?:number, satiety?:number, total?:number}} [p.penalties]
+ *   보정 객체. computePenalties()의 반환을 그대로 넣어도 됨. 기본 { total: 0 }.
  * @returns {{ achievement:number, success:boolean, breakdown:object }}
  */
 export function computeSpellRoll({
@@ -17,11 +18,12 @@ export function computeSpellRoll({
   specialty,
   extraDice = [],
   target,
-  statusPenalty = 0,
+  penalties = { total: 0 },
 }) {
   const specialtyBonus = specialty ? 1 : 0;
   const extraSum = extraDice.reduce((a, b) => a + b, 0);
-  const achievement = diceTotal + abilityValue + specialtyBonus + extraSum + statusPenalty;
+  const penaltyTotal = penalties.total ?? 0;
+  const achievement = diceTotal + abilityValue + specialtyBonus + extraSum + penaltyTotal;
   return {
     achievement,
     success: achievement >= target,
@@ -32,7 +34,8 @@ export function computeSpellRoll({
       extra: extraSum,
       extraDice,
       target,
-      statusPenalty,
+      penalties, // 객체 전체 — 카드에서 분기 표시
+      penaltyTotal, // 합산 — 카드 요약용
     },
   };
 }

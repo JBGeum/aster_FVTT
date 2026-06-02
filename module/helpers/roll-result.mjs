@@ -24,6 +24,36 @@ export function detectCritFumble(twoDice) {
 }
 
 /**
+ * 액터 상태에서 판정 달성치 보정을 계산.
+ * 룰: 정동판정은 보정 대상 아님 (호출자가 정동판정에서 호출하지 않도록 책임).
+ *
+ * 반환 객체의 키는 보정 종류, 값은 음수(또는 0). 향후 보정 추가 시 키 추가.
+ * total은 합산값 — 카드 표시와 별도로 호출자가 빠르게 사용.
+ *
+ * (actor는 의도적으로 무타입 — spell-roll.mjs의 getAbilityTotal과 동일 컨벤션.
+ *  fvtt-types의 Actor.system은 커스텀 DataModel 필드를 알지 못해 strict 오류가 남.)
+ *
+ * @param {{ system: { badstatus?: { sleepy?: boolean }, satiety?: { value?: number } } }} actor
+ * @returns {{ sleepy:number, satiety:number, total:number }}
+ */
+export function computePenalties(actor) {
+  const sleepy = actor.system.badstatus?.sleepy ? -2 : 0;
+
+  const satietyValue = actor.system.satiety?.value ?? 20;
+  let satiety = 0;
+  if (satietyValue === 0) satiety = -3;
+  else if (satietyValue <= 5) satiety = -2;
+  else if (satietyValue <= 10) satiety = -1;
+  // 11 이상은 0
+
+  return {
+    sleepy,
+    satiety,
+    total: sleepy + satiety,
+  };
+}
+
+/**
  * 대결판정 승부 결정.
  * 룰 분기를 사유와 함께 반환한다. 결과 카드에 사유 표시 가능.
  *

@@ -8,8 +8,10 @@
 
   <div class="roll-block">
     <div class="dice">[{{diceText}}] + {{ablValue}}</div>
-    {{#if sleepyPenalty}}
-    <div class="penalty-line">{{localize "ASTER.badstatus.sleepy"}}: {{sleepyPenalty}}</div>
+    {{#if penalties.sleepy}}
+    <div class="penalty-line">{{localize "ASTER.badstatus.sleepy"}}: {{penalties.sleepy}}</div>
+    {{/if}} {{#if penalties.satiety}}
+    <div class="penalty-line">{{localize "ASTER.label.satiety"}}: {{penalties.satiety}}</div>
     {{/if}}
     <div class="breakdown">{{total}} &ge; {{rollDC}}</div>
     <div

@@ -3,7 +3,7 @@ import { checkBagCapacity, checkStorageAdd } from "../helpers/inventory-capacity
 import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
 import { prereqMet, sumCost, canAcquire, canRelease } from "../helpers/craft-cost.mjs";
 import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell-roll.mjs";
-import { detectCritFumble } from "../helpers/roll-result.mjs";
+import { detectCritFumble, computePenalties } from "../helpers/roll-result.mjs";
 import { pickDiceDialog } from "../helpers/dice-select.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -743,7 +743,9 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const abilityTotal = getAbilityTotal(this.actor, sys.ability);
     const specialty = isSpecialty(this.actor, sys.color);
     const targetVal = sys.target ?? 0;
-    const sleepyPenalty = this.actor.system.badstatus?.sleepy ? -2 : 0;
+
+    // 보정 통합: 졸림 + 포만 (페이즈 무관, 모든 판정에 적용).
+    const penalties = computePenalties(this.actor);
 
     // 선택 A: extraDice는 합산하지 않고(빈 배열 전달) 카드에서 별도 표시.
     // 선택된 2개의 합만 diceTotal로 넘긴다.
@@ -754,7 +756,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       specialty,
       extraDice: [],
       target: targetVal,
-      statusPenalty: sleepyPenalty,
+      penalties,
     });
 
     // 대성공/대실패는 선택된 2개로 판단 (룰: "2개를 고른 후 판단").
@@ -806,9 +808,12 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     // 졸림 자동 해제: 룰 "한 번 판정에 실패하면 해제" — 일반 마법판정 실패에만 적용.
     // AE는 actor의 _onUpdate hook에서 자동 삭제됨 (C-1 동기화).
-    if (sleepyPenalty < 0 && !finalSuccess) {
+    if (penalties.sleepy < 0 && !finalSuccess) {
       await this.actor.update({ "system.badstatus.sleepy": false });
     }
+
+    // 포만 자동 감소: 탐색 페이즈만, 판정 시 -1 (배고픔이면 -2). PC만.
+    await this.actor._decreaseSatietyIfExploration();
   }
 
   static #onRecordPrev(_event, _target) {

@@ -1,5 +1,5 @@
 import { asterRoll } from "./roll.mjs";
-import { detectCritFumble } from "../helpers/roll-result.mjs";
+import { detectCritFumble, computePenalties } from "../helpers/roll-result.mjs";
 import { syncBadstatusEffect } from "../helpers/badstatus-effects.mjs";
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
@@ -101,9 +101,9 @@ export class AsterActor extends Actor {
     const diceText = resultDiceset.join(", ");
     const cf = detectCritFumble(resultDiceset);
 
-    // 졸림: 달성치 -2 (룰: 모든 판정에 적용). 정동판정은 rollEmotion에서 별도 처리하므로 여기는 일반/대결만.
-    const sleepyPenalty = this.system.badstatus?.sleepy ? -2 : 0;
-    const adjustedTotal = roll.total + sleepyPenalty;
+    // 보정 통합: 졸림 + 포만 (페이즈 무관, 모든 판정에 적용. 정동판정만 별도).
+    const penalties = computePenalties(this);
+    const adjustedTotal = roll.total + penalties.total;
 
     const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
 
@@ -117,7 +117,7 @@ export class AsterActor extends Actor {
         result: roll.result,
         total: adjustedTotal,
         rawTotal: roll.total,
-        sleepyPenalty,
+        penalties,
         resultDiceset,
         diceText,
         isCritical: cf.critical,
@@ -159,7 +159,7 @@ export class AsterActor extends Actor {
         rollDC: this.system.dc,
         total: adjustedTotal,
         rawTotal: roll.total,
-        sleepyPenalty,
+        penalties,
         isSuccess,
         isCritical: cf.critical,
         isFumble: cf.fumble,
@@ -176,10 +176,37 @@ export class AsterActor extends Actor {
 
       // 졸림 자동 해제: 룰 "한 번 판정에 실패하면 해제" — 일반판정 실패에만 적용.
       // AE는 _onUpdate hook에서 자동 삭제됨 (C-1 동기화).
-      if (sleepyPenalty < 0 && !isSuccess) {
+      if (penalties.sleepy < 0 && !isSuccess) {
         await this.update({ "system.badstatus.sleepy": false });
       }
     }
+
+    // 포만 자동 감소: 탐색 페이즈만, 판정 시 -1 (배고픔이면 -2). PC만.
+    await this._decreaseSatietyIfExploration();
+  }
+
+  /**
+   * 탐색 페이즈일 때만 포만 자동 감소. ActorSheet에서도 호출 가능하도록 공개 메서드.
+   * 룰 488: 탐색 페이즈에 판정/이동 시 포만 -1, 배고픔이면 -2.
+   * 룰 498: 포만은 0 미만이 되지 않음 (DataModel min:0가 보장).
+   * 룰 531: 전투 중(클라이막스 페이즈)에는 무시 — currentPhase로 분기됨.
+   *
+   * `_` prefix는 "내부용/비공식 API" 컨벤션. JS private(`#`)은 외부 호출 불가라
+   * 시트에서 호출하기 위해 일반 메서드로 노출한다.
+   *
+   * @returns {Promise<void>}
+   */
+  async _decreaseSatietyIfExploration() {
+    if (this.type !== "character") return;
+    const phase = game.settings.get("aster", "currentPhase");
+    if (phase !== "exploration") return;
+
+    const cur = this.system.satiety?.value ?? 0;
+    if (cur <= 0) return; // 이미 0이면 무용 update 생략 (DataModel min:0이 막더라도)
+
+    const decrement = this.system.badstatus?.hungry ? 2 : 1;
+    const next = Math.max(0, cur - decrement);
+    await this.update({ "system.satiety.value": next });
   }
 
   async rollEmotion(label, _options = {}) {
