@@ -143,6 +143,17 @@
       "witchHuntFail": "마녀사냥 판정: d100={roll} vs 경계도 {alert} → 실패",
       "phase": "세션 페이즈"
     },
+    "scene": {
+      "transition": "장면 이동",
+      "transitionTitle": "장면 이동 — 대상 선택",
+      "transitionHint": "장면 이동에 함께하는 PC를 선택하세요. 탐색 페이즈에서는 선택된 PC의 포만이 감소합니다 (배고픔이면 -2).",
+      "confirm": "이동",
+      "transitioned": "장면 이동",
+      "noCharacters": "캐릭터 액터가 없습니다.",
+      "noSelection": "한 명 이상 선택해야 합니다.",
+      "noChange": "변화 없음",
+      "notExploration": "탐색 페이즈가 아니므로 포만 감소가 적용되지 않았습니다."
+    },
     "phase": {
       "prep": "준비",
       "opening": "오프닝",

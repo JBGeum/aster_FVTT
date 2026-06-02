@@ -18,6 +18,7 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       rangeRoll: AsterGMPanel.#onRangeRoll,
       witchHunt: AsterGMPanel.#onWitchHunt,
       emoGenerate: AsterGMPanel.#onEmoGenerate,
+      sceneTransition: AsterGMPanel.#onSceneTransition,
     },
   };
 
@@ -231,5 +232,94 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       speaker: ChatMessage.getSpeaker({ alias: game.i18n.localize("ASTER.world.panelTitle") }),
     });
     // updateSetting hook이 패널 재렌더링 처리 (aster.mjs)
+  }
+
+  /**
+   * 장면 이동 처리.
+   * 룰북 488: 탐색 페이즈에서 이동 시 포만 -1 (배고픔이면 -2).
+   * 룰북 502: 이동 전 타이밍에 피크닉 선언 가능 (이 STEP 범위 밖, 향후 추가).
+   *
+   * 장면 이동 자체는 모든 페이즈에서 일어날 수 있는 개념적 이벤트지만,
+   * 포만 감소는 탐색 페이즈에서만 적용 (페이즈 무관 버튼 + 페이즈별 효과 분기).
+   */
+  static async #onSceneTransition(_event, _target) {
+    // 1. character 액터 목록 (NPC 제외)
+    const characters = game.actors.filter((a) => a.type === "character");
+    if (characters.length === 0) {
+      ui.notifications.warn(game.i18n.localize("ASTER.scene.noCharacters"));
+      return;
+    }
+
+    // 2. 다이얼로그: 대상 PC 선택 (기본 전체 체크)
+    const rows = characters
+      .map(
+        (a) => `
+        <div class="form-group scene-target-row">
+          <label>
+            <input type="checkbox" name="target" value="${a.id}" checked />
+            ${a.name}
+          </label>
+        </div>`,
+      )
+      .join("");
+
+    const selectedIds = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.scene.transitionTitle") },
+      content: `
+        <p class="scene-hint">${game.i18n.localize("ASTER.scene.transitionHint")}</p>
+        ${rows}
+      `,
+      ok: {
+        label: game.i18n.localize("ASTER.scene.confirm"),
+        callback: (_e, b) =>
+          Array.from(b.form.querySelectorAll('input[name="target"]:checked')).map((el) => el.value),
+      },
+    }).catch(() => null);
+
+    if (selectedIds === null) return; // 취소
+    if (selectedIds.length === 0) {
+      ui.notifications.warn(game.i18n.localize("ASTER.scene.noSelection"));
+      return;
+    }
+
+    // 3. 페이즈 확인 + 포만 감소 적용
+    const phase = game.settings.get("aster", "currentPhase");
+    const isExploration = phase === "exploration";
+
+    const changes = []; // { actorName, before, after, delta } — 채팅 출력용
+    for (const id of selectedIds) {
+      const actor = game.actors.get(id);
+      if (!actor) continue;
+      const before = actor.system.satiety?.value ?? 0;
+      await actor._decreaseSatietyIfExploration();
+      const after = actor.system.satiety?.value ?? 0;
+      changes.push({ actorName: actor.name, before, after, delta: after - before });
+    }
+
+    // 4. 채팅 안내 카드
+    const listHtml = changes
+      .map((c) =>
+        c.delta === 0
+          ? `<li>${c.actorName} — ${game.i18n.localize("ASTER.scene.noChange")}</li>`
+          : `<li>${c.actorName}: ${c.before} → ${c.after} (${c.delta})</li>`,
+      )
+      .join("");
+
+    const noteHtml = isExploration
+      ? ""
+      : `<div class="scene-note">${game.i18n.localize("ASTER.scene.notExploration")}</div>`;
+
+    await ChatMessage.create({
+      content: `<div class="aster-chat-card scene-transition-card">
+        <header class="card-header"><div class="title"><div class="name">
+          ${game.i18n.localize("ASTER.scene.transitioned")}
+        </div></div></header>
+        ${noteHtml}
+        <ul class="scene-target-list">${listHtml}</ul>
+      </div>`,
+      speaker: ChatMessage.getSpeaker({
+        alias: game.i18n.localize("ASTER.world.panelTitle"),
+      }),
+    });
   }
 }
