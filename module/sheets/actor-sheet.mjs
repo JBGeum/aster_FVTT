@@ -21,6 +21,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       foodSelect: AsterActorSheet.#onFoodSelect,
       picnicDeclare: AsterActorSheet.#onPicnicDeclare,
       combatAction: AsterActorSheet.#onCombatAction,
+      rollDodge: AsterActorSheet.#onRollDodge,
       itemChat: AsterActorSheet.#onItemChat,
       itemEdit: AsterActorSheet.#onItemEdit,
       itemDelete: AsterActorSheet.#onItemDelete,
@@ -573,6 +574,10 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    * 단순 액션은 즉시 AP 차감 + 채팅, 입력 필요 액션은 다이얼로그.
    * 이번 STEP은 AP 차감 + 채팅 안내만 — 다음 라운드 효과·대미지는 텍스트로 수동 추적.
    */
+  static async #onRollDodge(_event, _target) {
+    await this.actor.rollDodge();
+  }
+
   static async #onCombatAction(_event, target) {
     const actionKey = target.dataset.actionKey;
     const combat = game.combat;

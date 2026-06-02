@@ -193,6 +193,9 @@
       "chargeEffectUnison": "다음 합체기 다이스 +1D6 (수동 적용 — 라운드 1회)",
       "unisonPrepareEffect": "다음 셋업에 합체기 사용 가능 (플래그 저장됨)"
     },
+    "dodge": {
+      "label": "회피"
+    },
     "target": {
       "label": "대상",
       "noTarget": "캔버스에서 대상 토큰을 먼저 지정해주세요 (Shift+클릭).",

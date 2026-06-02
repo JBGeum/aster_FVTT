@@ -6,7 +6,13 @@
 
   {{#unless combatContext.inCombat}}
   <div class="combat-disabled-notice">{{localize "ASTER.combat.notInCombat"}}</div>
-  {{/unless}}
+  {{/unless}} {{!-- 회피는 액션이 아닌 반응 판정 — AP 소비 없음, 전투 진행 여부와 무관하게 활성 --}}
+  <div class="combat-dodge">
+    <button type="button" class="dodge-btn" data-action="rollDodge">
+      <span class="dodge-label">{{localize "ASTER.dodge.label"}}</span>
+      <span class="dodge-value">{{system.dodge}}</span>
+    </button>
+  </div>
 
   <div class="combat-actions {{#if combatContext.disabled}}disabled{{/if}}">
     <button

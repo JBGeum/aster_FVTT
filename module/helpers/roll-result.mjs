@@ -30,13 +30,17 @@ export function detectCritFumble(twoDice) {
  * 반환 객체의 키는 보정 종류, 값은 음수(또는 0). 향후 보정 추가 시 키 추가.
  * total은 합산값 — 카드 표시와 별도로 호출자가 빠르게 사용.
  *
+ * context.isDodge=true일 때 피로(exhaustion) -3 추가 (룰북 522: 회피 판정에만 적용).
+ *
  * (actor는 의도적으로 무타입 — spell-roll.mjs의 getAbilityTotal과 동일 컨벤션.
  *  fvtt-types의 Actor.system은 커스텀 DataModel 필드를 알지 못해 strict 오류가 남.)
  *
- * @param {{ system: { badstatus?: { sleepy?: boolean }, satiety?: { value?: number } } }} actor
- * @returns {{ sleepy:number, satiety:number, total:number }}
+ * @param {{ system: { badstatus?: { sleepy?: boolean, exhaustion?: boolean }, satiety?: { value?: number } } }} actor
+ * @param {object} [context]
+ * @param {boolean} [context.isDodge=false]  회피 판정 컨텍스트 (피로 -3 적용 여부)
+ * @returns {{ sleepy:number, satiety:number, exhaustion:number, total:number }}
  */
-export function computePenalties(actor) {
+export function computePenalties(actor, context = {}) {
   const sleepy = actor.system.badstatus?.sleepy ? -2 : 0;
 
   const satietyValue = actor.system.satiety?.value ?? 20;
@@ -46,10 +50,14 @@ export function computePenalties(actor) {
   else if (satietyValue <= 10) satiety = -1;
   // 11 이상은 0
 
+  // 회피 판정 한정: 피로(exhaustion) -3 (룰북 522). 일반/마법/정동 판정에는 적용 안 됨.
+  const exhaustion = context.isDodge && actor.system.badstatus?.exhaustion ? -3 : 0;
+
   return {
     sleepy,
     satiety,
-    total: sleepy + satiety,
+    exhaustion,
+    total: sleepy + satiety + exhaustion,
   };
 }
 

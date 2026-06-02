@@ -12,6 +12,8 @@
     <div class="penalty-line">{{localize "ASTER.badstatus.sleepy"}}: {{penalties.sleepy}}</div>
     {{/if}} {{#if penalties.satiety}}
     <div class="penalty-line">{{localize "ASTER.label.satiety"}}: {{penalties.satiety}}</div>
+    {{/if}} {{#if penalties.exhaustion}}
+    <div class="penalty-line">{{localize "ASTER.badstatus.exhaustion"}}: {{penalties.exhaustion}}</div>
     {{/if}}
     <div class="breakdown">= {{total}}</div>
     {{#if isCritical}}

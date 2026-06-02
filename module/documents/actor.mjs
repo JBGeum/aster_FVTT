@@ -315,4 +315,72 @@ export class AsterActor extends Actor {
       speaker: ChatMessage.getSpeaker({ alias: game.user.name }),
     });
   }
+
+  /**
+   * 회피 판정 (룰북 558~560: 대결판정의 한 종류).
+   * 능력치 = system.dodge(D15 파생), 회피 한정 피로 -3 보정(룰북 522).
+   * system.rollMode와 무관하게 대결(vs) 카드를 출력한다.
+   *
+   * 졸림 자동 해제·포만 자동 감소는 호출하지 않음:
+   *  - 회피의 성공/실패는 대결 결과(resolveOpposed)로 결정되어 이 시점엔 미정 → 졸림 해제 보류.
+   *  - 룰북 531: 전투 중에는 포만 감소 무시 → 포만 감소 미호출.
+   *
+   * @returns {Promise<void>}
+   */
+  async rollDodge() {
+    const renderTemplate = foundry.applications.handlebars.renderTemplate;
+    const dodgeValue = this.system.dodge ?? 0;
+    const label = game.i18n.localize("ASTER.dodge.label");
+
+    const roll = await asterRoll(dodgeValue, this.getRollData());
+    const resultDiceset = roll.dice[0].values;
+    const diceText = resultDiceset.join(", ");
+    const cf = detectCritFumble(resultDiceset);
+
+    // 회피 컨텍스트로 보정 계산 (피로 -3 포함).
+    const penalties = computePenalties(this, { isDodge: true });
+    const adjustedTotal = roll.total + penalties.total;
+
+    const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
+    const templateData = {
+      label,
+      ablValue: dodgeValue,
+      result: roll.result,
+      total: adjustedTotal,
+      rawTotal: roll.total,
+      penalties,
+      resultDiceset,
+      diceText,
+      isCritical: cf.critical,
+      isFumble: cf.fumble,
+      actorId: this.id,
+      isPC: this.type === "character",
+      isDodge: true,
+    };
+    const content = await renderTemplate(
+      "systems/aster/templates/chatcard/roll-asterabl-vs.html",
+      templateData,
+    );
+    await ChatMessage.create({
+      content,
+      speaker,
+      rolls: [roll],
+      flags: {
+        aster: {
+          opposedRoll: {
+            actorId: this.id,
+            actorName: this.name,
+            label,
+            ability: "dodge",
+            ablValue: dodgeValue,
+            total: adjustedTotal,
+            dice: resultDiceset,
+            isCritical: cf.critical,
+            isFumble: cf.fumble,
+            isDodge: true,
+          },
+        },
+      },
+    });
+  }
 }
