@@ -59,4 +59,10 @@
     <button type="button" data-action="fumble-alert">{{localize "ASTER.roll.fumbleAlert"}}</button>
     {{/if}} {{/if}}
   </footer>
+
+  {{#if spellCast.targetActorId}}
+  <footer class="card-actions damage-actions">
+    <button type="button" data-action="apply-damage">{{localize "ASTER.damage.applyBtn"}}</button>
+  </footer>
+  {{/if}}
 </div>

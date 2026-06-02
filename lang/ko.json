@@ -196,6 +196,24 @@
     "dodge": {
       "label": "회피"
     },
+    "damage": {
+      "applyBtn": "대미지 적용",
+      "applied": "대미지 적용 — {target}",
+      "dialogTitle": "대미지·상태이상 적용",
+      "targetInfo": "대상: {name}",
+      "amount": "대미지 수치",
+      "inflictLegend": "부여할 상태이상 (다중 선택 가능)",
+      "healthLine": "건강 {before} → {after} ({delta})",
+      "statusLine": "상태이상 부여: {names}",
+      "healthZero": "⚠ 건강 0 — 행동불능",
+      "noChange": "변화 없음 (대미지 0 + 모든 상태이상 이미 적용됨)",
+      "warn": {
+        "noCardData": "이 카드에 대미지 적용 정보가 없습니다.",
+        "alreadyApplied": "이미 대미지가 적용된 카드입니다.",
+        "noTarget": "대상 액터 정보가 없습니다.",
+        "targetNotFound": "대상 액터를 찾을 수 없습니다."
+      }
+    },
     "target": {
       "label": "대상",
       "noTarget": "캔버스에서 대상 토큰을 먼저 지정해주세요 (Shift+클릭).",

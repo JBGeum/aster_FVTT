@@ -287,12 +287,149 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
 // 단순 메모리 — 새로고침 시 사라지나, 다시 [능동 지정]을 누르면 됨.
 let pendingOpposed = null;
 
+// 대미지 다이얼로그의 상태이상 목록 — { key: badstatus 필드, i18n: ASTER.badstatus.* 키 }.
+// 필드명과 i18n 키가 다른 항목(bigInj→biginj) 때문에 매핑을 명시한다.
+const DAMAGE_STATUSES = [
+  { key: "injury", i18n: "injury" },
+  { key: "bigInj", i18n: "biginj" },
+  { key: "sleepy", i18n: "sleepy" },
+  { key: "exhaustion", i18n: "exhaustion" },
+  { key: "hungry", i18n: "hungry" },
+];
+
+/**
+ * 채팅 카드의 "대미지 적용" 버튼 처리 (GM 전용).
+ * combatAction(돌던지기) 또는 spellCast(마법) flag에서 대상을 식별하고,
+ * 다이얼로그로 대미지 수치 + 상태이상을 받아 대상 액터에 적용한다.
+ * 회피는 GM 판단(회피 성공 시 버튼 안 누름) — 시스템 미개입.
+ *
+ * @param {ChatMessage} message
+ */
+async function applyDamageFromCard(message) {
+  if (!game.user.isGM) {
+    ui.notifications.warn(game.i18n.localize("ASTER.world.gmOnly"));
+    return;
+  }
+
+  const combatAction = message.getFlag("aster", "combatAction");
+  const spellCast = message.getFlag("aster", "spellCast");
+  const data = combatAction ?? spellCast;
+  if (!data) {
+    ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.noCardData"));
+    return;
+  }
+  if (data.damageApplied) {
+    ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.alreadyApplied"));
+    return;
+  }
+  if (!data.targetActorId) {
+    ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.noTarget"));
+    return;
+  }
+  const targetActor = game.actors.get(data.targetActorId);
+  if (!targetActor) {
+    ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.targetNotFound"));
+    return;
+  }
+
+  const statusRows = DAMAGE_STATUSES.map(
+    (s) =>
+      `<label><input type="checkbox" name="status" value="${s.key}" /> ${game.i18n.localize(`ASTER.badstatus.${s.i18n}`)}</label>`,
+  ).join("");
+
+  const result = await foundry.applications.api.DialogV2.prompt({
+    window: { title: game.i18n.localize("ASTER.damage.dialogTitle") },
+    content: `
+      <p class="damage-target-info">${game.i18n.format("ASTER.damage.targetInfo", { name: targetActor.name })}</p>
+      <div class="form-group">
+        <label>${game.i18n.localize("ASTER.damage.amount")}</label>
+        <input type="number" name="amount" value="${data.defaultDamage ?? 0}" min="0" />
+      </div>
+      <fieldset class="damage-status-group">
+        <legend>${game.i18n.localize("ASTER.damage.inflictLegend")}</legend>
+        ${statusRows}
+      </fieldset>
+    `,
+    ok: {
+      callback: (_e, b) => ({
+        amount: Number(b.form.elements.amount.value) || 0,
+        status: Array.from(b.form.querySelectorAll('input[name="status"]:checked')).map(
+          (el) => el.value,
+        ),
+      }),
+    },
+  }).catch(() => null);
+  if (result === null) return; // 취소
+
+  // 1. 건강 차감 (이미 0이면 변화 없음)
+  const hBefore = targetActor.system.health?.value ?? 0;
+  let hAfter = hBefore;
+  if (result.amount > 0 && hBefore > 0) {
+    hAfter = Math.max(0, hBefore - result.amount);
+    await targetActor.update({ "system.health.value": hAfter });
+  }
+
+  // 2. 상태이상 부여 — false→true만 (이미 true면 변화 없음). D16 AE 자동 동기.
+  const statusApplied = [];
+  const statusUpdate = {};
+  for (const key of result.status) {
+    if (!(targetActor.system.badstatus?.[key] ?? false)) {
+      statusUpdate[`system.badstatus.${key}`] = true;
+      statusApplied.push(key);
+    }
+  }
+  if (Object.keys(statusUpdate).length > 0) await targetActor.update(statusUpdate);
+
+  // 3. flag 갱신 — 중복 적용 방지
+  const flagKey = combatAction ? "combatAction" : "spellCast";
+  await message.setFlag("aster", flagKey, { ...data, damageApplied: true });
+
+  // 4. 결과 카드
+  const lines = [];
+  if (result.amount > 0) {
+    lines.push(
+      game.i18n.format("ASTER.damage.healthLine", {
+        before: hBefore,
+        after: hAfter,
+        delta: hAfter - hBefore,
+      }),
+    );
+    if (hAfter === 0) {
+      lines.push(`<span class="warn-zero">${game.i18n.localize("ASTER.damage.healthZero")}</span>`);
+    }
+  }
+  if (statusApplied.length > 0) {
+    const names = statusApplied.map((k) => {
+      const def = DAMAGE_STATUSES.find((s) => s.key === k);
+      return game.i18n.localize(`ASTER.badstatus.${def?.i18n ?? k}`);
+    });
+    lines.push(game.i18n.format("ASTER.damage.statusLine", { names: names.join(", ") }));
+  }
+  if (lines.length === 0) lines.push(game.i18n.localize("ASTER.damage.noChange"));
+
+  await ChatMessage.create({
+    content: `<div class="aster-chat-card damage-result-card">
+      <header class="card-header"><div class="title"><div class="name">
+        ${game.i18n.format("ASTER.damage.applied", { target: targetActor.name })}
+      </div></div></header>
+      <ul class="damage-lines">${lines.map((l) => `<li>${l}</li>`).join("")}</ul>
+    </div>`,
+    speaker: ChatMessage.getSpeaker({ actor: targetActor }),
+  });
+}
+
 Hooks.on("renderChatMessageHTML", (message, html) => {
   // 결합 버튼은 모두 GM 전용 — 비-GM 뷰어에게는 footer 통째 제거 후 종료.
   if (!game.user.isGM) {
     html.querySelector(".opposed-actions")?.remove();
+    html.querySelector(".damage-actions")?.remove();
     return;
   }
+
+  // 대미지 적용 (돌던지기·마법 카드)
+  html.querySelectorAll("[data-action='apply-damage']").forEach((btn) => {
+    btn.addEventListener("click", () => applyDamageFromCard(message));
+  });
 
   // 능동측 지정
   html.querySelectorAll("[data-action='opposed-set-active']").forEach((btn) => {
