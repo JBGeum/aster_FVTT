@@ -1,0 +1,79 @@
+<div class="combat-tab">
+  <div class="combat-ap-display">
+    <span class="ap-label">{{localize "ASTER.combat.actionPoints"}}</span>
+    <span class="ap-value">{{#if combatContext.inCombat}}{{combatContext.ap}}{{else}}—{{/if}}</span>
+  </div>
+
+  {{#unless combatContext.inCombat}}
+  <div class="combat-disabled-notice">{{localize "ASTER.combat.notInCombat"}}</div>
+  {{/unless}}
+
+  <div class="combat-actions {{#if combatContext.disabled}}disabled{{/if}}">
+    <button
+      type="button"
+      class="action-btn"
+      data-action="combatAction"
+      data-action-key="throw"
+      {{disabled
+      combatContext.disabled}}
+    >
+      <span class="action-name">{{localize "ASTER.combat.action.throw"}}</span>
+      <span class="action-cost">(1)</span>
+    </button>
+    <button
+      type="button"
+      class="action-btn"
+      data-action="combatAction"
+      data-action-key="defend"
+      {{disabled
+      combatContext.disabled}}
+    >
+      <span class="action-name">{{localize "ASTER.combat.action.defend"}}</span>
+      <span class="action-cost">(2)</span>
+    </button>
+    <button
+      type="button"
+      class="action-btn"
+      data-action="combatAction"
+      data-action-key="focus"
+      {{disabled
+      combatContext.disabled}}
+    >
+      <span class="action-name">{{localize "ASTER.combat.action.focus"}}</span>
+      <span class="action-cost">(3)</span>
+    </button>
+    <button
+      type="button"
+      class="action-btn"
+      data-action="combatAction"
+      data-action-key="dash"
+      {{disabled
+      combatContext.disabled}}
+    >
+      <span class="action-name">{{localize "ASTER.combat.action.dash"}}</span>
+      <span class="action-cost">(X)</span>
+    </button>
+    <button
+      type="button"
+      class="action-btn"
+      data-action="combatAction"
+      data-action-key="charge"
+      {{disabled
+      combatContext.disabled}}
+    >
+      <span class="action-name">{{localize "ASTER.combat.action.charge"}}</span>
+      <span class="action-cost">(3)</span>
+    </button>
+    <button
+      type="button"
+      class="action-btn"
+      data-action="combatAction"
+      data-action-key="unisonPrepare"
+      {{disabled
+      combatContext.disabled}}
+    >
+      <span class="action-name">{{localize "ASTER.combat.action.unisonPrepare"}}</span>
+      <span class="action-cost">(1)</span>
+    </button>
+  </div>
+</div>

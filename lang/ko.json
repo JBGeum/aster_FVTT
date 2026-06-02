@@ -165,7 +165,40 @@
       "injuryLine": "부상: 건강 {before} → {after} ({delta})",
       "bigInjuryLine": "큰 부상: 건강 {before} → {after} ({delta})",
       "healthZero": "⚠ 건강 0 — 행동불능",
-      "endTransition": "전투 종료 — 큰 부상이 부상으로 변경"
+      "endTransition": "전투 종료 — 큰 부상이 부상으로 변경",
+      "notInCombat": "전투 중이 아닙니다.",
+      "noCombatantForActor": "이 액터는 현재 전투에 참가하지 않았습니다.",
+      "notEnoughAP": "액션 포인트 부족 (필요 {need} / 보유 {have})",
+      "apSpent": "AP {n} 소비",
+      "dashValueLabel": "추가할 민첩 (X)",
+      "action": {
+        "throw": "돌던지기",
+        "throwTitle": "돌던지기 — 대상 지정",
+        "defend": "방어",
+        "focus": "집중",
+        "dash": "대쉬",
+        "dashTitle": "대쉬 — X 입력",
+        "charge": "차지",
+        "chargeTitle": "차지 — 효과 선택",
+        "unisonPrepare": "합체기 준비"
+      },
+      "throwEffect": "{target}에게 2D6 명중 판정 → 명중 시 1대미지 (수동 처리)",
+      "defendEffect": "다음 받을 대미지 -1D6 (라운드 1회 한정 — 수동 추적)",
+      "focusEffect": "다음 판정 다이스 +1D6 (수동 적용)",
+      "dashEffect": "다음 라운드 민첩 +{x} (수동 적용)",
+      "chargeChooseLabel": "추가할 효과",
+      "chargeSubAP": "다음 라운드 AP +1D6",
+      "chargeSubUnison": "합체기 다이스 +1D6",
+      "chargeEffectAP": "다음 라운드 AP +1D6 (수동 적용 — 라운드 1회)",
+      "chargeEffectUnison": "다음 합체기 다이스 +1D6 (수동 적용 — 라운드 1회)",
+      "unisonPrepareEffect": "다음 셋업에 합체기 사용 가능 (플래그 저장됨)"
+    },
+    "target": {
+      "label": "대상",
+      "noTarget": "캔버스에서 대상 토큰을 먼저 지정해주세요 (Shift+클릭).",
+      "tooMany": "대상이 너무 많습니다 (최대 {max}, 현재 {n}).",
+      "tooFew": "대상이 부족합니다 (최소 {min}, 현재 {n}).",
+      "wrongType": "허용되지 않는 대상 유형 ({allowed}): {names}"
     },
     "phase": {
       "prep": "준비",

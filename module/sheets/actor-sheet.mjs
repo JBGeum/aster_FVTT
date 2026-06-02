@@ -5,6 +5,7 @@ import { prereqMet, sumCost, canAcquire, canRelease } from "../helpers/craft-cos
 import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell-roll.mjs";
 import { detectCritFumble, computePenalties } from "../helpers/roll-result.mjs";
 import { pickDiceDialog } from "../helpers/dice-select.mjs";
+import { getTargetedTokens } from "../helpers/target-select.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -19,6 +20,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       itemUnplace: AsterActorSheet.#onItemUnplace,
       foodSelect: AsterActorSheet.#onFoodSelect,
       picnicDeclare: AsterActorSheet.#onPicnicDeclare,
+      combatAction: AsterActorSheet.#onCombatAction,
       itemChat: AsterActorSheet.#onItemChat,
       itemEdit: AsterActorSheet.#onItemEdit,
       itemDelete: AsterActorSheet.#onItemDelete,
@@ -87,11 +89,31 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       this._prepareCraft(context);
       this._prepareSpellList(context);
       this._prepareRecord(context);
+      context.combatContext = this.#buildCombatContext();
     } else if (this.actor.type === "npc") {
       this._prepareItems(context);
     }
 
     return context;
+  }
+
+  /**
+   * 전투 탭 컨텍스트. 활성 Combat에서 이 액터의 Combatant를 찾아 AP를 노출.
+   * @returns {{inCombat:boolean, ap:number, combatantId?:string}}
+   */
+  #buildCombatContext() {
+    const combat = game.combat;
+    if (!combat?.started) return { inCombat: false, disabled: true, ap: 0 };
+
+    const combatant = combat.combatants.find((c) => c.actor?.id === this.actor.id);
+    if (!combatant) return { inCombat: false, disabled: true, ap: 0 };
+
+    return {
+      inCombat: true,
+      disabled: false,
+      ap: combatant.getFlag("aster", "actionPoint") ?? 0,
+      combatantId: combatant.id,
+    };
   }
 
   _prepareCharacterData(context) {
@@ -546,6 +568,115 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     });
   }
 
+  /**
+   * 전투 액션 클릭 처리 (G3-α).
+   * 단순 액션은 즉시 AP 차감 + 채팅, 입력 필요 액션은 다이얼로그.
+   * 이번 STEP은 AP 차감 + 채팅 안내만 — 다음 라운드 효과·대미지는 텍스트로 수동 추적.
+   */
+  static async #onCombatAction(_event, target) {
+    const actionKey = target.dataset.actionKey;
+    const combat = game.combat;
+    if (!combat?.started) {
+      ui.notifications.warn(game.i18n.localize("ASTER.combat.notInCombat"));
+      return;
+    }
+    const combatant = combat.combatants.find((c) => c.actor?.id === this.actor.id);
+    if (!combatant) {
+      ui.notifications.warn(game.i18n.localize("ASTER.combat.noCombatantForActor"));
+      return;
+    }
+
+    const currentAP = combatant.getFlag("aster", "actionPoint") ?? 0;
+    let cost;
+    let chatExtra;
+
+    switch (actionKey) {
+      case "throw": {
+        // 캔버스 사전 타게팅 — 적(NPC) 1체만 허용. 검증 실패 시 자원 소비 없이 종료.
+        const targets = getTargetedTokens({ required: true, max: 1, allowedTypes: "npc" });
+        if (!targets) return;
+        cost = 1;
+        chatExtra = game.i18n.format("ASTER.combat.throwEffect", { target: targets[0].name });
+        break;
+      }
+      case "defend":
+        cost = 2;
+        chatExtra = game.i18n.localize("ASTER.combat.defendEffect");
+        break;
+      case "focus":
+        cost = 3;
+        chatExtra = game.i18n.localize("ASTER.combat.focusEffect");
+        break;
+      case "dash": {
+        const x = await foundry.applications.api.DialogV2.prompt({
+          window: { title: game.i18n.localize("ASTER.combat.action.dashTitle") },
+          content: `<div class="form-group">
+            <label>${game.i18n.localize("ASTER.combat.dashValueLabel")}</label>
+            <input type="number" name="x" value="1" min="1" />
+          </div>`,
+          ok: { callback: (_e, b) => Number(b.form.elements.x.value) || 0 },
+        }).catch(() => null);
+        if (x === null || x <= 0) return;
+        cost = x;
+        chatExtra = game.i18n.format("ASTER.combat.dashEffect", { x });
+        break;
+      }
+      case "charge": {
+        const sub = await foundry.applications.api.DialogV2.prompt({
+          window: { title: game.i18n.localize("ASTER.combat.action.chargeTitle") },
+          content: `<div class="form-group">
+            <label>${game.i18n.localize("ASTER.combat.chargeChooseLabel")}</label>
+            <select name="sub">
+              <option value="ap">${game.i18n.localize("ASTER.combat.chargeSubAP")}</option>
+              <option value="unison">${game.i18n.localize("ASTER.combat.chargeSubUnison")}</option>
+            </select>
+          </div>`,
+          ok: { callback: (_e, b) => b.form.elements.sub.value },
+        }).catch(() => null);
+        if (!sub) return;
+        cost = 3;
+        chatExtra =
+          sub === "ap"
+            ? game.i18n.localize("ASTER.combat.chargeEffectAP")
+            : game.i18n.localize("ASTER.combat.chargeEffectUnison");
+        break;
+      }
+      case "unisonPrepare":
+        cost = 1;
+        chatExtra = game.i18n.localize("ASTER.combat.unisonPrepareEffect");
+        break;
+      default:
+        return;
+    }
+
+    // AP 부족 검사 (다이얼로그 입력 후 — 대쉬는 X가 보유 AP를 넘을 수 있음)
+    if (currentAP < cost) {
+      ui.notifications.warn(
+        game.i18n.format("ASTER.combat.notEnoughAP", { need: cost, have: currentAP }),
+      );
+      return;
+    }
+
+    await combatant.setFlag("aster", "actionPoint", currentAP - cost);
+
+    // 합체기 준비 플래그 (G4에서 활용)
+    if (actionKey === "unisonPrepare") {
+      await combatant.setFlag("aster", "unisonReady", true);
+    }
+
+    const actionName = game.i18n.localize(`ASTER.combat.action.${actionKey}`);
+    await ChatMessage.create({
+      content: `<div class="aster-chat-card combat-action-card">
+        <header class="card-header"><div class="title">
+          <div class="name">${actionName}</div>
+          <div class="formula">${game.i18n.format("ASTER.combat.apSpent", { n: cost })}</div>
+        </div></header>
+        <div class="action-effect">${chatExtra}</div>
+      </div>`,
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+    });
+  }
+
   static async #onItemChat(_event, target) {
     const item = this.actor.items.get(target.dataset.itemId);
     if (!item) return;
@@ -692,12 +823,21 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const spell = this.actor.items.get(target.dataset.itemId);
     if (!spell) return;
 
+    // 선택적 캔버스 타게팅 — 타겟 있으면 카드에 표시, 없으면 자기 강화 마법으로 진행.
+    const targets = getTargetedTokens({ required: false, max: 1 });
+    if (targets === null) return; // 타겟 초과 — 경고 출력됨
+    const targetInfo = targets.length ? { name: targets[0].name, id: targets[0].id } : null;
+
     // 마법명 클릭 — 추가 다이스 0, 2d6 즉시 판정 (기존 동작 유지).
     const roll = new Roll("2d6");
     await roll.evaluate();
     const dice = roll.dice[0].results.map((r) => r.result);
 
-    await this.#processSpellRoll(spell, roll, dice, [], { color: spell.system.color, n: 0 });
+    await this.#processSpellRoll(spell, roll, dice, [], {
+      color: spell.system.color,
+      n: 0,
+      targetInfo,
+    });
   }
 
   static async #onSpellCastWithExtra(_event, target) {
@@ -710,6 +850,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ui.notifications.warn(game.i18n.localize("ASTER.spell.warn.noColor"));
       return;
     }
+
+    // 선택적 캔버스 타게팅 — 자원 소비 전에 검증 (초과 시 종료).
+    const targets = getTargetedTokens({ required: false, max: 1 });
+    if (targets === null) return;
+    const targetInfo = targets.length ? { name: targets[0].name, id: targets[0].id } : null;
 
     const haveAster = this.actor.system.aster?.[color]?.value ?? 0;
     const colorLabel = game.i18n.localize(`ASTER.aster.${color}`);
@@ -772,7 +917,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       }
     }
 
-    await this.#processSpellRoll(spell, roll, pick.selected, pick.discarded, { color, n });
+    await this.#processSpellRoll(spell, roll, pick.selected, pick.discarded, {
+      color,
+      n,
+      targetInfo,
+    });
   }
 
   /**
@@ -833,6 +982,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       extraN: ctx.n,
       extraColor: ctx.color,
       extraColorLabel: ctx.n > 0 ? game.i18n.localize(`ASTER.aster.${ctx.color}`) : "",
+      targetInfo: ctx.targetInfo ?? null,
       effect: sys.effect,
       effectEnriched,
       alert: sys.alert,

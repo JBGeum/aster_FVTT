@@ -12,6 +12,7 @@ export const preloadHandlebarsTemplates = async function () {
 
     "systems/aster/templates/actor/parts/actor-sub-inventory.html",
     "systems/aster/templates/actor/parts/actor-sub-spell.html",
+    "systems/aster/templates/actor/parts/actor-sub-combat.html",
 
     // Chat cards
     "systems/aster/templates/chatcard/roll-asterabl.html",
@@ -36,6 +37,9 @@ export function registerHandlebarsHelpers() {
   });
   Handlebars.registerHelper("selected", function (condition) {
     return condition ? "selected" : "";
+  });
+  Handlebars.registerHelper("disabled", function (condition) {
+    return condition ? "disabled" : "";
   });
   Handlebars.registerHelper("add", (a, b) => Number(a) + Number(b));
   Handlebars.registerHelper("multiply", (a, b) => Number(a) * Number(b));

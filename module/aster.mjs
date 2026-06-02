@@ -396,27 +396,58 @@ Hooks.once("ready", async function () {
 /*  Combat Hooks                                */
 /* -------------------------------------------- */
 
+/** 열려 있는 단일 액터 시트를 재렌더 (combat 탭의 전투 중 여부·AP 동기화용). */
+function refreshActorSheet(actor) {
+  const sheet = actor?.sheet;
+  if (sheet?.rendered) sheet.render(false);
+}
+
+/** 전투에 속한 모든 전투원의 액터 시트를 재렌더. 전투 시작/종료 시 사용. */
+function refreshCombatSheets(combat) {
+  for (const c of combat?.combatants ?? []) refreshActorSheet(c.actor);
+}
+
 // 액터 추가 시 자동 이니셔티브(=민첩). GM만 처리해 중복 update 방지.
+// 시트 재렌더는 모든 클라이언트에서 (combat 탭의 전투 중 표시 동기화).
 Hooks.on("createCombatant", async (combatant) => {
+  refreshActorSheet(combatant.actor);
   if (!game.user.isGM) return;
   const combat = combatant.parent;
   if (!combat?._autoRollInitiative) return;
   await combat._autoRollInitiative(combatant.id);
 });
 
+// 전투원 제거 시 해당 액터 시트 재렌더 (전투 중 표시 해제).
+Hooks.on("deleteCombatant", (combatant) => {
+  refreshActorSheet(combatant.actor);
+});
+
 // 라운드 시작 처리 (이니셔티브 갱신 + 액션 포인트 굴림 + 채팅 카드).
 // 라운드 1은 combatStart, 라운드 2+는 combatRound에서 발화 (상호 배타적).
 // combatStart의 _startRound가 전체 이니셔티브를 갱신하므로 G1 백업(_autoRollInitiative)을 포섭.
+// combatStart는 추가로 전투원 시트를 재렌더해 "전투 중" 상태를 즉시 반영 (모든 클라이언트).
 Hooks.on("combatStart", async (combat) => {
-  if (combat instanceof AsterCombat) await combat._startRound();
+  if (!(combat instanceof AsterCombat)) return;
+  refreshCombatSheets(combat);
+  await combat._startRound();
 });
 Hooks.on("combatRound", async (combat) => {
   if (combat instanceof AsterCombat) await combat._startRound();
 });
 
 // 전투 종료 시 큰부상 → 부상 전이 (행동완료 시 부상 감소는 AsterCombat._onEndTurn 오버라이드가 처리).
+// 전투원 시트를 재렌더해 "전투 중" 상태 해제를 즉시 반영 (모든 클라이언트).
 Hooks.on("deleteCombat", async (combat) => {
-  if (combat instanceof AsterCombat) await combat._endCombat();
+  if (!(combat instanceof AsterCombat)) return;
+  refreshCombatSheets(combat);
+  await combat._endCombat();
+});
+
+// Combatant flag(AP 등) 변경 시 해당 액터 시트 재렌더 — AP는 Combatant 문서에 있어
+// Actor 시트가 자동 갱신되지 않으므로 combat 탭의 AP 표시를 수동 동기화.
+Hooks.on("updateCombatant", (combatant, changes) => {
+  if (!changes.flags?.aster) return;
+  refreshActorSheet(combatant.actor);
 });
 
 // Combat Tracker 각 PC 행에 액션 포인트 표시 (flag 변경 시 자동 재렌더로 갱신).

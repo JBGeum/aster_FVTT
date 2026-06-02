@@ -1,0 +1,58 @@
+// character 시트의 combat 서브 탭 (G3-α 액션 UI).
+// Combat Tracker 스타일은 component/_combat.scss에 별도.
+.combat-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 0.5em;
+
+  .combat-ap-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.25em 0.5em;
+    background: rgba(255, 200, 0, 0.1);
+    border-radius: 4px;
+
+    .ap-label {
+      font-weight: bold;
+    }
+    .ap-value {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+  }
+
+  .combat-disabled-notice {
+    font-size: 0.85em;
+    color: var(--color-text-dark-secondary);
+    padding: 0.25em 0.5em;
+  }
+
+  .combat-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.3em;
+
+    &.disabled .action-btn {
+      opacity: 0.5;
+    }
+
+    .action-btn {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4em 0.6em;
+      cursor: pointer;
+
+      &:disabled {
+        cursor: not-allowed;
+      }
+
+      .action-cost {
+        font-size: 0.85em;
+        opacity: 0.7;
+      }
+    }
+  }
+}

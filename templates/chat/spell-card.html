@@ -7,6 +7,10 @@
     </div>
   </header>
 
+  {{#if targetInfo}}
+  <div class="spell-target">{{localize "ASTER.target.label"}}: {{targetInfo.name}}</div>
+  {{/if}}
+
   <div class="roll-block">
     <div class="dice">
       {{#if extraN}}

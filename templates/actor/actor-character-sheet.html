@@ -13,6 +13,7 @@
           <nav class="sheet-sub-tabs tabs" data-group="sub">
             <a class="item" data-group="sub" data-action="tab" data-tab="inventory">inventory</a>
             <a class="item" data-group="sub" data-action="tab" data-tab="spell">spell</a>
+            <a class="item" data-group="sub" data-action="tab" data-tab="combat">combat</a>
           </nav>
           <div class="sheet-bottom">
             <div class="tab inventory" data-group="sub" data-tab="inventory">
@@ -20,6 +21,9 @@
             </div>
             <div class="tab spell" data-group="sub" data-tab="spell">
               {{> "systems/aster/templates/actor/parts/actor-sub-spell.html"}}
+            </div>
+            <div class="tab combat" data-group="sub" data-tab="combat">
+              {{> "systems/aster/templates/actor/parts/actor-sub-combat.html"}}
             </div>
           </div>
         </div>
