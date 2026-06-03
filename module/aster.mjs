@@ -289,13 +289,38 @@ let pendingOpposed = null;
 
 // 대미지 다이얼로그의 상태이상 목록 — { key: badstatus 필드, i18n: ASTER.badstatus.* 키 }.
 // 필드명과 i18n 키가 다른 항목(bigInj→biginj) 때문에 매핑을 명시한다.
-const DAMAGE_STATUSES = [
+// G4 합체기(부속성 적/황)도 같은 목록을 참조하므로 export.
+export const DAMAGE_STATUSES = [
   { key: "injury", i18n: "injury" },
   { key: "bigInj", i18n: "biginj" },
   { key: "sleepy", i18n: "sleepy" },
   { key: "exhaustion", i18n: "exhaustion" },
   { key: "hungry", i18n: "hungry" },
 ];
+
+/**
+ * 상태이상 회복 — 지정 키를 false로 갱신. applyDamageAndStatus와 대칭.
+ * D16 AE 동기 hook이 false → AE 자동 제거를 처리한다.
+ * D30 정책 3단계(회복 효과 확장)의 사전 회수 — 합체기 적 부속성에서 첫 사용.
+ *
+ * @param {Actor[]} actors  대상 액터 배열
+ * @param {string} statusKey  상태이상 키 (injury, sleepy 등)
+ * @returns {Promise<Array<{actorName: string, cured: boolean}>>}
+ *   cured=true: 실제 회복(이전 true), false: 변화 없음(이전 false).
+ */
+export async function applyCureStatus(actors, statusKey) {
+  const results = [];
+  for (const actor of actors) {
+    const current = actor.system.badstatus?.[statusKey] ?? false;
+    if (current) {
+      await actor.update({ [`system.badstatus.${statusKey}`]: false });
+      results.push({ actorName: actor.name, cured: true });
+    } else {
+      results.push({ actorName: actor.name, cured: false });
+    }
+  }
+  return results;
+}
 
 /**
  * 대미지 다이얼로그 — 대미지 수치 + 상태이상 체크박스. 취소 시 null 반환.

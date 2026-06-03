@@ -94,4 +94,40 @@
       }
     }
   }
+
+  .combat-unison {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    margin-top: 0.5em;
+    padding-top: 0.5em;
+    border-top: 1px solid rgba(128, 128, 128, 0.25);
+
+    .unison-ready-indicator {
+      align-self: flex-end;
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: rgba(212, 160, 23, 0.18);
+      font-size: 0.8em;
+      font-weight: 500;
+      color: #b8860b;
+    }
+
+    .unison-btn {
+      padding: 0.4em 0.6em;
+      font-weight: bold;
+      cursor: pointer;
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+    }
+
+    .unison-hint {
+      font-size: 0.78em;
+      opacity: 0.7;
+      text-align: center;
+    }
+  }
 }

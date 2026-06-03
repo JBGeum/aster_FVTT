@@ -1,0 +1,47 @@
+<div class="aster-chat-card unison-card spell-color-{{mainColor}}">
+  <header class="card-header">
+    <div class="title">
+      <div class="name">{{title}}</div>
+      <div class="formula">{{pairLabel}}</div>
+    </div>
+  </header>
+
+  <div class="unison-body">
+    <div class="unison-elements">
+      <span class="main">{{mainLabel}}: <strong>{{mainColorLabel}}</strong></span>
+      <span class="sub">{{subLabel}}: <strong>{{subColorLabel}}</strong></span>
+    </div>
+
+    <div class="unison-dice">
+      <div class="dice-line">
+        {{selfActorName}}: <strong>{{selfFinal}}</strong>
+        {{#if selfExtra}}
+        <span class="charge-extra">({{selfOriginal}} + {{selfExtraDice}} 차지, {{selfFinal}} 선택)</span>
+        {{/if}}
+      </div>
+      <div class="dice-line">
+        {{pairActorName}}: <strong>{{pairFinal}}</strong>
+        {{#if pairExtra}}
+        <span class="charge-extra">({{pairOriginal}} + {{pairExtraDice}} 차지, {{pairFinal}} 선택)</span>
+        {{/if}}
+      </div>
+      <div class="total-line">{{totalLabel}}: <strong>{{total}}</strong></div>
+    </div>
+
+    <div class="unison-main-table-hint">{{mainTableHint}}</div>
+
+    {{#if subResult}}
+    <div class="unison-sub-result">
+      <div class="sub-label">{{subEffectLabel}}</div>
+      <div class="sub-text">{{{subResultText}}}</div>
+    </div>
+    {{/if}}
+  </div>
+
+  <footer class="card-actions unison-footer">
+    <div class="unison-notes">
+      <div class="note">{{dodgeBlockNote}}</div>
+      <div class="note">{{turnEndNote}}</div>
+    </div>
+  </footer>
+</div>

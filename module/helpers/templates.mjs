@@ -32,6 +32,7 @@ export const preloadHandlebarsTemplates = async function () {
     // Chat (combat)
     "systems/aster/templates/chat/combat-action.html",
     "systems/aster/templates/chat/damage-result.html",
+    "systems/aster/templates/chat/unison-attack.html",
   ]);
 };
 

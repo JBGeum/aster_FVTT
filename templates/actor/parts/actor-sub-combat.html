@@ -89,4 +89,16 @@
       <span class="action-cost">(1)</span>
     </button>
   </div>
+
+  <div class="combat-unison">
+    {{#if combatContext.unisonReady}}
+    <div class="unison-ready-indicator">{{localize "ASTER.combat.unisonReady"}}</div>
+    {{/if}}
+    <button type="button" class="unison-btn" data-action="unisonAttack" {{disabled combatContext.disableUnison}}>
+      {{localize "ASTER.combat.action.unisonAttack"}}
+    </button>
+    {{#if combatContext.unisonReady}} {{#unless combatContext.canUnison}}
+    <div class="unison-hint">{{localize "ASTER.combat.unisonNoPair"}}</div>
+    {{/unless}} {{/if}}
+  </div>
 </div>

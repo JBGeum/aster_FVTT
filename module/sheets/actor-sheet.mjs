@@ -6,6 +6,7 @@ import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell
 import { detectCritFumble, computePenalties } from "../helpers/roll-result.mjs";
 import { pickDiceDialog } from "../helpers/dice-select.mjs";
 import { getTargetedTokens } from "../helpers/target-select.mjs";
+import { DAMAGE_STATUSES, applyCureStatus } from "../aster.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -22,6 +23,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       picnicDeclare: AsterActorSheet.#onPicnicDeclare,
       combatAction: AsterActorSheet.#onCombatAction,
       rollDodge: AsterActorSheet.#onRollDodge,
+      unisonAttack: AsterActorSheet.#onUnisonAttack,
       itemChat: AsterActorSheet.#onItemChat,
       itemEdit: AsterActorSheet.#onItemEdit,
       itemDelete: AsterActorSheet.#onItemDelete,
@@ -110,6 +112,14 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (!combatant) return { inCombat: false, disabled: true, ap: 0 };
 
     const usage = combatant.getFlag("aster", "actionsThisRound") ?? {};
+    // 합체기 발동 조건: 본인 unisonReady && 다른 unisonReady PC 1명 이상.
+    const unisonReady = combatant.getFlag("aster", "unisonReady") === true;
+    const otherUnisonReady = combat.combatants.some(
+      (c) =>
+        c.id !== combatant.id &&
+        c.actor?.type === "character" &&
+        c.getFlag("aster", "unisonReady") === true,
+    );
     return {
       inCombat: true,
       disabled: false,
@@ -118,6 +128,10 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       defendUsed: (usage.defend ?? 0) >= 1,
       chargeUsed: (usage.charge ?? 0) >= 1,
       focusActive: combatant.getFlag("aster", "focusActive") === true,
+      unisonReady,
+      canUnison: unisonReady && otherUnisonReady,
+      // 템플릿 `{{disabled}}` 헬퍼가 truthy를 disabled로 변환하므로 부정값을 컨텍스트에서 미리 계산.
+      disableUnison: !(unisonReady && otherUnisonReady),
     };
   }
 
@@ -753,6 +767,438 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       content,
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       flags: { aster: { combatAction: actionFlag } },
+    });
+  }
+
+  /**
+   * 합체기 발동(G4, 룰북 615~630). PL이 자기 시트에서 시작 → 페어 → 주속성 → 다이스 → 부속성 자동.
+   * 주속성 효과 표는 GM 수동(시스템은 합산값만 안내). 같은 색 페어는 부속성 결정 불가로 차단.
+   * 흐름 중 취소 시 flag 변화 없음. 부속성 다이얼로그 취소 시 효과만 미적용(합체기 자체는 완료).
+   */
+  static async #onUnisonAttack(_event, _target) {
+    const combat = game.combat;
+    if (!combat?.started) {
+      ui.notifications.warn(game.i18n.localize("ASTER.combat.notInCombat"));
+      return;
+    }
+    const selfCombatant = combat.combatants.find((c) => c.actor?.id === this.actor.id);
+    if (!selfCombatant) return;
+
+    // 시트 disabled 분기를 우회한 직접 호출 방어.
+    if (selfCombatant.getFlag("aster", "unisonReady") !== true) {
+      ui.notifications.warn(game.i18n.localize("ASTER.combat.unisonNotReady"));
+      return;
+    }
+
+    const candidates = combat.combatants.filter(
+      (c) =>
+        c.id !== selfCombatant.id &&
+        c.actor?.type === "character" &&
+        c.getFlag("aster", "unisonReady") === true,
+    );
+    if (candidates.length === 0) {
+      ui.notifications.warn(game.i18n.localize("ASTER.combat.unisonNoPair"));
+      return;
+    }
+
+    const pairOptions = candidates
+      .map((c) => `<option value="${c.actor.id}">${c.actor.name}</option>`)
+      .join("");
+    const pairId = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.combat.unisonPairTitle") },
+      content: `<div class="form-group">
+        <label>${game.i18n.localize("ASTER.combat.unisonPairLabel")}</label>
+        <select name="pair">${pairOptions}</select>
+      </div>`,
+      ok: { callback: (_e, b) => b.form.elements.pair.value },
+    }).catch(() => null);
+    if (!pairId) return;
+    const pairActor = game.actors.get(pairId);
+    const pairCombatant = combat.combatants.find((c) => c.actor?.id === pairId);
+    if (!pairActor || !pairCombatant) return;
+
+    const selfColor = this.actor.system.color;
+    const pairColor = pairActor.system.color;
+    if (!selfColor || !pairColor) {
+      ui.notifications.warn(game.i18n.localize("ASTER.combat.unisonNoColor"));
+      return;
+    }
+    if (selfColor === pairColor) {
+      ui.notifications.warn(game.i18n.localize("ASTER.combat.unisonSameColor"));
+      return;
+    }
+
+    const colorLabel = (k) => game.i18n.localize(`ASTER.aster.${k}`);
+    const mainColor = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.combat.unisonMainColorTitle") },
+      content: `<div class="form-group">
+        <label>${game.i18n.localize("ASTER.combat.unisonMainColorLabel")}</label>
+        <select name="main">
+          <option value="${selfColor}">${this.actor.name} — ${colorLabel(selfColor)}</option>
+          <option value="${pairColor}">${pairActor.name} — ${colorLabel(pairColor)}</option>
+        </select>
+      </div>`,
+      ok: { callback: (_e, b) => b.form.elements.main.value },
+    }).catch(() => null);
+    if (!mainColor) return;
+    const subColor = mainColor === selfColor ? pairColor : selfColor;
+
+    await this._proceedUnisonDice({
+      selfCombatant,
+      pairCombatant,
+      selfActor: this.actor,
+      pairActor,
+      mainColor,
+      subColor,
+    });
+  }
+
+  /**
+   * 합체기 다이스 굴림 + 차지(unison) 처리. 각 PC가 1d6, 차지 보유 PC는 추가 1d6 후 1개 선택.
+   * pickDiceDialog 취소 시 흐름 종료(unisonReady 유지). 완료 시 양쪽 unisonReady → false.
+   */
+  async _proceedUnisonDice({
+    selfCombatant,
+    pairCombatant,
+    selfActor,
+    pairActor,
+    mainColor,
+    subColor,
+  }) {
+    const selfRoll = new Roll("1d6");
+    await selfRoll.evaluate();
+    const pairRoll = new Roll("1d6");
+    await pairRoll.evaluate();
+
+    const selfCharge = selfCombatant.getFlag("aster", "chargeNextRound") === "unison";
+    const pairCharge = pairCombatant.getFlag("aster", "chargeNextRound") === "unison";
+
+    let selfFinal = selfRoll.total;
+    let pairFinal = pairRoll.total;
+    const extraInfo = []; // 채팅 카드용 — 차지 추가 다이스 표시
+
+    if (selfCharge) {
+      const extraRoll = new Roll("1d6");
+      await extraRoll.evaluate();
+      const picked = await pickDiceDialog({
+        dice: [selfRoll.total, extraRoll.total],
+        count: 1,
+        title: game.i18n.format("ASTER.combat.unisonChargePickTitle", { actor: selfActor.name }),
+      });
+      if (!picked) return;
+      selfFinal = picked.selected[0];
+      extraInfo.push({
+        actor: selfActor.name,
+        original: selfRoll.total,
+        extra: extraRoll.total,
+        picked: selfFinal,
+      });
+      await selfCombatant.setFlag("aster", "chargeNextRound", null);
+    }
+    if (pairCharge) {
+      const extraRoll = new Roll("1d6");
+      await extraRoll.evaluate();
+      const picked = await pickDiceDialog({
+        dice: [pairRoll.total, extraRoll.total],
+        count: 1,
+        title: game.i18n.format("ASTER.combat.unisonChargePickTitle", { actor: pairActor.name }),
+      });
+      if (!picked) return;
+      pairFinal = picked.selected[0];
+      extraInfo.push({
+        actor: pairActor.name,
+        original: pairRoll.total,
+        extra: extraRoll.total,
+        picked: pairFinal,
+      });
+      await pairCombatant.setFlag("aster", "chargeNextRound", null);
+    }
+
+    const total = selfFinal + pairFinal;
+
+    await this._applyUnisonSubEffect({
+      selfActor,
+      pairActor,
+      mainColor,
+      subColor,
+      selfFinal,
+      pairFinal,
+      total,
+      extraInfo,
+    });
+
+    // 양쪽 unisonReady 해제 — 부속성 다이얼로그 취소와 무관하게 합체기 사용은 완료.
+    await selfCombatant.setFlag("aster", "unisonReady", false);
+    await pairCombatant.setFlag("aster", "unisonReady", false);
+  }
+
+  /**
+   * 부속성 효과 디스패처. white(아군 색이지만 합체기 부속성에 표 없음)는 default로 빠져 subResult=null.
+   */
+  async _applyUnisonSubEffect({
+    selfActor,
+    pairActor,
+    mainColor,
+    subColor,
+    selfFinal,
+    pairFinal,
+    total,
+    extraInfo,
+  }) {
+    let subResult = null;
+    switch (subColor) {
+      case "red":
+        subResult = await this._unisonSubRed();
+        break;
+      case "blue":
+        subResult = await this._unisonSubBlue();
+        break;
+      case "green":
+        subResult = await this._unisonSubGreen();
+        break;
+      case "yellow":
+        subResult = await this._unisonSubYellow();
+        break;
+      default:
+        break;
+    }
+
+    await this._renderUnisonCard({
+      selfActor,
+      pairActor,
+      mainColor,
+      subColor,
+      selfFinal,
+      pairFinal,
+      total,
+      extraInfo,
+      subResult,
+    });
+  }
+
+  /** 적 부속성: 임의 상태이상 1개 → 아군(시나리오 PC 전체) 회복. 광역 회복이므로 전투 외 PC도 포함. */
+  async _unisonSubRed() {
+    const statusOptions = DAMAGE_STATUSES.map(
+      (s) => `<option value="${s.key}">${game.i18n.localize(`ASTER.badstatus.${s.i18n}`)}</option>`,
+    ).join("");
+    const statusKey = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.combat.unisonSubRedTitle") },
+      content: `<div class="form-group">
+        <label>${game.i18n.localize("ASTER.combat.unisonSubRedLabel")}</label>
+        <select name="status">${statusOptions}</select>
+      </div>`,
+      ok: { callback: (_e, b) => b.form.elements.status.value },
+    }).catch(() => null);
+    if (!statusKey) return null;
+
+    const partyPCs = game.actors.filter((a) => a.type === "character");
+    const results = await applyCureStatus(partyPCs, statusKey);
+    return { type: "red", statusKey, results };
+  }
+
+  /** 청 부속성: 전투 참가 아군 1인 다음 판정 +1d6 — G3-γ focusActive 재사용. */
+  async _unisonSubBlue() {
+    const combat = game.combat;
+    const partyCombatants = combat.combatants.filter((c) => c.actor?.type === "character");
+    const allyOptions = partyCombatants
+      .map((c) => `<option value="${c.id}">${c.actor.name}</option>`)
+      .join("");
+    const allyCombatantId = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.combat.unisonSubBlueTitle") },
+      content: `<div class="form-group">
+        <label>${game.i18n.localize("ASTER.combat.unisonSubBlueLabel")}</label>
+        <select name="ally">${allyOptions}</select>
+      </div>`,
+      ok: { callback: (_e, b) => b.form.elements.ally.value },
+    }).catch(() => null);
+    if (!allyCombatantId) return null;
+
+    const target = combat.combatants.get(allyCombatantId);
+    if (!target?.actor) return null;
+    await target.setFlag("aster", "focusActive", true);
+    return { type: "blue", actorName: target.actor.name };
+  }
+
+  /** 녹 부속성: 전투 참가 아군 1인 민첩 ±20 1라운드 AE — G3-γ 대쉬 AE 패턴 재사용. */
+  async _unisonSubGreen() {
+    const combat = game.combat;
+    const partyCombatants = combat.combatants.filter((c) => c.actor?.type === "character");
+    const allyOptions = partyCombatants
+      .map((c) => `<option value="${c.id}">${c.actor.name}</option>`)
+      .join("");
+    const result = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.combat.unisonSubGreenTitle") },
+      content: `<div class="form-group">
+        <label>${game.i18n.localize("ASTER.combat.unisonSubGreenAllyLabel")}</label>
+        <select name="ally">${allyOptions}</select>
+      </div>
+      <div class="form-group">
+        <label>${game.i18n.localize("ASTER.combat.unisonSubGreenDirectionLabel")}</label>
+        <select name="dir"><option value="20">+20</option><option value="-20">-20</option></select>
+      </div>`,
+      ok: {
+        callback: (_e, b) => ({
+          allyId: b.form.elements.ally.value,
+          delta: Number(b.form.elements.dir.value),
+        }),
+      },
+    }).catch(() => null);
+    if (!result) return null;
+
+    const target = combat.combatants.get(result.allyId);
+    if (!target?.actor) return null;
+    await target.actor.createEmbeddedDocuments("ActiveEffect", [
+      {
+        name: game.i18n.localize("ASTER.combat.unisonSubGreenEffectName"),
+        img: "icons/svg/wind.svg",
+        changes: [
+          {
+            key: "system.speed",
+            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+            value: result.delta,
+            priority: 20,
+          },
+        ],
+        duration: { rounds: 1, startRound: combat.round },
+        flags: { aster: { sourceAction: "unisonGreen" } },
+      },
+    ]);
+    return { type: "green", actorName: target.actor.name, delta: result.delta };
+  }
+
+  /** 황 부속성: 캔버스 타게팅한 적 1체에 부상/졸림/피로 중 1개 부여. 이미 상태이면 변화 없음. */
+  async _unisonSubYellow() {
+    const targets = getTargetedTokens({ required: true, max: 1, allowedTypes: "npc" });
+    if (!targets) return null;
+    const targetActor = targets[0].actor;
+    if (!targetActor) return null;
+
+    const allowedKeys = ["injury", "sleepy", "exhaustion"];
+    const statusOptions = allowedKeys
+      .map((k) => {
+        const def = DAMAGE_STATUSES.find((s) => s.key === k);
+        return `<option value="${k}">${game.i18n.localize(`ASTER.badstatus.${def?.i18n ?? k}`)}</option>`;
+      })
+      .join("");
+    const statusKey = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.combat.unisonSubYellowTitle") },
+      content: `<div class="form-group">
+        <label>${game.i18n.localize("ASTER.combat.unisonSubYellowLabel")}</label>
+        <select name="status">${statusOptions}</select>
+      </div>`,
+      ok: { callback: (_e, b) => b.form.elements.status.value },
+    }).catch(() => null);
+    if (!statusKey) return null;
+
+    const current = targetActor.system.badstatus?.[statusKey] ?? false;
+    if (!current) {
+      await targetActor.update({ [`system.badstatus.${statusKey}`]: true });
+    }
+    return { type: "yellow", actorName: targetActor.name, statusKey, applied: !current };
+  }
+
+  /** 합체기 결과 카드 — 주속성 색 분기(spell-color-*), 페어·다이스·합산값·부속성 결과·안내문 표시. */
+  async _renderUnisonCard({
+    selfActor,
+    pairActor,
+    mainColor,
+    subColor,
+    selfFinal,
+    pairFinal,
+    total,
+    extraInfo,
+    subResult,
+  }) {
+    const colorLabel = (k) => game.i18n.localize(`ASTER.aster.${k}`);
+    const badstatusLabel = (key) => {
+      const def = DAMAGE_STATUSES.find((s) => s.key === key);
+      return game.i18n.localize(`ASTER.badstatus.${def?.i18n ?? key}`);
+    };
+
+    let subResultText = "";
+    if (subResult) {
+      switch (subResult.type) {
+        case "red": {
+          const cured = subResult.results.filter((r) => r.cured).map((r) => r.actorName);
+          subResultText = game.i18n.format("ASTER.combat.unisonSubRedResult", {
+            status: badstatusLabel(subResult.statusKey),
+            actors: cured.length
+              ? cured.join(", ")
+              : game.i18n.localize("ASTER.combat.unisonSubRedNone"),
+          });
+          break;
+        }
+        case "blue":
+          subResultText = game.i18n.format("ASTER.combat.unisonSubBlueResult", {
+            actor: subResult.actorName,
+          });
+          break;
+        case "green":
+          subResultText = game.i18n.format("ASTER.combat.unisonSubGreenResult", {
+            actor: subResult.actorName,
+            delta: subResult.delta > 0 ? `+${subResult.delta}` : `${subResult.delta}`,
+          });
+          break;
+        case "yellow":
+          subResultText = game.i18n.format("ASTER.combat.unisonSubYellowResult", {
+            target: subResult.actorName,
+            status: badstatusLabel(subResult.statusKey),
+            applied: subResult.applied
+              ? game.i18n.localize("ASTER.combat.unisonAppliedYes")
+              : game.i18n.localize("ASTER.combat.unisonAppliedNo"),
+          });
+          break;
+      }
+    }
+
+    const selfExtra = extraInfo.find((e) => e.actor === selfActor.name);
+    const pairExtra = extraInfo.find((e) => e.actor === pairActor.name);
+
+    const cardData = {
+      title: game.i18n.localize("ASTER.combat.unisonAttackTitle"),
+      pairLabel: game.i18n.format("ASTER.combat.unisonPairLine", {
+        self: selfActor.name,
+        pair: pairActor.name,
+      }),
+      mainColor,
+      subColor,
+      mainLabel: game.i18n.localize("ASTER.combat.unisonMainLabel"),
+      subLabel: game.i18n.localize("ASTER.combat.unisonSubLabel"),
+      mainColorLabel: colorLabel(mainColor),
+      subColorLabel: colorLabel(subColor),
+      selfActorName: selfActor.name,
+      pairActorName: pairActor.name,
+      selfFinal,
+      pairFinal,
+      total,
+      selfExtra: !!selfExtra,
+      selfOriginal: selfExtra?.original,
+      selfExtraDice: selfExtra?.extra,
+      pairExtra: !!pairExtra,
+      pairOriginal: pairExtra?.original,
+      pairExtraDice: pairExtra?.extra,
+      totalLabel: game.i18n.localize("ASTER.combat.unisonTotalLabel"),
+      mainTableHint: game.i18n.format("ASTER.combat.unisonMainTableHint", {
+        color: colorLabel(mainColor),
+        total,
+      }),
+      subResult,
+      subEffectLabel: game.i18n.format("ASTER.combat.unisonSubEffectLabel", {
+        color: colorLabel(subColor),
+      }),
+      subResultText,
+      dodgeBlockNote: game.i18n.localize("ASTER.combat.unisonDodgeBlocked"),
+      turnEndNote: game.i18n.localize("ASTER.combat.unisonTurnEnd"),
+    };
+
+    const content = await foundry.applications.handlebars.renderTemplate(
+      "systems/aster/templates/chat/unison-attack.html",
+      cardData,
+    );
+
+    await ChatMessage.create({
+      content,
+      speaker: ChatMessage.getSpeaker({ actor: selfActor }),
     });
   }
 
