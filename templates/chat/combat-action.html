@@ -1,0 +1,14 @@
+<div class="aster-chat-card combat-action-card">
+  <header class="card-header">
+    <div class="title">
+      <div class="name">{{actionName}}</div>
+      <div class="formula">{{apSpent}}</div>
+    </div>
+  </header>
+  <div class="action-effect">{{{chatExtra}}}</div>
+  {{#if hasDamageButton}}
+  <footer class="card-actions damage-actions">
+    <button type="button" data-action="apply-damage">{{localize "ASTER.damage.applyBtn"}}</button>
+  </footer>
+  {{/if}}
+</div>

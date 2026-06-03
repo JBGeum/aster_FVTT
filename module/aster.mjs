@@ -393,13 +393,16 @@ async function renderDamageResultCard(targetActor, { amount, hBefore, hAfter, st
   }
   if (lines.length === 0) lines.push(game.i18n.localize("ASTER.damage.noChange"));
 
+  const content = await foundry.applications.handlebars.renderTemplate(
+    "systems/aster/templates/chat/damage-result.html",
+    {
+      title: game.i18n.format("ASTER.damage.applied", { target: targetActor.name }),
+      lines,
+    },
+  );
+
   await ChatMessage.create({
-    content: `<div class="aster-chat-card damage-result-card">
-      <header class="card-header"><div class="title"><div class="name">
-        ${game.i18n.format("ASTER.damage.applied", { target: targetActor.name })}
-      </div></div></header>
-      <ul class="damage-lines">${lines.map((l) => `<li>${l}</li>`).join("")}</ul>
-    </div>`,
+    content,
     speaker: ChatMessage.getSpeaker({ actor: targetActor }),
   });
 }

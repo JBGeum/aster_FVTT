@@ -675,31 +675,27 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     // 액션별 flag — 돌던지기는 대미지 적용 정보 포함 (1대미지 자동 추출).
     const actionFlag = { type: actionKey };
-    let damageBtn = "";
     if (actionKey === "throw" && throwTarget) {
-      const targetActorId = throwTarget.actor?.id ?? null;
+      // orphan 토큰이면 targetActorId가 null — 버튼 미노출(대미지 적용 불가).
       actionFlag.sourceActorId = this.actor.id;
-      actionFlag.targetActorId = targetActorId;
+      actionFlag.targetActorId = throwTarget.actor?.id ?? null;
       actionFlag.targetName = throwTarget.name;
       actionFlag.defaultDamage = 1;
       actionFlag.damageApplied = false;
-      // 대상 액터가 식별될 때만 버튼 노출 (orphan 토큰이면 적용 불가).
-      if (targetActorId) {
-        damageBtn = `<footer class="card-actions damage-actions">
-          <button type="button" data-action="apply-damage">${game.i18n.localize("ASTER.damage.applyBtn")}</button>
-        </footer>`;
-      }
     }
 
+    const content = await foundry.applications.handlebars.renderTemplate(
+      "systems/aster/templates/chat/combat-action.html",
+      {
+        actionName,
+        apSpent: game.i18n.format("ASTER.combat.apSpent", { n: cost }),
+        chatExtra,
+        hasDamageButton: !!actionFlag.targetActorId,
+      },
+    );
+
     await ChatMessage.create({
-      content: `<div class="aster-chat-card combat-action-card">
-        <header class="card-header"><div class="title">
-          <div class="name">${actionName}</div>
-          <div class="formula">${game.i18n.format("ASTER.combat.apSpent", { n: cost })}</div>
-        </div></header>
-        <div class="action-effect">${chatExtra}</div>
-        ${damageBtn}
-      </div>`,
+      content,
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       flags: { aster: { combatAction: actionFlag } },
     });
