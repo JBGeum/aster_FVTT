@@ -33,3 +33,5 @@ Thumbs.db
 /test/*
 /memo/*
 *.md
+/.claude/*
+*.zip
