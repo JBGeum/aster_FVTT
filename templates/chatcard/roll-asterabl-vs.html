@@ -8,7 +8,9 @@
 
   <div class="roll-block">
     <div class="dice">[{{diceText}}] + {{ablValue}}</div>
-    {{#if penalties.sleepy}}
+    {{#if focusApplied}}
+    <div class="focus-applied-line">{{localize "ASTER.combat.focusApplied"}}</div>
+    {{/if}} {{#if penalties.sleepy}}
     <div class="penalty-line">{{localize "ASTER.badstatus.sleepy"}}: {{penalties.sleepy}}</div>
     {{/if}} {{#if penalties.satiety}}
     <div class="penalty-line">{{localize "ASTER.label.satiety"}}: {{penalties.satiety}}</div>

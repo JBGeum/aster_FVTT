@@ -76,21 +76,41 @@ export class AsterCombat extends Combat {
     }
 
     // 2. PC 액션 포인트 굴림 + 라운드 사용 카운터 초기화 (NPC 제외)
-    // defendActive/chargeNextRound는 라운드 무관 상태라 여기서 손대지 않음
-    // (defendActive는 대미지 적용 시 자동 해제, chargeNextRound는 G3-γ가 처리).
-    const apResults = []; // { name, ap } — 채팅 카드용
+    // defendActive는 대미지 적용 시 자동 해제. chargeNextRound는 이번 라운드 시작에서 회수("ap"는 적용·해제, "unison"은 G4까지 유지).
+    const apResults = []; // { name, ap, base, chargeBonus } — 채팅 카드용
     for (const c of this.combatants) {
       if (c.actor?.type !== "character") continue;
-      const roll = new Roll("1d6");
-      await roll.evaluate();
-      await c.setFlag("aster", "actionPoint", roll.total);
+      const baseRoll = new Roll("1d6");
+      await baseRoll.evaluate();
+      let ap = baseRoll.total;
+
+      // 차지 AP 보너스 — 이전 라운드에 charge="ap"를 사용했다면 1d6 추가 후 flag 해제.
+      // "unison"은 G4 합체기 사용 시 회수되어야 하므로 여기선 손대지 않음.
+      let chargeBonus = null;
+      if (c.getFlag("aster", "chargeNextRound") === "ap") {
+        const bonusRoll = new Roll("1d6");
+        await bonusRoll.evaluate();
+        ap += bonusRoll.total;
+        chargeBonus = bonusRoll.total;
+        await c.setFlag("aster", "chargeNextRound", null);
+      }
+
+      await c.setFlag("aster", "actionPoint", ap);
       await c.setFlag("aster", "actionsThisRound", {});
-      apResults.push({ name: c.actor.name, ap: roll.total });
+      apResults.push({ name: c.actor.name, ap, base: baseRoll.total, chargeBonus });
     }
 
-    // 3. 라운드 시작 채팅 카드
+    // 3. 라운드 시작 채팅 카드 — 차지 보너스 받은 PC는 (base+bonus 차지) 표기.
     if (apResults.length) {
-      const list = apResults.map((r) => `<li>${r.name}: <strong>${r.ap}</strong></li>`).join("");
+      const chargeBonusLabel = game.i18n.localize("ASTER.combat.chargeBonus");
+      const list = apResults
+        .map((r) => {
+          const bonus = r.chargeBonus
+            ? ` <span class="charge-bonus">(${r.base}+${r.chargeBonus} ${chargeBonusLabel})</span>`
+            : "";
+          return `<li>${r.name}: <strong>${r.ap}</strong>${bonus}</li>`;
+        })
+        .join("");
       await ChatMessage.create({
         content: `<div class="aster-chat-card combat-round-card">
           <header class="card-header"><div class="title"><div class="name">

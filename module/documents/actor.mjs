@@ -1,6 +1,24 @@
 import { asterRoll } from "./roll.mjs";
 import { detectCritFumble, computePenalties } from "../helpers/roll-result.mjs";
 import { syncBadstatusEffect } from "../helpers/badstatus-effects.mjs";
+
+/**
+ * Combatant의 `focusActive` flag 확인 — 활성 시 다이스 1개 추가 + 적용 대상 Combatant 반환.
+ * 호출자는 flag 해제를 위해 반환된 combatant를 사용한다(굴림 성공 여부 무관, 사용=만료).
+ * 정동판정(rollEmotion)은 룰북상 어떤 효과로도 증감되지 않으므로 호출하지 않는다.
+ *
+ * @param {Actor} actor
+ * @returns {{extraDice: 0 | 1, combatant: Combatant | null}}
+ */
+function checkFocusEffect(actor) {
+  const combat = game.combat;
+  if (!combat) return { extraDice: 0, combatant: null };
+  const combatant = combat.combatants.find((c) => c.actor?.id === actor.id);
+  if (!combatant) return { extraDice: 0, combatant: null };
+  const active = combatant.getFlag("aster", "focusActive") === true;
+  return { extraDice: active ? 1 : 0, combatant: active ? combatant : null };
+}
+
 /**
  * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
  * @extends {Actor}
@@ -96,10 +114,20 @@ export class AsterActor extends Actor {
   async rollAbility(ability, label, _options = {}) {
     const renderTemplate = foundry.applications.handlebars.renderTemplate;
     const ablValue = this.system.ability[ability].total;
-    const roll = await asterRoll(ablValue, this.getRollData());
+
+    // 집중 효과 — 활성 시 baseDice = 3 (단순 합산), 굴림 후 flag 해제.
+    const focus = checkFocusEffect(this);
+    const roll = await asterRoll(ablValue, this.getRollData(), {
+      baseDice: 2 + focus.extraDice,
+    });
+    if (focus.combatant) {
+      await focus.combatant.setFlag("aster", "focusActive", false);
+    }
+
     const resultDiceset = roll.dice[0].values;
     const diceText = resultDiceset.join(", ");
     const cf = detectCritFumble(resultDiceset);
+    const focusApplied = !!focus.combatant;
 
     // 보정 통합: 졸림 + 포만 (페이즈 무관, 모든 판정에 적용. 정동판정만 별도).
     const penalties = computePenalties(this);
@@ -122,6 +150,7 @@ export class AsterActor extends Actor {
         diceText,
         isCritical: cf.critical,
         isFumble: cf.fumble,
+        focusApplied,
         actorId: this.id,
         isPC: this.type === "character",
       };
@@ -163,6 +192,7 @@ export class AsterActor extends Actor {
         isSuccess,
         isCritical: cf.critical,
         isFumble: cf.fumble,
+        focusApplied,
         resultDiceset,
         diceText,
         actorId: this.id,
@@ -332,7 +362,15 @@ export class AsterActor extends Actor {
     const dodgeValue = this.system.dodge ?? 0;
     const label = game.i18n.localize("ASTER.dodge.label");
 
-    const roll = await asterRoll(dodgeValue, this.getRollData());
+    // 회피도 대결판정의 한 종류이며 룰북상 일반 판정에 포함되므로 집중 효과 적용.
+    const focus = checkFocusEffect(this);
+    const roll = await asterRoll(dodgeValue, this.getRollData(), {
+      baseDice: 2 + focus.extraDice,
+    });
+    if (focus.combatant) {
+      await focus.combatant.setFlag("aster", "focusActive", false);
+    }
+
     const resultDiceset = roll.dice[0].values;
     const diceText = resultDiceset.join(", ");
     const cf = detectCritFumble(resultDiceset);
@@ -353,6 +391,7 @@ export class AsterActor extends Actor {
       diceText,
       isCritical: cf.critical,
       isFumble: cf.fumble,
+      focusApplied: !!focus.combatant,
       actorId: this.id,
       isPC: this.type === "character",
       isDodge: true,

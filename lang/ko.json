@@ -194,7 +194,10 @@
       "chargeSubUnison": "합체기 다이스 +1D6",
       "chargeEffectAP": "다음 라운드 AP +1D6 (라운드 시작 시 자동 적용)",
       "chargeEffectUnison": "다음 합체기 다이스 +1D6 (합체기 사용 시 적용)",
-      "unisonPrepareEffect": "다음 셋업에 합체기 사용 가능 (플래그 저장됨)"
+      "unisonPrepareEffect": "다음 셋업에 합체기 사용 가능 (플래그 저장됨)",
+      "focusApplied": "집중 적용 — 판정 다이스 +1D6",
+      "focusActiveIndicator": "집중 ✓",
+      "chargeBonus": "차지"
     },
     "dodge": {
       "label": "회피"

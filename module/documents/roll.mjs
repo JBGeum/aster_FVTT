@@ -4,10 +4,11 @@
  *
  * @param {number} ablValue
  * @param {object} _rollData
+ * @param {{baseDice?: number}} [opts]  baseDice는 굴릴 다이스 수 (기본 2, 집중 적용 시 3).
  * @returns {Promise<Roll>}
  */
-export async function asterRoll(ablValue, _rollData) {
-  const roll = new Roll("2d6 + @ablValue", { ablValue });
+export async function asterRoll(ablValue, _rollData, { baseDice = 2 } = {}) {
+  const roll = new Roll(`${baseDice}d6 + @ablValue`, { ablValue });
   await roll.evaluate();
   return roll;
 }

@@ -21,6 +21,16 @@
       font-size: 1.2em;
       font-weight: bold;
     }
+
+    .focus-indicator {
+      margin-left: auto;
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: rgba(255, 220, 0, 0.2);
+      font-size: 0.8em;
+      font-weight: 500;
+      color: #b8860b;
+    }
   }
 
   .combat-disabled-notice {

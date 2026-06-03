@@ -117,6 +117,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       combatantId: combatant.id,
       defendUsed: (usage.defend ?? 0) >= 1,
       chargeUsed: (usage.charge ?? 0) >= 1,
+      focusActive: combatant.getFlag("aster", "focusActive") === true,
     };
   }
 
@@ -611,6 +612,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     let chatExtra;
     let throwTarget = null; // 돌던지기 대상 토큰 (대미지 적용 flag용)
     let chargeChoice = null; // 차지 선택("ap" | "unison") — G3-γ 회수 대상
+    let dashX = 0; // 대쉬 입력값 — AE duration.rounds: 1로 다음 라운드 끝까지 system.speed +X
 
     switch (actionKey) {
       case "throw": {
@@ -641,6 +643,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         }).catch(() => null);
         if (x === null || x <= 0) return;
         cost = x;
+        dashX = x;
         chatExtra = game.i18n.format("ASTER.combat.dashEffect", { x });
         break;
       }
@@ -682,9 +685,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     await combatant.setFlag("aster", "actionPoint", currentAP - cost);
 
-    // 액션별 후속 flag.
+    // 액션별 후속 flag·효과.
     // - defend: 라운드 카운터 +1, defendActive 켜 다음 대미지 적용 시 자동 차감.
     // - charge: 라운드 카운터 +1, 선택 보존(G3-γ가 다음 라운드 시작 시 회수).
+    // - focus: focusActive 켜 다음 한 번의 판정에 다이스 +1 (적용 후 자동 해제).
+    // - dash: 1라운드 만료 AE로 system.speed +X — Foundry duration이 자동 만료 처리.
     // - unisonPrepare: 합체기 준비(G4에서 활용).
     if (actionKey === "defend") {
       await combatant.setFlag("aster", "actionsThisRound", {
@@ -698,6 +703,25 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         charge: (usage.charge ?? 0) + 1,
       });
       await combatant.setFlag("aster", "chargeNextRound", chargeChoice);
+    } else if (actionKey === "focus") {
+      await combatant.setFlag("aster", "focusActive", true);
+    } else if (actionKey === "dash") {
+      await this.actor.createEmbeddedDocuments("ActiveEffect", [
+        {
+          name: game.i18n.localize("ASTER.combat.action.dash"),
+          img: "icons/svg/lightning.svg",
+          changes: [
+            {
+              key: "system.speed",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              value: dashX,
+              priority: 20,
+            },
+          ],
+          duration: { rounds: 1, startRound: combat.round },
+          flags: { aster: { sourceAction: "dash" } },
+        },
+      ]);
     } else if (actionKey === "unisonPrepare") {
       await combatant.setFlag("aster", "unisonReady", true);
     }

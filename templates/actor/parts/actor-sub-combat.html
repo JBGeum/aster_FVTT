@@ -2,6 +2,9 @@
   <div class="combat-ap-display">
     <span class="ap-label">{{localize "ASTER.combat.actionPoints"}}</span>
     <span class="ap-value">{{#if combatContext.inCombat}}{{combatContext.ap}}{{else}}—{{/if}}</span>
+    {{#if combatContext.focusActive}}
+    <span class="focus-indicator">{{localize "ASTER.combat.focusActiveIndicator"}}</span>
+    {{/if}}
   </div>
 
   {{#unless combatContext.inCombat}}
