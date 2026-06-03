@@ -28,14 +28,16 @@
     </button>
     <button
       type="button"
-      class="action-btn"
+      class="action-btn {{#if combatContext.defendUsed}}used{{/if}}"
       data-action="combatAction"
       data-action-key="defend"
       {{disabled
       combatContext.disabled}}
+      {{disabled
+      combatContext.defendUsed}}
     >
       <span class="action-name">{{localize "ASTER.combat.action.defend"}}</span>
-      <span class="action-cost">(2)</span>
+      <span class="action-cost">(2){{#if combatContext.defendUsed}} ✓{{/if}}</span>
     </button>
     <button
       type="button"
@@ -61,14 +63,16 @@
     </button>
     <button
       type="button"
-      class="action-btn"
+      class="action-btn {{#if combatContext.chargeUsed}}used{{/if}}"
       data-action="combatAction"
       data-action-key="charge"
       {{disabled
       combatContext.disabled}}
+      {{disabled
+      combatContext.chargeUsed}}
     >
       <span class="action-name">{{localize "ASTER.combat.action.charge"}}</span>
-      <span class="action-cost">(3)</span>
+      <span class="action-cost">(3){{#if combatContext.chargeUsed}} ✓{{/if}}</span>
     </button>
     <button
       type="button"

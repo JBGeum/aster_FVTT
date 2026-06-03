@@ -171,6 +171,7 @@
       "notInCombat": "전투 중이 아닙니다.",
       "noCombatantForActor": "이 액터는 현재 전투에 참가하지 않았습니다.",
       "notEnoughAP": "액션 포인트 부족 (필요 {need} / 보유 {have})",
+      "actionUsedThisRound": "{action} 액션은 이미 이번 라운드에 사용했습니다 (1회 제한).",
       "apSpent": "AP {n} 소비",
       "dashValueLabel": "추가할 민첩 (X)",
       "action": {
@@ -185,14 +186,14 @@
         "unisonPrepare": "합체기 준비"
       },
       "throwEffect": "{target}에게 2D6 명중 판정 → 명중 시 1대미지 (수동 처리)",
-      "defendEffect": "다음 받을 대미지 -1D6 (라운드 1회 한정 — 수동 추적)",
+      "defendEffect": "다음 받을 대미지 -1D6 (자동 차감)",
       "focusEffect": "다음 판정 다이스 +1D6 (수동 적용)",
       "dashEffect": "다음 라운드 민첩 +{x} (수동 적용)",
       "chargeChooseLabel": "추가할 효과",
       "chargeSubAP": "다음 라운드 AP +1D6",
       "chargeSubUnison": "합체기 다이스 +1D6",
-      "chargeEffectAP": "다음 라운드 AP +1D6 (수동 적용 — 라운드 1회)",
-      "chargeEffectUnison": "다음 합체기 다이스 +1D6 (수동 적용 — 라운드 1회)",
+      "chargeEffectAP": "다음 라운드 AP +1D6 (라운드 시작 시 자동 적용)",
+      "chargeEffectUnison": "다음 합체기 다이스 +1D6 (합체기 사용 시 적용)",
       "unisonPrepareEffect": "다음 셋업에 합체기 사용 가능 (플래그 저장됨)"
     },
     "dodge": {
@@ -205,6 +206,7 @@
       "targetInfo": "대상: {name}",
       "amount": "대미지 수치",
       "inflictLegend": "부여할 상태이상 (다중 선택 가능)",
+      "defendLine": "방어 차감: {original} - {roll}(1d6) = {adjusted}",
       "healthLine": "건강 {before} → {after} ({delta})",
       "statusLine": "상태이상 부여: {names}",
       "healthZero": "⚠ 건강 0 — 행동불능",

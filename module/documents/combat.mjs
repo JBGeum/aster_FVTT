@@ -75,13 +75,16 @@ export class AsterCombat extends Combat {
       await this.updateEmbeddedDocuments("Combatant", initiativeUpdates);
     }
 
-    // 2. PC 액션 포인트 굴림 (NPC 제외)
+    // 2. PC 액션 포인트 굴림 + 라운드 사용 카운터 초기화 (NPC 제외)
+    // defendActive/chargeNextRound는 라운드 무관 상태라 여기서 손대지 않음
+    // (defendActive는 대미지 적용 시 자동 해제, chargeNextRound는 G3-γ가 처리).
     const apResults = []; // { name, ap } — 채팅 카드용
     for (const c of this.combatants) {
       if (c.actor?.type !== "character") continue;
       const roll = new Roll("1d6");
       await roll.evaluate();
       await c.setFlag("aster", "actionPoint", roll.total);
+      await c.setFlag("aster", "actionsThisRound", {});
       apResults.push({ name: c.actor.name, ap: roll.total });
     }
 

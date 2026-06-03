@@ -336,16 +336,50 @@ async function promptDamageDialog(targetActor, defaultDamage) {
 }
 
 /**
+ * 방어 차감 처리. 대상의 Combatant에 defendActive flag가 있으면 1d6 굴려 amount 차감 후 flag 해제.
+ *
+ * @param {Actor} targetActor
+ * @param {number} amount
+ * @returns {Promise<{roll: number, original: number, adjusted: number} | null>}
+ *   차감이 일어났으면 결과 객체, 아니면 null (Combat 없음·Combatant 없음·flag 없음).
+ */
+async function applyDefendReduction(targetActor, amount) {
+  const combat = game.combat;
+  if (!combat) return null;
+  const combatant = combat.combatants.find((c) => c.actor?.id === targetActor.id);
+  if (!combatant) return null;
+  if (combatant.getFlag("aster", "defendActive") !== true) return null;
+
+  const roll = new Roll("1d6");
+  await roll.evaluate();
+  const reduction = roll.total;
+  const adjusted = Math.max(0, amount - reduction);
+
+  // 한 번 적용 — 즉시 해제
+  await combatant.setFlag("aster", "defendActive", false);
+
+  return { roll: reduction, original: amount, adjusted };
+}
+
+/**
  * 건강 차감 + 상태이상 부여. 상태이상은 false→true만 (D16 AE 자동 동기).
+ * amount > 0이면 방어 차감(`defendActive`) 자동 적용 — 상태이상만 부여 시 방어 미소비(룰 정합).
  *
  * @param {Actor} targetActor
  * @param {number} amount
  * @param {string[]} statusList
- * @returns {Promise<{hBefore: number, hAfter: number, statusApplied: string[]}>}
+ * @returns {Promise<{hBefore: number, hAfter: number, statusApplied: string[], defendReduced: {roll:number,original:number,adjusted:number}|null}>}
  */
 async function applyDamageAndStatus(targetActor, amount, statusList) {
   const hBefore = targetActor.system.health?.value ?? 0;
   let hAfter = hBefore;
+
+  let defendReduced = null;
+  if (amount > 0) {
+    defendReduced = await applyDefendReduction(targetActor, amount);
+    if (defendReduced) amount = defendReduced.adjusted;
+  }
+
   if (amount > 0 && hBefore > 0) {
     hAfter = Math.max(0, hBefore - amount);
     await targetActor.update({ "system.health.value": hAfter });
@@ -361,17 +395,30 @@ async function applyDamageAndStatus(targetActor, amount, statusList) {
   }
   if (Object.keys(statusUpdate).length > 0) await targetActor.update(statusUpdate);
 
-  return { hBefore, hAfter, statusApplied };
+  return { hBefore, hAfter, statusApplied, defendReduced };
 }
 
 /**
  * 대미지 적용 결과 카드 렌더링. applyDamageFromCard / applyDamageFromOpposed 공통 사용.
  *
  * @param {Actor} targetActor
- * @param {{amount: number, hBefore: number, hAfter: number, statusApplied: string[]}} info
+ * @param {{amount: number, hBefore: number, hAfter: number, statusApplied: string[], defendReduced: {roll:number,original:number,adjusted:number}|null}} info
  */
-async function renderDamageResultCard(targetActor, { amount, hBefore, hAfter, statusApplied }) {
+async function renderDamageResultCard(
+  targetActor,
+  { amount, hBefore, hAfter, statusApplied, defendReduced },
+) {
   const lines = [];
+  // 방어 차감은 건강 라인보다 앞 — 룰적 시점 순서(차감 → 건강 적용).
+  if (defendReduced) {
+    lines.push(
+      game.i18n.format("ASTER.damage.defendLine", {
+        original: defendReduced.original,
+        roll: defendReduced.roll,
+        adjusted: defendReduced.adjusted,
+      }),
+    );
+  }
   if (amount > 0) {
     lines.push(
       game.i18n.format("ASTER.damage.healthLine", {
@@ -445,7 +492,7 @@ async function applyDamageFromCard(message) {
   const result = await promptDamageDialog(targetActor, data.defaultDamage ?? 0);
   if (result === null) return; // 취소
 
-  const { hBefore, hAfter, statusApplied } = await applyDamageAndStatus(
+  const { hBefore, hAfter, statusApplied, defendReduced } = await applyDamageAndStatus(
     targetActor,
     result.amount,
     result.status,
@@ -460,6 +507,7 @@ async function applyDamageFromCard(message) {
     hBefore,
     hAfter,
     statusApplied,
+    defendReduced,
   });
 }
 
@@ -494,7 +542,7 @@ async function applyDamageFromOpposed(message) {
   const result = await promptDamageDialog(targetActor, 0);
   if (result === null) return; // 취소
 
-  const { hBefore, hAfter, statusApplied } = await applyDamageAndStatus(
+  const { hBefore, hAfter, statusApplied, defendReduced } = await applyDamageAndStatus(
     targetActor,
     result.amount,
     result.status,
@@ -508,6 +556,7 @@ async function applyDamageFromOpposed(message) {
     hBefore,
     hAfter,
     statusApplied,
+    defendReduced,
   });
 }
 

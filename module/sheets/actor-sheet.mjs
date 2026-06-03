@@ -99,8 +99,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /**
-   * 전투 탭 컨텍스트. 활성 Combat에서 이 액터의 Combatant를 찾아 AP를 노출.
-   * @returns {{inCombat:boolean, ap:number, combatantId?:string}}
+   * 전투 탭 컨텍스트. 활성 Combat에서 이 액터의 Combatant를 찾아 AP·라운드 사용 상태를 노출.
+   * @returns {{inCombat:boolean, disabled:boolean, ap:number, combatantId?:string, defendUsed?:boolean, chargeUsed?:boolean}}
    */
   #buildCombatContext() {
     const combat = game.combat;
@@ -109,11 +109,14 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const combatant = combat.combatants.find((c) => c.actor?.id === this.actor.id);
     if (!combatant) return { inCombat: false, disabled: true, ap: 0 };
 
+    const usage = combatant.getFlag("aster", "actionsThisRound") ?? {};
     return {
       inCombat: true,
       disabled: false,
       ap: combatant.getFlag("aster", "actionPoint") ?? 0,
       combatantId: combatant.id,
+      defendUsed: (usage.defend ?? 0) >= 1,
+      chargeUsed: (usage.charge ?? 0) >= 1,
     };
   }
 
@@ -591,10 +594,23 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       return;
     }
 
+    // 라운드 사용 카운터 — defend/charge는 룰북 1라운드 1회 제한.
+    // AP 검사·다이얼로그보다 앞서 차단해야 자원·UX 낭비가 없다.
+    const usage = combatant.getFlag("aster", "actionsThisRound") ?? {};
+    if ((actionKey === "defend" || actionKey === "charge") && (usage[actionKey] ?? 0) >= 1) {
+      ui.notifications.warn(
+        game.i18n.format("ASTER.combat.actionUsedThisRound", {
+          action: game.i18n.localize(`ASTER.combat.action.${actionKey}`),
+        }),
+      );
+      return;
+    }
+
     const currentAP = combatant.getFlag("aster", "actionPoint") ?? 0;
     let cost;
     let chatExtra;
     let throwTarget = null; // 돌던지기 대상 토큰 (대미지 적용 flag용)
+    let chargeChoice = null; // 차지 선택("ap" | "unison") — G3-γ 회수 대상
 
     switch (actionKey) {
       case "throw": {
@@ -629,7 +645,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         break;
       }
       case "charge": {
-        const sub = await foundry.applications.api.DialogV2.prompt({
+        chargeChoice = await foundry.applications.api.DialogV2.prompt({
           window: { title: game.i18n.localize("ASTER.combat.action.chargeTitle") },
           content: `<div class="form-group">
             <label>${game.i18n.localize("ASTER.combat.chargeChooseLabel")}</label>
@@ -640,10 +656,10 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           </div>`,
           ok: { callback: (_e, b) => b.form.elements.sub.value },
         }).catch(() => null);
-        if (!sub) return;
+        if (!chargeChoice) return;
         cost = 3;
         chatExtra =
-          sub === "ap"
+          chargeChoice === "ap"
             ? game.i18n.localize("ASTER.combat.chargeEffectAP")
             : game.i18n.localize("ASTER.combat.chargeEffectUnison");
         break;
@@ -666,8 +682,23 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     await combatant.setFlag("aster", "actionPoint", currentAP - cost);
 
-    // 합체기 준비 플래그 (G4에서 활용)
-    if (actionKey === "unisonPrepare") {
+    // 액션별 후속 flag.
+    // - defend: 라운드 카운터 +1, defendActive 켜 다음 대미지 적용 시 자동 차감.
+    // - charge: 라운드 카운터 +1, 선택 보존(G3-γ가 다음 라운드 시작 시 회수).
+    // - unisonPrepare: 합체기 준비(G4에서 활용).
+    if (actionKey === "defend") {
+      await combatant.setFlag("aster", "actionsThisRound", {
+        ...usage,
+        defend: (usage.defend ?? 0) + 1,
+      });
+      await combatant.setFlag("aster", "defendActive", true);
+    } else if (actionKey === "charge") {
+      await combatant.setFlag("aster", "actionsThisRound", {
+        ...usage,
+        charge: (usage.charge ?? 0) + 1,
+      });
+      await combatant.setFlag("aster", "chargeNextRound", chargeChoice);
+    } else if (actionKey === "unisonPrepare") {
       await combatant.setFlag("aster", "unisonReady", true);
     }
 
