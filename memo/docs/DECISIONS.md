@@ -574,6 +574,30 @@ D&D 5e 시스템의 스펠 시트는 시전시간·범위·지속시간·컴포�
 
 ---
 
+## D31. G3-β 라운드 1회 제한 + 방어 차감 자동화
+
+**결정:** Combatant flag `aster.actionsThisRound = { defend, charge }`로 라운드별 액션 사용 카운터 관리. `_startRound`에서 빈 객체로 초기화. 방어 사용 시 `aster.defendActive: true` 추가 → 다음 대미지 적용 시 1d6 굴림·차감·flag 해제 자동. 차지 사용 시 선택(`"ap"` | `"unison"`)을 `aster.chargeNextRound` flag로 저장(G3-γ 회수 대상). 사용된 액션 버튼은 시트에서 disabled + 시각 표시.
+
+**배경:** G3-α에서 6종 액션의 UI·AP 차감까지 완료, 룰의 "1라운드 1회" 제한과 "다음 받을 대미지 -1d6" 효과는 *수동 추적* 안내문으로만 명시. D30 자동화 도달점 정책의 2단계(일회성 효과 만료) 진입 — 가장 빈도가 높고 룰 정합 명확한 두 효과부터 자동화.
+
+**대안:**
+- 옵션 A: 각 액션별 별도 flag (defendUsedThisRound, chargeUsedThisRound) — 액션이 늘 때마다 flag 증가
+- 옵션 나: 방어 차감을 GM 수동 — 자동화 가치 누락
+- 옵션 다: 방어 차감 미도입, "방어 사용 중" 표시만 — 룰의 명확한 결과 자동화 안 함
+- 옵션 Y: 차지 선택을 이번 STEP에 저장 안 함 — G3-γ에서 다시 설계 부담
+
+**선택 이유:** `actionsThisRound` 객체(옵션 B)는 향후 다른 액션이 비슷한 제한을 가질 때(예: "라운드 2회까지") 같은 구조 확장 가능 — D8(definition-driven)과 동일한 정신. 방어 차감 자동화(옵션 가)는 D30 1단계 "결과 자동 추출" 정책 정합 — 1d6 굴림 결과가 명확한 차감으로 이어지므로 시스템이 처리. 차지 선택 저장(옵션 X)은 한 줄 추가로 G3-γ 구현 비용을 미리 줄임.
+
+방어 차감은 `amount > 0`일 때만 적용 — 상태이상만 부여하는 경우 방어 효과 미소비(룰 "받을 대미지" 정합). 차감 후 결과는 `Math.max(0, ...)`로 음수 방지.
+
+`applyDamageAndStatus` 헬퍼(D27)에 방어 처리를 *통합* — `applyDamageFromCard`/`applyDamageFromOpposed` 두 진입점 모두 자동 적용. 진입점별 별도 처리 없음(D11 관심사 분리 + DRY).
+
+> D27의 자연 회수 — 공통 헬퍼에 한 가지 효과만 추가하면 모든 대미지 진입점이 자동 갱신. 그동안 누적된 helper 분리가 이번 STEP의 비용을 크게 줄임.
+>
+> D30의 2단계 시작 — 향후 G3-γ가 차지 효과(다음 라운드 AP +1d6 또는 합체기 다이스 +1d6) 적용을 라운드 hook에 추가하면 2단계 완성.
+
+---
+
 ## D32. 인라인 카드 → 템플릿 분리 (H 트랙 사전 정리)
 
 **결정:** D24(COMBAT_ACTION_G3A)·D27(DAMAGE_APPLY)에서 인라인 문자열로 생성되던 채팅 카드 2종(`combat-action-card`, `damage-result-card`)을 `templates/chat/*.html` 파일로 분리. JS는 `renderTemplate`으로 호출. 향후 H 트랙(디자인 정리)의 사전 정리 성격.
