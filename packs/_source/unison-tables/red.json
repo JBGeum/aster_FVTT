@@ -1,0 +1,100 @@
+{
+  "_id": "asterUTRedTable0",
+  "name": "Unison Table - Red",
+  "img": "icons/svg/dice-target.svg",
+  "description": "합체기 주속성 적표 (룰북 부록). 합산값에 대응하는 효과 텍스트.",
+  "formula": "1d12",
+  "replacement": true,
+  "displayRoll": false,
+  "results": [
+    {
+      "_id": "asterUTRed000002",
+      "type": "text",
+      "description": "기세를 주체하지 못하고 태세가 흐트러진다. 적 1체에게 7점의 대미지를 입힌다.\n합체기를 사용한 PC는 다음 라운드의 이니셔티브에서 행동완료가 된다.",
+      "weight": 1,
+      "range": [2, 2],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTRed000003",
+      "type": "text",
+      "description": "실패! 두 사람의 호흡이 잘 맞지 않았다…",
+      "weight": 1,
+      "range": [3, 3],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTRed000004",
+      "type": "text",
+      "description": "실패! 움직이기 시작한 타이밍이 서로 엇갈렸나보다.",
+      "weight": 1,
+      "range": [4, 4],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTRed000005",
+      "type": "text",
+      "description": "조금 덜 나아갔나보다. 적 1체에게 3점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [5, 5],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTRed000006",
+      "type": "text",
+      "description": "적 1체에게 3점의 대미지를 입힌다. 서로를 잘 보조한 것 같다.",
+      "weight": 1,
+      "range": [6, 6],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTRed000007",
+      "type": "text",
+      "description": "일직선으로 돌격! 적 1체에게 4점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [7, 7],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTRed000008",
+      "type": "text",
+      "description": "적의 사각에서 뛰어들듯이 일격! 적 1체에게 5점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [8, 8],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTRed000009",
+      "type": "text",
+      "description": "페인트 동작이 화려하게 먹혔다! 적 1체에게 6점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [9, 9],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTRed000010",
+      "type": "text",
+      "description": "적 1체에게 7점의 대미지를 입힌다. 지금 움직임, 좋았어!",
+      "weight": 1,
+      "range": [10, 10],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTRed000011",
+      "type": "text",
+      "description": "화려한 연대공격! 적 1체에게 8점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [11, 11],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTRed000012",
+      "type": "text",
+      "description": "회심의 일격! 적 1체에게 10점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [12, 99],
+      "drawn": false
+    }
+  ],
+  "flags": { "aster": { "color": "red" } }
+}

@@ -37,6 +37,7 @@ export default tseslint.config(
         Hooks: "readonly",
         Roll: "readonly",
         ChatMessage: "readonly",
+        RollTable: "readonly",
         Macro: "readonly",
         Item: "readonly",
         Actor: "readonly",

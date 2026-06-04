@@ -11,7 +11,8 @@
   },
   "scripts": {
     "dev": "vite build --mode development --watch",
-    "build": "vite build",
+    "build": "vite build && npm run build:packs",
+    "build:packs": "tsx tools/build-packs.mts",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -36,6 +37,7 @@
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
     "@eslint/js": "^10.0.1",
+    "@foundryvtt/foundryvtt-cli": "^3.0.3",
     "@types/node": "^22.10.0",
     "eslint": "^10.4.0",
     "eslint-config-prettier": "^10.1.8",

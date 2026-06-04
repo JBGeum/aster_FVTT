@@ -13,7 +13,7 @@ import {
   applyDamageAndStatus,
   applyHealHealth,
 } from "../aster.mjs";
-import { lookupUnisonEffect } from "../helpers/unison-table.mjs";
+import { lookupUnisonEffect, getUnisonDescription } from "../helpers/unison-table.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -951,7 +951,13 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    */
   async _applyUnisonMainEffect({ mainColor, total }) {
     const effect = lookupUnisonEffect(mainColor, total);
-    if (!effect) return null;
+    // RollTable 플레이버 텍스트 — effect null(합산 3·4 실패)이어도 조회 가능.
+    const description = getUnisonDescription(mainColor, total);
+
+    if (!effect) {
+      // 효과 자동 적용은 없지만 플레이버 텍스트만 있는 경우 (실패 등).
+      return description ? { type: "description-only", description } : null;
+    }
 
     switch (effect.type) {
       case "damage": {
@@ -973,6 +979,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
             ],
             amount: effect.amount,
             selfTurnEnd: effect.selfTurnEnd === true,
+            description,
           };
         } else if (effect.targetType === "enemy-all") {
           // 녹표 — Combat 참가 NPC 전체 자동
@@ -996,6 +1003,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
             targets: targetResults,
             amount: effect.amount,
             selfTurnEnd: effect.selfTurnEnd === true,
+            description,
           };
         }
         return null;
@@ -1017,6 +1025,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
             })),
             amount: effect.amount,
             selfTurnEnd: effect.selfTurnEnd === true,
+            description,
           };
         }
         return null;
@@ -1037,6 +1046,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           amount: effect.amount,
           targetNames,
           selfTurnEnd: effect.selfTurnEnd === true,
+          description,
         };
       }
 
@@ -1054,6 +1064,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           type: "damage-block",
           targetNames,
           selfTurnEnd: effect.selfTurnEnd === true,
+          description,
         };
       }
 
@@ -1074,6 +1085,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           amount: effect.amount,
           cureResults,
           selfTurnEnd: effect.selfTurnEnd === true,
+          description,
         };
       }
 
@@ -1400,8 +1412,21 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       }
     }
 
+    // RollTable 플레이버 텍스트 통합 (G4-γ).
+    if (mainResult?.type === "description-only") {
+      // 효과 없이 텍스트만 (합산 3·4 실패 등) — hasMainResult를 켜서 GM 힌트 대신 텍스트 표시.
+      hasMainResult = true;
+      mainResultText = mainResult.description;
+    } else if (mainResult?.description) {
+      // 효과 결과 *앞*에 플레이버 텍스트 (룰북 서사 → 시스템 적용 순서).
+      mainResultText = `<em class="unison-flavor">${mainResult.description}</em><br>${mainResultText}`;
+    }
+
     // 자해 안내 (합산 2) — 효과는 적용, 행동완료는 GM 수동.
+    // RollTable description에 "행동완료" 텍스트가 이미 포함되면 시스템 라인 중복 출력 방지.
     const hasSelfTurnEnd = mainResult?.selfTurnEnd === true;
+    const descIncludesSelfWarn = mainResult?.description?.includes("행동완료") === true;
+    const showSelfTurnEndLine = hasSelfTurnEnd && !descIncludesSelfWarn;
 
     const selfExtra = extraInfo.find((e) => e.actor === selfActor.name);
     const pairExtra = extraInfo.find((e) => e.actor === pairActor.name);
@@ -1450,7 +1475,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       dodgeBlockNote: game.i18n.localize("ASTER.combat.unisonDodgeBlocked"),
       turnEndNote: game.i18n.localize("ASTER.combat.unisonTurnEnd"),
       hasSelfTurnEnd,
-      selfTurnEndLine: hasSelfTurnEnd
+      showSelfTurnEndLine,
+      selfTurnEndLine: showSelfTurnEndLine
         ? game.i18n.format("ASTER.combat.unisonSelfTurnEndLine", {
             self: selfActor.name,
             pair: pairActor.name,

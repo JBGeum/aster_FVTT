@@ -831,7 +831,37 @@ Hooks.once("ready", async function () {
 
   await migrateInventoryFields();
   await migrateSpellTarget();
+  await ensureUnisonTables();
 });
+
+/**
+ * 합체기 4색 RollTable이 world에 없으면 compendium pack에서 import (GM 전용).
+ * 효과는 UNISON_TABLES 코드가 통제 — RollTable은 플레이버 텍스트만 담당.
+ * 이미 있으면 덮어쓰지 않아 GM의 텍스트 수정이 보존된다.
+ */
+async function ensureUnisonTables() {
+  if (!game.user.isGM) return;
+  const pack = game.packs.get("aster.unison-tables");
+  if (!pack) {
+    console.warn("[Aster] Unison tables compendium pack not found.");
+    return;
+  }
+
+  const tableNames = ["Red", "Blue", "Green", "Yellow"].map((c) => `Unison Table - ${c}`);
+  const missing = tableNames.filter((name) => !game.tables.getName(name));
+  if (missing.length === 0) return;
+
+  const packContents = await pack.getDocuments();
+  for (const name of missing) {
+    const source = packContents.find((t) => t.name === name);
+    if (!source) {
+      console.warn(`[Aster] Source RollTable "${name}" not found in compendium.`);
+      continue;
+    }
+    await RollTable.create(source.toObject(), { keepId: false });
+    console.info(`[Aster] Imported unison table: ${name}`);
+  }
+}
 
 /* -------------------------------------------- */
 /*  Combat Hooks                                */

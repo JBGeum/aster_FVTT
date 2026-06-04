@@ -1,0 +1,100 @@
+{
+  "_id": "asterUTGrnTable0",
+  "name": "Unison Table - Green",
+  "img": "icons/svg/dice-target.svg",
+  "description": "합체기 주속성 녹표 (룰북 부록). 합산값에 대응하는 효과 텍스트. 적표 외 색은 효과 요약 임시 텍스트 — 룰북 원문으로 교체 예정.",
+  "formula": "1d12",
+  "replacement": true,
+  "displayRoll": false,
+  "results": [
+    {
+      "_id": "asterUTGrn000002",
+      "type": "text",
+      "description": "기세를 주체하지 못하고 태세가 흐트러진다. 적 1체에게 7점의 대미지를 입힌다.\n합체기를 사용한 PC는 다음 라운드의 이니셔티브에서 행동완료가 된다.",
+      "weight": 1,
+      "range": [2, 2],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTGrn000003",
+      "type": "text",
+      "description": "실패! 두 사람의 호흡이 잘 맞지 않았다…",
+      "weight": 1,
+      "range": [3, 3],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTGrn000004",
+      "type": "text",
+      "description": "실패! 움직이기 시작한 타이밍이 어긋났다.",
+      "weight": 1,
+      "range": [4, 4],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTGrn000005",
+      "type": "text",
+      "description": "적 전체에게 1점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [5, 5],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTGrn000006",
+      "type": "text",
+      "description": "적 전체에게 2점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [6, 6],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTGrn000007",
+      "type": "text",
+      "description": "적 전체에게 2점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [7, 7],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTGrn000008",
+      "type": "text",
+      "description": "적 전체에게 3점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [8, 8],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTGrn000009",
+      "type": "text",
+      "description": "적 전체에게 3점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [9, 9],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTGrn000010",
+      "type": "text",
+      "description": "적 전체에게 4점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [10, 10],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTGrn000011",
+      "type": "text",
+      "description": "적 전체에게 5점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [11, 11],
+      "drawn": false
+    },
+    {
+      "_id": "asterUTGrn000012",
+      "type": "text",
+      "description": "적 전체에게 6점의 대미지를 입힌다.",
+      "weight": 1,
+      "range": [12, 99],
+      "drawn": false
+    }
+  ],
+  "flags": { "aster": { "color": "green" } }
+}

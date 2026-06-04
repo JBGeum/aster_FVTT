@@ -246,7 +246,8 @@
       "unisonHealAndCureText": "각 {amount} 건강 회복 — {targets}",
       "unisonCureSection": "▷ 상태이상 치료",
       "unisonCureLine": "{name}: {keys}",
-      "unisonSelfTurnEndLine": "⚠ {self}와 {pair}는 다음 라운드 행동완료 (자해 효과 — GM 진행)"
+      "unisonSelfTurnEndLine": "⚠ {self}와 {pair}는 다음 라운드 행동완료 (자해 효과 — GM 진행)",
+      "unisonNoDescription": "(룰북 플레이버 텍스트 없음)"
     },
     "dodge": {
       "label": "회피"

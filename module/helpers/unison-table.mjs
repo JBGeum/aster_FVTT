@@ -71,3 +71,41 @@ export function lookupUnisonEffect(color, total) {
   const lookupKey = total >= 12 ? 12 : total;
   return table[lookupKey] ?? null;
 }
+
+/** 색 키 → RollTable name 접미사 (시스템 식별용 영문). */
+const UNISON_TABLE_LABEL = Object.freeze({
+  red: "Red",
+  blue: "Blue",
+  green: "Green",
+  yellow: "Yellow",
+});
+
+/**
+ * 색에 대응하는 world RollTable 조회 (초기화 시 compendium에서 자동 import된 것).
+ *
+ * @param {string} color
+ * @returns {RollTable | null}
+ */
+export function getUnisonTable(color) {
+  const label = UNISON_TABLE_LABEL[color];
+  if (!label) return null;
+  return game.tables?.getName(`Unison Table - ${label}`) ?? null;
+}
+
+/**
+ * 합산값에 대응하는 플레이버 텍스트 조회.
+ * RollTable 없거나 매칭 결과 없으면 빈 문자열 (fallback) — 효과 적용과 무관.
+ * 12+는 RollTable의 range [12, 99]가 처리하므로 정규화 없이 실제 합산값 전달.
+ *
+ * @param {string} color
+ * @param {number} total  실제 다이스 합산값
+ * @returns {string}  플레이버 텍스트 또는 빈 문자열
+ */
+export function getUnisonDescription(color, total) {
+  const table = getUnisonTable(color);
+  if (!table) return "";
+  const results = table.getResultsForRoll(total);
+  if (!results || results.length === 0) return "";
+  // V13: 결과 텍스트는 `description`. `text`는 deprecated getter (V15까지 호환).
+  return results[0].description ?? results[0].text ?? "";
+}

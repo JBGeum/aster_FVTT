@@ -207,4 +207,11 @@
   &.spell-color-yellow {
     border-left: 3px solid #d4a017;
   }
+
+  // ── 합체기 카드: RollTable 플레이버 텍스트는 흐릿하게, 효과 결과는 기본 색 ──────
+  .unison-main-result .unison-flavor {
+    color: var(--color-text-secondary, #888);
+    font-style: italic;
+    font-size: 0.9em;
+  }
 }

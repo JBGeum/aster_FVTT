@@ -16,7 +16,15 @@
   "esmodules": ["module/aster.mjs"],
   "styles": ["aster.css"],
   "scripts": [],
-  "packs": [],
+  "packs": [
+    {
+      "name": "unison-tables",
+      "label": "합체기 주속성 표",
+      "path": "packs/unison-tables",
+      "type": "RollTable",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    }
+  ],
   "documentTypes": {
     "Actor": {
       "character": {},
