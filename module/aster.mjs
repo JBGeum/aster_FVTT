@@ -323,6 +323,34 @@ export async function applyCureStatus(actors, statusKey) {
 }
 
 /**
+ * 건강 회복 — actor 배열의 system.health.value를 amount만큼 증가 (max 클램프).
+ * applyDamageAndStatus와 대칭. D30 3단계 회복 효과.
+ *
+ * @param {Actor[]} actors  대상 액터 배열
+ * @param {number} amount  회복량
+ * @returns {Promise<Array<{actorName: string, before: number, after: number, delta: number}>>}
+ */
+export async function applyHealHealth(actors, amount) {
+  if (amount <= 0) return [];
+  const results = [];
+  for (const actor of actors) {
+    const before = actor.system.health?.value ?? 0;
+    const max = actor.system.health?.max ?? 999;
+    const after = Math.min(max, before + amount);
+    if (after !== before) {
+      await actor.update({ "system.health.value": after });
+    }
+    results.push({
+      actorName: actor.name,
+      before,
+      after,
+      delta: after - before,
+    });
+  }
+  return results;
+}
+
+/**
  * 대미지 다이얼로그 — 대미지 수치 + 상태이상 체크박스. 취소 시 null 반환.
  * applyDamageFromCard / applyDamageFromOpposed 공통 사용.
  *
@@ -395,7 +423,7 @@ async function applyDefendReduction(targetActor, amount) {
  * @param {string[]} statusList
  * @returns {Promise<{hBefore: number, hAfter: number, statusApplied: string[], defendReduced: {roll:number,original:number,adjusted:number}|null}>}
  */
-async function applyDamageAndStatus(targetActor, amount, statusList) {
+export async function applyDamageAndStatus(targetActor, amount, statusList) {
   const hBefore = targetActor.system.health?.value ?? 0;
   let hAfter = hBefore;
 

@@ -6,7 +6,13 @@ import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell
 import { detectCritFumble, computePenalties } from "../helpers/roll-result.mjs";
 import { pickDiceDialog } from "../helpers/dice-select.mjs";
 import { getTargetedTokens } from "../helpers/target-select.mjs";
-import { DAMAGE_STATUSES, applyCureStatus } from "../aster.mjs";
+import {
+  DAMAGE_STATUSES,
+  applyCureStatus,
+  applyDamageAndStatus,
+  applyHealHealth,
+} from "../aster.mjs";
+import { lookupUnisonEffect } from "../helpers/unison-table.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -916,6 +922,9 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     const total = selfFinal + pairFinal;
 
+    // 주속성 효과 자동 적용 — 부속성 다이얼로그 *전*이라 부속성 취소해도 주속성은 적용 보존.
+    const mainResult = await this._applyUnisonMainEffect({ mainColor, total });
+
     await this._applyUnisonSubEffect({
       selfActor,
       pairActor,
@@ -925,11 +934,92 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       pairFinal,
       total,
       extraInfo,
+      mainResult,
     });
 
     // 양쪽 unisonReady 해제 — 부속성 다이얼로그 취소와 무관하게 합체기 사용은 완료.
     await selfCombatant.setFlag("aster", "unisonReady", false);
     await pairCombatant.setFlag("aster", "unisonReady", false);
+  }
+
+  /**
+   * 주속성 표 효과 자동 적용.
+   * lookup 결과 null이면 자동 적용 안 함 (GM 수동 처리 — 카드에 안내).
+   *
+   * @returns {Promise<object|null>}  적용 결과 (mainResult) 또는 null (자동 처리 안 함)
+   */
+  async _applyUnisonMainEffect({ mainColor, total }) {
+    const effect = lookupUnisonEffect(mainColor, total);
+    if (!effect) return null;
+
+    switch (effect.type) {
+      case "damage": {
+        if (effect.targetType === "enemy-single") {
+          // 적표 — 캔버스 타겟 1체 필수
+          const targets = getTargetedTokens({
+            required: true,
+            max: 1,
+            allowedTypes: "npc",
+          });
+          if (!targets) return null; // 검증 실패 — 자동 적용 건너뜀
+          const target = targets[0].actor;
+          const { hBefore, hAfter } = await applyDamageAndStatus(target, effect.amount, []);
+          return {
+            type: "damage",
+            targetType: "enemy-single",
+            targets: [
+              { name: target.name, before: hBefore, after: hAfter, delta: hAfter - hBefore },
+            ],
+            amount: effect.amount,
+          };
+        } else if (effect.targetType === "enemy-all") {
+          // 녹표 — Combat 참가 NPC 전체 자동
+          const combat = game.combat;
+          if (!combat) return null;
+          const npcs = combat.combatants.filter((c) => c.actor?.type === "npc").map((c) => c.actor);
+          if (npcs.length === 0) return null;
+          const targetResults = [];
+          for (const npc of npcs) {
+            const { hBefore, hAfter } = await applyDamageAndStatus(npc, effect.amount, []);
+            targetResults.push({
+              name: npc.name,
+              before: hBefore,
+              after: hAfter,
+              delta: hAfter - hBefore,
+            });
+          }
+          return {
+            type: "damage",
+            targetType: "enemy-all",
+            targets: targetResults,
+            amount: effect.amount,
+          };
+        }
+        return null;
+      }
+      case "heal": {
+        if (effect.targetType === "ally-all") {
+          // 청표 — 게임 PC 전체 자동
+          const allyPCs = game.actors.filter((a) => a.type === "character");
+          const results = await applyHealHealth(allyPCs, effect.amount);
+          return {
+            type: "heal",
+            targetType: "ally-all",
+            // applyHealHealth는 actorName 반환 — 카드 렌더링(t.name)과 데미지 결과 형식에 맞춰 정규화.
+            targets: results.map((r) => ({
+              name: r.actorName,
+              before: r.before,
+              after: r.after,
+              delta: r.delta,
+            })),
+            amount: effect.amount,
+          };
+        }
+        return null;
+      }
+      default:
+        return null;
+    }
   }
 
   /**
@@ -944,6 +1034,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     pairFinal,
     total,
     extraInfo,
+    mainResult,
   }) {
     let subResult = null;
     switch (subColor) {
@@ -972,6 +1063,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       pairFinal,
       total,
       extraInfo,
+      mainResult,
       subResult,
     });
   }
@@ -1107,6 +1199,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     pairFinal,
     total,
     extraInfo,
+    mainResult,
     subResult,
   }) {
     const colorLabel = (k) => game.i18n.localize(`ASTER.aster.${k}`);
@@ -1151,6 +1244,51 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       }
     }
 
+    // 주속성 결과 텍스트 생성 — mainResult null이면 GM 안내(mainTableHint)로 양자택일.
+    let mainResultText = "";
+    let hasMainResult = false;
+    if (mainResult) {
+      hasMainResult = true;
+      switch (mainResult.type) {
+        case "damage": {
+          const targetLines = mainResult.targets
+            .map((t) =>
+              game.i18n.format("ASTER.combat.unisonDamageLine", {
+                name: t.name,
+                before: t.before,
+                after: t.after,
+                delta: t.delta,
+              }),
+            )
+            .join("<br>");
+          mainResultText = game.i18n.format("ASTER.combat.unisonMainDamageText", {
+            amount: mainResult.amount,
+            targets: targetLines,
+          });
+          break;
+        }
+        case "heal": {
+          const targetLines = mainResult.targets
+            .map((t) =>
+              t.delta > 0
+                ? game.i18n.format("ASTER.combat.unisonHealLine", {
+                    name: t.name,
+                    before: t.before,
+                    after: t.after,
+                    delta: t.delta,
+                  })
+                : game.i18n.format("ASTER.combat.unisonHealAlreadyMax", { name: t.name }),
+            )
+            .join("<br>");
+          mainResultText = game.i18n.format("ASTER.combat.unisonMainHealText", {
+            amount: mainResult.amount,
+            targets: targetLines,
+          });
+          break;
+        }
+      }
+    }
+
     const selfExtra = extraInfo.find((e) => e.actor === selfActor.name);
     const pairExtra = extraInfo.find((e) => e.actor === pairActor.name);
 
@@ -1178,10 +1316,18 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       pairOriginal: pairExtra?.original,
       pairExtraDice: pairExtra?.extra,
       totalLabel: game.i18n.localize("ASTER.combat.unisonTotalLabel"),
-      mainTableHint: game.i18n.format("ASTER.combat.unisonMainTableHint", {
+      // 자동 적용 완료 시 GM 안내 숨김 — hasMainResult ↔ mainTableHint 양자택일.
+      mainTableHint: hasMainResult
+        ? null
+        : game.i18n.format("ASTER.combat.unisonMainTableHint", {
+            color: colorLabel(mainColor),
+            total,
+          }),
+      hasMainResult,
+      mainEffectLabel: game.i18n.format("ASTER.combat.unisonMainEffectLabel", {
         color: colorLabel(mainColor),
-        total,
       }),
+      mainResultText,
       subResult,
       subEffectLabel: game.i18n.format("ASTER.combat.unisonSubEffectLabel", {
         color: colorLabel(subColor),

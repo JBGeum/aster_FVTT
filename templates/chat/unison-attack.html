@@ -28,9 +28,14 @@
       <div class="total-line">{{totalLabel}}: <strong>{{total}}</strong></div>
     </div>
 
+    {{#if hasMainResult}}
+    <div class="unison-main-result">
+      <div class="main-label">{{mainEffectLabel}}</div>
+      <div class="main-text">{{{mainResultText}}}</div>
+    </div>
+    {{else}}
     <div class="unison-main-table-hint">{{mainTableHint}}</div>
-
-    {{#if subResult}}
+    {{/if}} {{#if subResult}}
     <div class="unison-sub-result">
       <div class="sub-label">{{subEffectLabel}}</div>
       <div class="sub-text">{{{subResultText}}}</div>
