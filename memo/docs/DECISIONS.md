@@ -721,6 +721,30 @@ D&D 5e 시스템의 스펠 시트는 시전시간·범위·지속시간·컴포�
 
 ---
 
+## D37. G4-γ RollTable 통합 — 플레이버 텍스트 자동 출력
+
+**결정:** 합체기 4색 표의 description을 Foundry RollTable로 데이터화. compendium pack 배포 + 초기화 시 자동 import. 초기화는 `Hooks.once("ready")`에서 GM 첫 접속 시 자동 처리. 합산값에 대응하는 description은 `getUnisonDescription(color, total)` 헬퍼로 조회. 효과 적용은 `UNISON_TABLES` 코드(G4-α/β)가 통제 — RollTable과 효과는 *분리*. JSON 소스를 LevelDB로 변환하는 빌드 단계(`foundryvtt-cli`)를 신설. G4-γ 완료로 D30 정책 80~90% 도달점.
+
+**배경:** G4-α/β까지 효과 자동화는 완성. 룰북 표의 *플레이버 텍스트*("기세를 주체하지 못하고...", "회심의 일격!" 등)는 빠져 있어 카드가 *건조*. RollTable이 *정확히 이 케이스*를 위한 Foundry 기능. 도입 시 G4-γ가 원래 *플레이버 i18n*(40개 키)이었던 영역을 흡수.
+
+**대안:**
+- 옵션 A: RollTable flags에 효과 메타데이터 — 단일 소스. 단 *데이터 형태가 시스템 specific*, D&D 모델에 가까워 D30 정책 재평가 필요.
+- 옵션 B: RollTable 결과에 Macro reference — Foundry 표준, GM 자유도 큼. 단 D30 정책의 *과한 자동화* 영역, macro 관리 부담.
+- 옵션 가: 임베디드 데이터(JS 상수)로 world RollTable 생성 — compendium·빌드 도구 불필요. 단 GM이 보는 *compendium 자산*이 없고, 향후 다국어 pack 분리 시 재작업.
+- 옵션 i: 안내만 (fallback 없음) — RollTable 미존재 시 흐름 깨짐.
+
+**선택 이유:** 옵션 C(텍스트만 RollTable, 효과는 코드)는 (1) D30 정책의 *명확한 정지점*과 정합 — 자동화는 코드가, 표현은 데이터가, (2) GM이 *텍스트 수정*해도 효과는 그대로, (3) 향후 다국어 확장 시 RollTable JSON pack 언어별 분리만.
+
+compendium pack 배포(옵션 ii+iii)는 Foundry 표준 + 안전 — GM 첫 접속 시 자동 import, 그래도 없으면 빈 description으로 흐름 보존. 임베디드 데이터(옵션 가)보다 인프라(빌드 도구·`_key` 주입) 비용이 있으나, *GM이 보고 편집하는 compendium 자산*과 *언어별 pack 분리 경로*를 얻음.
+
+`description-only` type 신규로 *효과는 없지만 텍스트만* 케이스(합산 3·4 실패) 처리. 합산 2 자해는 description에 룰북 원문("행동완료가 된다" 포함)을 담고, 시스템 selfTurnEnd 라인은 *키워드 매칭*으로 중복 시 숨김 — 룰북 텍스트가 *권위 있는 표현*, 시스템은 보조.
+
+JSON 소스는 `_key` 없이 깔끔하게 작성하고 빌드 스크립트가 Foundry 키 규칙(`!tables!id`, `!tables.results!id.eid`)으로 주입 — 44개 임베디드 result의 키를 수작업 관리하지 않음. 적표만 룰북 원문, 청·녹·황은 효과 요약 임시 텍스트(추후 원문 교체).
+
+> D30 정책의 80~90% 도달점. 1~3단계 모두 완성, 디자인 트랙(H) 진입 자격. RollTable과 코드의 *역할 분리*가 D11(관심사 분리)의 추상 수준 상승 — *데이터 vs 로직* 분리를 시스템 외부 자원까지 확장.
+
+---
+
 ## 부록: 결정의 커리어적 의미
 
 이 일지는 단순 기록이 아니라 **설계 사고의 증거**다. 각 결정은 "특정 프레임워크 지식"이 아니라 "프레임워크가 바뀌어도 통하는 원칙"을 보여준다.
