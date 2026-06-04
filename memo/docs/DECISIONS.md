@@ -695,6 +695,32 @@ D&D 5e 시스템의 스펠 시트는 시전시간·범위·지속시간·컴포�
 
 ---
 
+## D36. G4-β 황표 + 12+ 특수 + 자해 안내 — D30 3단계 완성
+
+**결정:** UNISON_TABLES에 황표 + 12+ 특수 + 합산 2 자해 추가. 황표 5~11은 Combatant flag `damageReduction`(N), 12+는 `damageBlocked`(boolean). 두 flag는 `_startRound`에서 일괄 해제(1라운드 만료). `applyDamageAndStatus`에 황표 차감 분기 추가(방어 차감 후). 청표 12+는 `applyCureAllStatus` 신규 헬퍼로 5개 상태이상 일괄. 합산 2는 `selfTurnEnd: true` 메타데이터로 효과는 적용·자해는 안내만(D12). G4-β로 D30 3단계 완성.
+
+**배경:** G4-α(D35)에서 적·청·녹 표 5~11(80%) 자동화. 남은 20%(황표, 12+, 합산 2)는 *특수 케이스*라 별도 처리 분기 필요. D30 3단계(회복 효과)의 마지막 영역.
+
+**대안:**
+- 옵션 B: 황표를 Active Effect로 — *대미지 감소*는 AE changes로 표현 어려움, 결국 applyDamageAndStatus에 분기 필요
+- 옵션 나: damageBlocked 대신 damageReduction에 큰 값(999) — 룰적 차이(감소 vs 무효) 명확성 손실
+- 옵션 i: applyCureStatus 5번 호출 — 5개 hook 발화, 단일 트랜잭션 깨짐
+- 자해 자동 처리(시전자 다음 라운드 행동완료 자동) — combatTurn hook 중복 위험, D12 자동화 경계 위반
+
+**선택 이유:** Combatant flag(옵션 A) 구조는 D31 패턴(`defendActive`, `chargeNextRound`)과 일관 — *1라운드 만료는 _startRound가 일괄 처리*하는 패턴. damageBlocked boolean과 damageReduction number를 분리(옵션 가)하면 *룰적 의미*(감소 vs 무효)가 코드에 명시. 향후 *비슷한 효과 추가*(예: 마법의 1라운드 방어막) 시 같은 구조 재사용 가능.
+
+`applyCureAllStatus`(옵션 ii)는 단일 트랜잭션 — 5개 update를 한 번에 묶어 D16 AE 동기 hook이 *한 번만* 발화. 성능 + 사용자 경험(시트 깜빡임 감소). `applyCureStatus`와 *공존* — 단일/일괄 두 진입점이 호출자 의도에 맞게 선택.
+
+`selfTurnEnd` 메타데이터(옵션 X)는 D30 정책의 *명확한 정지점* — 행동완료는 시스템이 자동 처리하지 않고 GM 판단으로 명시 분리. 합산 2 케이스가 *룰적으로 합체기 발동 후 시전자에게 손해*인 결과라 PL이 위험 인지하고 의도적 선택. 시스템 강제는 *PL 의도와 충돌* 가능.
+
+황표 대상이 Combat 참가 PC (청표의 `ally-all` = game.actors PC와 다름) — 룰북 "아군"의 *전투 참가자* 해석. 청표는 *광역 회복*이라 시나리오 PC 전체. 황표는 *수신 대미지 차감*이라 전투에 있어야 의미. 룰북 모호 영역에서 *맥락별 해석*.
+
+> D30 3단계 완성점. 회복 효과의 세 진입점(`applyCureStatus`, `applyHealHealth`, `applyCureAllStatus`)이 시스템 자산으로 누적. 향후 consumable·다른 회복 메커니즘에서 *모두 재사용 가능*. D11(관심사 분리) 누적 효과.
+>
+> 다음은 G4-γ(RollTable 통합)로 플레이버 텍스트 자동 출력 → D30 80~90% 도달점.
+
+---
+
 ## 부록: 결정의 커리어적 의미
 
 이 일지는 단순 기록이 아니라 **설계 사고의 증거**다. 각 결정은 "특정 프레임워크 지식"이 아니라 "프레임워크가 바뀌어도 통하는 원칙"을 보여준다.
