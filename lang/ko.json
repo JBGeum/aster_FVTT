@@ -240,7 +240,13 @@
       "unisonAppliedYes": "적용됨",
       "unisonAppliedNo": "이미 상태였음 — 변화 없음",
       "unisonDodgeBlocked": "⚠ 합체기 대상이 된 적은 회피 불가 — 수동 처리",
-      "unisonTurnEnd": "두 PC 모두 행동완료 — GM 진행"
+      "unisonTurnEnd": "두 PC 모두 행동완료 — GM 진행",
+      "unisonYellowReductionText": "이 라운드 동안 아군이 받는 대미지 -{amount} — {targets}",
+      "unisonYellowBlockText": "이 라운드 동안 아군이 받는 모든 대미지 무효 — {targets}",
+      "unisonHealAndCureText": "각 {amount} 건강 회복 — {targets}",
+      "unisonCureSection": "▷ 상태이상 치료",
+      "unisonCureLine": "{name}: {keys}",
+      "unisonSelfTurnEndLine": "⚠ {self}와 {pair}는 다음 라운드 행동완료 (자해 효과 — GM 진행)"
     },
     "dodge": {
       "label": "회피"
@@ -253,6 +259,8 @@
       "amount": "대미지 수치",
       "inflictLegend": "부여할 상태이상 (다중 선택 가능)",
       "defendLine": "방어 차감: {original} - {roll}(1d6) = {adjusted}",
+      "yellowReductionLine": "황표 차감: {original} - {reduction} = {adjusted}",
+      "yellowBlockLine": "황표 무효: {original} → 0",
       "healthLine": "건강 {before} → {after} ({delta})",
       "statusLine": "상태이상 부여: {names}",
       "healthZero": "⚠ 건강 0 — 행동불능",

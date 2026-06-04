@@ -9,6 +9,7 @@ import { getTargetedTokens } from "../helpers/target-select.mjs";
 import {
   DAMAGE_STATUSES,
   applyCureStatus,
+  applyCureAllStatus,
   applyDamageAndStatus,
   applyHealHealth,
 } from "../aster.mjs";
@@ -971,6 +972,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
               { name: target.name, before: hBefore, after: hAfter, delta: hAfter - hBefore },
             ],
             amount: effect.amount,
+            selfTurnEnd: effect.selfTurnEnd === true,
           };
         } else if (effect.targetType === "enemy-all") {
           // 녹표 — Combat 참가 NPC 전체 자동
@@ -993,6 +995,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
             targetType: "enemy-all",
             targets: targetResults,
             amount: effect.amount,
+            selfTurnEnd: effect.selfTurnEnd === true,
           };
         }
         return null;
@@ -1013,10 +1016,67 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
               delta: r.delta,
             })),
             amount: effect.amount,
+            selfTurnEnd: effect.selfTurnEnd === true,
           };
         }
         return null;
       }
+
+      // 황표 5~11 — Combat 참가 PC 전체에 1라운드 수신 대미지 감소 (G4-β)
+      case "damage-reduction": {
+        const partyCombatants =
+          game.combat?.combatants.filter((c) => c.actor?.type === "character") ?? [];
+        const targetNames = [];
+        for (const c of partyCombatants) {
+          await c.setFlag("aster", "damageReduction", effect.amount);
+          await c.setFlag("aster", "damageBlocked", false); // 중복 부착 시 무효 해제
+          targetNames.push(c.actor.name);
+        }
+        return {
+          type: "damage-reduction",
+          amount: effect.amount,
+          targetNames,
+          selfTurnEnd: effect.selfTurnEnd === true,
+        };
+      }
+
+      // 황표 12+ — Combat 참가 PC 전체에 1라운드 대미지 무효 (G4-β)
+      case "damage-block": {
+        const partyCombatants =
+          game.combat?.combatants.filter((c) => c.actor?.type === "character") ?? [];
+        const targetNames = [];
+        for (const c of partyCombatants) {
+          await c.setFlag("aster", "damageBlocked", true);
+          await c.setFlag("aster", "damageReduction", 0); // 무효가 감소 덮어쓰기
+          targetNames.push(c.actor.name);
+        }
+        return {
+          type: "damage-block",
+          targetNames,
+          selfTurnEnd: effect.selfTurnEnd === true,
+        };
+      }
+
+      // 청표 12+ — 게임 PC 전체 회복 + 상태이상 전부 치료 (G4-β)
+      case "heal-and-cure-all": {
+        const allyPCs = game.actors.filter((a) => a.type === "character");
+        const healResults = await applyHealHealth(allyPCs, effect.amount);
+        const cureResults = await applyCureAllStatus(allyPCs);
+        return {
+          type: "heal-and-cure-all",
+          targetType: "ally-all",
+          targets: healResults.map((r) => ({
+            name: r.actorName,
+            before: r.before,
+            after: r.after,
+            delta: r.delta,
+          })),
+          amount: effect.amount,
+          cureResults,
+          selfTurnEnd: effect.selfTurnEnd === true,
+        };
+      }
+
       default:
         return null;
     }
@@ -1286,8 +1346,62 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           });
           break;
         }
+
+        // 황표 5~11 — 수신 대미지 감소
+        case "damage-reduction": {
+          mainResultText = game.i18n.format("ASTER.combat.unisonYellowReductionText", {
+            amount: mainResult.amount,
+            targets: mainResult.targetNames.join(", "),
+          });
+          break;
+        }
+
+        // 황표 12+ — 대미지 무효
+        case "damage-block": {
+          mainResultText = game.i18n.format("ASTER.combat.unisonYellowBlockText", {
+            targets: mainResult.targetNames.join(", "),
+          });
+          break;
+        }
+
+        // 청표 12+ — 회복 + 상태이상 전부 치료
+        case "heal-and-cure-all": {
+          const healLines = mainResult.targets
+            .map((t) =>
+              t.delta > 0
+                ? game.i18n.format("ASTER.combat.unisonHealLine", {
+                    name: t.name,
+                    before: t.before,
+                    after: t.after,
+                    delta: t.delta,
+                  })
+                : game.i18n.format("ASTER.combat.unisonHealAlreadyMax", { name: t.name }),
+            )
+            .join("<br>");
+          const cureLines = mainResult.cureResults
+            .filter((r) => r.curedKeys.length > 0)
+            .map((r) =>
+              game.i18n.format("ASTER.combat.unisonCureLine", {
+                name: r.actorName,
+                keys: r.curedKeys.map((k) => badstatusLabel(k)).join(", "),
+              }),
+            )
+            .join("<br>");
+          const cureSection = cureLines
+            ? `<br>${game.i18n.localize("ASTER.combat.unisonCureSection")}<br>${cureLines}`
+            : "";
+          mainResultText =
+            game.i18n.format("ASTER.combat.unisonHealAndCureText", {
+              amount: mainResult.amount,
+              targets: healLines,
+            }) + cureSection;
+          break;
+        }
       }
     }
+
+    // 자해 안내 (합산 2) — 효과는 적용, 행동완료는 GM 수동.
+    const hasSelfTurnEnd = mainResult?.selfTurnEnd === true;
 
     const selfExtra = extraInfo.find((e) => e.actor === selfActor.name);
     const pairExtra = extraInfo.find((e) => e.actor === pairActor.name);
@@ -1335,6 +1449,13 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       subResultText,
       dodgeBlockNote: game.i18n.localize("ASTER.combat.unisonDodgeBlocked"),
       turnEndNote: game.i18n.localize("ASTER.combat.unisonTurnEnd"),
+      hasSelfTurnEnd,
+      selfTurnEndLine: hasSelfTurnEnd
+        ? game.i18n.format("ASTER.combat.unisonSelfTurnEndLine", {
+            self: selfActor.name,
+            pair: pairActor.name,
+          })
+        : null,
     };
 
     const content = await foundry.applications.handlebars.renderTemplate(

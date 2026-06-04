@@ -323,6 +323,34 @@ export async function applyCureStatus(actors, statusKey) {
 }
 
 /**
+ * 5가지 상태이상 모두 회복 — 청표 12+의 일괄 처리.
+ * applyCureStatus를 각 상태이상 키로 호출하지 않고 *단일 update*로 일괄 처리 (성능 + 단일 트랜잭션).
+ * false→true 변화 없는 키는 update 객체에 포함 안 됨 (변화 없으면 무 hook).
+ *
+ * @param {Actor[]} actors  대상 액터 배열
+ * @returns {Promise<Array<{actorName: string, curedKeys: string[]}>>}
+ */
+export async function applyCureAllStatus(actors) {
+  const results = [];
+  for (const actor of actors) {
+    const curedKeys = [];
+    const update = {};
+    for (const def of DAMAGE_STATUSES) {
+      const current = actor.system.badstatus?.[def.key] ?? false;
+      if (current) {
+        update[`system.badstatus.${def.key}`] = false;
+        curedKeys.push(def.key);
+      }
+    }
+    if (Object.keys(update).length > 0) {
+      await actor.update(update);
+    }
+    results.push({ actorName: actor.name, curedKeys });
+  }
+  return results;
+}
+
+/**
  * 건강 회복 — actor 배열의 system.health.value를 amount만큼 증가 (max 클램프).
  * applyDamageAndStatus와 대칭. D30 3단계 회복 효과.
  *
@@ -415,13 +443,46 @@ async function applyDefendReduction(targetActor, amount) {
 }
 
 /**
+ * 황표 수신 감소·무효 처리 (합체기 황표 G4-β).
+ * Combatant flag damageReduction(N) 또는 damageBlocked(true) 확인.
+ * 방어(`defendActive`, 한 번 소비)와 달리 *1라운드 동안 모든 대미지에 적용* — flag 유지.
+ * `_startRound`에서 라운드 시작 시 일괄 해제.
+ * - damageBlocked(12+): amount = 0 (완전 무효, 무효 우선).
+ * - damageReduction(5~11): amount -= N.
+ *
+ * @param {Actor} targetActor
+ * @param {number} amount
+ * @returns {Promise<{type: "block"|"reduction", original: number, reduction?: number, adjusted: number} | null>}
+ */
+async function applyYellowReduction(targetActor, amount) {
+  const combat = game.combat;
+  if (!combat) return null;
+  const combatant = combat.combatants.find((c) => c.actor?.id === targetActor.id);
+  if (!combatant) return null;
+
+  // 무효(12+) 우선 — boolean flag
+  if (combatant.getFlag("aster", "damageBlocked") === true) {
+    return { type: "block", original: amount, adjusted: 0 };
+  }
+
+  // 감소(5~11) — number flag
+  const reduction = combatant.getFlag("aster", "damageReduction") ?? 0;
+  if (reduction > 0) {
+    const adjusted = Math.max(0, amount - reduction);
+    return { type: "reduction", original: amount, reduction, adjusted };
+  }
+
+  return null;
+}
+
+/**
  * 건강 차감 + 상태이상 부여. 상태이상은 false→true만 (D16 AE 자동 동기).
  * amount > 0이면 방어 차감(`defendActive`) 자동 적용 — 상태이상만 부여 시 방어 미소비(룰 정합).
  *
  * @param {Actor} targetActor
  * @param {number} amount
  * @param {string[]} statusList
- * @returns {Promise<{hBefore: number, hAfter: number, statusApplied: string[], defendReduced: {roll:number,original:number,adjusted:number}|null}>}
+ * @returns {Promise<{hBefore: number, hAfter: number, statusApplied: string[], defendReduced: {roll:number,original:number,adjusted:number}|null, yellowReduction: {type:"block"|"reduction",original:number,reduction?:number,adjusted:number}|null}>}
  */
 export async function applyDamageAndStatus(targetActor, amount, statusList) {
   const hBefore = targetActor.system.health?.value ?? 0;
@@ -431,6 +492,13 @@ export async function applyDamageAndStatus(targetActor, amount, statusList) {
   if (amount > 0) {
     defendReduced = await applyDefendReduction(targetActor, amount);
     if (defendReduced) amount = defendReduced.adjusted;
+  }
+
+  // 황표 수신 감소·무효 (G4-β) — 방어 차감 *후* 적용.
+  let yellowReduction = null;
+  if (amount > 0) {
+    yellowReduction = await applyYellowReduction(targetActor, amount);
+    if (yellowReduction) amount = yellowReduction.adjusted;
   }
 
   if (amount > 0 && hBefore > 0) {
@@ -448,21 +516,21 @@ export async function applyDamageAndStatus(targetActor, amount, statusList) {
   }
   if (Object.keys(statusUpdate).length > 0) await targetActor.update(statusUpdate);
 
-  return { hBefore, hAfter, statusApplied, defendReduced };
+  return { hBefore, hAfter, statusApplied, defendReduced, yellowReduction };
 }
 
 /**
  * 대미지 적용 결과 카드 렌더링. applyDamageFromCard / applyDamageFromOpposed 공통 사용.
  *
  * @param {Actor} targetActor
- * @param {{amount: number, hBefore: number, hAfter: number, statusApplied: string[], defendReduced: {roll:number,original:number,adjusted:number}|null}} info
+ * @param {{amount: number, hBefore: number, hAfter: number, statusApplied: string[], defendReduced: {roll:number,original:number,adjusted:number}|null, yellowReduction?: {type:"block"|"reduction",original:number,reduction?:number,adjusted:number}|null}} info
  */
 async function renderDamageResultCard(
   targetActor,
-  { amount, hBefore, hAfter, statusApplied, defendReduced },
+  { amount, hBefore, hAfter, statusApplied, defendReduced, yellowReduction },
 ) {
   const lines = [];
-  // 방어 차감은 건강 라인보다 앞 — 룰적 시점 순서(차감 → 건강 적용).
+  // 방어 차감은 건강 라인보다 앞 — 룰적 시점 순서(차감 → 황표 차감 → 건강 적용).
   if (defendReduced) {
     lines.push(
       game.i18n.format("ASTER.damage.defendLine", {
@@ -471,6 +539,24 @@ async function renderDamageResultCard(
         adjusted: defendReduced.adjusted,
       }),
     );
+  }
+  // 황표 차감·무효 — 방어 차감 뒤, 건강 라인 앞.
+  if (yellowReduction) {
+    if (yellowReduction.type === "block") {
+      lines.push(
+        game.i18n.format("ASTER.damage.yellowBlockLine", {
+          original: yellowReduction.original,
+        }),
+      );
+    } else {
+      lines.push(
+        game.i18n.format("ASTER.damage.yellowReductionLine", {
+          original: yellowReduction.original,
+          reduction: yellowReduction.reduction,
+          adjusted: yellowReduction.adjusted,
+        }),
+      );
+    }
   }
   if (amount > 0) {
     lines.push(
@@ -545,11 +631,8 @@ async function applyDamageFromCard(message) {
   const result = await promptDamageDialog(targetActor, data.defaultDamage ?? 0);
   if (result === null) return; // 취소
 
-  const { hBefore, hAfter, statusApplied, defendReduced } = await applyDamageAndStatus(
-    targetActor,
-    result.amount,
-    result.status,
-  );
+  const { hBefore, hAfter, statusApplied, defendReduced, yellowReduction } =
+    await applyDamageAndStatus(targetActor, result.amount, result.status);
 
   // flag 갱신 — 중복 적용 방지
   const flagKey = combatAction ? "combatAction" : "spellCast";
@@ -561,6 +644,7 @@ async function applyDamageFromCard(message) {
     hAfter,
     statusApplied,
     defendReduced,
+    yellowReduction,
   });
 }
 
@@ -595,11 +679,8 @@ async function applyDamageFromOpposed(message) {
   const result = await promptDamageDialog(targetActor, 0);
   if (result === null) return; // 취소
 
-  const { hBefore, hAfter, statusApplied, defendReduced } = await applyDamageAndStatus(
-    targetActor,
-    result.amount,
-    result.status,
-  );
+  const { hBefore, hAfter, statusApplied, defendReduced, yellowReduction } =
+    await applyDamageAndStatus(targetActor, result.amount, result.status);
 
   // 중복 적용 방지
   await message.setFlag("aster", "opposedDamage", { ...data, damageApplied: true });
@@ -610,6 +691,7 @@ async function applyDamageFromOpposed(message) {
     hAfter,
     statusApplied,
     defendReduced,
+    yellowReduction,
   });
 }
 

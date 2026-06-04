@@ -32,6 +32,9 @@
     <div class="unison-main-result">
       <div class="main-label">{{mainEffectLabel}}</div>
       <div class="main-text">{{{mainResultText}}}</div>
+      {{#if hasSelfTurnEnd}}
+      <div class="self-turn-end-line warn">{{selfTurnEndLine}}</div>
+      {{/if}}
     </div>
     {{else}}
     <div class="unison-main-table-hint">{{mainTableHint}}</div>

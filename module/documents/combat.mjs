@@ -97,6 +97,15 @@ export class AsterCombat extends Combat {
 
       await c.setFlag("aster", "actionPoint", ap);
       await c.setFlag("aster", "actionsThisRound", {});
+
+      // 황표 flag 해제 (G4-β) — 1라운드 동안 적용 후 라운드 시작 시 만료.
+      if (c.getFlag("aster", "damageReduction") > 0) {
+        await c.setFlag("aster", "damageReduction", 0);
+      }
+      if (c.getFlag("aster", "damageBlocked") === true) {
+        await c.setFlag("aster", "damageBlocked", false);
+      }
+
       apResults.push({ name: c.actor.name, ap, base: baseRoll.total, chargeBonus });
     }
 
