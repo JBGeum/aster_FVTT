@@ -6,10 +6,14 @@
       </div>
       <div class="item-detail">
         <div class="detail-lbl">재료</div>
-        <div class="detail-input flexrow align-center">
-          {{#each system.material}}
-          <input type="number" name="system.material" value="{{this}}" />
-          {{/each}}
+        <div class="detail-input material-grid flexrow align-center">
+          {{> "systems/aster/templates/item/parts/material-fields.html"}}
+        </div>
+        <div class="detail-lbl">{{localize "ASTER.consumable.timingLabel"}}</div>
+        <div class="detail-input">
+          <select name="system.timing">
+            {{selectOptions config.itemTiming selected=system.timing blank="" localize=true}}
+          </select>
         </div>
         <div class="detail-lbl">효과</div>
         <div class="detail-input">

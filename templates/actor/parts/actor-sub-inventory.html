@@ -113,6 +113,9 @@
           title="{{localize 'ASTER.inventory.toChat'}}"
           >{{it.name}}</span
         >
+        {{#if it.summary}}
+        <span class="inv-list-summary">{{it.summary}}</span>
+        {{/if}}
         <span class="inv-list-badge loc-{{it.location}}">{{it.locationLabel}}</span>
         {{#if it.canUse}}
         <button

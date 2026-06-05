@@ -811,6 +811,29 @@ JSON 소스는 `_key` 없이 깔끔하게 작성하고 빌드 스크립트가 Fo
 
 ---
 
+## D41. I1a 시트 UI 점검 — 룰북 자료 기반 갱신 (equipment·type은 I1c로 분리)
+
+**결정:** 아이템 시트 UI를 룰북 자료(아스테르 데이터.xlsx)·데이터 모델과 3자 대조 후 갱신. (1) **material[6] 라벨** — 코드에 인덱스 의미가 없던 6칸을 `[마테리얼, 적, 청, 녹, 황, 백]`(asterColors 순서)로 명시, 공용 partial `material-fields.html`로 spell/consumable/bag/food 일괄 적용. (2) **spell 시트** — 누락된 `ruby`(술식명)·`message.critical/fumble`·material 입력 추가. (3) **consumable timing 드롭다운** — xlsx 타이밍 어휘(셋업·이니셔티브·순간·언제라도·클린업·조건·효과참조·탐색중·전투중)를 `CONFIG.ASTER.itemTiming`으로 정의, spell 색 드롭다운과 동일한 `selectOptions` 패턴. (4) **인벤토리 리스트 요약** — consumable 회복 요약·equipment 효과를 행에 한 줄 표시. 데이터 모델 자체는 변경 없음.
+
+**배경:** R·F 트랙 완료 후 실제 데이터 사용 패턴 기반 점검. 데이터 모델은 룰북 자료 구조에 이미 적합하나 *시트 UI*가 표현을 충분히 지원하지 못함(material 무라벨, spell ruby/message 입력 부재, timing 미표시).
+
+**실측·범위 정정:**
+
+- **equipment 시트 부재 확정**: `item-equipment-sheet.html`이 없고 Foundry 기본 보일러플레이트(`item-sheet.html` — 이름+설명+빈 탭)로 대체 중. 실질 시트 신설이 필요하나, *장비란 표시(I1c)*와 묶는 게 자연스러워 **equipment 시트 + type 드롭다운은 I1c로 분리**(사용자 확정). I1a는 나머지 4종만.
+- **material 6번째 슬롯**: xlsx는 spell 비용을 "자속성"으로 표기하나, 시스템 점수 체계(asterColors)는 백(white)이 5번째 색이라 **백**으로 라벨(사용자 확정). 인덱스 의미가 시스템에 명시화된 첫 사례.
+- **timing 값**: 명세 추정(전투중/탐색중/상시/사용시)보다 xlsx 실데이터가 풍부 — 전투 라운드 타이밍 어휘 전체 채택.
+- spell effect/description은 plain textarea 유지(rich editor 통일은 H 트랙 시각 정리에서).
+
+**대안:**
+- 옵션 B (시스템 메커니즘 확장 포함): 분량 폭발 + D30 정책 충돌 — 미채택
+- 옵션 ㄱ (시트별 별도 STEP): 결정 일지 다수 추가·작업 부담 — 공통 패턴이라 한 번에 처리
+
+**선택 이유:** 공용 partial은 material 셀 마크업 중복(4시트 동일)을 한 곳으로 — D11(관심사 분리)의 UI 회수. timing/색 드롭다운은 기존 `selectOptions` 자산 재사용. material 라벨 명시화로 향후 craft 트랙에서 인덱스를 기호적으로 참조 가능.
+
+> I1a는 순수 UI 정리. food 제약(I1b)·equipment 시트+장비란(I1c)은 기능 영역으로 별도. H 트랙(시각 통일) 진입 전 *기능 우선* 정리.
+
+---
+
 ## 부록: 결정의 커리어적 의미
 
 이 일지는 단순 기록이 아니라 **설계 사고의 증거**다. 각 결정은 "특정 프레임워크 지식"이 아니라 "프레임워크가 바뀌어도 통하는 원칙"을 보여준다.

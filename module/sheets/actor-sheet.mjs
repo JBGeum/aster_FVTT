@@ -233,6 +233,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           location: "bag",
           locationLabel: inBagLabel,
           canUse: AsterActorSheet.#consumableHasHeal(i),
+          summary: AsterActorSheet.#inventorySummary(i),
         })),
         ...inStorage.map((i) => ({
           id: i.id,
@@ -241,6 +242,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           location: "storage",
           locationLabel: inStorageLabel,
           canUse: AsterActorSheet.#consumableHasHeal(i),
+          summary: AsterActorSheet.#inventorySummary(i),
         })),
       ],
     };
@@ -1531,6 +1533,23 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       content: `<p>${game.i18n.format("ASTER.inventory.deleteMsg", { name: item.name })}</p>`,
     });
     if (confirmed) await item.delete();
+  }
+
+  /**
+   * 인벤토리 리스트 행에 표시할 타입별 핵심 요약 한 줄.
+   * consumable: 회복 효과 요약 / equipment: 효과(보정) 텍스트.
+   */
+  static #inventorySummary(item) {
+    if (item.type === "consumable") {
+      const sys = item.system;
+      const parts = [];
+      if ((sys.healHealth ?? 0) > 0) parts.push(`건강 +${sys.healHealth}`);
+      if (sys.cureAllStatus === true) parts.push("상태이상 전체");
+      else if ((sys.cureStatus?.length ?? 0) > 0) parts.push(`상태이상 ${sys.cureStatus.length}`);
+      return parts.join(" · ");
+    }
+    if (item.type === "equipment") return item.system.effect ?? "";
+    return "";
   }
 
   /** consumable이 회복 효과(건강·상태이상·일괄)를 하나라도 가지면 true — "사용" 버튼 노출 조건. */

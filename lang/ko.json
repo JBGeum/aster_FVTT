@@ -293,12 +293,16 @@
     },
     "spell": {
       "name": "이름",
+      "ruby": "술식명",
       "color": "색",
       "ability": "능력",
       "target": "목표치",
       "alertMin": "경계도 최소",
       "alertMax": "경계도 최대",
       "effect": "효과(전투중)",
+      "critical": "대성공 메시지",
+      "fumble": "대실패 메시지",
+      "material": "재료",
       "description": "설명",
       "none": "—",
       "add": "마법 추가",
@@ -361,7 +365,29 @@
         "notExploration": "피크닉은 탐색 페이즈에서만 할 수 있습니다."
       }
     },
+    "item": {
+      "material": {
+        "label0": "마테리얼",
+        "label1": "적",
+        "label2": "청",
+        "label3": "녹",
+        "label4": "황",
+        "label5": "백"
+      },
+      "timing": {
+        "setup": "셋업",
+        "initiative": "이니셔티브",
+        "instant": "순간",
+        "anytime": "언제라도",
+        "cleanup": "클린업",
+        "conditional": "조건",
+        "effectRef": "효과 참조",
+        "exploration": "탐색중",
+        "combat": "전투중"
+      }
+    },
     "consumable": {
+      "timingLabel": "사용 타이밍",
       "healSection": "회복 효과 (R1)",
       "healHealth": "건강 회복량",
       "cureStatusLabel": "회복할 상태이상 (다중 선택 가능)",

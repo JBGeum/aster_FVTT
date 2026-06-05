@@ -25,3 +25,16 @@ ASTER.aster = {
   yellow: "ASTER.aster.yellow",
   white: "ASTER.aster.white",
 };
+
+// 아이템 사용 타이밍 — 룰북/데이터(아스테르 데이터.xlsx)의 타이밍 어휘. consumable 시트 드롭다운.
+ASTER.itemTiming = {
+  setup: "ASTER.item.timing.setup",
+  initiative: "ASTER.item.timing.initiative",
+  instant: "ASTER.item.timing.instant",
+  anytime: "ASTER.item.timing.anytime",
+  cleanup: "ASTER.item.timing.cleanup",
+  conditional: "ASTER.item.timing.conditional",
+  effectRef: "ASTER.item.timing.effectRef",
+  exploration: "ASTER.item.timing.exploration",
+  combat: "ASTER.item.timing.combat",
+};
