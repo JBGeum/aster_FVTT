@@ -6,6 +6,8 @@
  * 액터 자원 경로: system.material(스칼라) + system.aster.{color}.value (SchemaField).
  */
 
+import { CRAFT_TREE } from "./craft-tree.mjs";
+
 /** material[1..5]에 대응하는 색 키. */
 const COST_COLORS = ["red", "blue", "green", "yellow", "white"];
 
@@ -50,6 +52,23 @@ export function checkCraftRequires(craftRequires, acquired) {
     if (have < requiredLevel) missing.push({ base, requiredLevel, have });
   }
   return { ok: missing.length === 0, missing };
+}
+
+/**
+ * craftRequires UI 드롭다운용 설비 base 목록 (C3).
+ * 같은 base의 여러 레벨 노드는 하나로 합침(pot_cauldron_1·_2·_3 → "pot_cauldron").
+ * 레벨이 없는 노드(사역마 fam_*)는 parseNodeId가 null이라 자동 제외 — 아이템 제작 전제 아님.
+ * label은 노드의 i18n 키(예: "ASTER.craft.carve") 그대로 — craft 탭 라벨 재사용.
+ * @returns {Array<{base: string, category: string, label: string}>}
+ */
+export function getCraftRequiresBaseList() {
+  const seen = new Map();
+  for (const node of CRAFT_TREE.nodes) {
+    const parsed = parseNodeId(node.id);
+    if (!parsed || seen.has(parsed.base)) continue;
+    seen.set(parsed.base, { category: node.category, label: node.label });
+  }
+  return Array.from(seen.entries()).map(([base, info]) => ({ base, ...info }));
 }
 
 /** material 배열 → 비용 객체. */

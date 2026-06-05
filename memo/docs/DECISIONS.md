@@ -932,6 +932,32 @@ JSON 소스는 `_key` 없이 깔끔하게 작성하고 빌드 스크립트가 Fo
 
 ---
 
+## D46. C3 craftRequires UI 강화 — JSON 직접 입력 → 드롭다운 + 레벨
+
+**결정:** C1 craft 다이얼로그의 craftRequires 입력을 *JSON textarea*에서 *동적 행(드롭다운 + 레벨 + 추가/제거)*으로 교체. 드롭다운은 CRAFT_TREE의 유니크 base(설비 20종, 카테고리별 `<optgroup>`), 라벨은 i18n 한국어(가마솥·조각대 등 — 노드 `label` 키 그대로 재사용), 값은 base id. 데이터 모델·검증(`validateCraft`)·자동 채움 흐름 모두 *완전 동일*, UI 레이어만 교체. 신규 헬퍼 `getCraftRequiresBaseList`(craft-item.mjs). PL의 JSON 문법·영문 base 학습 부담 제거.
+
+**배경:** C1은 craftRequires를 textarea+JSON으로 *기능 우선* 구현, 명세 시점부터 PL 부담으로 명시하고 C3에서 강화 예고. C2(시드 인프라) 완료 후 craft 트랙 UX 점진 강화.
+
+**대안:**
+- A. JSON textarea 유지: 오타·문법 오류 지속
+- B. 64개 노드 전체 드롭다운: 너무 많음 — craftRequires는 base 단위
+- C. base 단일 선택: 다중 설비 전제 표현 불가(시드 자료에 복수 전제 흔함)
+- D. 고정 슬롯 N개: N 결정 어려움 + 대부분 빈 슬롯
+- E. ⭐ 동적 행 + base 드롭다운 + 레벨: 본 결정
+
+**실측 정정·주의:**
+
+- **base는 접두사 형식**(`tal_carve`·`cook_hearth`·`pot_cauldron` 등) — node.id에서 파싱. 드롭다운 *값*은 이 접두사 base라 C1 `checkCraftRequires`의 검증 키와 정확히 일치. 라벨은 node.label(`ASTER.craft.carve` → "조각대")로 올바르게 표시.
+- **사역마(fam_*)는 레벨 번호가 없어** `parseNodeId`에서 제외 — 아이템 제작 전제가 아니므로 적절(드롭다운 20종).
+- **시드 자료 키 주의**: C2 추출 자료의 craftRequires 키가 접두사 base가 아니라면(예: `carve`) 드래그 자동 채움 시 드롭다운이 미선택으로 남는다(레벨만 채워짐). 명세가 예고한 "무시" 처리 — 행은 생성되어 PL이 보정 가능. *시드 자료 키 규약 점검은 별도(C2 수동 검수)*.
+- `invalidRequiresJson` i18n 키는 미사용이나 안전상 유지.
+
+**선택 이유:** craftRequires `{[base]:레벨}`와 *UI 한 행 = 한 키*가 1:1 자연 매핑. base 라벨 i18n은 craft 탭에서 이미 사용 중이라 신규 키 0개(D11 회수). 동적 행 + 이벤트 위임은 R2·I1c 패턴 정합. 데이터/검증 무변경 — 최소 변경·최대 효과. C1 기능 우선 → C3 UX 강화는 D13(점진 마이그레이션) 정신.
+
+> craft 트랙 기능·UX·자료 인프라 완비(C1+C2+C3). 다음은 수동 검수·검증 단계·C4(룰 제약 자동화, 보류) 또는 H 트랙.
+
+---
+
 ## 부록: 결정의 커리어적 의미
 
 이 일지는 단순 기록이 아니라 **설계 사고의 증거**다. 각 결정은 "특정 프레임워크 지식"이 아니라 "프레임워크가 바뀌어도 통하는 원칙"을 보여준다.

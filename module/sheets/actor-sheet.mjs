@@ -7,7 +7,7 @@ import {
 } from "../helpers/inventory-capacity.mjs";
 import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
 import { prereqMet, sumCost, canAcquire, canRelease } from "../helpers/craft-cost.mjs";
-import { validateCraft, craftItem } from "../helpers/craft-item.mjs";
+import { validateCraft, craftItem, getCraftRequiresBaseList } from "../helpers/craft-item.mjs";
 import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell-roll.mjs";
 import { detectCritFumble, computePenalties } from "../helpers/roll-result.mjs";
 import { pickDiceDialog } from "../helpers/dice-select.mjs";
@@ -2285,6 +2285,21 @@ function _renderCraftDialogContent() {
       `ASTER.item.material.label${i}`,
     )}</span><input type="number" name="material.${i}" value="0" min="0" /></label>`;
   }).join("");
+
+  // craftRequires 드롭다운 — 카테고리별 optgroup, 라벨은 i18n(가마솥·조각대 등), 값은 base id.
+  const categoryLabels = Object.fromEntries(CRAFT_TREE.categories.map((c) => [c.id, c.label]));
+  const byCategory = new Map();
+  for (const item of getCraftRequiresBaseList()) {
+    if (!byCategory.has(item.category)) byCategory.set(item.category, []);
+    byCategory.get(item.category).push(item);
+  }
+  const baseOptions = Array.from(byCategory.entries())
+    .map(([cat, items]) => {
+      const opts = items.map((it) => `<option value="${it.base}">${L(it.label)}</option>`).join("");
+      return `<optgroup label="${L(categoryLabels[cat] ?? cat)}">${opts}</optgroup>`;
+    })
+    .join("");
+
   return `<div class="craft-dialog">
     <div class="form-group">
       <label>${L("ASTER.craft.itemType")}</label>
@@ -2308,7 +2323,21 @@ function _renderCraftDialogContent() {
     </div>
     <div class="form-group">
       <label>${L("ASTER.craft.requiresLabel")}</label>
-      <textarea name="craftRequiresJson" rows="2" placeholder='{"pot_cauldron":1}'></textarea>
+      <div class="craft-requires-rows"></div>
+      <button type="button" data-craft-action="addRequires" class="craft-requires-add">
+        + ${L("ASTER.craft.requiresAdd")}
+      </button>
+      <template class="craft-requires-row-template">
+        <div class="craft-requires-row flexrow align-center">
+          <select name="requires-base">
+            <option value="">${L("ASTER.craft.requiresSelect")}</option>
+            ${baseOptions}
+          </select>
+          <input type="number" name="requires-level" value="0" min="0" style="width:60px;" />
+          <button type="button" data-craft-action="removeRequires"
+                  title="${L("ASTER.craft.requiresRemove")}">×</button>
+        </div>
+      </template>
     </div>
     <div class="craft-cost-preview"></div>
   </div>`;
@@ -2344,6 +2373,22 @@ function _wireCraftDialog(dialog, actor) {
     input.addEventListener("input", () => _updateCraftCostPreview(el, actor));
   }
   _updateCraftCostPreview(el, actor);
+
+  // craftRequires 동적 행 — "추가"는 템플릿 복제, "제거"는 이벤트 위임(동적 생성 행 대응).
+  const rowsContainer = el.querySelector(".craft-requires-rows");
+  const template = el.querySelector(".craft-requires-row-template");
+  const addBtn = el.querySelector('[data-craft-action="addRequires"]');
+  if (addBtn && rowsContainer && template) {
+    addBtn.addEventListener("click", () => {
+      rowsContainer.appendChild(template.content.cloneNode(true));
+    });
+  }
+  if (rowsContainer) {
+    rowsContainer.addEventListener("click", (event) => {
+      const btn = event.target.closest('[data-craft-action="removeRequires"]');
+      if (btn) btn.closest(".craft-requires-row")?.remove();
+    });
+  }
 }
 
 /** 드래그된 아이템 정보로 입력 칸 자동 채움 (원본은 변경 안 됨 — 참조만). */
@@ -2357,9 +2402,21 @@ function _fillCraftDraftFromItem(el, source) {
   }
   const effectInput = el.querySelector('input[name="effect"]');
   if (effectInput) effectInput.value = sys.effect ?? "";
-  el.querySelector('textarea[name="craftRequiresJson"]').value = JSON.stringify(
-    sys.craftRequires ?? {},
-  );
+
+  // craftRequires — 기존 행 모두 제거 후 source의 각 전제마다 행 생성.
+  // base가 CRAFT_TREE에 없으면 드롭다운은 미선택(빈 값)으로 남고 레벨만 채워진다(PL이 보정).
+  const rowsContainer = el.querySelector(".craft-requires-rows");
+  const template = el.querySelector(".craft-requires-row-template");
+  if (rowsContainer && template) {
+    rowsContainer.innerHTML = "";
+    for (const [base, level] of Object.entries(sys.craftRequires ?? {})) {
+      const frag = template.content.cloneNode(true);
+      const row = frag.querySelector(".craft-requires-row");
+      row.querySelector('select[name="requires-base"]').value = base;
+      row.querySelector('input[name="requires-level"]').value = level;
+      rowsContainer.appendChild(frag);
+    }
+  }
 }
 
 /** material 입력 6칸을 정수 배열로 읽기. */
@@ -2410,16 +2467,15 @@ function _collectCraftDraft(el) {
   }
   const material = _readMaterialInputs(el);
 
-  let craftRequires = {};
-  const reqJson = el.querySelector('textarea[name="craftRequiresJson"]').value.trim();
-  if (reqJson) {
-    try {
-      craftRequires = JSON.parse(reqJson);
-    } catch {
-      ui.notifications.warn(game.i18n.localize("ASTER.craft.invalidRequiresJson"));
-      return null;
-    }
+  // craftRequires — 모든 행 순회. 미선택·레벨 0 행은 제외. 같은 base 중복 시 마지막 값.
+  const craftRequires = {};
+  for (const row of el.querySelectorAll(".craft-requires-row")) {
+    const base = row.querySelector('select[name="requires-base"]')?.value;
+    const level = parseInt(row.querySelector('input[name="requires-level"]')?.value, 10);
+    if (!base || !Number.isFinite(level) || level <= 0) continue;
+    craftRequires[base] = level;
   }
+
   const effect = el.querySelector('input[name="effect"]')?.value ?? "";
   return { name, type, system: { material, craftRequires, effect } };
 }
