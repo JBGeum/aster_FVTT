@@ -1038,11 +1038,13 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
             type: "heal",
             targetType: "ally-all",
             // applyHealHealth는 actorName 반환 — 카드 렌더링(t.name)과 데미지 결과 형식에 맞춰 정규화.
+            // F1: blocked(전투 중 건강 0 차단) 플래그 보존 — 카드에서 해당 PC만 차단 안내.
             targets: results.map((r) => ({
               name: r.actorName,
               before: r.before,
               after: r.after,
               delta: r.delta,
+              blocked: r.blocked === true,
             })),
             amount: effect.amount,
             selfTurnEnd: effect.selfTurnEnd === true,
@@ -1102,6 +1104,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
             before: r.before,
             after: r.after,
             delta: r.delta,
+            blocked: r.blocked === true,
           })),
           amount: effect.amount,
           cureResults,
@@ -1300,6 +1303,18 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const def = DAMAGE_STATUSES.find((s) => s.key === key);
       return game.i18n.localize(`ASTER.badstatus.${def?.i18n ?? key}`);
     };
+    // 청표 회복 한 줄 — F1 차단(전투 중 건강 0) / 만건강 / 회복 분기. heal·heal-and-cure-all 공용.
+    const healLineFor = (t) =>
+      t.blocked === true
+        ? game.i18n.format("ASTER.combat.unisonHealBlockedLine", { name: t.name })
+        : t.delta > 0
+          ? game.i18n.format("ASTER.combat.unisonHealLine", {
+              name: t.name,
+              before: t.before,
+              after: t.after,
+              delta: t.delta,
+            })
+          : game.i18n.format("ASTER.combat.unisonHealAlreadyMax", { name: t.name });
 
     let subResultText = "";
     if (subResult) {
@@ -1361,18 +1376,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           break;
         }
         case "heal": {
-          const targetLines = mainResult.targets
-            .map((t) =>
-              t.delta > 0
-                ? game.i18n.format("ASTER.combat.unisonHealLine", {
-                    name: t.name,
-                    before: t.before,
-                    after: t.after,
-                    delta: t.delta,
-                  })
-                : game.i18n.format("ASTER.combat.unisonHealAlreadyMax", { name: t.name }),
-            )
-            .join("<br>");
+          const targetLines = mainResult.targets.map(healLineFor).join("<br>");
           mainResultText = game.i18n.format("ASTER.combat.unisonMainHealText", {
             amount: mainResult.amount,
             targets: targetLines,
@@ -1399,18 +1403,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
         // 청표 12+ — 회복 + 상태이상 전부 치료
         case "heal-and-cure-all": {
-          const healLines = mainResult.targets
-            .map((t) =>
-              t.delta > 0
-                ? game.i18n.format("ASTER.combat.unisonHealLine", {
-                    name: t.name,
-                    before: t.before,
-                    after: t.after,
-                    delta: t.delta,
-                  })
-                : game.i18n.format("ASTER.combat.unisonHealAlreadyMax", { name: t.name }),
-            )
-            .join("<br>");
+          const healLines = mainResult.targets.map(healLineFor).join("<br>");
           const cureLines = mainResult.cureResults
             .filter((r) => r.curedKeys.length > 0)
             .map((r) =>
@@ -1606,14 +1599,18 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     let healLine = null;
     if (results.healed) {
-      healLine =
-        results.healed.delta > 0
-          ? game.i18n.format("ASTER.consumable.healLine", {
-              before: results.healed.before,
-              after: results.healed.after,
-              delta: results.healed.delta,
-            })
-          : game.i18n.localize("ASTER.consumable.alreadyMax");
+      if (results.healed.blocked === true) {
+        // F1: 전투 중 행동불능 PC는 건강 회복 차단 (아이템은 소비됨)
+        healLine = game.i18n.localize("ASTER.consumable.healBlockedLine");
+      } else if (results.healed.delta > 0) {
+        healLine = game.i18n.format("ASTER.consumable.healLine", {
+          before: results.healed.before,
+          after: results.healed.after,
+          delta: results.healed.delta,
+        });
+      } else {
+        healLine = game.i18n.localize("ASTER.consumable.alreadyMax");
+      }
     }
 
     // join 헬퍼가 없으므로 카드 데이터 단계에서 미리 문자열로 합친다.

@@ -221,6 +221,7 @@
       "unisonDamageLine": "{name}: {before} → {after} ({delta})",
       "unisonHealLine": "{name}: {before} → {after} (+{delta})",
       "unisonHealAlreadyMax": "{name}: 이미 만건강",
+      "unisonHealBlockedLine": "{name}: ⚠ 전투 중 행동불능 — 건강 회복 차단",
       "unisonSubEffectLabel": "부속성 {color} 효과",
       "unisonSubRedTitle": "적 부속성 — 회복할 상태이상 선택",
       "unisonSubRedLabel": "아군 전체에서 회복할 상태이상",
@@ -373,7 +374,8 @@
       "alreadyMax": "이미 만건강",
       "cureResult": "상태이상 회복",
       "cureAllResult": "모든 상태이상 일괄 회복",
-      "noStatusToHeal": "해당 상태이상 없음"
+      "noStatusToHeal": "해당 상태이상 없음",
+      "healBlockedLine": "⚠ 전투 중 행동불능 PC는 건강 회복 효과를 받지 못합니다 (룰북 537)"
     },
     "revive": {
       "fallen": "⚠ 행동불능 — 건강 0",
@@ -392,7 +394,9 @@
       "cardTitle": "협력 회복 (룰북 535)",
       "fallenLine": "{name}: 건강 0 → 1 회복",
       "satietySection": "포만 차감",
-      "satietyLine": "{name}: {before} → {after} (-2)"
+      "satietyLine": "{name}: {before} → {after} (-2)",
+      "autoTitle": "전투 종료 — 자동 회복 (룰북 537)",
+      "autoLine": "{name}: 건강 0 → 1"
     },
     "inventory": {
       "warn": {

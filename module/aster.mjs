@@ -354,15 +354,28 @@ export async function applyCureAllStatus(actors) {
  * 건강 회복 — actor 배열의 system.health.value를 amount만큼 증가 (max 클램프).
  * applyDamageAndStatus와 대칭. D30 3단계 회복 효과.
  *
+ * F1(룰북 537): 전투(climax 페이즈) 중 건강 0 PC는 건강 회복 효과를 받지 못한다.
+ * 차단된 actor는 결과에 blocked: true로 표시 — 호출자가 카드에 안내. 상태이상 회복은 차단 대상이 아님.
+ *
  * @param {Actor[]} actors  대상 액터 배열
  * @param {number} amount  회복량
- * @returns {Promise<Array<{actorName: string, before: number, after: number, delta: number}>>}
+ * @returns {Promise<Array<{actorName: string, before: number, after: number, delta: number, blocked?: boolean}>>}
  */
 export async function applyHealHealth(actors, amount) {
   if (amount <= 0) return [];
+
+  // 전투 중(climax) 건강 0 차단 — 페이즈는 R2 협력 회복과 동일 신호.
+  const inClimax = game.settings.get("aster", "currentPhase") === "climax";
+
   const results = [];
   for (const actor of actors) {
     const before = actor.system.health?.value ?? 0;
+
+    if (inClimax && before === 0) {
+      results.push({ actorName: actor.name, before: 0, after: 0, delta: 0, blocked: true });
+      continue;
+    }
+
     const max = actor.system.health?.max ?? 999;
     const after = Math.min(max, before + amount);
     if (after !== before) {

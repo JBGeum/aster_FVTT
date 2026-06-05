@@ -202,11 +202,21 @@ export class AsterCombat extends Combat {
     if (!game.user.isGM) return;
 
     const transitioned = [];
+    const revived = [];
     for (const c of this.combatants) {
       if (c.actor?.type !== "character") continue;
       const did = await c.actor._transitionBigInjuryToInjury();
       if (did) transitioned.push(c.actor.name);
+      // F1(룰북 537): 전투 종료 시 행동불능(건강 0) PC는 건강 1로 자동 회복.
+      if ((c.actor.system.health?.value ?? 0) === 0) {
+        await c.actor.update({ "system.health.value": 1 });
+        revived.push(c.actor.name);
+      }
     }
+
+    const speaker = ChatMessage.getSpeaker({
+      alias: game.i18n.localize("ASTER.combat.tracker"),
+    });
 
     if (transitioned.length) {
       const list = transitioned.map((n) => `<li>${n}</li>`).join("");
@@ -217,9 +227,22 @@ export class AsterCombat extends Combat {
           </div></div></header>
           <ul class="transition-list">${list}</ul>
         </div>`,
-        speaker: ChatMessage.getSpeaker({
-          alias: game.i18n.localize("ASTER.combat.tracker"),
-        }),
+        speaker,
+      });
+    }
+
+    if (revived.length) {
+      const list = revived
+        .map((n) => `<li>${game.i18n.format("ASTER.revive.autoLine", { name: n })}</li>`)
+        .join("");
+      await ChatMessage.create({
+        content: `<div class="aster-chat-card revive-auto-card">
+          <header class="card-header"><div class="title"><div class="name">
+            ${game.i18n.localize("ASTER.revive.autoTitle")}
+          </div></div></header>
+          <ul class="revived-lines">${list}</ul>
+        </div>`,
+        speaker,
       });
     }
   }
