@@ -361,6 +361,12 @@
       "bonusEffect": "추가효과 (요리한 PC만)",
       "bonusEffectHint": "양도 불가. 요리를 만든 PC만 받습니다.",
       "bonusEffectFor": "{actor}의 추가효과",
+      "replaceConfirmTitle": "요리 교체 확인",
+      "replaceIntro": "PC는 요리를 한 번에 하나만 소지할 수 있습니다.",
+      "existing": "기존 요리",
+      "incoming": "추가하려는 요리",
+      "replaceProceed": "기존 요리를 버리고 새 요리로 교체하시겠습니까?",
+      "cancelled": "{name} 추가 취소됨 (기존 요리 유지)",
       "warn": {
         "notExploration": "피크닉은 탐색 페이즈에서만 할 수 있습니다."
       }
