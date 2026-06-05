@@ -375,6 +375,25 @@
       "cureAllResult": "모든 상태이상 일괄 회복",
       "noStatusToHeal": "해당 상태이상 없음"
     },
+    "revive": {
+      "fallen": "⚠ 행동불능 — 건강 0",
+      "requestBtn": "협력 회복 신청",
+      "requestHint": "PC 전원의 포만 -2 후 건강 1로 회복합니다 (룰북 535).",
+      "inCombatBlocked": "전투 중에는 회복 효과를 받을 수 없습니다 (룰북 537). 전투 종료 시 자동으로 건강 1 회복.",
+      "explorationOnly": "협력 회복은 탐색 페이즈에서만 가능합니다 (룰북 535).",
+      "notFallen": "건강 0이 아닌 PC는 협력 회복 대상이 아닙니다.",
+      "noActors": "게임에 PC가 없습니다.",
+      "satietyInsufficient": "다음 PC의 포만이 부족합니다 (2 미만): {actors}. 협력 회복 불가.",
+      "confirmTitle": "협력 회복 확인",
+      "confirmIntro1": "건강 0 상태의 PC를 협력 회복합니다:",
+      "confirmIntro2": " — 건강 1로 회복",
+      "confirmCost": "비용: PC 전원의 포만 -2",
+      "confirmProceed": "진행하시겠습니까?",
+      "cardTitle": "협력 회복 (룰북 535)",
+      "fallenLine": "{name}: 건강 0 → 1 회복",
+      "satietySection": "포만 차감",
+      "satietyLine": "{name}: {before} → {after} (-2)"
+    },
     "inventory": {
       "warn": {
         "singleton": "{type}은(는) 1개만 소지할 수 있습니다.",

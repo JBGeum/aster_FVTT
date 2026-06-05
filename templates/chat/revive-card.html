@@ -1,0 +1,20 @@
+<div class="aster-chat-card revive-card">
+  <header class="card-header">
+    <div class="title">
+      <div class="name">{{title}}</div>
+    </div>
+  </header>
+
+  <div class="revive-body">
+    <div class="fallen-line">{{fallenLine}}</div>
+
+    <div class="satiety-section">
+      <div class="section-label">{{localize "ASTER.revive.satietySection"}}</div>
+      <ul class="satiety-lines">
+        {{#each satietyLines}}
+        <li>{{this}}</li>
+        {{/each}}
+      </ul>
+    </div>
+  </div>
+</div>

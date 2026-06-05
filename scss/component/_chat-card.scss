@@ -232,4 +232,27 @@
       }
     }
   }
+
+  // ── 협력 회복 카드: 건강 회복 라인(녹) + 포만 차감 목록 (R2) ──────
+  &.revive-card {
+    .fallen-line {
+      margin: 0.3em 0;
+      font-weight: 500;
+      color: #2c7a2c;
+    }
+    .satiety-section {
+      margin-top: 0.5em;
+
+      .section-label {
+        font-size: 0.9em;
+        color: var(--color-text-secondary, #888);
+        margin-bottom: 0.2em;
+      }
+      .satiety-lines {
+        margin: 0;
+        padding-left: 1.2em;
+        font-size: 0.9em;
+      }
+    }
+  }
 }

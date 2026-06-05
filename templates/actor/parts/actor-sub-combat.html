@@ -1,4 +1,16 @@
 <div class="combat-tab">
+  {{#if reviveContext.isFallen}}
+  <div class="revive-section">
+    <div class="fallen-indicator warn">{{localize "ASTER.revive.fallen"}}</div>
+    {{#if reviveContext.canRevive}}
+    <button type="button" data-action="revive">{{localize "ASTER.revive.requestBtn"}}</button>
+    <p class="hint">{{localize "ASTER.revive.requestHint"}}</p>
+    {{/if}} {{#if reviveContext.inCombatBlocked}}
+    <p class="hint warn">{{localize "ASTER.revive.inCombatBlocked"}}</p>
+    {{/if}}
+  </div>
+  {{/if}}
+
   <div class="combat-ap-display">
     <span class="ap-label">{{localize "ASTER.combat.actionPoints"}}</span>
     <span class="ap-value">{{#if combatContext.inCombat}}{{combatContext.ap}}{{else}}—{{/if}}</span>
