@@ -31,6 +31,14 @@ ASTER.equipmentType = {
   magicTool: "ASTER.equipment.type.magicTool",
 };
 
+// npcAction 대상 타입 (N2) — 룰북 【自分】/【1人】/【N人】/【전원】 정합.
+ASTER.npcTargetType = {
+  self: "ASTER.npcAction.target.self",
+  one: "ASTER.npcAction.target.one",
+  many: "ASTER.npcAction.target.many",
+  all: "ASTER.npcAction.target.all",
+};
+
 // 아이템 사용 타이밍 — 룰북/데이터(아스테르 데이터.xlsx)의 타이밍 어휘. consumable 시트 드롭다운.
 ASTER.itemTiming = {
   setup: "ASTER.item.timing.setup",

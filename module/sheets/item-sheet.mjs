@@ -49,6 +49,10 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       template: "systems/aster/templates/item/item-record-sheet.html",
       forms: { form: AsterItemSheet.#formConfig },
     },
+    npcAction: {
+      template: "systems/aster/templates/item/item-npcaction-sheet.html",
+      forms: { form: AsterItemSheet.#formConfig },
+    },
   };
 
   get title() {
@@ -91,6 +95,18 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         (sys.healHealth ?? 0) > 0 || current.length > 0 || sys.cureAllStatus === true;
     }
 
+    if (this.item.type === "npcAction") {
+      const sys = this.item.system;
+      const buildOptions = (selected) =>
+        DAMAGE_STATUSES.map((s) => ({
+          key: s.key,
+          label: game.i18n.localize(`ASTER.badstatus.${s.i18n}`),
+          checked: (selected ?? []).includes(s.key),
+        }));
+      context.addStatusOptions = buildOptions(sys.addStatus);
+      context.cureStatusOptions = buildOptions(sys.cureStatus);
+    }
+
     return context;
   }
 
@@ -109,6 +125,23 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
           this.item.update({ "system.cureStatus": selected });
         });
       }
+    }
+
+    // npcAction의 addStatus·cureStatus 다중 체크박스도 같은 패턴(폼 name 대신 직접 update).
+    if (this.item.type === "npcAction") {
+      const wire = (selector, field) => {
+        const boxes = this.element.querySelectorAll(selector);
+        for (const box of boxes) {
+          box.addEventListener("change", () => {
+            const selected = Array.from(boxes)
+              .filter((b) => b.checked)
+              .map((b) => b.dataset.status);
+            this.item.update({ [field]: selected });
+          });
+        }
+      };
+      wire(".npcaction-add-status", "system.addStatus");
+      wire(".npcaction-cure-status", "system.cureStatus");
     }
   }
 

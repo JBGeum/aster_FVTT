@@ -114,6 +114,14 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       context.reviveContext = this.#buildReviveContext();
     } else if (this.actor.type === "npc") {
       this._prepareItems(context);
+      // N2 — npcAction(스킬 표)과 일반 items 분리. 대상 라벨은 미리 지역화.
+      context.npcActions = context.items
+        .filter((i) => i.type === "npcAction")
+        .map((i) => ({
+          ...i,
+          targetLabel: game.i18n.localize(`ASTER.npcAction.target.${i.system.targetType}`),
+        }));
+      context.npcItems = context.items.filter((i) => i.type !== "npcAction");
     }
 
     return context;

@@ -20,6 +20,7 @@ import { FoodDataModel } from "./data/items/food.mjs";
 import { SpellDataModel } from "./data/items/spell.mjs";
 import { FeatureDataModel } from "./data/items/feature.mjs";
 import { RecordDataModel } from "./data/items/record.mjs";
+import { NpcActionDataModel } from "./data/items/npc-action.mjs";
 // Helpers
 import { preloadHandlebarsTemplates, registerHandlebarsHelpers } from "./helpers/templates.mjs";
 import { ASTER } from "./helpers/config.mjs";
@@ -64,6 +65,7 @@ Hooks.once("init", async function () {
     spell: SpellDataModel,
     feature: FeatureDataModel,
     record: RecordDataModel,
+    npcAction: NpcActionDataModel,
   };
 
   // V13: 시트 컬렉션은 foundry.documents.collections 네임스페이스 사용

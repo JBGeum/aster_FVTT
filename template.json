@@ -70,7 +70,7 @@
     }
   },
   "Item": {
-    "types": ["bag", "consumable", "equipment", "food", "spell", "feature", "record"],
+    "types": ["bag", "consumable", "equipment", "food", "spell", "feature", "record", "npcAction"],
     "templates": {
       "base": {
         "material": [0, 0, 0, 0, 0, 0],
@@ -136,6 +136,18 @@
       "people": "",
       "memo": "",
       "updatedAt": ""
+    },
+    "npcAction": {
+      "description": "",
+      "effect": "",
+      "cost": 0,
+      "costVariable": false,
+      "targetType": "self",
+      "damageFormula": "",
+      "addStatus": [],
+      "cureStatus": [],
+      "cureAllStatus": false,
+      "oncePerRound": false
     }
   }
 }

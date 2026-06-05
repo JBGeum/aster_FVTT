@@ -65,7 +65,14 @@
       "dodge": "회피",
       "health": "건강",
       "satiety": "포만",
-      "material": "마테리얼"
+      "material": "마테리얼",
+      "cr": "도전 등급",
+      "ap": "액션 포인트",
+      "apMax": "AP 최대값",
+      "hitFormula": "명중",
+      "dodgeFormula": "회피",
+      "apFormula": "액션",
+      "badstatus": "상태이상"
     },
     "badstatus": {
       "injury": "부상",
@@ -413,6 +420,30 @@
       "equipment": "장비품",
       "bag": "가방",
       "food": "요리"
+    },
+    "npcAction": {
+      "sectionTitle": "액션",
+      "namePlaceholder": "액션 이름",
+      "cost": "AP 비용",
+      "costVariable": "가변 비용 (X)",
+      "targetType": "대상",
+      "target": {
+        "self": "자기",
+        "one": "1인",
+        "many": "다수",
+        "all": "전원"
+      },
+      "damageFormula": "대미지 식",
+      "addStatus": "부여 상태이상",
+      "cureStatus": "해제 상태이상",
+      "cureAllStatus": "모든 상태이상 해제",
+      "oncePerRound": "1라운드 1회",
+      "effect": "효과",
+      "effectPlaceholder": "효과 요약 (자유 텍스트)",
+      "description": "설명",
+      "name": "기명",
+      "actions": "조작",
+      "empty": "액션이 없습니다."
     },
     "item": {
       "name": "이름",

@@ -1,0 +1,102 @@
+<form class="aster {{cssClass}}" autocomplete="off">
+  <div class="item item-sheet" data-item-id="{{data._id}}">
+    <div class="item-container bag-sheet-body">
+      <div class="item-header">
+        <input
+          type="text"
+          name="name"
+          value="{{item.name}}"
+          placeholder="{{localize 'ASTER.npcAction.namePlaceholder'}}"
+        />
+      </div>
+
+      <div class="item-detail">
+        {{!-- cost + costVariable + targetType --}}
+        <div class="detail-lbl">{{localize "ASTER.npcAction.cost"}}</div>
+        <div class="detail-input flexrow align-center">
+          <input
+            type="number"
+            name="system.cost"
+            value="{{system.cost}}"
+            min="0"
+            style="width: 60px"
+            {{disabled
+            system.costVariable}}
+          />
+          <label>
+            <input type="checkbox" name="system.costVariable" {{checked system.costVariable}} />
+            {{localize "ASTER.npcAction.costVariable"}}
+          </label>
+        </div>
+
+        <div class="detail-lbl">{{localize "ASTER.npcAction.targetType"}}</div>
+        <div class="detail-input">
+          <select name="system.targetType">
+            {{selectOptions config.npcTargetType selected=system.targetType localize=true}}
+          </select>
+        </div>
+
+        {{!-- damageFormula + oncePerRound --}}
+        <div class="detail-lbl">{{localize "ASTER.npcAction.damageFormula"}}</div>
+        <div class="detail-input flexrow align-center">
+          <input type="text" name="system.damageFormula" value="{{system.damageFormula}}" placeholder="3D6+4" />
+          <label>
+            <input type="checkbox" name="system.oncePerRound" {{checked system.oncePerRound}} />
+            {{localize "ASTER.npcAction.oncePerRound"}}
+          </label>
+        </div>
+
+        {{!-- addStatus 5칸 (폼 name 대신 커스텀 리스너로 배열 update) --}}
+        <div class="detail-lbl">{{localize "ASTER.npcAction.addStatus"}}</div>
+        <div class="detail-input cure-status-checkboxes">
+          {{#each addStatusOptions as |opt|}}
+          <label>
+            <input type="checkbox" class="npcaction-add-status" data-status="{{opt.key}}" {{checked opt.checked}} />
+            {{opt.label}}
+          </label>
+          {{/each}}
+        </div>
+
+        {{!-- cureStatus 5칸 + cureAllStatus --}}
+        <div class="detail-lbl">{{localize "ASTER.npcAction.cureStatus"}}</div>
+        <div class="detail-input cure-all-row">
+          <label>
+            <input type="checkbox" name="system.cureAllStatus" {{checked system.cureAllStatus}} />
+            {{localize "ASTER.npcAction.cureAllStatus"}}
+          </label>
+        </div>
+        <div class="detail-input cure-status-checkboxes">
+          {{#each cureStatusOptions as |opt|}}
+          <label>
+            <input
+              type="checkbox"
+              class="npcaction-cure-status"
+              data-status="{{opt.key}}"
+              {{checked
+              opt.checked}}
+              {{disabled
+              system.cureAllStatus}}
+            />
+            {{opt.label}}
+          </label>
+          {{/each}}
+        </div>
+
+        {{!-- 효과 자유 텍스트 (D30) --}}
+        <div class="detail-lbl">{{localize "ASTER.npcAction.effect"}}</div>
+        <div class="detail-input">
+          <input
+            type="text"
+            name="system.effect"
+            value="{{system.effect}}"
+            placeholder="{{localize 'ASTER.npcAction.effectPlaceholder'}}"
+          />
+        </div>
+      </div>
+
+      <div class="item-desc">
+        {{editor system.description target="system.description" button=true editable=editable}}
+      </div>
+    </div>
+  </div>
+</form>
