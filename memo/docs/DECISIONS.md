@@ -906,6 +906,32 @@ JSON 소스는 `_key` 없이 깔끔하게 작성하고 빌드 스크립트가 Fo
 
 ---
 
+## D45. C2 시드 아이템 compendium pack — 저작권 보호 + 빌드 인프라 공개
+
+**결정:** craft 시드 아이템 자료(food·equipment·bag·consumable)는 *원저작권 보호를 위해 GitHub repo 미공개*. JSON·LevelDB·xlsx 모두 `.gitignore` 격리(형식 무관, 내용에 저작권 적용). 시스템에는 *공개 안전 영역*만 추가 — `build-packs.mts` 아이템 pack 빌드 + `system.json` packs 경로 등록 + README 안내. 소스 자료가 없으면 *빈 compendium*으로 빌드(경로 항상 유효). 자료는 신뢰 PL에게 별도 채널 비공개 배포. CoC7 패턴 정합.
+
+**배경:** C1 craft 메커니즘 완성 후 룰 자료(xlsx→JSON 추출)를 *어떻게 관리·배포*할지 결정. Aster는 팬 메이드 비공식 시스템·라이선스 없음 — 자료 공개 시 저작권 위험.
+
+**대안:**
+- A. 전체 GitHub 공개(D&D SRD 패턴): 라이선스 없는 비공식엔 부적합, 저작권 통고 위험 실재(WFRP4e 사례)
+- B. LDB만 공개·JSON 비공개: 법적 차이 없음(저작권은 형식 아닌 내용) — 바이너리는 난독화일 뿐
+- C. 시스템·콘텐츠 2 repo 분리(Foundry 표준): 안전하나 관리 부담, 작은 프로젝트엔 과함
+- E. ⭐ 단일 repo + .gitignore + 로컬/비공개 자료(CoC7): 본 결정
+
+**실측 정정 (명세 v3 가정 vs 실제 빌드 구조):**
+
+- **출력 경로**: 명세는 `packs/items-*/` 격리였으나 실제 빌드는 **`dist/packs/`** 출력(이미 dist/ 무시) — `.gitignore`는 소스만 격리하면 충분.
+- **자료 위치·보호 정정**: 실제 추출 자료는 `packs/_source/items/`(하위 디렉토리)에 있는데 기존 패턴 `packs/_source/items-*.json`는 *루트 직속만* 매칭해 **하위 디렉토리가 미보호**(git add 시 노출 위험)였다. `packs/_source/items/` 격리 추가로 차단. 빌드는 *하위/평면 두 배치 모두* 인식.
+- **소스 형식**: 기존 unison-tables는 *dir-of-files*, 추출 자료는 *단일 JSON 배열* — 아이템 pack은 배열을 읽어 staging에 풀고 `!items!<id>` 키 주입 후 `compilePack`.
+- **빈 소스 처리**: skip(경로 없음) 대신 *빈 LevelDB 생성* — manifest path가 항상 유효해 Foundry가 빈 compendium을 안정적으로 노출(빌드에서 검증).
+- `.gitkeep` 불필요 — `packs/_source/`는 unison-tables로 이미 추적됨.
+
+**선택 이유:** CoC7 패턴은 비공식·무라이선스 케이스의 보편적 안전형. 빌드 인프라는 *일반 JSON→LevelDB 변환 도구*라 룰 자료가 아님 → 공개 안전. `system.json` pack 경로는 *디렉토리 메타데이터*라 내용 없으면 저작권 무관. 단일 repo 유지로 관리 부담 최소화. *공개 인프라 / 비공개 자료* 분리가 향후 유사 자료(룰표·시나리오)에도 재사용 가능한 원칙.
+
+> craft 트랙 기능 완비(C1 메커니즘 + C2 인프라). 시스템 메커니즘 구현은 *룰 동작 구현*이라 공개 안전, 자료 데이터는 *룰북 내용 자체*라 비공개 — 이 분리가 핵심.
+
+---
+
 ## 부록: 결정의 커리어적 의미
 
 이 일지는 단순 기록이 아니라 **설계 사고의 증거**다. 각 결정은 "특정 프레임워크 지식"이 아니라 "프레임워크가 바뀌어도 통하는 원칙"을 보여준다.

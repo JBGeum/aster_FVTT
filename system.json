@@ -23,6 +23,34 @@
       "path": "packs/unison-tables",
       "type": "RollTable",
       "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "items-food",
+      "label": "Aster — 요리 (Food)",
+      "path": "packs/items-food",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "items-equipment",
+      "label": "Aster — 마법구 (Equipment)",
+      "path": "packs/items-equipment",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "items-bag",
+      "label": "Aster — 가방 (Bag)",
+      "path": "packs/items-bag",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "items-consumable",
+      "label": "Aster — 일회성 (Consumable)",
+      "path": "packs/items-consumable",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
     }
   ],
   "documentTypes": {

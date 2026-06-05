@@ -53,6 +53,27 @@ Foundry를 재시작하면 시스템 목록에 Aster가 표시됩니다.
 
 ---
 
+## 시드 아이템 자료 (별도 입수)
+
+본 시스템은 craft·인벤토리 메커니즘을 제공하지만, 룰 자료에서 추출한 아이템 데이터(요리·마법구·가방·일회성)는 **저작권 보호를 위해 공개 repo에 포함하지 않습니다**. 저작권은 형식이 아닌 *내용*에 적용되므로 JSON·LevelDB·xlsx 모두 `.gitignore`로 격리하고, 시스템에는 *빌드 인프라*와 `system.json`의 *pack 경로*만 둡니다. (CoC7 등 비공식 시스템의 일반적 패턴.)
+
+GitHub에서 clone하면 compendium 메뉴에 4개 pack이 **빈 상태**로 노출됩니다.
+
+### 시드 자료가 있는 경우
+
+신뢰할 수 있는 GM/PL에게 *별도 채널*로 자료를 전달받으면:
+
+1. `packs/_source/items/` 에 `items-{food,equipment,bag,consumable}.json` 4파일을 배치 (`packs/_source/` 직속도 인식)
+2. `npm run build:packs` (또는 `npm run build`) 실행 — JSON → `dist/packs/` LevelDB compendium
+3. Foundry 재시작 — compendium 메뉴에 아이템 노출
+4. PL이 compendium을 열어 craft 다이얼로그로 드래그 → 제작
+
+### 자료 없이 사용
+
+craft 다이얼로그에서 **직접 입력**으로 아이템을 제작할 수 있습니다. 자세한 참조 정보는 룰북 공식 자료를 구입해 활용해 주세요.
+
+---
+
 ## 일상 워크플로
 
 ```powershell
