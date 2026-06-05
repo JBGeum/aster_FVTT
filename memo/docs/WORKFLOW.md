@@ -2,7 +2,7 @@
 
 > 본 문서는 사용자(Sch)와 Claude가 진행한 명세 작성 STEP들의 누적 진행 현황을 트랙별로 정리합니다.
 > 결정 일지는 `DECISIONS.md`, 각 명세 본문은 별도 파일 참조.
-> 마지막 갱신: G4-α 명세 작성 완료(`UNISON_G4_ALPHA_SPEC.md`) + G4-γ를 RollTable 통합 STEP으로 재정의.
+> 마지막 갱신: G4 트랙 완료(D34~D37) + R 트랙(회복 확장) · T 트랙(도구) 자리잡기.
 
 ---
 
@@ -34,7 +34,7 @@ graph LR
         F1[피크닉 D20]
     end
 
-    subgraph G["G. 전투 시스템 (대부분 완료)"]
+    subgraph G["G. 전투 시스템 (완료)"]
         G1[이니셔티브 D21]
         G2a[라운드 인프라 D22]
         G2b[부상/큰부상 D23]
@@ -47,9 +47,18 @@ graph LR
         G3b[G3-β 방어 차감 D31]
         G3y[G3-γ 다음 라운드 D33]
         G4[합체기 본체 D34]
-        G4a[G4-α 주속성 표 표준]:::current
-        G4b[G4-β 황표·특수 케이스]:::future
-        G4g[G4-γ RollTable 통합·플레이버]:::future
+        G4a[G4-α 주속성 표 D35]
+        G4b[G4-β 황표·특수 D36]
+        G4g[G4-γ RollTable D37]
+    end
+
+    subgraph R["R. 회복 확장 (3단계 완성)"]
+        R1[R1 consumable 회복]:::current
+        R2[R2 건강 0 협력 회복]:::future
+    end
+
+    subgraph T["T. 도구 (시점 미정)"]
+        T1[T1 빌드·역추출 도구]:::pending
     end
 
     subgraph H["H. 디자인 정리 (기능 완료 후)"]
@@ -65,10 +74,12 @@ graph LR
 
     G1 --> G2a --> G2b --> G3a --> Target --> Dodge --> Damage --> OppDmg --> Spell
     Spell --> G3b --> G3y --> G4 --> G4a --> G4b --> G4g
+    G4g --> R1 --> R2
     D30 -.가이드라인.-> Spell
-    G4g -.기능 완료 후.-> H1
+    R2 -.기능 완료 후.-> H1
     H0 -.기반.-> H1
     H1 --> H2
+    T1 -.언제든.-> R1
 
     classDef current fill:#4a9eff,stroke:#0066cc,color:#fff
     classDef future fill:#444,stroke:#666,color:#aaa
@@ -113,9 +124,12 @@ graph LR
 | 27 | **D32** | INLINE_CARD_EXTRACT_SPEC | 인라인 카드 → 템플릿 분리 | ✅ |
 | 28 | **D33** | NEXT_ROUND_EFFECTS_G3Y_SPEC | G3-γ 다음 라운드 효과 (집중·대쉬·차지 AP) | ✅ |
 | 29 | **D34** | UNISON_G4_SPEC | G4 합체기 본체 (페어·다이스·부속성) | ✅ |
-| **30** | **D35** | **UNISON_G4_ALPHA_SPEC** | **G4-α 주속성 표 표준 효과 (적·청·녹 80%)** | 🔵 현재 |
-| 31 | (예정) | G4_BETA_SPEC | G4-β 황표 + 12+ 특수 케이스 | 🟦 후속 |
-| 32 | (예정) | G4_GAMMA_ROLLTABLE_SPEC | G4-γ RollTable 통합 + 플레이버 텍스트 | 🟦 후속 |
+| 30 | **D35** | UNISON_G4_ALPHA_SPEC | G4-α 주속성 표 표준 효과 (적·청·녹 80%) | ✅ |
+| 31 | **D36** | UNISON_G4_BETA_SPEC | G4-β 황표 + 12+ 특수 + 자해 안내 | ✅ |
+| 32 | **D37** | UNISON_G4_GAMMA_ROLLTABLE_SPEC | G4-γ RollTable 통합 + 플레이버 텍스트 | ✅ |
+| **33** | **(예정)** | **R1_CONSUMABLE_HEAL_SPEC** | **R1 consumable 회복 (회복 진입점 확장)** | 🔵 현재 |
+| 34 | (예정) | R2_REVIVE_SPEC | R2 건강 0 협력 회복 (포만 -2) | 🟦 후속 |
+| 35 | (예정) | T1_PACK_TOOLING_SPEC | T1 빌드·역추출 도구 (LevelDB 관리) | 🟨 시점 미정 |
 
 ---
 
@@ -144,8 +158,22 @@ graph LR
 |---|---|---|---|
 | 1단계 | 대미지·상태이상 자동 추출 | D29 | ✅ |
 | 2단계 | 1라운드 만료 AE — 액션 효과(집중·대쉬·차지) | D31 + D33 | ✅ |
-| 3단계 | 명확한 회복 효과 (healHealth, cureStatus 등) | D34 (사전 회수 `applyCureStatus`) + G4-α (`applyHealHealth`) | 🔵 진행 중 |
-| 정지 | 남은 자유 표현은 텍스트 + GM 수동 | G4-β 후 | ⏸️ |
+| 3단계 | 명확한 회복 효과 (healHealth, cureStatus 등) | D34 (cureStatus) + D35 (healHealth) + D36 (cureAllStatus) + R1·R2 (진입점 확장) | 🔵 진행 중 |
+| 정지 | 남은 자유 표현은 텍스트 + GM 수동 | R2 후 | ⏸️ |
+
+### 권장 순서
+
+| 순위 | 작업 | 근거 |
+|---|---|---|
+| 1 | **R1 consumable 회복** | 회복 진입점 확장. 합체기 자산(applyCureStatus/HealHealth/CureAllStatus) 전면 회수 |
+| 2 | **R2 건강 0 협력 회복** | 룰북 명시 메커니즘. PL 간 상호작용 |
+| 3 | **T1 빌드·역추출 도구** | 선택 — LevelDB pack 작업 시 필요 시점에 진행 |
+| — | (정지점 — D30, 80~90% 도달) | 남은 자유 효과는 GM 수동 |
+| 4 | **H1 채팅 카드 일관성 통일** | 정지점 이후. D32 기반 위에서 |
+| 5 | **H2 스크린샷 기반 시트 점검** | 실제 Foundry 화면 첨부 후 미세 조정 |
+| 6 | **H3 다크/라이트 테마 (선택)** | 두 테마에서 모두 정상 동작 확인 |
+| 7 | 시나리오 횟수 트래커 (선택) | 피크닉 2회 제한 등 |
+| 8 | record UI (선택) | 게임 외부 트랙 |
 
 ### 의도적 미선택
 
@@ -153,11 +181,64 @@ D&D 완전 모델(모든 효과를 데이터 카테고리화)은 *비용 대비 
 
 ---
 
+## R 트랙 — 회복 확장 (3단계 마무리)
+
+### 진입 시점
+
+G4-γ 직후. D30 정책 3단계의 *정점*. 합체기 회복 헬퍼 3종(`applyCureStatus`, `applyHealHealth`, `applyCureAllStatus`)이 누적된 상태에서 *피크닉 외 회복 진입점* 추가 — *D11 누적 회수의 명백한 사례*.
+
+### R1 — consumable 회복
+
+**범위**: consumable 아이템에 회복 효과 필드 추가 + 사용 흐름.
+
+작업 자산:
+- consumable 데이터 모델 확장 (`healHealth`, `cureStatus[]`, `cureAllStatus` boolean 등)
+- 시트 UI (D29 spell 패턴 활용)
+- 사용 흐름 (인벤토리 또는 시트에서 *사용* 액션 → 회복 적용)
+- 합체기 회복 헬퍼 3종 *전면 재사용*
+
+### R2 — 건강 0 협력 회복
+
+**범위**: 룰북 명시 메커니즘 — PC 건강 0 도달 시 다른 PC가 *포만 2 소비*로 *건강 1 회복*.
+
+작업 자산:
+- 행동불능 PC 시트 또는 채팅 카드에 "협력 회복" 버튼
+- 다른 PC 선택 + 포만 -2 확인 + 대상 건강 1로 갱신
+- `applyHealHealth` 부분 활용 + 새 흐름
+
+### 정지점
+
+R2 완료 시 *D30 80~90% 도달*. 이후 H 트랙(디자인) 진입.
+
+---
+
+## T 트랙 — 도구 (시점 미정)
+
+### 진입 시점
+
+언제든 가능. R 트랙·H 트랙과 *독립*. LevelDB pack 작업이 *빈번*해질 때 진행.
+
+### T1 — 빌드·역추출 도구
+
+**범위**:
+- `build:packs:watch` (영역 A1) — 소스 변경 시 자동 재빌드
+- 소스 JSON 스키마 검증 (영역 A2) — 빌드 전 필수 필드 체크 + 명확한 에러
+- `extract:packs` 명령 (영역 B1) — Foundry 내 RollTable·Macro → 소스 JSON 역추출
+- 문서화 — `docs/PACK_DEVELOPMENT.md` 추가
+
+**배경**: G4-γ RollTable 빌드 시행착오 경험 (`_key` 누락, classic-level 누적 등). 현재 `tools/build-packs.mts`로 *해결됨*. T1은 *재발 방지 + 워크플로우 강화*.
+
+### T 트랙 의도적 한계
+
+C(UX 관리) · D(외부 데이터 확장)는 *현재 시점 가치 작음*. 필요해질 시점에 별도 트랙으로 평가.
+
+---
+
 ## H 트랙 — 디자인 정리 (기능 완료 후 진행)
 
 ### 진입 시점
 
-D30 정책의 *80~90% 도달* 시점 — 즉 G3-γ + 회복 효과 확장이 끝나고 기능 자동화가 충분해진 후. 디자인 트랙을 기능 트랙과 분리한 이유:
+D30 정책의 *80~90% 도달* 시점 — 즉 R2 회복 트랙 완료 후. 디자인 트랙을 기능 트랙과 분리한 이유:
 - 새 기능 STEP에서 카드·시트 구조가 바뀔 수 있어, 미리 통일해도 다음 STEP에서 깨질 가능성
 - 디자인 정책 결정은 *모든 자산을 보고* 결정하는 게 합리적
 
