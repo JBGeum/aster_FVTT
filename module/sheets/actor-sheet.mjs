@@ -7,6 +7,7 @@ import {
 } from "../helpers/inventory-capacity.mjs";
 import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
 import { prereqMet, sumCost, canAcquire, canRelease } from "../helpers/craft-cost.mjs";
+import { validateCraft, craftItem } from "../helpers/craft-item.mjs";
 import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell-roll.mjs";
 import { detectCritFumble, computePenalties } from "../helpers/roll-result.mjs";
 import { pickDiceDialog } from "../helpers/dice-select.mjs";
@@ -46,6 +47,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       toggleSkill: AsterActorSheet.#onToggleSkill,
       craftReset: AsterActorSheet.#onCraftReset,
       craftLockToggle: AsterActorSheet.#onCraftLockToggle,
+      craftItemOpen: AsterActorSheet.#onCraftItemOpen,
       spellCast: AsterActorSheet.#onSpellCast,
       spellCastWithExtra: AsterActorSheet.#onSpellCastWithExtra,
       recordPrev: AsterActorSheet.#onRecordPrev,
@@ -1950,6 +1952,47 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await this.actor.update({ "system.craft.locked": !locked });
   }
 
+  static async #onCraftItemOpen(_event, _target) {
+    await AsterActorSheet.openCraftDialog(this.actor);
+  }
+
+  /**
+   * C1 아이템 제작 다이얼로그 (PL 주도). 기존 아이템 드래그 시 빈 칸 자동 채움 + 실시간 비용 표시.
+   * 확정 시 검증 → 부족하면 확인(D14 음수 허용) → 자원 차감 + 창고에 신규 아이템 생성.
+   * @param {Actor} actor
+   */
+  static async openCraftDialog(actor) {
+    const DialogV2 = foundry.applications.api.DialogV2;
+    const result = await DialogV2.wait({
+      window: { title: game.i18n.localize("ASTER.craft.openCraftItem") },
+      position: { width: 540 },
+      content: _renderCraftDialogContent(),
+      render: (_event, dialog) => _wireCraftDialog(dialog, actor),
+      buttons: [
+        {
+          action: "confirm",
+          label: game.i18n.localize("ASTER.craft.confirm"),
+          default: true,
+          callback: (_e, _b, dialog) => _collectCraftDraft(dialog.element),
+        },
+        { action: "cancel", label: game.i18n.localize("ASTER.craft.cancel") },
+      ],
+    }).catch(() => null);
+
+    // 취소·입력 오류(이름 누락·JSON 오류)면 객체가 아님.
+    if (!result || typeof result !== "object") return;
+
+    const validation = validateCraft(result, actor);
+    if (!validation.ok) {
+      const proceed = await _confirmCraftShortage(validation);
+      if (!proceed) return;
+    }
+    const item = await craftItem(actor, result);
+    if (item) {
+      ui.notifications.info(game.i18n.format("ASTER.craft.success", { name: item.name }));
+    }
+  }
+
   static async #onSpellCast(_event, target) {
     const spell = this.actor.items.get(target.dataset.itemId);
     if (!spell) return;
@@ -2221,4 +2264,186 @@ function _formatCraftCost(cost) {
     parts.push(`◇${a.red}/${a.blue}/${a.green}/${a.yellow}`);
   if (cost.anyAster) parts.push(`◇임의 ${cost.anyAster}`);
   return parts.join(" ");
+}
+
+/* -------------------------------------------- */
+/*  C1 아이템 제작 다이얼로그 헬퍼              */
+/* -------------------------------------------- */
+
+const CRAFT_ITEM_TYPES = ["consumable", "equipment", "bag", "food"];
+// material[1..5] 색 키 — 비용/보유 표시용.
+const CRAFT_COST_COLORS = ["red", "blue", "green", "yellow", "white"];
+
+/** 제작 다이얼로그 content(HTML 문자열). 종류·드롭영역·이름·material[6]·효과·전제·비용 미리보기. */
+function _renderCraftDialogContent() {
+  const L = (k) => game.i18n.localize(k);
+  const typeOptions = CRAFT_ITEM_TYPES.map(
+    (t) => `<option value="${t}">${L(`ASTER.itemType.${t}`)}</option>`,
+  ).join("");
+  const matCells = Array.from({ length: 6 }, (_v, i) => {
+    return `<label class="material-cell"><span class="material-lbl">${L(
+      `ASTER.item.material.label${i}`,
+    )}</span><input type="number" name="material.${i}" value="0" min="0" /></label>`;
+  }).join("");
+  return `<div class="craft-dialog">
+    <div class="form-group">
+      <label>${L("ASTER.craft.itemType")}</label>
+      <select name="itemType">${typeOptions}</select>
+    </div>
+    <div class="craft-drop-area" data-craft-drop="true"
+         style="border:1px dashed #888;border-radius:4px;padding:8px;text-align:center;margin:6px 0;">
+      <p>${L("ASTER.craft.dropHint")}</p>
+    </div>
+    <div class="form-group">
+      <label>${L("ASTER.item.name")}</label>
+      <input type="text" name="name" value="" />
+    </div>
+    <div class="form-group">
+      <label>재료</label>
+      <div class="material-grid flexrow align-center">${matCells}</div>
+    </div>
+    <div class="form-group">
+      <label>${L("ASTER.item.effect")}</label>
+      <input type="text" name="effect" value="" />
+    </div>
+    <div class="form-group">
+      <label>${L("ASTER.craft.requiresLabel")}</label>
+      <textarea name="craftRequiresJson" rows="2" placeholder='{"pot_cauldron":1}'></textarea>
+    </div>
+    <div class="craft-cost-preview"></div>
+  </div>`;
+}
+
+/** 다이얼로그 렌더 후 드롭 영역 + 실시간 비용 리스너 부착. */
+function _wireCraftDialog(dialog, actor) {
+  const el = dialog.element;
+  const drop = el.querySelector("[data-craft-drop]");
+  if (drop) {
+    drop.addEventListener("dragover", (event) => {
+      event.preventDefault();
+      drop.classList.add("drag-over");
+    });
+    drop.addEventListener("dragleave", () => drop.classList.remove("drag-over"));
+    drop.addEventListener("drop", async (event) => {
+      event.preventDefault();
+      drop.classList.remove("drag-over");
+      const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+      if (data?.type !== "Item") return;
+      const source = await fromUuid(data.uuid);
+      if (!source) return;
+      if (!CRAFT_ITEM_TYPES.includes(source.type)) {
+        ui.notifications.warn(game.i18n.localize("ASTER.craft.invalidType"));
+        return;
+      }
+      _fillCraftDraftFromItem(el, source);
+      _updateCraftCostPreview(el, actor);
+    });
+  }
+
+  for (const input of el.querySelectorAll('input[name^="material."]')) {
+    input.addEventListener("input", () => _updateCraftCostPreview(el, actor));
+  }
+  _updateCraftCostPreview(el, actor);
+}
+
+/** 드래그된 아이템 정보로 입력 칸 자동 채움 (원본은 변경 안 됨 — 참조만). */
+function _fillCraftDraftFromItem(el, source) {
+  const sys = source.system ?? {};
+  el.querySelector('select[name="itemType"]').value = source.type;
+  el.querySelector('input[name="name"]').value = source.name;
+  for (let i = 0; i < 6; i++) {
+    const input = el.querySelector(`input[name="material.${i}"]`);
+    if (input) input.value = sys.material?.[i] ?? 0;
+  }
+  const effectInput = el.querySelector('input[name="effect"]');
+  if (effectInput) effectInput.value = sys.effect ?? "";
+  el.querySelector('textarea[name="craftRequiresJson"]').value = JSON.stringify(
+    sys.craftRequires ?? {},
+  );
+}
+
+/** material 입력 6칸을 정수 배열로 읽기. */
+function _readMaterialInputs(el) {
+  const material = [];
+  for (let i = 0; i < 6; i++) {
+    const v = parseInt(el.querySelector(`input[name="material.${i}"]`)?.value, 10);
+    material.push(Number.isFinite(v) ? v : 0);
+  }
+  return material;
+}
+
+/** 실시간 비용 표시 갱신 — 보유보다 큰 항목은 *부족* 표시. */
+function _updateCraftCostPreview(el, actor) {
+  const preview = el.querySelector(".craft-cost-preview");
+  if (!preview) return;
+  const mat = _readMaterialInputs(el);
+  const aster = actor.system.aster ?? {};
+  const have = {
+    material: actor.system.material ?? 0,
+    ...Object.fromEntries(CRAFT_COST_COLORS.map((c) => [c, aster[c]?.value ?? 0])),
+  };
+  const L = (k) => game.i18n.localize(k);
+  const lines = [];
+  const pushLine = (label, cost, haveVal) => {
+    if (cost <= 0) return;
+    const short = cost > haveVal;
+    lines.push(
+      `<span class="cost-line${short ? " short" : ""}">${label} -${cost}${
+        short ? ` (${L("ASTER.craft.short")})` : ""
+      }</span>`,
+    );
+  };
+  pushLine(L("ASTER.item.material.label0"), mat[0], have.material);
+  CRAFT_COST_COLORS.forEach((c, i) => pushLine(L(`ASTER.aster.${c}`), mat[i + 1], have[c]));
+  preview.innerHTML = lines.length
+    ? lines.join(" ")
+    : `<span class="cost-line none">${L("ASTER.craft.noCost")}</span>`;
+}
+
+/** 입력값 수집 → draft 객체. 이름 누락·JSON 오류면 알림 후 null. */
+function _collectCraftDraft(el) {
+  const type = el.querySelector('select[name="itemType"]').value;
+  const name = el.querySelector('input[name="name"]').value.trim();
+  if (!name) {
+    ui.notifications.warn(game.i18n.localize("ASTER.craft.nameRequired"));
+    return null;
+  }
+  const material = _readMaterialInputs(el);
+
+  let craftRequires = {};
+  const reqJson = el.querySelector('textarea[name="craftRequiresJson"]').value.trim();
+  if (reqJson) {
+    try {
+      craftRequires = JSON.parse(reqJson);
+    } catch {
+      ui.notifications.warn(game.i18n.localize("ASTER.craft.invalidRequiresJson"));
+      return null;
+    }
+  }
+  const effect = el.querySelector('input[name="effect"]')?.value ?? "";
+  return { name, type, system: { material, craftRequires, effect } };
+}
+
+/** 자원·전제 부족 시 그래도 진행할지 확인 (D14 음수 허용 정책). */
+function _confirmCraftShortage(validation) {
+  const L = (k) => game.i18n.localize(k);
+  const lines = [];
+  if (validation.reasons.includes("CRAFT_REQUIRES_NOT_MET")) {
+    const miss = validation.missing
+      .map((m) => `${m.base} Lv${m.requiredLevel} (보유 ${m.have})`)
+      .join(", ");
+    lines.push(game.i18n.format("ASTER.craft.shortageRequires", { requires: miss }));
+  }
+  if (validation.reasons.includes("MATERIAL_SHORT")) lines.push(L("ASTER.craft.shortageMaterial"));
+  for (const c of CRAFT_COST_COLORS) {
+    if (validation.reasons.includes(`ASTER_${c.toUpperCase()}_SHORT`)) {
+      lines.push(game.i18n.format("ASTER.craft.shortageAster", { color: L(`ASTER.aster.${c}`) }));
+    }
+  }
+  return foundry.applications.api.DialogV2.confirm({
+    window: { title: game.i18n.localize("ASTER.craft.openCraftItem") },
+    content: `<div class="craft-shortage"><p>${L("ASTER.craft.shortage")}</p><ul>${lines
+      .map((l) => `<li>${l}</li>`)
+      .join("")}</ul></div>`,
+  }).catch(() => false);
 }

@@ -11,6 +11,9 @@ export class BagDataModel extends BaseItemModel {
         cols: new fields.NumberField({ initial: 6, integer: true, min: 1 }),
         rows: new fields.NumberField({ initial: 4, integer: true, min: 1 }),
       }),
+
+      // C1: 제작 전제 — { [craft 노드 base id]: 최소 레벨 }. 빈 객체면 전제 없음.
+      craftRequires: new fields.ObjectField({ initial: () => ({}) }),
     };
   }
 }

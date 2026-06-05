@@ -35,6 +35,9 @@ export class ConsumableDataModel extends BaseItemModel {
       ),
       // true면 cureStatus 무시하고 5종 전부 회복 (광범위 우선).
       cureAllStatus: new fields.BooleanField({ initial: false }),
+
+      // C1: 제작 전제 — { [craft 노드 base id]: 최소 레벨 }. 빈 객체면 전제 없음.
+      craftRequires: new fields.ObjectField({ initial: () => ({}) }),
     };
   }
 }

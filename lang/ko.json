@@ -75,6 +75,23 @@
       "hungry": "배고픔"
     },
     "craft": {
+      "openCraftItem": "아이템 만들기",
+      "openCraftItemHint": "공방 설비를 활용해 아이템을 제작합니다. 1인 2개·정보수집 후 등 룰 제약은 GM 재량입니다.",
+      "itemType": "아이템 종류",
+      "dropHint": "기존 아이템을 여기로 드래그하면 정보가 자동으로 채워집니다.",
+      "requiresLabel": "공방 전제 (JSON, 선택)",
+      "invalidType": "이 타입의 아이템은 제작 대상이 아닙니다 (소비품·장비품·가방·요리만 가능).",
+      "invalidRequiresJson": "공방 전제 입력 형식이 잘못됐습니다. 예: {\"pot_cauldron\":1}",
+      "nameRequired": "아이템 이름을 입력하세요.",
+      "confirm": "제작 확정",
+      "cancel": "취소",
+      "success": "{name} 제작 완료 — 창고에 추가됨.",
+      "short": "부족",
+      "noCost": "비용 없음",
+      "shortage": "자원 또는 공방 전제가 부족합니다. 그래도 진행하시겠습니까?",
+      "shortageMaterial": "마테리얼 부족",
+      "shortageAster": "{color} 아스테르 부족",
+      "shortageRequires": "공방 전제 미충족: {requires}",
       "cat": {
         "potion": "약 제조",
         "divination": "점술",
@@ -388,7 +405,15 @@
       "unequipTooltip": "장비 슬롯에서 창고로 이동",
       "slotsFull": "장비 슬롯 2개가 모두 차 있습니다. 기존 마법구를 먼저 해제하세요."
     },
+    "itemType": {
+      "consumable": "소비품",
+      "equipment": "장비품",
+      "bag": "가방",
+      "food": "요리"
+    },
     "item": {
+      "name": "이름",
+      "effect": "효과",
       "material": {
         "label0": "마테리얼",
         "label1": "적",

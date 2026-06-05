@@ -49,6 +49,7 @@ export default tseslint.config(
         Handlebars: "readonly",
         loadTemplates: "readonly",
         renderTemplate: "readonly",
+        fromUuid: "readonly",
         mergeObject: "readonly",
         duplicate: "readonly",
         DEFAULT_TOKEN: "readonly",

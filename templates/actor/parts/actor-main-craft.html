@@ -1,6 +1,9 @@
 <div class="craft-tab{{#if craft.locked}} locked{{/if}}">
-  {{!-- 수정 잠금/해제 토글 --}}
+  {{!-- 수정 잠금/해제 토글 + 아이템 제작 --}}
   <div class="craft-header">
+    <button type="button" data-action="craftItemOpen" title="{{localize 'ASTER.craft.openCraftItemHint'}}">
+      {{localize "ASTER.craft.openCraftItem"}}
+    </button>
     <button type="button" class="craft-lock" data-action="craftLockToggle" title="{{localize craft.lockTitle}}">
       <i class="fa-solid {{craft.lockIcon}}"></i>
     </button>

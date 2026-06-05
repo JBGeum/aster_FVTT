@@ -881,6 +881,31 @@ JSON 소스는 `_key` 없이 깔끔하게 작성하고 빌드 스크립트가 Fo
 
 ---
 
+## D44. C1 아이템 생성 메커니즘 — craft 트랙 시작, 수명 주기 완결
+
+**결정:** PL이 craft 탭의 "아이템 만들기" 버튼으로 제작 다이얼로그를 열고, 기존 아이템 드래그 시 빈 칸 자동 채움 또는 수동 입력 → "제작 확정" 시 검증 + 자원 차감 + 창고에 신규 아이템 생성. 4개 타입(consumable·equipment·bag·food)에 `craftRequires: Object` 필드 추가(설비 노드 base id → 필요 레벨). D14 자원 차감 정책 정합(음수 허용 + 부족 시 확인). 룰 제약(1인 2개·정보수집 후·자동 파기)은 안내만, GM 재량. 시드 compendium은 별도 후속.
+
+**배경:** R 트랙(사용)·I 트랙(보유·장비) 완료 후 craft 트랙(생성)으로 *수명 주기 완결* — 생성(C1)→보유(D17)→장비(I1c)→사용(R1)→소멸(R1/I1b). CRAFT_TREE 64노드 + 비용 헬퍼(D14)가 이미 있어 생성 흐름만 추가하면 완비.
+
+**실측 정정 (명세 코드 오류 수정):**
+
+- **자원 경로**: 명세는 `actor.system.material.value` / `actor.system.aster.red`였으나 실제는 `actor.system.material`(스칼라) / `actor.system.aster.{color}.value`(SchemaField). validateCraft·craftItem 모두 정정.
+- **노드 id 규약**: `pot_cauldron_1` 형식 — `parseNodeId` 정규식(`{base}_{level}`)으로 base·level 추출, 같은 base의 최대 취득 레벨로 전제 비교. 순수 함수라 Vitest로 검증.
+- **`checkAffordable`(D14)는 craft 노드 비용용**이라 아이템 제작에 직접 못 씀 — 아이템 material[6] 배열을 비용으로 별도 검증.
+- craft-item.mjs는 actor 문서를 다뤄(아스테르·material 접근) `@ts-check` 미적용 — actor-sheet/aster 관례와 일치.
+
+**대안:**
+- 옵션 B (생성 + 시드 compendium 동시): xlsx가 그리드라 자동 추출 난도 높음 — 별도 트랙 분리
+- 옵션 C (자원 검증 생략): D14 정책과 충돌
+- 자동 환불: 룰 정합 외 (아이템은 1회 작성)
+- craftRequires 자유 텍스트: 자동 검증 불가 — 정형 Object 채택(단, C1은 PL이 JSON 직접 입력, 드롭다운 UI는 C3로 미룸)
+
+**선택 이유:** craft 탭 진입점은 설비 취득(D14)과 *같은 자리* — 룰북 공방 사용 PL 주도 정합. 드래그+자동 채움은 *재사용 + 커스텀 자유* 동시 지원, 향후 시드 compendium의 템플릿 활용으로 자연 확장. `craftRequires: Object`는 `prereqMet`의 base+level 매칭 패턴과 일관. D14 음수 허용 정책 재사용으로 *두 곳 다른 정책*의 모호함 회피.
+
+> craft 트랙 시작점, 수명 주기 대칭 완성. 시드 데이터(xlsx→compendium)·craftRequires 드롭다운 UI(C3)·룰 제약 자동화(C4)는 후속. D11(관심사 분리) 누적이 데이터 모델+헬퍼+UI 모두를 기존 패턴에 흡수.
+
+---
+
 ## 부록: 결정의 커리어적 의미
 
 이 일지는 단순 기록이 아니라 **설계 사고의 증거**다. 각 결정은 "특정 프레임워크 지식"이 아니라 "프레임워크가 바뀌어도 통하는 원칙"을 보여준다.
