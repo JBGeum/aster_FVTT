@@ -958,6 +958,59 @@ JSON 소스는 `_key` 없이 깔끔하게 작성하고 빌드 스크립트가 Fo
 
 ---
 
+## D47. N1 NPC DataModel 확장 + 기본 시트 — 자동화 헬퍼 재활용 기반
+
+**결정:** NPC DataModel에 *식 능력치 3종*(`hitFormula`/`dodgeFormula`/`apFormula`, StringField), *AP 현재 상태*(`ap.value`/`ap.max`), *상태이상*(`badstatus`, PC와 동일 5종) 추가. 시트 template은 능력치 2행(정수 / 식) + AP + badstatus 5칸 + biography + items. 시트 클래스는 AsterActorSheet 공통(PARTS 분기) — 별도 클래스 불필요. 자동화 헬퍼(`applyDamageAndStatus`/`applyHealHealth`/`applyCureStatus`/`applyCureAllStatus`)는 Actor 일반 동작이라 *필드 추가만으로 NPC 자동화 즉시 가능*. `npcAction` Item·AP 자동 굴림·액션 시전·합체기 대상 여부는 후속(N2~N5). cr 라벨은 "도전 등급"(사용자 확정).
+
+**배경:** D21에서 NPC 시트 미완성 명시. 자동화 헬퍼가 `actor.type` 분기 없이 `system.health`·`system.badstatus`만 참조함을 사전 검증 — NPC에 같은 필드 추가하면 헬퍼 변경 없이 동작.
+
+**대안:**
+- A. NPC 시트 클래스 분리: V13 PARTS로 type 분기 가능 — 별도 클래스는 actions/이벤트 중복
+- B. 능력치 합산(PC와 동일): NPC는 식 기반(룰북 표) — 어긋남
+- C. `formulas:{hit,dodge,ap}` 객체: 접근 경로 깊어짐 — 별도 필드가 input·헬퍼 접근 단순
+- E. badstatus 일부만: PC와 불일치 시 헬퍼 분기 발생 — 5종 유지가 재활용 최대
+- F. defendActive 필드: 이미 Combatant flag 기반 — DataModel 불필요
+- G. ⭐ 별도 필드 + 공통 시트(PARTS) + 5종 badstatus + flag 유지: 본 결정
+
+**실측 정합:**
+
+- badstatus AE 동기화(`_preUpdate`/`_onUpdate` → `syncBadstatusEffect`)는 *type 가드 없음* — NPC도 졸림/피로 토글 시 상태 AE·아이콘 표시, 피로 AE의 `system.speed -3`도 NPC에 적용(NPC도 speed 필드 보유). 회귀 안전 + 일관 동작.
+- i18n `ASTER.badstatus.*` 5종·`ASTER.label.health/speed`는 재사용, 신규는 `cr`/`ap`/`hitFormula` 등 라벨만.
+- 시트 badstatus 체크박스 id는 `npc-` 접두사로 PC와 동시 열림 시 충돌 회피.
+
+**선택 이유:** 자동화 헬퍼 재활용으로 D11 누적 효과 최대(헬퍼 코드 변경 0). 별도 필드는 객체 하위 키보다 input name·Roll 접근 단순. PARTS 분기로 시트 공통화. 5종 badstatus 일관(NPC 상태이상 면역은 *효과 영역*에서 처리, DataModel은 공통). Combatant flag 활용으로 방어·차지 상태는 DataModel 불필요. N1 우선 완성 후 N2~N5 점진(craft 트랙처럼 분할 안전).
+
+> N 트랙 첫 STEP — 전투 시스템의 PC vs NPC 균형 회복 시작. **Actor 추상화 검증**: 헬퍼가 Actor 일반 동작 가능한 건 PC/NPC 공통 인터페이스(`system.health`·`system.badstatus`)가 잘 추상화된 결과 — N1만으로 PC 동등 자동화 즉시 가능. 향후 사역마 등 다른 Actor 타입도 같은 패턴.
+
+---
+
+## D48. N2 `npcAction` Item 타입 + 부분 구조화 + 시트
+
+**결정:** NPC 스킬을 `npcAction` Item 타입으로 표현. DataModel은 *부분 구조화*(옵션 Y): `cost`/`costVariable`(가변 X) + `targetType`(self/one/many/all) + `damageFormula`/`addStatus`/`cureStatus`/`cureAllStatus`/`oncePerRound` + 자유 텍스트 `effect`/`description`. BaseItemModel 비상속(material·requirement 무의미). 별도 Item 시트(옵션 ㄴ)로 타 Item 타입과 일관. NPC 시트는 *액션 표 표시*(편집·삭제 버튼, 시전 버튼은 N3) + 일반 items 목록 분리. 공통 액션(대쉬·방어·집중)은 PC actions 패턴 재사용(N3, 하이브리드 옵션 다). 시전 흐름은 N2 영역 외.
+
+**배경:** N1에서 NPC DataModel·기본 시트 완성. 룰북 NPC 스킬 표를 데이터 자산으로 변환. 옵션 다(하이브리드)로 공통 액션은 시스템 코드, 고유 스킬만 Item.
+
+**대안:**
+- 옵션 X(자유 텍스트만): 자동화 어려움 — 큰 자동화 결정 어김
+- 옵션 Z(완전 구조화): 자기 버프·적 약체까지 구조화 시 분량 큼, AE 자동화는 N2 외 — 부분 구조화가 균형
+- BaseItemModel 상속: material·requirement 의미 없음 — 비상속이 명확
+- 옵션 ㄱ(NPC 시트 inline 편집): 타 타입과 불일관 — 시드 검수·편집 표준 어김
+- 옵션 가(모든 액션 npcAction): 공통 액션 중복 — 하이브리드가 최소 데이터
+
+**선택 이유:**
+
+(1) **자동화 헬퍼 재활용** — `addStatus`/`cureStatus`/`cureAllStatus` 키가 DAMAGE_STATUSES 정합 → N3 시전에서 `applyDamageAndStatus`/`applyCureStatus`/`applyCureAllStatus` 직접 호출(코드 변경 0).
+
+(2) **다중 체크박스 처리 재사용** — `addStatus`/`cureStatus` 배열 입력은 R1 consumable `cureStatus`와 동일 문제 → 같은 패턴(폼 name 대신 `_onRender` 커스텀 리스너로 직접 update) 재사용. `targetType`은 `selectOptions` + config(spell 색 패턴).
+
+(3) **타입 등록 인프라 일관** — template.json `types`+default + CONFIG.Item.dataModels + PARTS, 3곳 등록은 C2 craft 아이템과 같은 Foundry Item 확장 인프라.
+
+(4) **자유 텍스트 보존(D30)** — `effect`/`description`은 자유 텍스트, 자기 버프·특수 효과는 자동화 외 GM 운영.
+
+> N1(데이터 모델) + N2(스킬 아이템) 완료. 다음 N3(시전 흐름 + 공통 액션 + 헬퍼 호출). **Item 시스템 확장성**: craft 아이템(C2)·npcAction(N2)이 같은 인프라 재사용 — 향후 사역마·시나리오 자산도 같은 패턴.
+
+---
+
 ## 부록: 결정의 커리어적 의미
 
 이 일지는 단순 기록이 아니라 **설계 사고의 증거**다. 각 결정은 "특정 프레임워크 지식"이 아니라 "프레임워크가 바뀌어도 통하는 원칙"을 보여준다.
