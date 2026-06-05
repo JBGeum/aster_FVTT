@@ -1,4 +1,21 @@
 // @ts-check
+
+/**
+ * I1c: 장비 슬롯 container 예약 값 — 룰북 269 "장비품 2개까지".
+ * item.system.container가 이 값이면 *장비란*에 위치 (창고 "" / 가방 bag.id와 구분).
+ * @type {string[]}
+ */
+export const EQUIP_SLOT_CONTAINERS = ["equip-1", "equip-2"];
+
+/**
+ * container 값이 장비 슬롯인지 검사.
+ * @param {string} container
+ * @returns {boolean}
+ */
+export function isEquipSlotContainer(container) {
+  return EQUIP_SLOT_CONTAINERS.includes(container);
+}
+
 /** 아이템 면적. size={w,h}. */
 export function itemArea(size) {
   const { w = 1, h = 1 } = size ?? {};

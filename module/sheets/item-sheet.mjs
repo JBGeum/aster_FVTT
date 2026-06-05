@@ -30,7 +30,7 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       forms: { form: AsterItemSheet.#formConfig },
     },
     equipment: {
-      template: "systems/aster/templates/item/item-sheet.html",
+      template: "systems/aster/templates/item/item-equipment-sheet.html",
       forms: { form: AsterItemSheet.#formConfig },
     },
     food: {

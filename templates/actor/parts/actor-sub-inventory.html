@@ -83,16 +83,36 @@
         </div>
       </div>
     </div>
-    <div class="inv-slot equip-slot">
+    {{#each inv.equipSlots as |slot|}}
+    <div class="inv-slot equip-slot" data-slot-id="{{slot.slotId}}">
       <div class="slot-header">
         <span class="slot-label">{{localize 'ASTER.inventory.equipment'}}</span>
       </div>
-    </div>
-    <div class="inv-slot equip-slot">
-      <div class="slot-header">
-        <span class="slot-label">{{localize 'ASTER.inventory.equipment'}}</span>
+      {{#if slot.item}}
+      <div class="equip-item" data-item-id="{{slot.item.id}}">
+        <img src="{{slot.item.img}}" alt="{{slot.item.name}}" draggable="false" />
+        <span
+          class="equip-name"
+          data-action="itemChat"
+          data-item-id="{{slot.item.id}}"
+          title="{{localize 'ASTER.inventory.toChat'}}"
+          >{{slot.item.name}}</span
+        >
+        <button
+          type="button"
+          class="inv-list-btn"
+          data-action="equipmentUnequip"
+          data-item-id="{{slot.item.id}}"
+          title="{{localize 'ASTER.equipment.unequipTooltip'}}"
+        >
+          {{localize "ASTER.equipment.unequipBtn"}}
+        </button>
       </div>
+      {{else}}
+      <div class="equip-empty">{{localize 'ASTER.equipment.empty'}}</div>
+      {{/if}}
     </div>
+    {{/each}}
     <div class="inv-slot companion-slot">
       <div class="slot-header">
         <span class="slot-label">{{localize 'ASTER.inventory.companion'}}</span>
@@ -104,7 +124,7 @@
   <div class="inv-item-list">
     <div class="inv-list-scroll">
       {{#each inv.allItems as |it|}}
-      <div class="inv-list-row">
+      <div class="inv-list-row {{#if it.isMagicToolInactive}}magic-tool-inactive{{/if}}">
         <img class="inv-list-icon" src="{{it.img}}" alt="{{it.name}}" draggable="false" />
         <span
           class="inv-list-name"
@@ -115,9 +135,23 @@
         >
         {{#if it.summary}}
         <span class="inv-list-summary">{{it.summary}}</span>
+        {{/if}} {{#if it.isMagicToolInactive}}
+        <span class="inactive-badge" title="{{localize 'ASTER.equipment.inactiveTooltip'}}">
+          {{localize "ASTER.equipment.inactiveBadge"}}
+        </span>
         {{/if}}
         <span class="inv-list-badge loc-{{it.location}}">{{it.locationLabel}}</span>
-        {{#if it.canUse}}
+        {{#if it.isEquipment}}
+        <button
+          type="button"
+          class="inv-list-btn"
+          data-action="equipmentEquip"
+          data-item-id="{{it.id}}"
+          title="{{localize 'ASTER.equipment.equipTooltip'}}"
+        >
+          {{localize "ASTER.equipment.equipBtn"}}
+        </button>
+        {{/if}} {{#if it.canUse}}
         <button
           type="button"
           class="inv-list-btn use"

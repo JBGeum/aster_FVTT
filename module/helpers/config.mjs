@@ -26,6 +26,11 @@ ASTER.aster = {
   white: "ASTER.aster.white",
 };
 
+// 장비 카테고리 — 룰북 805 (마법구). xlsx "아이템마법구" 자료 정합. equipment 시트 드롭다운.
+ASTER.equipmentType = {
+  magicTool: "ASTER.equipment.type.magicTool",
+};
+
 // 아이템 사용 타이밍 — 룰북/데이터(아스테르 데이터.xlsx)의 타이밍 어휘. consumable 시트 드롭다운.
 ASTER.itemTiming = {
   setup: "ASTER.item.timing.setup",

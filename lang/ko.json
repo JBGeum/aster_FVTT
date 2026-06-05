@@ -371,6 +371,23 @@
         "notExploration": "피크닉은 탐색 페이즈에서만 할 수 있습니다."
       }
     },
+    "equipment": {
+      "type": {
+        "label": "카테고리",
+        "magicTool": "마법구"
+      },
+      "effect": "효과",
+      "effectHint": "장비란에 등록한 마법구의 효과만 세션 도중 발동 (룰북 807)",
+      "requirement": "작성 전제",
+      "inactiveBadge": "효과 비활성",
+      "inactiveTooltip": "장비란에 등록하지 않은 마법구는 효과를 받지 못합니다 (룰북 807)",
+      "empty": "장비 없음",
+      "equipBtn": "장비",
+      "equipTooltip": "빈 장비 슬롯으로 이동",
+      "unequipBtn": "해제",
+      "unequipTooltip": "장비 슬롯에서 창고로 이동",
+      "slotsFull": "장비 슬롯 2개가 모두 차 있습니다. 기존 마법구를 먼저 해제하세요."
+    },
     "item": {
       "material": {
         "label0": "마테리얼",

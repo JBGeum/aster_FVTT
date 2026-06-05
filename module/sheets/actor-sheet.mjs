@@ -1,5 +1,10 @@
 import { prepareActiveEffectCategories } from "../helpers/effects.mjs";
-import { checkBagCapacity, checkStorageAdd } from "../helpers/inventory-capacity.mjs";
+import {
+  checkBagCapacity,
+  checkStorageAdd,
+  EQUIP_SLOT_CONTAINERS,
+  isEquipSlotContainer,
+} from "../helpers/inventory-capacity.mjs";
 import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
 import { prereqMet, sumCost, canAcquire, canRelease } from "../helpers/craft-cost.mjs";
 import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell-roll.mjs";
@@ -36,6 +41,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       itemDelete: AsterActorSheet.#onItemDelete,
       consumableUse: AsterActorSheet.#onConsumableUse,
       revive: AsterActorSheet.#onRevive,
+      equipmentEquip: AsterActorSheet.#onEquipmentEquip,
+      equipmentUnequip: AsterActorSheet.#onEquipmentUnequip,
       toggleSkill: AsterActorSheet.#onToggleSkill,
       craftReset: AsterActorSheet.#onCraftReset,
       craftLockToggle: AsterActorSheet.#onCraftLockToggle,
@@ -201,7 +208,19 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const inBagLabel = game.i18n.localize("ASTER.inventory.inBag");
     const inStorageLabel = game.i18n.localize("ASTER.inventory.inStorage");
 
+    // 장비 슬롯 — container 예약값(equip-1/equip-2)에 해당 equipment 매핑 (I1c, 룰북 269 2칸).
+    const equipSlots = EQUIP_SLOT_CONTAINERS.map((slotId) => {
+      const it = this.actor.items.find(
+        (i) => i.type === "equipment" && i.system.container === slotId,
+      );
+      return {
+        slotId,
+        item: it ? { id: it.id, name: it.name, img: it.img } : null,
+      };
+    });
+
     context.inv = {
+      equipSlots,
       bag: bag
         ? {
             id: bag.id,
@@ -234,6 +253,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           locationLabel: inBagLabel,
           canUse: AsterActorSheet.#consumableHasHeal(i),
           summary: AsterActorSheet.#inventorySummary(i),
+          isEquipment: i.type === "equipment",
+          isMagicToolInactive: AsterActorSheet.#isMagicToolInactive(i),
         })),
         ...inStorage.map((i) => ({
           id: i.id,
@@ -243,6 +264,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           locationLabel: inStorageLabel,
           canUse: AsterActorSheet.#consumableHasHeal(i),
           summary: AsterActorSheet.#inventorySummary(i),
+          isEquipment: i.type === "equipment",
+          isMagicToolInactive: AsterActorSheet.#isMagicToolInactive(i),
         })),
       ],
     };
@@ -1552,6 +1575,18 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     return "";
   }
 
+  /**
+   * 마법구인데 장비란에 없어 효과가 비활성인지 (I1c, 룰북 807).
+   * 인벤토리 리스트에 "효과 비활성" 안내를 표시할 조건.
+   */
+  static #isMagicToolInactive(item) {
+    return (
+      item.type === "equipment" &&
+      item.system.type === "magicTool" &&
+      !isEquipSlotContainer(item.system.container)
+    );
+  }
+
   /** consumable이 회복 효과(건강·상태이상·일괄)를 하나라도 가지면 true — "사용" 버튼 노출 조건. */
   static #consumableHasHeal(item) {
     if (item?.type !== "consumable") return false;
@@ -1758,6 +1793,43 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       content,
       speaker: ChatMessage.getSpeaker({ actor: fallenActor }),
     });
+  }
+
+  static async #onEquipmentEquip(_event, target) {
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (item?.type !== "equipment") return;
+    await AsterActorSheet.equipItem(this.actor, item);
+  }
+
+  static async #onEquipmentUnequip(_event, target) {
+    const item = this.actor.items.get(target.dataset.itemId);
+    if (item?.type !== "equipment") return;
+    await AsterActorSheet.unequipItem(item);
+  }
+
+  /**
+   * 장비 — 비어있는 장비 슬롯으로 이동(container를 equip-N으로). 슬롯이 모두 차면 안내 후 차단.
+   * 빈 슬롯 자동 선택 — PL은 슬롯 번호를 고르지 않는다 (D17 container 패턴 확장, 룰북 269).
+   * @param {Actor} actor
+   * @param {Item} item
+   */
+  static async equipItem(actor, item) {
+    const used = new Set(
+      actor.items
+        .filter((i) => i.type === "equipment" && isEquipSlotContainer(i.system.container))
+        .map((i) => i.system.container),
+    );
+    const emptySlot = EQUIP_SLOT_CONTAINERS.find((s) => !used.has(s));
+    if (!emptySlot) {
+      ui.notifications.warn(game.i18n.localize("ASTER.equipment.slotsFull"));
+      return;
+    }
+    await item.update({ "system.container": emptySlot, "system.grid": { x: 0, y: 0 } });
+  }
+
+  /** 해제 — 장비 슬롯의 아이템을 창고(container "")로 복귀. */
+  static async unequipItem(item) {
+    await item.update({ "system.container": "", "system.grid": { x: 0, y: 0 } });
   }
 
   static async #onToggleSkill(_event, target) {
