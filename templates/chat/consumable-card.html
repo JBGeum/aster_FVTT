@@ -1,0 +1,28 @@
+<div class="aster-chat-card consumable-card">
+  <header class="card-header">
+    <img src="{{itemImg}}" alt="{{itemName}}" />
+    <div class="title">
+      <div class="name">{{title}}</div>
+      <div class="formula">{{actorName}}</div>
+    </div>
+  </header>
+
+  <div class="consumable-body">
+    {{#if healLine}}
+    <div class="heal-line">{{healLine}}</div>
+    {{/if}} {{#if allCured}}
+    <div class="cure-all-line">
+      {{localize "ASTER.consumable.cureAllResult"}} {{#if hasAllCuredKeys}}
+      <span class="cured-keys">— {{allCuredKeysText}}</span>
+      {{else}}
+      <span class="cured-none">— {{localize "ASTER.consumable.noStatusToHeal"}}</span>
+      {{/if}}
+    </div>
+    {{else if hasStatusCured}}
+    <div class="cure-line">
+      {{localize "ASTER.consumable.cureResult"}}
+      <span class="cured-keys">— {{statusCuredText}}</span>
+    </div>
+    {{/if}}
+  </div>
+</div>

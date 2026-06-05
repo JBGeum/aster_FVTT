@@ -27,9 +27,37 @@
           <input type="number" name="system.size.h" value="{{system.size.h}}" min="1" />
         </div>
       </div>
+      <fieldset class="heal-section">
+        <legend>{{localize "ASTER.consumable.healSection"}}</legend>
+        <div class="detail-lbl">{{localize "ASTER.consumable.healHealth"}}</div>
+        <div class="detail-input">
+          <input type="number" name="system.healHealth" value="{{system.healHealth}}" min="0" />
+        </div>
+        <div class="detail-lbl">{{localize "ASTER.consumable.cureStatusLabel"}}</div>
+        <div class="detail-input cure-status-checkboxes">
+          {{#each cureStatusOptions as |opt|}}
+          <label>
+            <input type="checkbox" class="cure-status-check" data-status="{{opt.key}}" {{checked opt.checked}} />
+            {{opt.label}}
+          </label>
+          {{/each}}
+        </div>
+        <div class="detail-input cure-all-row">
+          <label>
+            <input type="checkbox" name="system.cureAllStatus" {{checked system.cureAllStatus}} />
+            {{localize "ASTER.consumable.cureAllStatus"}}
+          </label>
+          <p class="hint">{{localize "ASTER.consumable.cureAllStatusHint"}}</p>
+        </div>
+      </fieldset>
       <div class="item-desc">
         {{editor system.description target="system.description" button=true editable=editable}}
       </div>
+      {{#if showUseButton}}
+      <footer class="consumable-actions">
+        <button type="button" data-action="useConsumable">{{localize "ASTER.consumable.useBtn"}}</button>
+      </footer>
+      {{/if}}
     </div>
   </div>
 </form>

@@ -114,6 +114,17 @@
           >{{it.name}}</span
         >
         <span class="inv-list-badge loc-{{it.location}}">{{it.locationLabel}}</span>
+        {{#if it.canUse}}
+        <button
+          type="button"
+          class="inv-list-btn use"
+          data-action="consumableUse"
+          data-item-id="{{it.id}}"
+          title="{{localize 'ASTER.consumable.useBtn'}}"
+        >
+          <i class="fas fa-flask-round-potion"></i>
+        </button>
+        {{/if}}
         <button
           type="button"
           class="inv-list-btn"

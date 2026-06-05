@@ -29,6 +29,9 @@ export const preloadHandlebarsTemplates = async function () {
     // Chat (picnic)
     "systems/aster/templates/chat/picnic-card.html",
 
+    // Chat (consumable)
+    "systems/aster/templates/chat/consumable-card.html",
+
     // Chat (combat)
     "systems/aster/templates/chat/combat-action.html",
     "systems/aster/templates/chat/damage-result.html",

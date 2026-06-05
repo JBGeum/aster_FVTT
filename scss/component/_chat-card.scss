@@ -214,4 +214,22 @@
     font-style: italic;
     font-size: 0.9em;
   }
+
+  // ── consumable 사용 카드: 회복(녹)·상태이상 회복(청) 영역 색 구분 (R1) ──────
+  &.consumable-card {
+    .heal-line {
+      margin-top: 0.3em;
+      color: #2c7a2c;
+    }
+    .cure-all-line,
+    .cure-line {
+      margin-top: 0.3em;
+      color: #1a5a8a;
+
+      .cured-none {
+        font-style: italic;
+        color: var(--color-text-secondary, #888);
+      }
+    }
+  }
 }
