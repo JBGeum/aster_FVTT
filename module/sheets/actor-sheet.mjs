@@ -508,9 +508,13 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _onRender(context, options) {
     super._onRender(context, options);
 
-    // 탭 초기 상태 적용 (data-action="tab" 클릭은 ApplicationV2가 자동 처리)
+    // 탭 초기 상태 적용 (data-action="tab" 클릭은 ApplicationV2가 자동 처리).
+    // NPC 시트는 탭 없는 flat 폼이라 매칭 요소가 없다 — changeTab은 요소 부재 시 throw하므로
+    // 해당 탭 네비가 실제로 렌더된 경우에만 호출한다.
     for (const [group, tab] of Object.entries(this.tabGroups)) {
-      this.changeTab(tab, group, { force: true });
+      if (this.element.querySelector(`[data-group="${group}"][data-tab="${tab}"]`)) {
+        this.changeTab(tab, group, { force: true });
+      }
     }
 
     // craft 탭 자원 input은 메인 탭과 같은 필드(system.aster.*, system.material)를 가리킨다.
