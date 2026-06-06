@@ -348,7 +348,8 @@ export class AsterActor extends Actor {
 
   /**
    * 회피 판정 (룰북 558~560: 대결판정의 한 종류).
-   * 능력치 = system.dodge(D15 파생), 회피 한정 피로 -3 보정(룰북 522).
+   * PC: 능력치 = system.dodge(D15 파생) 합산식. NPC: system.dodgeFormula 직접 평가(예: "2D6+3").
+   * 집중(+1d6)·회피 한정 피로 -3 보정(룰북 522)은 PC·NPC 공통.
    * system.rollMode와 무관하게 대결(vs) 카드를 출력한다.
    *
    * 졸림 자동 해제·포만 자동 감소는 호출하지 않음:
@@ -359,19 +360,45 @@ export class AsterActor extends Actor {
    */
   async rollDodge() {
     const renderTemplate = foundry.applications.handlebars.renderTemplate;
-    const dodgeValue = this.system.dodge ?? 0;
     const label = game.i18n.localize("ASTER.dodge.label");
 
-    // 회피도 대결판정의 한 종류이며 룰북상 일반 판정에 포함되므로 집중 효과 적용.
+    // 회피도 대결판정의 한 종류이며 룰북상 일반 판정에 포함되므로 집중 효과 적용 (PC·NPC 공통).
     const focus = checkFocusEffect(this);
-    const roll = await asterRoll(dodgeValue, this.getRollData(), {
-      baseDice: 2 + focus.extraDice,
-    });
+
+    let roll;
+    let dodgeValue;
+    if (this.type === "npc") {
+      // NPC: dodgeFormula 직접 평가(예: "2D6+3"). 빈 식·평가 실패는 경고 후 종료(N4 apFormula 패턴 정합).
+      const formula = this.system.dodgeFormula?.trim();
+      if (!formula) {
+        ui.notifications.warn(game.i18n.localize("ASTER.dodge.npcNoFormula"));
+        return;
+      }
+      // 집중 효과 — 식 끝에 다이스 추가(focus.extraDice는 1d6 단위). `new Roll`이 복합식을 자동 평가.
+      const fullFormula = focus.extraDice > 0 ? `${formula} + ${focus.extraDice}d6` : formula;
+      try {
+        roll = new Roll(fullFormula);
+        await roll.evaluate();
+      } catch (e) {
+        console.warn(`[Aster] NPC ${this.name} dodgeFormula 평가 실패: "${formula}"`, e);
+        ui.notifications.warn(game.i18n.localize("ASTER.dodge.npcFormulaError"));
+        return;
+      }
+      dodgeValue = 0; // 식 자체가 굴림 — 별도 능력치 합산값 없음
+    } else {
+      // PC: 능력치 합산식 (asterRoll: dodgeValue + 2d6, focus면 3d6).
+      dodgeValue = this.system.dodge ?? 0;
+      roll = await asterRoll(dodgeValue, this.getRollData(), {
+        baseDice: 2 + focus.extraDice,
+      });
+    }
+
     if (focus.combatant) {
       await focus.combatant.setFlag("aster", "focusActive", false);
     }
 
-    const resultDiceset = roll.dice[0].values;
+    // 다이스 평탄화 — PC 단일 그룹·NPC 다중 그룹(식 + 집중 다이스) 모두 처리.
+    const resultDiceset = roll.dice.flatMap((d) => d.values);
     const diceText = resultDiceset.join(", ");
     const cf = detectCritFumble(resultDiceset);
 

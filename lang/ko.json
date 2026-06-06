@@ -278,7 +278,9 @@
       "unisonNoDescription": "(룰북 플레이버 텍스트 없음)"
     },
     "dodge": {
-      "label": "회피"
+      "label": "회피",
+      "npcNoFormula": "회피 식이 설정되지 않았습니다.",
+      "npcFormulaError": "회피 식 평가에 실패했습니다. 콘솔을 확인해주세요."
     },
     "damage": {
       "applyBtn": "대미지 적용",
