@@ -57,8 +57,10 @@ export class AsterCombat extends Combat {
    * 2. PC의 액션 포인트를 1d6 굴려 Combatant flag(`aster.actionPoint`)에 저장 (룰 590).
    * 3. 라운드 시작 채팅 카드 (PC별 액션 포인트 통합 표시).
    *
-   * GM만 실행 (hook이 모든 클라이언트에서 발화하므로 가드 필수).
-   * 라운드 1은 `combatStart`, 라운드 2+는 `combatRound`에서 호출 (상호 배타적 발화).
+   * `_onStartRound` 라이프사이클에서 호출 — turn 포인터가 0으로 확정된 "이후"에 실행되므로,
+   * 여기서 combatant flag를 수정해도 현재 전투원(turn) 위치가 흔들리지 않는다.
+   * (과거 `combatRound`/`combatStart` 훅은 `nextRound`의 turn=0 커밋 "이전"에 발화해,
+   *  combatant 수정이 setupTurns를 트리거하며 직전 라운드 마지막 전투원에 turn을 고정시켰다.)
    *
    * @returns {Promise<void>}
    */
@@ -133,6 +135,20 @@ export class AsterCombat extends Combat {
         }),
       });
     }
+  }
+
+  /**
+   * 라운드 시작 라이프사이클 (V13 `_manageTurnEvents`). 라운드 1(전투 시작)과 2+ 모두 발화하며,
+   * turn=0 커밋 이후·활성 GM에서만 실행된다(`_onEndTurn`과 동일한 보장).
+   * 여기서 `_startRound`를 호출해야 combatant flag 수정이 turn 포인터를 흔들지 않는다.
+   *
+   * @param {object} context
+   * @returns {Promise<void>}
+   * @override
+   */
+  async _onStartRound(context) {
+    await super._onStartRound?.(context);
+    await this._startRound();
   }
 
   /**

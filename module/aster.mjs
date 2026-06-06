@@ -945,17 +945,14 @@ Hooks.on("deleteCombatant", (combatant) => {
   refreshActorSheet(combatant.actor);
 });
 
-// 라운드 시작 처리 (이니셔티브 갱신 + 액션 포인트 굴림 + 채팅 카드).
-// 라운드 1은 combatStart, 라운드 2+는 combatRound에서 발화 (상호 배타적).
-// combatStart의 _startRound가 전체 이니셔티브를 갱신하므로 G1 백업(_autoRollInitiative)을 포섭.
-// combatStart는 추가로 전투원 시트를 재렌더해 "전투 중" 상태를 즉시 반영 (모든 클라이언트).
-Hooks.on("combatStart", async (combat) => {
-  if (!(combat instanceof AsterCombat)) return;
-  refreshCombatSheets(combat);
-  await combat._startRound();
-});
-Hooks.on("combatRound", async (combat) => {
-  if (combat instanceof AsterCombat) await combat._startRound();
+// 라운드 시작 처리(이니셔티브 갱신 + 액션 포인트 굴림 + 채팅 카드)는
+// AsterCombat._onStartRound 오버라이드가 담당한다 — `combatRound`/`combatStart` 훅은
+// nextRound의 turn=0 커밋 "이전"에 발화해, 그 안에서 combatant를 수정하면 turn 포인터가
+// 직전 라운드 마지막 전투원에 고정되는 버그가 있었다(C>C>C). 라이프사이클 메서드는
+// turn 확정 이후 발화하므로 안전하다.
+// combatStart 훅은 전투원 시트 재렌더("전투 중" 상태 즉시 반영, 모든 클라이언트)만 담당.
+Hooks.on("combatStart", (combat) => {
+  if (combat instanceof AsterCombat) refreshCombatSheets(combat);
 });
 
 // 전투 종료 시 큰부상 → 부상 전이 (행동완료 시 부상 감소는 AsterCombat._onEndTurn 오버라이드가 처리).
