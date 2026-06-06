@@ -2531,18 +2531,12 @@ const CRAFT_ITEM_TYPES = ["consumable", "equipment", "bag", "food"];
 const CRAFT_COST_COLORS = ["red", "blue", "green", "yellow", "white"];
 
 /** 제작 다이얼로그 content(HTML 문자열). 종류·드롭영역·이름·material[6]·효과·전제·비용 미리보기. */
-function _renderCraftDialogContent() {
+/**
+ * craftRequires 행 1개의 HTML 문자열. DialogV2가 content의 `<template>`를 새니타이즈로 제거하므로
+ * 템플릿 복제 대신 이 함수로 매번 생성한다(추가 버튼·드래그 자동 채움 공용).
+ */
+function _craftRequiresRowHTML() {
   const L = (k) => game.i18n.localize(k);
-  const typeOptions = CRAFT_ITEM_TYPES.map(
-    (t) => `<option value="${t}">${L(`ASTER.itemType.${t}`)}</option>`,
-  ).join("");
-  const matCells = Array.from({ length: 6 }, (_v, i) => {
-    return `<label class="material-cell"><span class="material-lbl">${L(
-      `ASTER.item.material.label${i}`,
-    )}</span><input type="number" name="material.${i}" value="0" min="0" /></label>`;
-  }).join("");
-
-  // craftRequires 드롭다운 — 카테고리별 optgroup, 라벨은 i18n(가마솥·조각대 등), 값은 base id.
   const categoryLabels = Object.fromEntries(CRAFT_TREE.categories.map((c) => [c.id, c.label]));
   const byCategory = new Map();
   for (const item of getCraftRequiresBaseList()) {
@@ -2555,6 +2549,26 @@ function _renderCraftDialogContent() {
       return `<optgroup label="${L(categoryLabels[cat] ?? cat)}">${opts}</optgroup>`;
     })
     .join("");
+  return `<div class="craft-requires-row flexrow align-center">
+    <select name="requires-base">
+      <option value="">${L("ASTER.craft.requiresSelect")}</option>
+      ${baseOptions}
+    </select>
+    <input type="number" name="requires-level" value="0" min="0" style="width:60px;" />
+    <button type="button" data-craft-action="removeRequires" title="${L("ASTER.craft.requiresRemove")}">×</button>
+  </div>`;
+}
+
+function _renderCraftDialogContent() {
+  const L = (k) => game.i18n.localize(k);
+  const typeOptions = CRAFT_ITEM_TYPES.map(
+    (t) => `<option value="${t}">${L(`ASTER.itemType.${t}`)}</option>`,
+  ).join("");
+  const matCells = Array.from({ length: 6 }, (_v, i) => {
+    return `<label class="material-cell"><span class="material-lbl">${L(
+      `ASTER.item.material.label${i}`,
+    )}</span><input type="number" name="material.${i}" value="0" min="0" /></label>`;
+  }).join("");
 
   return `<div class="craft-dialog">
     <div class="form-group">
@@ -2583,17 +2597,6 @@ function _renderCraftDialogContent() {
       <button type="button" data-craft-action="addRequires" class="craft-requires-add">
         + ${L("ASTER.craft.requiresAdd")}
       </button>
-      <template class="craft-requires-row-template">
-        <div class="craft-requires-row flexrow align-center">
-          <select name="requires-base">
-            <option value="">${L("ASTER.craft.requiresSelect")}</option>
-            ${baseOptions}
-          </select>
-          <input type="number" name="requires-level" value="0" min="0" style="width:60px;" />
-          <button type="button" data-craft-action="removeRequires"
-                  title="${L("ASTER.craft.requiresRemove")}">×</button>
-        </div>
-      </template>
     </div>
     <div class="craft-cost-preview"></div>
   </div>`;
@@ -2601,7 +2604,9 @@ function _renderCraftDialogContent() {
 
 /** 다이얼로그 렌더 후 드롭 영역 + 실시간 비용 리스너 부착. */
 function _wireCraftDialog(dialog, actor) {
-  const el = dialog.element;
+  // V13 DialogV2 render 콜백 인자가 (event, dialog) 또는 (event, element)로 전달될 수 있어 둘 다 수용.
+  const el = dialog?.element ?? dialog;
+  if (!el?.querySelector) return;
   const drop = el.querySelector("[data-craft-drop]");
   if (drop) {
     drop.addEventListener("dragover", (event) => {
@@ -2630,21 +2635,31 @@ function _wireCraftDialog(dialog, actor) {
   }
   _updateCraftCostPreview(el, actor);
 
-  // craftRequires 동적 행 — "추가"는 템플릿 복제, "제거"는 이벤트 위임(동적 생성 행 대응).
-  const rowsContainer = el.querySelector(".craft-requires-rows");
-  const template = el.querySelector(".craft-requires-row-template");
-  const addBtn = el.querySelector('[data-craft-action="addRequires"]');
-  if (addBtn && rowsContainer && template) {
-    addBtn.addEventListener("click", () => {
-      rowsContainer.appendChild(template.content.cloneNode(true));
-    });
-  }
-  if (rowsContainer) {
-    rowsContainer.addEventListener("click", (event) => {
-      const btn = event.target.closest('[data-craft-action="removeRequires"]');
-      if (btn) btn.closest(".craft-requires-row")?.remove();
-    });
-  }
+  // craftRequires 동적 행 — 추가·제거를 el 위임 + 캡처 단계로 처리.
+  // 캡처 단계: DialogV2가 버블 단계에서 전파를 막아도 클릭을 먼저 받는다(버튼 무반응 회피).
+  // 행 생성은 _craftRequiresRowHTML() 문자열 삽입으로 — DialogV2가 `<template>`를 제거하기 때문.
+  el.addEventListener(
+    "click",
+    (event) => {
+      const t = event.target;
+      if (!t?.closest) return;
+      const addBtn = t.closest('[data-craft-action="addRequires"]');
+      if (addBtn) {
+        event.preventDefault();
+        el.querySelector(".craft-requires-rows")?.insertAdjacentHTML(
+          "beforeend",
+          _craftRequiresRowHTML(),
+        );
+        return;
+      }
+      const removeBtn = t.closest('[data-craft-action="removeRequires"]');
+      if (removeBtn) {
+        event.preventDefault();
+        removeBtn.closest(".craft-requires-row")?.remove();
+      }
+    },
+    true,
+  );
 }
 
 /** 드래그된 아이템 정보로 입력 칸 자동 채움 (원본은 변경 안 됨 — 참조만). */
@@ -2662,15 +2677,15 @@ function _fillCraftDraftFromItem(el, source) {
   // craftRequires — 기존 행 모두 제거 후 source의 각 전제마다 행 생성.
   // base가 CRAFT_TREE에 없으면 드롭다운은 미선택(빈 값)으로 남고 레벨만 채워진다(PL이 보정).
   const rowsContainer = el.querySelector(".craft-requires-rows");
-  const template = el.querySelector(".craft-requires-row-template");
-  if (rowsContainer && template) {
+  if (rowsContainer) {
     rowsContainer.innerHTML = "";
     for (const [base, level] of Object.entries(sys.craftRequires ?? {})) {
-      const frag = template.content.cloneNode(true);
-      const row = frag.querySelector(".craft-requires-row");
-      row.querySelector('select[name="requires-base"]').value = base;
-      row.querySelector('input[name="requires-level"]').value = level;
-      rowsContainer.appendChild(frag);
+      rowsContainer.insertAdjacentHTML("beforeend", _craftRequiresRowHTML());
+      const row = rowsContainer.lastElementChild;
+      const sel = row?.querySelector('select[name="requires-base"]');
+      const lvl = row?.querySelector('input[name="requires-level"]');
+      if (sel) sel.value = base;
+      if (lvl) lvl.value = level;
     }
   }
 }
