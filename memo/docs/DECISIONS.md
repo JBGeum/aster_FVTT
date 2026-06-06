@@ -1074,6 +1074,41 @@ JSON 소스는 `_key` 없이 깔끔하게 작성하고 빌드 스크립트가 Fo
 
 ---
 
+## D51. N5 NPC dodge 자동 굴림 + 자동화 헬퍼 회귀 점검 — N 트랙 마무리
+
+**결정:** `Actor.rollDodge()`를 *액터 타입 분기*로 확장 — PC는 기존 `asterRoll` 흐름(능력치 합산), NPC는 `dodgeFormula` 평가(예: "2D6+3"). 집중(focus +1d6)은 NPC 식 끝에 다이스 추가로 적용, 피로 -3 보정은 PC·NPC 공통(`computePenalties`). 다이스는 `roll.dice.flatMap((d) => d.values)`로 평탄화(PC 단일 그룹·NPC 다중 그룹 모두 처리). 채팅 카드는 *기존 `roll-asterabl-vs.html` 재사용*(NPC는 `ablValue=0`, 식이 카드에 노출). NPC 시트 *npc-combat* 영역에 dodge 버튼 추가 — PC와 *동일 액션 `rollDodge`* 통일. 합체기 G4 NPC 영역은 *해석 2*(NPC는 수혜자만 차단, PC 합체기로 NPC 공격은 유지) — 기존 PC 필터로 이미 동작, *코드 변경 0*. 자동화 헬퍼 8종(applyDamageAndStatus·applyCureStatus·applyCureAllStatus·applyHealHealth·applyDefendReduction·applyYellowReduction·checkFocusEffect·computePenalties) 모두 *Actor 일반 동작*(actor.type 분기 없음) 확인 — N1 필드 추가만으로 NPC 즉시 사용 가능.
+
+**배경:** N1~N4로 NPC 자동화 인프라 완비. N5는 *마지막 영역 dodge 굴림 + 회귀 점검*. 작업 진입 시 *합체기 영역이 이미 PC 필터로 동작* 발견 → N5 분량 대폭 축소. 사용자 결정 *해석 2*(수혜자만 차단)가 기존 코드와 정합.
+
+**대안:**
+- 옵션 B(dodgeFormula 표시만, GM 수동 굴림): 큰 자동화 결정과 충돌.
+- 별도 메서드 신설(`rollDodgeNpc`): 핸들러 분기 발생 — 단일 `rollDodge` 안 분기가 PC·NPC 통일 인터페이스(D47).
+- NPC 채팅 카드 신규: 분량 증가. 기존 template `isPC` 분기로 처리 가능(H 트랙).
+- NPC focus 미적용: PC와 불일관 — 사용자 결정(보정 적용) 어김.
+- 해석 1(NPC 합체기 완전 무관): PC 합체기로 NPC 공격은 룰 자연 — 어김.
+
+**선택 이유:**
+
+(1) **단일 `rollDodge` 메서드 분기** — D47 Actor 추상화 정합. `data-action="rollDodge"` 통일로 시트 코드도 통일, 외부 인터페이스 일관.
+
+(2) **집중 효과 식 끝에 다이스 추가** — `${dodgeFormula} + ${extraDice}d6`. NPC 식 구조 파괴 없이 `new Roll`이 복합식 자동 평가. PC `baseDice: 2 + focus.extraDice`와 동등.
+
+(3) **피로 보정 PC·NPC 공통** — `computePenalties(this, { isDodge: true })`가 `system.badstatus.exhaustion` 검사. N1 NPC badstatus 추가로 즉시 동작.
+
+(4) **다이스 평탄화** — `roll.dice.flatMap`. critical/fumble은 기존 `detectCritFumble` 적용(3d6+ 식의 의미는 룰 정합·사용자 확인 영역).
+
+(5) **기존 template 재사용** — `roll-asterabl-vs.html`로 PC·NPC dodge 모두 처리, 분량 최소. NPC 식 표시는 H 트랙 정리.
+
+(6) **합체기 영역 코드 변경 0** — 결정 ㄴ(수혜자만 차단)이 기존 PC 필터와 정합, 적 공격은 해석 2 유지. 합체기 영역이 액터 추상화를 방어적으로 유지한 결과(D11·D47 누적).
+
+(7) **자동화 헬퍼 8종 회귀 점검(코드 점검만)** — 모두 Actor 일반 + Combatant flag 패턴. NPC가 PC와 동등 자동화 도달 = 큰 자동화 결정의 완성.
+
+**N 트랙 마무리 — 자동화 추상화의 완성:**
+
+N1(DataModel)+N2(Item 타입)+N3(시전 흐름)+N4(AP 자동)+N5(dodge+회귀) = NPC가 PC와 동등 자동화. 핵심 발견: 자동화 헬퍼 8종 NPC 즉시 동작(D47), 합체기 G4 PC 필터 이미 동작(방어적 설계), PC combatAction 핸들러 NPC 재사용(D49), V13 라이프사이클 버그 발견·수정(D49), AP Combatant flag 통일(D49), Item 확장성(D48), 자동화 흐름 통합(D50), NPC dodge 메서드 분기(본 결정). D11(자산 누적)·D26(코드 점검)·D47(Actor 추상화) 원칙이 N 트랙에서 최대 회수 — 향후 사역마 등 새 액터 타입도 같은 패턴으로 통합 가능.
+
+---
+
 ## 부록: 결정의 커리어적 의미
 
 이 일지는 단순 기록이 아니라 **설계 사고의 증거**다. 각 결정은 "특정 프레임워크 지식"이 아니라 "프레임워크가 바뀌어도 통하는 원칙"을 보여준다.
