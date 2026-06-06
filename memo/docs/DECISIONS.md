@@ -1011,6 +1011,36 @@ JSON 소스는 `_key` 없이 깔끔하게 작성하고 빌드 스크립트가 Fo
 
 ---
 
+## D49. N3 NPC 시전 흐름 — PC combatAction 핸들러 재사용 + npcAction 시전
+
+**결정:** NPC 시트에 *공통 액션 4종*(throw·defend·focus·dash) 버튼을 노출하고 PC `#onCombatAction` 핸들러를 *그대로 재사용*(charge·unisonPrepare는 NPC 시트에 미노출 — NPC 합체기 발동 차단, 룰 정합). NPC 스킬(npcAction)은 신규 `#onNpcActionUse` 핸들러로 시전 — *하이브리드 다이얼로그*(costVariable=true 또는 targetType !== "self" 시 다이얼로그, self·고정비용은 즉시) + AP 차감(Combatant flag) + oncePerRound flag(`actionsThisRound.npcAction-{itemId}`) + 효과 적용(damageFormula·addStatus·cureStatus·cureAllStatus) + 신규 시전 카드(`npc-action-card.html`). AP 저장은 *Combatant flag로 통일*(옵션 A) — `system.ap`은 시트 표시·시드 참고용, 실제 시전은 flag 차감. 합체기 G4 NPC *발동 차단*은 N3(버튼 미노출), *대상 차단*은 N5.
+
+**배경:** N1·N2로 NPC DataModel + 기본 시트 + npcAction Item 완성. N3는 *시전 흐름*. PC combatAction 핸들러가 *actor 무관*(`this.actor` 활용) 설계라 NPC에서 *코드 변경 0*으로 재사용 — D26 *코드 자산 점검 우선* 원칙의 결과.
+
+**대안:**
+- 옵션 B(NPC 전용 combat 핸들러): actor.type 분기 + NPC AP를 DataModel로 — 코드 중복·핸들러 복잡도 증가.
+- 옵션 X(다이얼로그 항상): self 액션도 다이얼로그 거치면 UX 번거로움 — 하이브리드가 상황별 자연.
+- 옵션 Y(즉시 시전): costVariable의 X 입력·one/many 캔버스 타게팅 강제 불가.
+- 옵션 C(PC도 DataModel AP): 전 시스템 회귀, 분량 큼 — 옵션 A로 최소 변경.
+
+**선택 이유:**
+
+(1) **PC combatAction 핸들러 재사용** — D11 자산 누적의 정점. NPC가 defend·focus·dash·throw 사용 시 코드 변경 0, 룰 메커니즘(defendActive·focusActive·dash AE)도 그대로 동작.
+
+(2) **AP Combatant flag 통일(옵션 A)** — 핸들러 분기 없음. `system.ap`은 시트 표시·시드 참고용, 진리 원천은 flag 단일. N4에서 라운드 시작 시 apFormula 굴림 → flag 갱신 + system.ap 동기.
+
+(3) **하이브리드 다이얼로그(N3-2)** — self는 즉시(PL 부담 최소), costVariable·대상 필요 시만 다이얼로그. PC throw·dash 패턴 정합.
+
+(4) **oncePerRound flag** — `actionsThisRound.npcAction-{itemId}` 형식. PC defend·charge 키(`defend`/`charge`)와 충돌 없음, 라운드 내 각 액션 별도 추적.
+
+(5) **throw 적 타입 정정** — `#onCombatAction` throw는 적을 `npc`로 고정했으나, NPC 시전 시 적은 PC라 `this.actor.type === "npc" ? "character" : "npc"` 분기로 정정(PC 동작 불변). 시트에 throw 버튼을 노출하는 N3에서 함께 닫음 — 노출과 동작의 정합.
+
+(6) **시전 카드 신규(`npc-action-card.html`)** — npcAction의 부분 구조화 효과(대미지·상태이상·회복)를 대상별 명확 표시. 상태이상 키는 badstatus i18n 매핑으로 지역화. PC combat-action.html은 단순 구조 유지.
+
+> **본 결정의 의미 — 시스템 추상화의 검증**: PC combatAction 핸들러가 *actor 무관* 설계였기에 NPC 재사용 가능. AP를 Combatant flag로 통일한 결정으로 *핸들러 분기 0*. 시스템이 *액터 추상화*를 잘 유지한 결과 — 향후 사역마 등 다른 액터 타입도 같은 핸들러 재사용 가능. N1(데이터)+N2(스킬)+N3(시전)로 NPC가 PC와 *동등 자동화 수준*에 도달. 다음 N4(AP 자동 굴림+라운드 동기)+N5(회귀 점검+합체기 G4 대상 차단).
+
+---
+
 ## 부록: 결정의 커리어적 의미
 
 이 일지는 단순 기록이 아니라 **설계 사고의 증거**다. 각 결정은 "특정 프레임워크 지식"이 아니라 "프레임워크가 바뀌어도 통하는 원칙"을 보여준다.
