@@ -208,7 +208,8 @@ export class AsterActor extends Actor {
         "systems/aster/templates/chatcard/roll-asterabl.html",
         templateData,
       );
-      ChatMessage.create({ content, speaker });
+      // rolls 배열을 넣어야 Dice So Nice 등 다이스 애니메이션·소리가 트리거된다(대결 판정과 정합).
+      await ChatMessage.create({ content, speaker, rolls: [roll] });
 
       // 졸림 자동 해제: 룰 "한 번 판정에 실패하면 해제" — 일반판정 실패에만 적용.
       // AE는 _onUpdate hook에서 자동 삭제됨 (C-1 동기화).
@@ -346,9 +347,11 @@ export class AsterActor extends Actor {
       "systems/aster/templates/chatcard/roll-asterabl-emo.html",
       templateData,
     );
-    ChatMessage.create({
+    // rolls 배열을 넣어야 다이스 애니메이션·소리가 트리거된다(일반 판정과 정합).
+    await ChatMessage.create({
       content,
       speaker: ChatMessage.getSpeaker({ alias: game.user.name }),
+      rolls: [roll],
     });
   }
 

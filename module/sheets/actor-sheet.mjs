@@ -2145,9 +2145,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         this.#craftWarn(r.reasons, r.dependents);
         return;
       }
-      // 환불: 차감의 거울 동작(anyAster 제외). ObjectField 키는 삭제 구문(-=)으로 제거.
+      // 환불: 차감의 거울 동작(anyAster 제외). ObjectField는 update 시 병합이라 키 삭제(-=)나
+      // 빈/부분 객체 덮어쓰기가 동작하지 않는다. 해제는 해당 키를 false로 덮어쓴다(취득 패턴의 거울).
+      // 모든 craft 헬퍼·표시가 `=== true`/truthy로 읽고 sumCost는 `if (!val) continue`라 false는 미취득과 동일.
       const node = CRAFT_TREE.nodes.find((n) => n.id === skillId);
-      const update = { [`system.craft.acquired.-=${skillId}`]: null };
+      const update = { [`system.craft.acquired.${skillId}`]: false };
       if (node) {
         for (const c of ["red", "blue", "green", "yellow"]) {
           const amount = node.cost.aster[c];
@@ -2174,10 +2176,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     if (Object.keys(acquired).length === 0) return;
 
     // 취득 노드 비용 합계로 일괄 환불(anyAster는 차감 대상이 아니었으므로 환불도 제외).
-    // 빈 객체를 머지하면 기존 키가 남으므로, 취득한 키를 각각 삭제 구문(-=)으로 제거.
+    // ObjectField는 update 시 병합이라 빈 객체 덮어쓰기·키 삭제(-=)가 동작하지 않는다.
+    // 취득 키를 각각 false로 덮어쓴다(sumCost는 false를 건너뛰고 표시·헬퍼는 `=== true`로 읽음).
     const cost = sumCost(acquired);
     const update = {};
-    for (const k of Object.keys(acquired)) update[`system.craft.acquired.-=${k}`] = null;
+    for (const k of Object.keys(acquired)) update[`system.craft.acquired.${k}`] = false;
     for (const c of ["red", "blue", "green", "yellow"]) {
       if (cost.aster[c] > 0) {
         update[`system.aster.${c}.value`] =
@@ -2496,6 +2499,16 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async #onSubmit(_event, _form, formData) {
     await this.actor.update(formData.object);
+
+    // NPC AP를 시트에서 수정하면 Combatant flag(actionPoint)도 동기화한다.
+    // AP 진리 원천은 flag(N4 옵션 A)라, 동기 없으면 시트 표시·액션 실행이 수정값을 반영하지 못한다.
+    if (this.actor.type === "npc" && game.combat?.started) {
+      const combatant = game.combat.combatants.find((c) => c.actor?.id === this.actor.id);
+      const apValue = foundry.utils.getProperty(formData.object, "system.ap.value");
+      if (combatant && apValue != null) {
+        await combatant.setFlag("aster", "actionPoint", Number(apValue) || 0);
+      }
+    }
   }
 }
 

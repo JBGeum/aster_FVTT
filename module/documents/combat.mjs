@@ -144,13 +144,15 @@ export class AsterCombat extends Combat {
       apResults.push({ name: c.actor.name, ap, base: baseRoll.total, chargeBonus, isNpc });
     }
 
-    // 2-b. 만료 AE 정리 (Foundry V13 라운드 만료 보조) — 이 전투의 duration.rounds 경과 AE를 명시 삭제.
-    //      dash·unisonGreen 등 startRound + rounds로 만료 시점이 정해진 효과가 라운드 경계에서 제거된다.
+    // 2-b. 만료 AE 정리 — 우리가 만든 라운드 효과(dash·unisonGreen)를 startRound + rounds 경과 시 삭제.
+    //      `duration.combat`은 ForeignDocumentField라 문자열 비교가 불안정해, 식별은 우리 flag로 한다.
+    //      (Foundry 기본 라운드 만료가 동작하지 않는 케이스의 보조.)
     for (const c of this.combatants) {
       if (!c.actor) continue;
       const expired = c.actor.effects.filter((eff) => {
+        if (!eff.flags?.aster?.sourceAction) return false;
         const d = eff.duration;
-        if (!d?.rounds || d.combat !== this.id) return false;
+        if (!d?.rounds) return false;
         return this.round - (d.startRound ?? this.round) >= d.rounds;
       });
       if (expired.length) {
