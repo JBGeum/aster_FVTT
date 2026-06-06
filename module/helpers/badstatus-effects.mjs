@@ -30,6 +30,29 @@ export const BADSTATUS_EFFECTS = {
     changes: [],
     statuses: ["sleepy"],
   },
+  // 부상·큰부상·배고픔 — 자동 효과(changes) 없음(건강 감소는 _onEndTurn, 포만은 별도 영역).
+  // AE 존재 자체가 토큰 status 아이콘 표시 + 자동 동기화 트리거. 아이콘은 임시(H 트랙 정리).
+  injury: {
+    key: "injury",
+    name: "ASTER.badstatus.injury",
+    img: "icons/svg/blood.svg",
+    changes: [],
+    statuses: ["injury"],
+  },
+  bigInj: {
+    key: "bigInj",
+    name: "ASTER.badstatus.biginj",
+    img: "icons/svg/blood.svg",
+    changes: [],
+    statuses: ["bigInj"],
+  },
+  hungry: {
+    key: "hungry",
+    name: "ASTER.badstatus.hungry",
+    img: "icons/svg/pill.svg",
+    changes: [],
+    statuses: ["hungry"],
+  },
 };
 
 /**

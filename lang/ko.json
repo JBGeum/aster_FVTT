@@ -4,7 +4,8 @@
       "active": "활발",
       "knowledge": "박식",
       "dexterity": "요령",
-      "worldly": "처세"
+      "worldly": "처세",
+      "pcOnly": "능력치 판정은 PC(캐릭터) 전용입니다."
     },
     "aster": {
       "red": "적",

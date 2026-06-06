@@ -815,7 +815,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
               priority: 20,
             },
           ],
-          duration: { rounds: 1, startRound: combat.round },
+          // combat 매개는 Foundry 라운드 기반 만료 흐름에 필요(없으면 자동 만료 안 됨).
+          duration: { rounds: 1, startRound: combat.round, combat: combat.id },
           flags: { aster: { sourceAction: "dash" } },
         },
       ]);
@@ -1515,7 +1516,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
             priority: 20,
           },
         ],
-        duration: { rounds: 1, startRound: combat.round },
+        // combat 매개는 Foundry 라운드 기반 만료 흐름에 필요(dash AE와 동일).
+        duration: { rounds: 1, startRound: combat.round, combat: combat.id },
         flags: { aster: { sourceAction: "unisonGreen" } },
       },
     ]);

@@ -112,6 +112,12 @@ export class AsterActor extends Actor {
   }
 
   async rollAbility(ability, label, _options = {}) {
+    // NPC는 능력치 시스템 없음(식 기반 hitFormula·dodgeFormula). system.ability 접근 전에 가드.
+    if (this.type !== "character") {
+      ui.notifications.warn(game.i18n.localize("ASTER.ability.pcOnly"));
+      return;
+    }
+
     const renderTemplate = foundry.applications.handlebars.renderTemplate;
     const ablValue = this.system.ability[ability].total;
 
@@ -367,6 +373,7 @@ export class AsterActor extends Actor {
 
     let roll;
     let dodgeValue;
+    let npcFormula = null; // NPC 식 — 카드 표시용(PC는 null이라 기존 능력치 합산 표시 유지)
     if (this.type === "npc") {
       // NPC: dodgeFormula 직접 평가(예: "2D6+3"). 빈 식·평가 실패는 경고 후 종료(N4 apFormula 패턴 정합).
       const formula = this.system.dodgeFormula?.trim();
@@ -375,9 +382,9 @@ export class AsterActor extends Actor {
         return;
       }
       // 집중 효과 — 식 끝에 다이스 추가(focus.extraDice는 1d6 단위). `new Roll`이 복합식을 자동 평가.
-      const fullFormula = focus.extraDice > 0 ? `${formula} + ${focus.extraDice}d6` : formula;
+      npcFormula = focus.extraDice > 0 ? `${formula} + ${focus.extraDice}d6` : formula;
       try {
-        roll = new Roll(fullFormula);
+        roll = new Roll(npcFormula);
         await roll.evaluate();
       } catch (e) {
         console.warn(`[Aster] NPC ${this.name} dodgeFormula 평가 실패: "${formula}"`, e);
@@ -410,6 +417,7 @@ export class AsterActor extends Actor {
     const templateData = {
       label,
       ablValue: dodgeValue,
+      formula: npcFormula, // NPC면 식, PC면 null(템플릿이 능력치 합산 표시로 분기)
       result: roll.result,
       total: adjustedTotal,
       rawTotal: roll.total,
@@ -501,6 +509,7 @@ export class AsterActor extends Actor {
     const templateData = {
       label,
       ablValue: 0, // 식 자체가 굴림 — 별도 능력치 합산값 없음(dodge NPC 패턴 정합)
+      formula: fullFormula, // NPC 전용 메서드라 항상 식 전달(카드 표시용)
       result: roll.result,
       total: adjustedTotal,
       rawTotal: roll.total,

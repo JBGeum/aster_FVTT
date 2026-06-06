@@ -7,8 +7,15 @@
   </header>
 
   <div class="roll-block">
+    {{#if formula}} {{!-- NPC 분기 — 식 전체 표시(상수 포함). rawTotal은 식 평가 결과, 최종 보정값은 아래 breakdown.
+    --}}
+    <div class="dice">
+      <span class="formula-text">{{formula}}</span> = <strong>{{rawTotal}}</strong>
+      <span class="dice-text">[{{diceText}}]</span>
+    </div>
+    {{else}} {{!-- PC 분기 — 능력치 합산 표시(기존 유지) --}}
     <div class="dice">[{{diceText}}] + {{ablValue}}</div>
-    {{#if focusApplied}}
+    {{/if}} {{#if focusApplied}}
     <div class="focus-applied-line">{{localize "ASTER.combat.focusApplied"}}</div>
     {{/if}} {{#if penalties.sleepy}}
     <div class="penalty-line">{{localize "ASTER.badstatus.sleepy"}}: {{penalties.sleepy}}</div>

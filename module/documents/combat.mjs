@@ -124,7 +124,9 @@ export class AsterCombat extends Combat {
 
       // 공통: Combatant flag 갱신.
       await c.setFlag("aster", "actionPoint", ap);
-      await c.setFlag("aster", "actionsThisRound", {});
+      // actionsThisRound는 unset으로 확실히 클리어 — setFlag(키, {})는 flag 객체 병합이라
+      // 기존 키(defend·charge 등)가 지워지지 않아 라운드 사용 제한이 리셋되지 않았다.
+      await c.unsetFlag("aster", "actionsThisRound");
 
       // 황표 flag 해제 (G4-β) — 1라운드 동안 적용 후 라운드 시작 시 만료. NPC 영역 결정은 N5.
       if (c.getFlag("aster", "damageReduction") > 0) {
@@ -140,6 +142,23 @@ export class AsterCombat extends Combat {
       }
 
       apResults.push({ name: c.actor.name, ap, base: baseRoll.total, chargeBonus, isNpc });
+    }
+
+    // 2-b. 만료 AE 정리 (Foundry V13 라운드 만료 보조) — 이 전투의 duration.rounds 경과 AE를 명시 삭제.
+    //      dash·unisonGreen 등 startRound + rounds로 만료 시점이 정해진 효과가 라운드 경계에서 제거된다.
+    for (const c of this.combatants) {
+      if (!c.actor) continue;
+      const expired = c.actor.effects.filter((eff) => {
+        const d = eff.duration;
+        if (!d?.rounds || d.combat !== this.id) return false;
+        return this.round - (d.startRound ?? this.round) >= d.rounds;
+      });
+      if (expired.length) {
+        await c.actor.deleteEmbeddedDocuments(
+          "ActiveEffect",
+          expired.map((e) => e.id),
+        );
+      }
     }
 
     // 3. 라운드 시작 채팅 카드 — PC·NPC 모두 표시(이니셔티브 순). 차지 보너스 받은 PC는 (base+bonus 차지) 표기.
@@ -167,6 +186,13 @@ export class AsterCombat extends Combat {
           alias: game.i18n.localize("ASTER.combat.tracker"),
         }),
       });
+    }
+
+    // 4. 시트 재렌더 — flag 리셋 후 combat 탭 표시 동기화(defendUsed·chargeUsed·AP 등).
+    //    flag 변경은 updateCombatant 훅이 각 클라이언트에서 처리하지만, 여기선 GM 클라이언트의
+    //    열린 시트를 즉시 갱신해 라운드 경계 표시 stale을 방지한다.
+    for (const c of this.combatants) {
+      if (c.actor?.sheet?.rendered) c.actor.sheet.render(false);
     }
   }
 

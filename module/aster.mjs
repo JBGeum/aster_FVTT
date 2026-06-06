@@ -23,6 +23,7 @@ import { RecordDataModel } from "./data/items/record.mjs";
 import { NpcActionDataModel } from "./data/items/npc-action.mjs";
 // Helpers
 import { preloadHandlebarsTemplates, registerHandlebarsHelpers } from "./helpers/templates.mjs";
+import { BADSTATUS_EFFECTS } from "./helpers/badstatus-effects.mjs";
 import { ASTER } from "./helpers/config.mjs";
 import { WORLD_VALUES } from "./helpers/world-values.mjs";
 import { resolveOpposed } from "./helpers/roll-result.mjs";
@@ -48,6 +49,17 @@ Hooks.once("init", async function () {
     formula: "@speed",
     decimals: 0,
   };
+
+  // 토큰 상태 아이콘 표시용 status 등록 — BADSTATUS_EFFECTS에서 파생(id는 statuses 키와 정합).
+  // 시트 badstatus 토글 → AE 생성/삭제(syncBadstatusEffect) → 토큰 아이콘 자동 갱신.
+  CONFIG.statusEffects = [
+    ...CONFIG.statusEffects,
+    ...Object.values(BADSTATUS_EFFECTS).map((e) => ({
+      id: e.statuses[0],
+      name: e.name,
+      img: e.img,
+    })),
+  ];
 
   CONFIG.Actor.documentClass = AsterActor;
   CONFIG.Item.documentClass = AsterItem;
