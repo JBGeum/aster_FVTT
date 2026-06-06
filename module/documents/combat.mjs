@@ -77,30 +77,56 @@ export class AsterCombat extends Combat {
       await this.updateEmbeddedDocuments("Combatant", initiativeUpdates);
     }
 
-    // 2. PC 액션 포인트 굴림 + 라운드 사용 카운터 초기화 (NPC 제외)
+    // 2. 액션 포인트 굴림 + 라운드 사용 카운터 초기화.
+    //    PC: 1d6 + chargeNextRound 보너스 (룰 590).
+    //    NPC: apFormula 평가 (룰북 NPC 표의 액션 식, 예: "1D6+6"). 빈 식이면 skip (대화 NPC·시드 미입력 정합).
+    //    기타 액터 타입: skip (사역마 등 향후 확장 영역).
     // defendActive는 대미지 적용 시 자동 해제. chargeNextRound는 이번 라운드 시작에서 회수("ap"는 적용·해제, "unison"은 G4까지 유지).
-    const apResults = []; // { name, ap, base, chargeBonus } — 채팅 카드용
+    const apResults = []; // { name, ap, base, chargeBonus, isNpc } — 채팅 카드용
     for (const c of this.combatants) {
-      if (c.actor?.type !== "character") continue;
-      const baseRoll = new Roll("1d6");
-      await baseRoll.evaluate();
-      let ap = baseRoll.total;
+      if (!c.actor) continue;
 
-      // 차지 AP 보너스 — 이전 라운드에 charge="ap"를 사용했다면 1d6 추가 후 flag 해제.
-      // "unison"은 G4 합체기 사용 시 회수되어야 하므로 여기선 손대지 않음.
+      let ap;
+      let baseRoll;
       let chargeBonus = null;
-      if (c.getFlag("aster", "chargeNextRound") === "ap") {
-        const bonusRoll = new Roll("1d6");
-        await bonusRoll.evaluate();
-        ap += bonusRoll.total;
-        chargeBonus = bonusRoll.total;
-        await c.setFlag("aster", "chargeNextRound", null);
+      let isNpc = false;
+
+      if (c.actor.type === "character") {
+        baseRoll = new Roll("1d6");
+        await baseRoll.evaluate();
+        ap = baseRoll.total;
+
+        // 차지 AP 보너스 — 이전 라운드에 charge="ap"를 사용했다면 1d6 추가 후 flag 해제.
+        // "unison"은 G4 합체기 사용 시 회수되어야 하므로 여기선 손대지 않음.
+        if (c.getFlag("aster", "chargeNextRound") === "ap") {
+          const bonusRoll = new Roll("1d6");
+          await bonusRoll.evaluate();
+          ap += bonusRoll.total;
+          chargeBonus = bonusRoll.total;
+          await c.setFlag("aster", "chargeNextRound", null);
+        }
+      } else if (c.actor.type === "npc") {
+        // NPC: apFormula 평가. 빈 식이면 skip. 평가 실패(잘못된 식)도 skip + console.warn(GM 수동 정정 영역).
+        const formula = c.actor.system.apFormula?.trim();
+        if (!formula) continue;
+        try {
+          baseRoll = new Roll(formula);
+          await baseRoll.evaluate();
+          ap = baseRoll.total;
+        } catch (e) {
+          console.warn(`[Aster] NPC ${c.actor.name} apFormula 평가 실패: "${formula}"`, e);
+          continue;
+        }
+        isNpc = true;
+      } else {
+        continue;
       }
 
+      // 공통: Combatant flag 갱신.
       await c.setFlag("aster", "actionPoint", ap);
       await c.setFlag("aster", "actionsThisRound", {});
 
-      // 황표 flag 해제 (G4-β) — 1라운드 동안 적용 후 라운드 시작 시 만료.
+      // 황표 flag 해제 (G4-β) — 1라운드 동안 적용 후 라운드 시작 시 만료. NPC 영역 결정은 N5.
       if (c.getFlag("aster", "damageReduction") > 0) {
         await c.setFlag("aster", "damageReduction", 0);
       }
@@ -108,10 +134,16 @@ export class AsterCombat extends Combat {
         await c.setFlag("aster", "damageBlocked", false);
       }
 
-      apResults.push({ name: c.actor.name, ap, base: baseRoll.total, chargeBonus });
+      // NPC만: system.ap 동기 (시트 표시·참고용). 진리 원천은 Combatant flag(N3 옵션 A 정합).
+      if (isNpc) {
+        await c.actor.update({ "system.ap.value": ap, "system.ap.max": ap });
+      }
+
+      apResults.push({ name: c.actor.name, ap, base: baseRoll.total, chargeBonus, isNpc });
     }
 
-    // 3. 라운드 시작 채팅 카드 — 차지 보너스 받은 PC는 (base+bonus 차지) 표기.
+    // 3. 라운드 시작 채팅 카드 — PC·NPC 모두 표시(이니셔티브 순). 차지 보너스 받은 PC는 (base+bonus 차지) 표기.
+    //    NPC는 class="npc"로 시각 구분(스타일은 H 트랙 정리 영역).
     if (apResults.length) {
       const chargeBonusLabel = game.i18n.localize("ASTER.combat.chargeBonus");
       const list = apResults
@@ -119,7 +151,8 @@ export class AsterCombat extends Combat {
           const bonus = r.chargeBonus
             ? ` <span class="charge-bonus">(${r.base}+${r.chargeBonus} ${chargeBonusLabel})</span>`
             : "";
-          return `<li>${r.name}: <strong>${r.ap}</strong>${bonus}</li>`;
+          const npcClass = r.isNpc ? ' class="npc"' : "";
+          return `<li${npcClass}>${r.name}: <strong>${r.ap}</strong>${bonus}</li>`;
         })
         .join("");
       await ChatMessage.create({
