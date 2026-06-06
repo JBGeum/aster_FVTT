@@ -37,6 +37,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       combatAction: AsterActorSheet.#onCombatAction,
       npcActionUse: AsterActorSheet.#onNpcActionUse,
       rollDodge: AsterActorSheet.#onRollDodge,
+      rollHit: AsterActorSheet.#onRollHit,
       unisonAttack: AsterActorSheet.#onUnisonAttack,
       itemChat: AsterActorSheet.#onItemChat,
       itemEdit: AsterActorSheet.#onItemEdit,
@@ -671,6 +672,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await this.actor.rollDodge();
   }
 
+  /** 명중 굴림 (N6, NPC 전용). Actor.rollHit이 PC 호출 시 경고 처리. */
+  static async #onRollHit(_event, _target) {
+    await this.actor.rollHit();
+  }
+
   static async #onCombatAction(_event, target) {
     const actionKey = target.dataset.actionKey;
     const combat = game.combat;
@@ -936,6 +942,38 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       await combatant.setFlag("aster", "actionsThisRound", { ...usage, [usageKey]: true });
     }
 
+    // N6 — 공격 액션(damageFormula 있음 + targetType !== "self") 시 hit 굴림 통합.
+    // hit vs dodge 자동 대결 비교는 영역 외 — GM이 시전 카드의 hit 결과를 PC dodge와 수동 비교.
+    let hitResult = null;
+    if (sys.damageFormula && sys.targetType !== "self") {
+      const hitFormula = this.actor.system.hitFormula?.trim();
+      if (hitFormula) {
+        // 집중 효과 — combatant의 focusActive flag(checkFocusEffect와 동일 의미). 사용 시 만료.
+        const focusActive = combatant.getFlag("aster", "focusActive") === true;
+        const fullHitFormula = focusActive ? `${hitFormula} + 1d6` : hitFormula;
+        try {
+          const hitRoll = new Roll(fullHitFormula);
+          await hitRoll.evaluate();
+          const hitDice = hitRoll.dice.flatMap((d) => d.values);
+          const hitCf = detectCritFumble(hitDice);
+          hitResult = {
+            formula: hitFormula,
+            total: hitRoll.total,
+            diceText: hitDice.join(", "),
+            isCritical: hitCf.critical,
+            isFumble: hitCf.fumble,
+          };
+          if (focusActive) await combatant.setFlag("aster", "focusActive", false);
+        } catch (e) {
+          console.warn(
+            `[Aster] NPC ${this.actor.name} hitFormula 평가 실패(시전 통합): "${hitFormula}"`,
+            e,
+          );
+          // 시전 자체는 계속 — hit 결과 미표시.
+        }
+      }
+    }
+
     // 5. 효과 적용
     const effectResults = [];
 
@@ -968,8 +1006,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       }
     }
 
-    // 6. 시전 카드
-    await this.#renderNpcActionCard(action, cost, damageTotal, effectResults);
+    // 6. 시전 카드 (hitResult 포함 — 공격 액션이면 hit 굴림 결과 표시)
+    await this.#renderNpcActionCard(action, cost, damageTotal, effectResults, hitResult);
   }
 
   /**
@@ -980,8 +1018,10 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
    * @param {number} cost  실제 소비 AP
    * @param {number} damageTotal  대미지 굴림 합(없으면 0)
    * @param {Array<object>} effectResults
+   * @param {{formula:string,total:number,diceText:string,isCritical:boolean,isFumble:boolean}|null} [hitResult]
+   *   공격 액션 hit 굴림 결과(없으면 null — 카드에 hit 영역 미표시).
    */
-  async #renderNpcActionCard(action, cost, damageTotal, effectResults) {
+  async #renderNpcActionCard(action, cost, damageTotal, effectResults, hitResult = null) {
     const sys = action.system;
     const statusLabel = (key) =>
       game.i18n.localize(`ASTER.badstatus.${key === "bigInj" ? "biginj" : key}`);
@@ -1015,6 +1055,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         damageTotal,
         damageResults,
         cureResults,
+        hitResult,
       },
     );
 

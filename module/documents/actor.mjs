@@ -449,4 +449,95 @@ export class AsterActor extends Actor {
       },
     });
   }
+
+  /**
+   * 명중 굴림 (공격 판정 — AP 소비 없는 별도 굴림). NPC 전용 — PC는 spell·consumable 등 시전 시
+   * 능력치 합산식으로 자연 굴림하므로 별도 메서드가 필요 없다. NPC는 system.hitFormula 식.
+   * 집중(+1d6)·피로 보정은 dodge와 동일 흐름. resolveOpposed 대결 인프라 연계(ability: "hit").
+   *
+   * @returns {Promise<void>}
+   */
+  async rollHit() {
+    if (this.type !== "npc") {
+      ui.notifications.warn(game.i18n.localize("ASTER.hit.pcNotSupported"));
+      return;
+    }
+
+    const renderTemplate = foundry.applications.handlebars.renderTemplate;
+    const label = game.i18n.localize("ASTER.hit.label");
+    const formula = this.system.hitFormula?.trim();
+    if (!formula) {
+      ui.notifications.warn(game.i18n.localize("ASTER.hit.npcNoFormula"));
+      return;
+    }
+
+    // 집중 효과 — 식 끝에 다이스 추가(dodge NPC 패턴 정합).
+    const focus = checkFocusEffect(this);
+    const fullFormula = focus.extraDice > 0 ? `${formula} + ${focus.extraDice}d6` : formula;
+
+    let roll;
+    try {
+      roll = new Roll(fullFormula);
+      await roll.evaluate();
+    } catch (e) {
+      console.warn(`[Aster] NPC ${this.name} hitFormula 평가 실패: "${formula}"`, e);
+      ui.notifications.warn(game.i18n.localize("ASTER.hit.npcFormulaError"));
+      return;
+    }
+
+    if (focus.combatant) {
+      await focus.combatant.setFlag("aster", "focusActive", false);
+    }
+
+    const resultDiceset = roll.dice.flatMap((d) => d.values);
+    const diceText = resultDiceset.join(", ");
+    const cf = detectCritFumble(resultDiceset);
+
+    // 피로 등 보정 — 명중 컨텍스트(isDodge: false). 회피와 동일하게 적용(룰 영역은 추후 확인).
+    const penalties = computePenalties(this, { isDodge: false });
+    const adjustedTotal = roll.total + penalties.total;
+
+    const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
+    const templateData = {
+      label,
+      ablValue: 0, // 식 자체가 굴림 — 별도 능력치 합산값 없음(dodge NPC 패턴 정합)
+      result: roll.result,
+      total: adjustedTotal,
+      rawTotal: roll.total,
+      penalties,
+      resultDiceset,
+      diceText,
+      isCritical: cf.critical,
+      isFumble: cf.fumble,
+      focusApplied: !!focus.combatant,
+      actorId: this.id,
+      isPC: false, // NPC 전용
+      isDodge: false, // 명중 영역
+    };
+    const content = await renderTemplate(
+      "systems/aster/templates/chatcard/roll-asterabl-vs.html",
+      templateData,
+    );
+    await ChatMessage.create({
+      content,
+      speaker,
+      rolls: [roll],
+      flags: {
+        aster: {
+          opposedRoll: {
+            actorId: this.id,
+            actorName: this.name,
+            label,
+            ability: "hit",
+            ablValue: 0,
+            total: adjustedTotal,
+            dice: resultDiceset,
+            isCritical: cf.critical,
+            isFumble: cf.fumble,
+            isDodge: false,
+          },
+        },
+      },
+    });
+  }
 }

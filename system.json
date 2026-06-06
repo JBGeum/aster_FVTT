@@ -65,7 +65,8 @@
       "food": {},
       "spell": {},
       "feature": {},
-      "record": {}
+      "record": {},
+      "npcAction": {}
     }
   },
   "languages": [

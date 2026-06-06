@@ -282,6 +282,12 @@
       "npcNoFormula": "회피 식이 설정되지 않았습니다.",
       "npcFormulaError": "회피 식 평가에 실패했습니다. 콘솔을 확인해주세요."
     },
+    "hit": {
+      "label": "명중",
+      "npcNoFormula": "명중 식이 설정되지 않았습니다.",
+      "npcFormulaError": "명중 식 평가에 실패했습니다. 콘솔을 확인해주세요.",
+      "pcNotSupported": "명중 굴림은 NPC 전용입니다."
+    },
     "damage": {
       "applyBtn": "대미지 적용",
       "applied": "대미지 적용 — {target}",
@@ -425,6 +431,7 @@
     },
     "npcAction": {
       "sectionTitle": "액션",
+      "add": "액션 추가",
       "namePlaceholder": "액션 이름",
       "cost": "AP 비용",
       "costVariable": "가변 비용 (X)",
