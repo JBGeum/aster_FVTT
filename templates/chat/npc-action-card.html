@@ -1,0 +1,44 @@
+<div class="aster-chat-card npc-action-card">
+  <header class="card-header">
+    <div class="title">
+      <div class="name">{{actorName}} — {{actionName}}</div>
+      <div class="formula">{{apSpent}}</div>
+    </div>
+  </header>
+
+  {{#if effect}}
+  <div class="action-effect">{{effect}}</div>
+  {{/if}} {{!-- 대미지·상태이상 결과 (대상별) --}} {{#if damageResults.length}}
+  <div class="damage-results">
+    {{#if damageFormula}}
+    <div class="formula-line">{{damageFormula}} = <strong>{{damageTotal}}</strong></div>
+    {{/if}} {{#each damageResults as |r|}}
+    <div class="result-line">
+      <span class="target">{{r.targetName}}</span>:
+      <span class="hp">{{r.hBefore}} → {{r.hAfter}}</span>
+      {{#if r.statusApplied.length}}
+      <span class="status">+ {{join r.statusApplied ", "}}</span>
+      {{/if}}
+    </div>
+    {{/each}}
+  </div>
+  {{/if}} {{!-- 회복 결과 (대상별) --}} {{#if cureResults.length}}
+  <div class="cure-results">
+    {{#each cureResults as |r|}}
+    <div class="result-line">
+      <span class="target">{{r.targetName}}</span>: {{#if r.curedKeys}}
+      <span class="cure"
+        >{{localize "ASTER.npcAction.cureAllStatus"}}: {{#if r.curedKeys.length}}{{join r.curedKeys ",
+        "}}{{else}}—{{/if}}</span
+      >
+      {{/if}} {{#if r.statusLabel}}
+      <span class="cure"
+        >{{r.statusLabel}} — {{#if r.cured}}{{localize "ASTER.npcAction.cured"}}{{else}}{{localize
+        "ASTER.npcAction.cureNone"}}{{/if}}</span
+      >
+      {{/if}}
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+</div>

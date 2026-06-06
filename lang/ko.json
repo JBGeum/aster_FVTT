@@ -443,7 +443,13 @@
       "description": "설명",
       "name": "기명",
       "actions": "조작",
-      "empty": "액션이 없습니다."
+      "empty": "액션이 없습니다.",
+      "useTooltip": "시전",
+      "alreadyUsedThisRound": "{name}은(는) 이 라운드에 이미 사용했습니다.",
+      "xInputTitle": "{name} — X 값 입력",
+      "xInputLabel": "X (AP)",
+      "cured": "치료",
+      "cureNone": "효과 없음"
     },
     "item": {
       "name": "이름",

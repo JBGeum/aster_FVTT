@@ -121,6 +121,72 @@
       {{editor system.biography target="system.biography" rollData=rollData button=true owner=owner editable=editable}}
     </div>
 
+    {{!-- N3 — NPC combat 영역: AP 표시 + 공통 액션. PC combat 탭 CSS 재사용(시각 일관). charge·unisonPrepare 제외 — NPC
+    합체기 발동 불가(룰 정합). --}}
+    <div class="npc-combat">
+      <div class="combat-ap-display">
+        <span class="ap-label">{{localize "ASTER.combat.actionPoints"}}</span>
+        <span class="ap-value">{{#if combatContext.inCombat}}{{combatContext.ap}}{{else}}—{{/if}}</span>
+        {{#if combatContext.focusActive}}
+        <span class="focus-indicator">{{localize "ASTER.combat.focusActiveIndicator"}}</span>
+        {{/if}}
+      </div>
+
+      {{#unless combatContext.inCombat}}
+      <div class="combat-disabled-notice">{{localize "ASTER.combat.notInCombat"}}</div>
+      {{/unless}}
+
+      <div class="combat-actions {{#if combatContext.disabled}}disabled{{/if}}">
+        <button
+          type="button"
+          class="action-btn"
+          data-action="combatAction"
+          data-action-key="throw"
+          {{disabled
+          combatContext.disabled}}
+        >
+          <span class="action-name">{{localize "ASTER.combat.action.throw"}}</span>
+          <span class="action-cost">(1)</span>
+        </button>
+        <button
+          type="button"
+          class="action-btn {{#if combatContext.defendUsed}}used{{/if}}"
+          data-action="combatAction"
+          data-action-key="defend"
+          {{disabled
+          combatContext.disabled}}
+          {{disabled
+          combatContext.defendUsed}}
+        >
+          <span class="action-name">{{localize "ASTER.combat.action.defend"}}</span>
+          <span class="action-cost">(2){{#if combatContext.defendUsed}} ✓{{/if}}</span>
+        </button>
+        <button
+          type="button"
+          class="action-btn"
+          data-action="combatAction"
+          data-action-key="focus"
+          {{disabled
+          combatContext.disabled}}
+        >
+          <span class="action-name">{{localize "ASTER.combat.action.focus"}}</span>
+          <span class="action-cost">(3)</span>
+        </button>
+        <button
+          type="button"
+          class="action-btn"
+          data-action="combatAction"
+          data-action-key="dash"
+          {{disabled
+          combatContext.disabled}}
+        >
+          <span class="action-name">{{localize "ASTER.combat.action.dash"}}</span>
+          <span class="action-cost">(X)</span>
+        </button>
+        {{!-- charge·unisonPrepare 버튼 없음 — 룰 정합(NPC 합체기 발동 불가) --}}
+      </div>
+    </div>
+
     {{!-- N2 — 액션 표 (npcAction). 시전 버튼은 N3, 현재는 편집·삭제만 --}}
     <div class="npc-actions">
       <h2>{{localize "ASTER.npcAction.sectionTitle"}}</h2>
@@ -145,6 +211,18 @@
               {{#if action.system.oncePerRound}}<span class="once">1R 1회</span>{{/if}}
             </td>
             <td class="action-buttons">
+              {{!-- N3 — 시전 버튼. combat 미진입 시 비활성(combatDisabled는 _prepareContext에서 평면화) --}}
+              <button
+                type="button"
+                class="npcaction-use-btn"
+                data-action="npcActionUse"
+                data-item-id="{{action._id}}"
+                title="{{localize 'ASTER.npcAction.useTooltip'}}"
+                {{disabled
+                action.combatDisabled}}
+              >
+                <i class="fas fa-bolt"></i>
+              </button>
               <button
                 type="button"
                 data-action="itemEdit"

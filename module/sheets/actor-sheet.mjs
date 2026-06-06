@@ -35,6 +35,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       foodSelect: AsterActorSheet.#onFoodSelect,
       picnicDeclare: AsterActorSheet.#onPicnicDeclare,
       combatAction: AsterActorSheet.#onCombatAction,
+      npcActionUse: AsterActorSheet.#onNpcActionUse,
       rollDodge: AsterActorSheet.#onRollDodge,
       unisonAttack: AsterActorSheet.#onUnisonAttack,
       itemChat: AsterActorSheet.#onItemChat,
@@ -114,12 +115,19 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       context.reviveContext = this.#buildReviveContext();
     } else if (this.actor.type === "npc") {
       this._prepareItems(context);
+      // N3 — combat 영역 활성 (PC 패턴 정합). #buildCombatContext는 actor 무관 동작:
+      // AP 표시·공통 액션 disabled 상태를 PC와 동일하게 노출한다. unisonReady는 NPC에
+      // 설정되지 않으므로 합체기 관련 필드는 자연히 false(발동 후보에서도 제외).
+      context.combatContext = this.#buildCombatContext();
       // N2 — npcAction(스킬 표)과 일반 items 분리. 대상 라벨은 미리 지역화.
+      // combatDisabled는 시전 버튼 disabled용 — 각 행에서 부모 combatContext를 `../`로 참조하면
+      // prettier HTML 파서가 실패하므로 행 컨텍스트에 미리 평면화한다.
       context.npcActions = context.items
         .filter((i) => i.type === "npcAction")
         .map((i) => ({
           ...i,
           targetLabel: game.i18n.localize(`ASTER.npcAction.target.${i.system.targetType}`),
+          combatDisabled: context.combatContext.disabled,
         }));
       context.npcItems = context.items.filter((i) => i.type !== "npcAction");
     }
@@ -693,8 +701,10 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     switch (actionKey) {
       case "throw": {
-        // 캔버스 사전 타게팅 — 적(NPC) 1체만 허용. 검증 실패 시 자원 소비 없이 종료.
-        const targets = getTargetedTokens({ required: true, max: 1, allowedTypes: "npc" });
+        // 캔버스 사전 타게팅 — 적 1체만 허용. 시전자가 PC면 적은 NPC, NPC면 적은 PC(N3).
+        // 검증 실패 시 자원 소비 없이 종료.
+        const enemyType = this.actor.type === "npc" ? "character" : "npc";
+        const targets = getTargetedTokens({ required: true, max: 1, allowedTypes: enemyType });
         if (!targets) return;
         throwTarget = targets[0];
         cost = 1;
@@ -830,6 +840,184 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       content,
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       flags: { aster: { combatAction: actionFlag } },
+    });
+  }
+
+  /**
+   * NPC 스킬(npcAction) 시전 (N3).
+   * 흐름: oncePerRound 검사 → 타게팅·X 입력(하이브리드 다이얼로그) → AP 검사 → AP 차감 →
+   *       oncePerRound flag 설정 → 효과 적용(damageFormula·addStatus·cureStatus·cureAllStatus) → 시전 카드.
+   * AP 진리 원천은 Combatant flag(옵션 A — PC `#onCombatAction`과 통일). `system.ap`은 시트 표시·시드 참고용.
+   *
+   * @param {PointerEvent} _event
+   * @param {HTMLElement} target  `data-item-id`를 가진 시전 버튼
+   */
+  static async #onNpcActionUse(_event, target) {
+    const itemId = target.dataset.itemId;
+    const action = this.actor.items.get(itemId);
+    if (!action || action.type !== "npcAction") return;
+
+    const sys = action.system;
+    const combat = game.combat;
+    if (!combat?.started) {
+      ui.notifications.warn(game.i18n.localize("ASTER.combat.notInCombat"));
+      return;
+    }
+    const combatant = combat.combatants.find((c) => c.actor?.id === this.actor.id);
+    if (!combatant) {
+      ui.notifications.warn(game.i18n.localize("ASTER.combat.noCombatantForActor"));
+      return;
+    }
+
+    // oncePerRound 검사 — 같은 액션을 이 라운드에 이미 썼는지. AP·다이얼로그보다 앞서 차단(자원·UX 보호).
+    const usage = combatant.getFlag("aster", "actionsThisRound") ?? {};
+    const usageKey = `npcAction-${itemId}`;
+    if (sys.oncePerRound && usage[usageKey]) {
+      ui.notifications.warn(
+        game.i18n.format("ASTER.npcAction.alreadyUsedThisRound", { name: action.name }),
+      );
+      return;
+    }
+
+    // 1. 하이브리드 다이얼로그 — costVariable 또는 self 이외 대상일 때만.
+    let cost = sys.cost;
+    let targets = [this.actor]; // self 기본
+    const needsDialog = sys.costVariable || sys.targetType !== "self";
+
+    if (needsDialog) {
+      // costVariable=true면 X(AP) 입력.
+      if (sys.costVariable) {
+        const x = await foundry.applications.api.DialogV2.prompt({
+          window: {
+            title: game.i18n.format("ASTER.npcAction.xInputTitle", { name: action.name }),
+          },
+          content: `<div class="form-group">
+            <label>${game.i18n.localize("ASTER.npcAction.xInputLabel")}</label>
+            <input type="number" name="x" value="1" min="1" />
+          </div>`,
+          ok: { callback: (_e, b) => Number(b.form.elements.x.value) || 0 },
+        }).catch(() => null);
+        if (x === null || x <= 0) return;
+        cost = x;
+      }
+
+      // 대상 — NPC가 시전하므로 적은 PC(character). all은 PC 전체.
+      if (sys.targetType === "one") {
+        const t = getTargetedTokens({ required: true, max: 1, allowedTypes: "character" });
+        if (!t) return;
+        targets = t.map((tok) => tok.actor).filter(Boolean);
+      } else if (sys.targetType === "many") {
+        const t = getTargetedTokens({ required: true, max: Infinity, allowedTypes: "character" });
+        if (!t) return;
+        targets = t.map((tok) => tok.actor).filter(Boolean);
+      } else if (sys.targetType === "all") {
+        targets = game.actors.filter((a) => a.type === "character");
+      }
+    }
+
+    // 2. AP 검사 (다이얼로그 입력 후 — costVariable의 X가 보유 AP를 넘을 수 있음).
+    const currentAP = combatant.getFlag("aster", "actionPoint") ?? 0;
+    if (currentAP < cost) {
+      ui.notifications.warn(
+        game.i18n.format("ASTER.combat.notEnoughAP", { need: cost, have: currentAP }),
+      );
+      return;
+    }
+
+    // 3. AP 차감
+    await combatant.setFlag("aster", "actionPoint", currentAP - cost);
+
+    // 4. oncePerRound flag — `npcAction-{itemId}` 키. PC defend·charge 키와 충돌 없음.
+    if (sys.oncePerRound) {
+      await combatant.setFlag("aster", "actionsThisRound", { ...usage, [usageKey]: true });
+    }
+
+    // 5. 효과 적용
+    const effectResults = [];
+
+    // 5-a. damageFormula 또는 addStatus — damageFormula 없고 addStatus만 있으면 amount=0(상태이상만).
+    let damageTotal = 0;
+    if (sys.damageFormula || sys.addStatus.length > 0) {
+      if (sys.damageFormula) {
+        const roll = new Roll(sys.damageFormula);
+        await roll.evaluate();
+        damageTotal = roll.total;
+      }
+      for (const t of targets) {
+        const result = await applyDamageAndStatus(t, damageTotal, sys.addStatus);
+        effectResults.push({ targetName: t.name, type: "damage", amount: damageTotal, ...result });
+      }
+    }
+
+    // 5-b. cureAllStatus 우선, 없으면 cureStatus 배열 루프.
+    if (sys.cureAllStatus) {
+      const cured = await applyCureAllStatus(targets);
+      for (const r of cured) {
+        effectResults.push({ targetName: r.actorName, type: "cureAll", curedKeys: r.curedKeys });
+      }
+    } else if (sys.cureStatus.length > 0) {
+      for (const statusKey of sys.cureStatus) {
+        const cured = await applyCureStatus(targets, statusKey);
+        for (const r of cured) {
+          effectResults.push({ targetName: r.actorName, type: "cure", statusKey, cured: r.cured });
+        }
+      }
+    }
+
+    // 6. 시전 카드
+    await this.#renderNpcActionCard(action, cost, damageTotal, effectResults);
+  }
+
+  /**
+   * NPC 시전 채팅 카드 렌더. npcAction의 부분 구조화 효과(대미지·상태이상·회복)를 대상별로 표시.
+   * 상태이상 키는 badstatus i18n 매핑(bigInj→biginj)으로 지역화해 전달한다.
+   *
+   * @param {Item} action
+   * @param {number} cost  실제 소비 AP
+   * @param {number} damageTotal  대미지 굴림 합(없으면 0)
+   * @param {Array<object>} effectResults
+   */
+  async #renderNpcActionCard(action, cost, damageTotal, effectResults) {
+    const sys = action.system;
+    const statusLabel = (key) =>
+      game.i18n.localize(`ASTER.badstatus.${key === "bigInj" ? "biginj" : key}`);
+
+    const damageResults = effectResults
+      .filter((r) => r.type === "damage")
+      .map((r) => ({
+        targetName: r.targetName,
+        hBefore: r.hBefore,
+        hAfter: r.hAfter,
+        statusApplied: (r.statusApplied ?? []).map(statusLabel),
+      }));
+
+    const cureResults = effectResults
+      .filter((r) => r.type === "cure" || r.type === "cureAll")
+      .map((r) => ({
+        targetName: r.targetName,
+        curedKeys: r.curedKeys ? r.curedKeys.map(statusLabel) : null,
+        statusLabel: r.statusKey ? statusLabel(r.statusKey) : null,
+        cured: r.cured,
+      }));
+
+    const content = await foundry.applications.handlebars.renderTemplate(
+      "systems/aster/templates/chat/npc-action-card.html",
+      {
+        actorName: this.actor.name,
+        actionName: action.name,
+        apSpent: game.i18n.format("ASTER.combat.apSpent", { n: cost }),
+        effect: sys.effect,
+        damageFormula: sys.damageFormula,
+        damageTotal,
+        damageResults,
+        cureResults,
+      },
+    );
+
+    await ChatMessage.create({
+      content,
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      flags: { aster: { npcAction: { actorId: this.actor.id, actionId: action.id } } },
     });
   }
 

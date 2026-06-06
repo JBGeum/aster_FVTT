@@ -42,6 +42,7 @@ export const preloadHandlebarsTemplates = async function () {
     "systems/aster/templates/chat/combat-action.html",
     "systems/aster/templates/chat/damage-result.html",
     "systems/aster/templates/chat/unison-attack.html",
+    "systems/aster/templates/chat/npc-action-card.html",
   ]);
 };
 
@@ -58,4 +59,8 @@ export function registerHandlebarsHelpers() {
   Handlebars.registerHelper("add", (a, b) => Number(a) + Number(b));
   Handlebars.registerHelper("multiply", (a, b) => Number(a) * Number(b));
   Handlebars.registerHelper("range", (n) => Array.from({ length: Number(n) }, (_, i) => i));
+  // 배열 → 구분자 결합. npc-action-card의 상태이상 라벨 목록 표시에 사용.
+  Handlebars.registerHelper("join", (arr, sep) =>
+    Array.isArray(arr) ? arr.join(typeof sep === "string" ? sep : ", ") : "",
+  );
 }
