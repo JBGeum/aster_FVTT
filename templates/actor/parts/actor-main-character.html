@@ -1,196 +1,164 @@
-<div class="sheet-top">
-  {{!-- 행 1: 1fr(초상화+이름) | 1fr(색상드롭다운+ROLL) --}}
-  <div class="row-1">
-    <div class="col-portrait">
-      <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
-    </div>
-    <div class="col-roll">
-      <div class="char-name">
-        <input name="name" type="text" value="{{actor.name}}" placeholder="캐릭터이름" />
-      </div>
-      <div class="color">
-        <div class="color-logo"></div>
-        <select name="system.color">
-          {{selectOptions config.color selected=system.color localize=true}}
-        </select>
-      </div>
-      <div class="roll-option flexcol align-center">
-        <div class="roll-opt-header">ROLL</div>
-        <div class="roll-option-list flexrow">
-          <label class="roll-option-btn">
-            <input type="radio" name="system.rollMode" value="normal" {{checked rollModeNormal}} />
-            <span>일반</span>
-          </label>
-          <label class="roll-option-btn">
-            <input type="radio" name="system.rollMode" value="vs" {{checked rollModeVs}} />
-            <span>대항</span>
-          </label>
+{{!-- H8 약초첩 시안 — 좌측 패널 (.herbarium 스코프). 클래스는 시안, 값·동작은 현재 바인딩. --}}
+<div class="herbarium">
+  <div class="col col--left">
+    {{!-- 정체성 --}}
+    <section class="panel panel--identity" data-corner="✿">
+      <div class="identity">
+        <div class="portrait">
+          <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
         </div>
-        <div class="roll-input">
-          <label for="roll-dc">목표치</label>
-          <input type="number" id="roll-dc" name="system.dc" value="{{system.dc}}" />
+        <div class="identity__main">
+          <div class="field">
+            <label>이름</label>
+            <div class="input-line">
+              <input name="name" type="text" value="{{actor.name}}" placeholder="캐릭터이름" />
+            </div>
+          </div>
+          <div class="field">
+            <label>속성</label>
+            <div class="input-line">
+              <span class="affinity-dot affinity-dot--{{system.color}}"></span>
+              <select name="system.color">
+                {{selectOptions config.color selected=system.color localize=true}}
+              </select>
+            </div>
+          </div>
+          <div class="roll">
+            <div class="roll__title">ROLL</div>
+            <div class="seg">
+              <label>
+                <input type="radio" name="system.rollMode" value="normal" {{checked rollModeNormal}} />
+                <span>일반</span>
+              </label>
+              <label>
+                <input type="radio" name="system.rollMode" value="vs" {{checked rollModeVs}} />
+                <span>대항</span>
+              </label>
+            </div>
+            <div class="roll__target">
+              <span class="lbl">목표치</span>
+              <span class="seal num"><input type="number" name="system.dc" value="{{system.dc}}" /></span>
+            </div>
+            <button type="button" class="btn-cast" data-action="emoRoll" data-label="ASTER.emo.rollLabel">
+              {{localize "ASTER.emo.roll"}}
+            </button>
+          </div>
         </div>
-        <button
-          type="button"
-          class="emo-roll-btn aster-btn aster-btn--primary aster-btn--block"
-          data-action="emoRoll"
-          data-label="ASTER.emo.rollLabel"
-        >
-          {{localize "ASTER.emo.roll"}}
-        </button>
       </div>
-    </div>
-  </div>
+    </section>
 
-  {{!-- 행 2: 능력치 4개 --}}
-  <div class="row-2">
-    <div class="col-abilities">
-      <div class="abilities-top">
+    {{!-- 능력치 --}}
+    <section class="panel" data-corner="❧">
+      <div class="panel__head">능력치</div>
+      <div class="attrs">
         {{#each system.ability as |ability key|}}
-        <div class="grid ability">
-          <div class="abl-name">
-            <span
-              class="ability-label abl-roll"
-              data-action="ablRoll"
-              data-ability="{{key}}"
-              data-label="{{ability.label}}"
-              >{{ability.label}}</span
-            >
+        <div class="attr">
+          <div class="attr__name abl-roll" data-action="ablRoll" data-ability="{{key}}" data-label="{{ability.label}}">
+            {{ability.label}}
           </div>
-          <div class="abl-value">
-            <span class="derived-value">{{ability.total}}</span>
-          </div>
-          <div class="abl-base">
-            <input type="number" name="system.ability.{{key}}.base" value="{{ability.base}}" />
-          </div>
-          <div class="abl-mod">
-            <input type="number" name="system.ability.{{key}}.mod" value="{{ability.mod}}" />
+          <div class="attr__main num">{{ability.total}}</div>
+          <div class="attr__cells">
+            <div class="cell num">
+              <input type="number" name="system.ability.{{key}}.base" value="{{ability.base}}" />
+            </div>
+            <div class="cell cell--accent num">
+              <input type="number" name="system.ability.{{key}}.mod" value="{{ability.mod}}" />
+            </div>
           </div>
         </div>
         {{/each}}
       </div>
-    </div>
-  </div>
+    </section>
 
-  {{!-- 행 3: 건강+포만도(1fr) | 민첩+회피(auto) --}}
-  <div class="row-3">
-    <div class="col-resources">
-      <div class="abl-health">
-        <div class="abl-label">건강</div>
-        <div class="health-input">
-          <input type="number" name="system.health.value" value="{{system.health.value}}" />
-          /
-          <input type="number" name="system.health.max" value="{{system.health.max}}" />
+    {{!-- 활력 (건강 / 포만도 + 민첩 / 회피) --}}
+    <section class="panel" data-corner="⚘">
+      <div class="panel__head">활력</div>
+      <div class="vitals">
+        <div class="gauge">
+          <span class="gauge__lbl">건강</span>
+          <div class="vessel">
+            <div class="vessel__fill vessel__fill--hp" style="right: {{healthEmptyPct}}%"></div>
+            <div class="vessel__txt num">
+              <input type="number" name="system.health.value" value="{{system.health.value}}" />
+              /
+              <input type="number" name="system.health.max" value="{{system.health.max}}" />
+            </div>
+          </div>
         </div>
-        <div class="abl-label">포만도</div>
-        <div class="satiety-input">
-          <input type="number" name="system.satiety.value" value="{{system.satiety.value}}" />
-          /
-          <input type="number" name="system.satiety.max" value="{{system.satiety.max}}" />
+        <div class="gauge">
+          <span class="gauge__lbl">포만도</span>
+          <div class="vessel">
+            <div class="vessel__fill vessel__fill--sat" style="right: {{satietyEmptyPct}}%"></div>
+            <div class="vessel__txt num">
+              <input type="number" name="system.satiety.value" value="{{system.satiety.value}}" />
+              /
+              <input type="number" name="system.satiety.max" value="{{system.satiety.max}}" />
+            </div>
+          </div>
+        </div>
+        <div class="minis">
+          <div class="mini"><span class="k">민첩</span><span class="v num">{{system.speed}}</span></div>
+          <div class="mini"><span class="k">회피</span><span class="v num">{{system.dodge}}</span></div>
         </div>
       </div>
-    </div>
-    <div class="col-derived">
-      <div class="abl-derived">
-        <div class="abl-label">민첩</div>
-        <div class="speed">
-          <span class="derived-value">{{system.speed}}</span>
-        </div>
-        <div class="abl-label">회피</div>
-        <div class="dodge">
-          <span class="derived-value">{{system.dodge}}</span>
-        </div>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  {{!-- 행 상태이상 — 자연 높이 --}}
-  <div class="row-badstatus">
-    <div class="bs-section-label">상태이상</div>
-    <div class="badstatus-grid">
-      <div class="badstatus bs-injury {{checked system.badstatus.injury}}">
-        <input
-          type="checkbox"
-          class="badstatus"
-          id="bs1.{{actor._id}}"
-          name="system.badstatus.injury"
-          {{checked
-          system.badstatus.injury}}
-        />
-        <label for="bs1.{{actor._id}}" class="badstatus">{{localize 'ASTER.badstatus.injury'}}</label>
+    {{!-- 상태이상 --}}
+    <section class="panel" data-corner="❀">
+      <div class="panel__head">상태이상</div>
+      <div class="status">
+        <label class="herb-tag">
+          <input type="checkbox" name="system.badstatus.injury" {{checked system.badstatus.injury}} />
+          {{localize "ASTER.badstatus.injury"}}
+        </label>
+        <label class="herb-tag">
+          <input type="checkbox" name="system.badstatus.bigInj" {{checked system.badstatus.bigInj}} />
+          {{localize "ASTER.badstatus.biginj"}}
+        </label>
+        <label class="herb-tag">
+          <input type="checkbox" name="system.badstatus.sleepy" {{checked system.badstatus.sleepy}} />
+          {{localize "ASTER.badstatus.sleepy"}}
+        </label>
+        <label class="herb-tag">
+          <input type="checkbox" name="system.badstatus.exhaustion" {{checked system.badstatus.exhaustion}} />
+          {{localize "ASTER.badstatus.exhaustion"}}
+        </label>
+        <label class="herb-tag">
+          <input type="checkbox" name="system.badstatus.hungry" {{checked system.badstatus.hungry}} />
+          {{localize "ASTER.badstatus.hungry"}}
+        </label>
       </div>
-      <div class="badstatus bs-biginj {{checked system.badstatus.bigInj}}">
-        <input
-          type="checkbox"
-          class="badstatus"
-          id="bs2.{{actor._id}}"
-          name="system.badstatus.bigInj"
-          {{checked
-          system.badstatus.bigInj}}
-        />
-        <label for="bs2.{{actor._id}}" class="badstatus">{{localize 'ASTER.badstatus.biginj'}}</label>
-      </div>
-      <div class="badstatus bs-sleepy {{checked system.badstatus.sleepy}}">
-        <input
-          type="checkbox"
-          class="badstatus"
-          id="bs3.{{actor._id}}"
-          name="system.badstatus.sleepy"
-          {{checked
-          system.badstatus.sleepy}}
-        />
-        <label for="bs3.{{actor._id}}" class="badstatus">{{localize 'ASTER.badstatus.sleepy'}}</label>
-      </div>
-      <div class="badstatus bs-exhaustion {{checked system.badstatus.exhaustion}}">
-        <input
-          type="checkbox"
-          class="badstatus"
-          id="bs4.{{actor._id}}"
-          name="system.badstatus.exhaustion"
-          {{checked
-          system.badstatus.exhaustion}}
-        />
-        <label for="bs4.{{actor._id}}" class="badstatus">{{localize 'ASTER.badstatus.exhaustion'}}</label>
-      </div>
-      <div class="badstatus bs-hungry {{checked system.badstatus.hungry}}">
-        <input
-          type="checkbox"
-          class="badstatus"
-          id="bs5.{{actor._id}}"
-          name="system.badstatus.hungry"
-          {{checked
-          system.badstatus.hungry}}
-        />
-        <label for="bs5.{{actor._id}}" class="badstatus">{{localize 'ASTER.badstatus.hungry'}}</label>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  {{!-- 행 아스테르 — 자연 높이 --}}
-  <div class="row-aster">
-    <div class="aster-container">
-      {{#each system.aster as |aster key|}}
-      <div class="aster aster-{{key}}">
-        <div class="aster-name">
-          <span class="aster-label">{{aster.label}}</span>
+    {{!-- 원소 친화 (아스테르 5색 + 마테리얼) --}}
+    <section class="panel" data-corner="✦">
+      <div class="panel__head">원소 친화</div>
+      <div class="elements">
+        {{#each system.aster as |aster key|}}
+        <div class="el">
+          <div class="el__dot el__dot--{{key}}"></div>
+          <div class="el__name">{{aster.label}}</div>
+          <div class="el__val num">
+            <input type="number" name="system.aster.{{key}}.value" value="{{aster.value}}" />
+          </div>
         </div>
-        <div class="aster-value">
-          <input type="number" name="system.aster.{{key}}.value" value="{{aster.value}}" />
+        {{/each}}
+        <div class="el el--mat">
+          <div class="el__dot el__dot--mat"></div>
+          <div class="el__name">마테리얼</div>
+          <div class="el__val num">
+            <input type="number" name="system.material" value="{{system.material}}" />
+          </div>
         </div>
       </div>
-      {{/each}}
-      <div class="aster aster-material">
-        <div class="aster-name"><span>마테리얼</span></div>
-        <div class="aster-value">
-          <input type="number" name="system.material" value="{{system.material}}" />
-        </div>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  {{!-- 행 메모 — 남는 세로 공간 흡수 (system.biography) --}}
-  <div class="row-memo">
-    <div class="memo-label">메모</div>
-    <textarea name="system.biography" placeholder="메모를 입력하세요...">{{system.biography}}</textarea>
+    {{!-- 메모 (system.biography) --}}
+    <section class="panel" data-corner="❧">
+      <div class="panel__head">메모</div>
+      <div class="memo">
+        <textarea name="system.biography" placeholder="메모를 입력하세요...">{{system.biography}}</textarea>
+      </div>
+    </section>
   </div>
 </div>

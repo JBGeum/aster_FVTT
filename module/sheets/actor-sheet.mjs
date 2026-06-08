@@ -196,6 +196,13 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
     context.rollModeNormal = context.system.rollMode === "normal";
     context.rollModeVs = context.system.rollMode === "vs";
+
+    // H8 약초첩 게이지 — fill은 right:emptyPct%로 비워지므로 (1 - value/max) 비율.
+    const emptyPct = (v, m) => (m > 0 ? Math.max(0, Math.min(100, (1 - (v ?? 0) / m) * 100)) : 100);
+    const hp = context.system.health ?? {};
+    const sat = context.system.satiety ?? {};
+    context.healthEmptyPct = emptyPct(hp.value, hp.max);
+    context.satietyEmptyPct = emptyPct(sat.value, sat.max);
   }
 
   _prepareInventory(context) {
