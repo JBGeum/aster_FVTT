@@ -18,4 +18,143 @@
       }
     }
   }
+
+  /* H2 — npcAction Item 시트 영역 */
+  /* 명세 STEP 4의 `form {}` 영역은 시트 루트가 .aster form이라 중첩 불가 →
+   * .item-sheet.npcaction(자손 div)에 병합. 나머지는 명세 정합. */
+  .item-sheet.npcaction {
+    min-width: 460px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--aster-space-md);
+    padding: var(--aster-space-md);
+    background: var(--aster-color-bg);
+    color: var(--aster-color-text);
+    font-family: var(--aster-font-family-sans);
+    font-size: var(--aster-font-size-base);
+
+    /* 헤더 */
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      gap: var(--aster-space-md);
+      padding-bottom: var(--aster-space-md);
+      border-bottom: var(--aster-border-width-base) solid var(--aster-color-border);
+
+      .profile-img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border: var(--aster-border-width-base) solid var(--aster-color-border);
+        border-radius: var(--aster-radius-md);
+      }
+
+      .charname {
+        flex: 1;
+        margin: 0;
+
+        input {
+          width: 100%;
+          height: var(--aster-input-height);
+          padding: 0 var(--aster-input-padding-x);
+          background: var(--aster-color-input-bg);
+          border: var(--aster-border-width-base) solid var(--aster-color-input-border);
+          border-radius: var(--aster-radius-md);
+          color: var(--aster-color-text);
+          font-size: var(--aster-font-size-lg);
+          font-weight: var(--aster-font-weight-semibold);
+        }
+      }
+    }
+
+    /* form-group — 라벨 + input 가로 정렬 */
+    .form-group {
+      display: flex;
+      align-items: center;
+      gap: var(--aster-space-sm);
+
+      &.flexcol {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      > label {
+        flex: 0 0 100px;
+        font-size: var(--aster-font-size-sm);
+        font-weight: var(--aster-font-weight-medium);
+        color: var(--aster-color-text-muted);
+      }
+
+      input[type="number"],
+      input[type="text"],
+      select {
+        flex: 1;
+        height: var(--aster-input-height);
+        padding: 0 var(--aster-input-padding-x);
+        background: var(--aster-color-input-bg);
+        border: var(--aster-border-width-base) solid var(--aster-color-input-border);
+        border-radius: var(--aster-radius-md);
+        color: var(--aster-color-text);
+        font-size: var(--aster-font-size-base);
+
+        &:disabled {
+          background: var(--aster-color-disabled-bg);
+          color: var(--aster-color-disabled-text);
+        }
+
+        &:focus {
+          outline: 2px solid var(--aster-color-focus-ring);
+          outline-offset: 1px;
+        }
+      }
+
+      /* 인라인 체크박스 라벨 */
+      > label:has(input[type="checkbox"]) {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: var(--aster-space-xs);
+        cursor: pointer;
+      }
+
+      input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: var(--aster-color-accent);
+      }
+    }
+
+    /* 부여·해제 상태이상 5칸 — 가로 grid */
+    .status-checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--aster-space-xs);
+
+      label {
+        display: flex;
+        align-items: center;
+        gap: var(--aster-space-xs);
+        padding: var(--aster-space-xs);
+        background: var(--aster-color-surface);
+        border: var(--aster-border-width-base) solid var(--aster-color-border);
+        border-radius: var(--aster-radius-sm);
+        font-size: var(--aster-font-size-xs);
+        cursor: pointer;
+        transition: var(--aster-transition-fast);
+
+        &:hover {
+          background: var(--aster-color-hover-bg);
+        }
+        &:has(input:checked) {
+          background: var(--aster-color-accent-light);
+          border-color: var(--aster-color-accent);
+        }
+      }
+    }
+
+    .editor {
+      min-height: 80px;
+    }
+  }
 }
