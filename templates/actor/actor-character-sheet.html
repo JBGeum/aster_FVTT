@@ -7,15 +7,18 @@
 
   <section class="sheet-container">
     <div class="tab character" data-group="main" data-tab="character">
-      <div class="character-layout">
-        <div class="sheet-left">{{> "systems/aster/templates/actor/parts/actor-main-character.html"}}</div>
-        <div class="sheet-right">
-          <nav class="sheet-sub-tabs tabs" data-group="sub">
-            <a class="item" data-group="sub" data-action="tab" data-tab="inventory">inventory</a>
-            <a class="item" data-group="sub" data-action="tab" data-tab="spell">spell</a>
-            <a class="item" data-group="sub" data-action="tab" data-tab="combat">combat</a>
-          </nav>
-          <div class="sheet-bottom">
+      {{!-- H8 약초첩 v18 — .sheet__body grid-areas: idn stel inv / abil memo inv --}}
+      <div class="herbarium">
+        <div class="sheet__body">
+          {{!-- 좌·중 패널 (정체성 / 능력치+활력 / 상태이상+아스테르) --}} {{>
+          "systems/aster/templates/actor/parts/actor-main-character.html"}} {{!-- 우측 (inv): 인벤토리·주문·전투 서브탭
+          --}}
+          <section class="panel panel--inv" data-corner="✿">
+            <nav class="inv-tabs tabs" data-group="sub">
+              <a class="tab" data-group="sub" data-action="tab" data-tab="inventory">Inventory</a>
+              <a class="tab" data-group="sub" data-action="tab" data-tab="spell">Spell</a>
+              <a class="tab" data-group="sub" data-action="tab" data-tab="combat">Combat</a>
+            </nav>
             <div class="tab inventory" data-group="sub" data-tab="inventory">
               {{> "systems/aster/templates/actor/parts/actor-sub-inventory.html"}}
             </div>
@@ -25,7 +28,15 @@
             <div class="tab combat" data-group="sub" data-tab="combat">
               {{> "systems/aster/templates/actor/parts/actor-sub-combat.html"}}
             </div>
-          </div>
+          </section>
+
+          {{!-- 중하 (memo) --}}
+          <section class="panel panel--memo" data-corner="❧">
+            <div class="panel__head">메모</div>
+            <div class="memo">
+              <textarea name="system.biography" placeholder="메모를 입력하세요...">{{system.biography}}</textarea>
+            </div>
+          </section>
         </div>
       </div>
     </div>

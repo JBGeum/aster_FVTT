@@ -1,191 +1,187 @@
-{{!-- H8 약초첩 시안 — 우측 인벤토리 (.herbarium 스코프). 클래스는 시안, 값·동작은 현재 바인딩. --}}
-<div class="herbarium">
-  <section class="panel panel--inv" data-corner="✿">
-    {{!-- 가방칸 (충진형 5×3 격자: 빈 칸 = 양피지 체커, 아이템 = 오버레이) --}} {{#if inv.bag}}
-    <div class="bag__head">
-      <div class="panel__head" style="margin: 0; flex: 1">가방칸</div>
-      <span class="bag__cap"
-        >{{inv.bag.grid.cols}} × {{inv.bag.grid.rows}} · <b>{{inv.bag.items.length}}</b>/{{inv.bag.cells.length}}</span
-      >
+{{!-- H8 약초첩 v18 — 인벤토리 콘텐츠 (부모 .panel--inv 안). 값·동작은 현재 바인딩. --}} {{!-- 가방칸 (충진형 5×3 격자:
+빈 칸 = 양피지 체커, 아이템 = 오버레이) --}} {{#if inv.bag}}
+<div class="bag__head">
+  <div class="panel__head" style="margin: 0; flex: 1">가방칸</div>
+  <span class="bag__cap"
+    >{{inv.bag.grid.cols}} × {{inv.bag.grid.rows}} · <b>{{inv.bag.items.length}}</b>/{{inv.bag.cells.length}}</span
+  >
+</div>
+<div class="bag-grid" style="--bag-cols: {{inv.bag.grid.cols}}">
+  <div class="bag-cells">
+    {{#each inv.bag.cells as |cell|}}
+    <div
+      class="bcell {{#if cell.light}}cell-light{{/if}}"
+      data-action="cellClick"
+      data-cell-index="{{cell.index}}"
+    ></div>
+    {{/each}}
+  </div>
+  <div class="bag-items">
+    {{#each inv.bag.items as |it|}}
+    <div
+      class="bitem"
+      data-action="itemUnplace"
+      data-item-id="{{it.id}}"
+      style="grid-column: {{add it.x 1}} / span {{it.w}}; grid-row: {{add it.y 1}} / span {{it.h}};"
+    >
+      <img src="{{it.img}}" alt="{{it.name}}" draggable="false" />
+      <span class="n">{{it.name}}</span>
     </div>
-    <div class="bag-grid" style="--bag-cols: {{inv.bag.grid.cols}}">
-      <div class="bag-cells">
-        {{#each inv.bag.cells as |cell|}}
-        <div
-          class="bcell {{#if cell.light}}cell-light{{/if}}"
-          data-action="cellClick"
-          data-cell-index="{{cell.index}}"
-        ></div>
-        {{/each}}
-      </div>
-      <div class="bag-items">
-        {{#each inv.bag.items as |it|}}
-        <div
-          class="bitem"
-          data-action="itemUnplace"
-          data-item-id="{{it.id}}"
-          style="grid-column: {{add it.x 1}} / span {{it.w}}; grid-row: {{add it.y 1}} / span {{it.h}};"
-        >
-          <img src="{{it.img}}" alt="{{it.name}}" draggable="false" />
-          <span class="n">{{it.name}}</span>
-        </div>
-        {{/each}}
-      </div>
-    </div>
-    {{else}}
-    <p class="ap-note">{{localize "ASTER.inventory.noBag"}}</p>
-    {{/if}} {{!-- 착용 · 휴대 (바구니 + 장비 + 사역마) --}}
-    <div class="panel__head">착용 · 휴대</div>
-    <div class="carry">
-      <div class="cslot basket">
-        <div class="ttl">
-          {{localize "ASTER.inventory.basket"}}
-          <span class="tools">
-            {{#if inv.food}}
-            <button
-              type="button"
-              data-action="picnicDeclare"
-              data-item-id="{{inv.food.id}}"
-              title="{{localize 'ASTER.food.picnic'}}"
-            >
-              <i class="fas fa-utensils"></i>
-            </button>
-            <button
-              type="button"
-              data-action="itemEdit"
-              data-item-id="{{inv.food.id}}"
-              title="{{localize 'ASTER.inventory.edit'}}"
-            >
-              ✎
-            </button>
-            <button
-              type="button"
-              data-action="itemDelete"
-              data-item-id="{{inv.food.id}}"
-              title="{{localize 'ASTER.inventory.delete'}}"
-            >
-              ✕
-            </button>
-            {{/if}}
-          </span>
-        </div>
-        <div class="content">
-          {{#if inv.food}}
-          <img src="{{inv.food.img}}" alt="{{inv.food.name}}" draggable="false" />
-          <span
-            class="name"
-            data-action="itemChat"
-            data-item-id="{{inv.food.id}}"
-            title="{{localize 'ASTER.inventory.toChat'}}"
-            >{{inv.food.name}}</span
-          >
-          {{else}}
-          <span class="empty-text">{{localize "ASTER.inventory.foodEmpty"}}</span>
-          {{/if}}
-        </div>
-      </div>
-      {{#each inv.equipSlots as |slot|}}
-      <div class="cslot {{#unless slot.item}}empty{{/unless}}" data-slot-id="{{slot.slotId}}">
-        <div class="ttl">{{localize "ASTER.inventory.equipment"}}</div>
-        <div class="content">
-          {{#if slot.item}}
-          <img src="{{slot.item.img}}" alt="{{slot.item.name}}" draggable="false" />
-          <span
-            class="name"
-            data-action="itemChat"
-            data-item-id="{{slot.item.id}}"
-            title="{{localize 'ASTER.inventory.toChat'}}"
-            >{{slot.item.name}}</span
-          >
-          <button
-            type="button"
-            data-action="equipmentUnequip"
-            data-item-id="{{slot.item.id}}"
-            title="{{localize 'ASTER.equipment.unequipTooltip'}}"
-          >
-            {{localize "ASTER.equipment.unequipBtn"}}
-          </button>
-          {{else}} 비어 있음 {{/if}}
-        </div>
-      </div>
-      {{/each}}
-      <div class="cslot empty">
-        <div class="ttl">{{localize "ASTER.inventory.companion"}}</div>
-        <div class="content">없음</div>
-      </div>
-    </div>
-
-    {{!-- 소지품 (가방 안 + 창고) --}}
-    <div class="panel__head">소지품</div>
-    <div class="items">
-      {{#each inv.allItems as |it|}}
-      <div class="item {{#if it.isMagicToolInactive}}magic-tool-inactive{{/if}}">
-        <span class="item__ico"><img src="{{it.img}}" alt="{{it.name}}" draggable="false" /></span>
-        <span
-          class="item__name"
-          data-action="itemChat"
-          data-item-id="{{it.id}}"
-          title="{{localize 'ASTER.inventory.toChat'}}"
-          >{{it.name}}</span
-        >
-        {{#if it.isMagicToolInactive}}
-        <span class="inactive-badge" title="{{localize 'ASTER.equipment.inactiveTooltip'}}"
-          >{{localize "ASTER.equipment.inactiveBadge"}}</span
-        >
-        {{/if}}
-        <span class="item__loc">{{it.locationLabel}}</span>
-        {{#if it.isEquipment}}
+    {{/each}}
+  </div>
+</div>
+{{else}}
+<p class="ap-note">{{localize "ASTER.inventory.noBag"}}</p>
+{{/if}} {{!-- 착용 · 휴대 (바구니 + 장비 + 사역마) --}}
+<div class="panel__head">착용 · 휴대</div>
+<div class="carry">
+  <div class="cslot basket">
+    <div class="ttl">
+      {{localize "ASTER.inventory.basket"}}
+      <span class="tools">
+        {{#if inv.food}}
         <button
           type="button"
-          class="item__act"
-          data-action="equipmentEquip"
-          data-item-id="{{it.id}}"
-          title="{{localize 'ASTER.equipment.equipTooltip'}}"
+          data-action="picnicDeclare"
+          data-item-id="{{inv.food.id}}"
+          title="{{localize 'ASTER.food.picnic'}}"
         >
-          {{localize "ASTER.equipment.equipBtn"}}
+          <i class="fas fa-utensils"></i>
         </button>
-        {{/if}} {{#if it.canUse}}
         <button
           type="button"
-          class="item__act"
-          data-action="consumableUse"
-          data-item-id="{{it.id}}"
-          title="{{localize 'ASTER.consumable.useBtn'}}"
-        >
-          <i class="fas fa-flask-round-potion"></i>
-        </button>
-        {{/if}}
-        <button
-          type="button"
-          class="item__edit"
           data-action="itemEdit"
-          data-item-id="{{it.id}}"
+          data-item-id="{{inv.food.id}}"
           title="{{localize 'ASTER.inventory.edit'}}"
         >
           ✎
         </button>
         <button
           type="button"
-          class="item__del"
           data-action="itemDelete"
-          data-item-id="{{it.id}}"
+          data-item-id="{{inv.food.id}}"
           title="{{localize 'ASTER.inventory.delete'}}"
         >
           ✕
         </button>
-      </div>
-      {{else}}
-      <p class="ap-note">{{localize "ASTER.inventory.noItems"}}</p>
-      {{/each}}
-    </div>
-
-    {{!-- 창고 --}}
-    <div class="storage {{#if inv.storage.over}}over{{/if}}">
-      <span class="k">{{localize "ASTER.inventory.storage"}}</span>
-      <span class="box num">
-        <span class="count">{{inv.storage.count}}</span> /
-        <input type="number" name="system.storage.limit" value="{{inv.storage.limit}}" min="0" />
+        {{/if}}
       </span>
     </div>
-  </section>
+    <div class="content">
+      {{#if inv.food}}
+      <img src="{{inv.food.img}}" alt="{{inv.food.name}}" draggable="false" />
+      <span
+        class="name"
+        data-action="itemChat"
+        data-item-id="{{inv.food.id}}"
+        title="{{localize 'ASTER.inventory.toChat'}}"
+        >{{inv.food.name}}</span
+      >
+      {{else}}
+      <span class="empty-text">{{localize "ASTER.inventory.foodEmpty"}}</span>
+      {{/if}}
+    </div>
+  </div>
+  {{#each inv.equipSlots as |slot|}}
+  <div class="cslot {{#unless slot.item}}empty{{/unless}}" data-slot-id="{{slot.slotId}}">
+    <div class="ttl">{{localize "ASTER.inventory.equipment"}}</div>
+    <div class="content">
+      {{#if slot.item}}
+      <img src="{{slot.item.img}}" alt="{{slot.item.name}}" draggable="false" />
+      <span
+        class="name"
+        data-action="itemChat"
+        data-item-id="{{slot.item.id}}"
+        title="{{localize 'ASTER.inventory.toChat'}}"
+        >{{slot.item.name}}</span
+      >
+      <button
+        type="button"
+        data-action="equipmentUnequip"
+        data-item-id="{{slot.item.id}}"
+        title="{{localize 'ASTER.equipment.unequipTooltip'}}"
+      >
+        {{localize "ASTER.equipment.unequipBtn"}}
+      </button>
+      {{else}} 비어 있음 {{/if}}
+    </div>
+  </div>
+  {{/each}}
+  <div class="cslot empty">
+    <div class="ttl">{{localize "ASTER.inventory.companion"}}</div>
+    <div class="content">없음</div>
+  </div>
+</div>
+
+{{!-- 소지품 (가방 안 + 창고) --}}
+<div class="panel__head">소지품</div>
+<div class="items">
+  {{#each inv.allItems as |it|}}
+  <div class="item {{#if it.isMagicToolInactive}}magic-tool-inactive{{/if}}">
+    <span class="item__ico"><img src="{{it.img}}" alt="{{it.name}}" draggable="false" /></span>
+    <span
+      class="item__name"
+      data-action="itemChat"
+      data-item-id="{{it.id}}"
+      title="{{localize 'ASTER.inventory.toChat'}}"
+      >{{it.name}}</span
+    >
+    {{#if it.isMagicToolInactive}}
+    <span class="inactive-badge" title="{{localize 'ASTER.equipment.inactiveTooltip'}}"
+      >{{localize "ASTER.equipment.inactiveBadge"}}</span
+    >
+    {{/if}}
+    <span class="item__loc">{{it.locationLabel}}</span>
+    {{#if it.isEquipment}}
+    <button
+      type="button"
+      class="item__act"
+      data-action="equipmentEquip"
+      data-item-id="{{it.id}}"
+      title="{{localize 'ASTER.equipment.equipTooltip'}}"
+    >
+      {{localize "ASTER.equipment.equipBtn"}}
+    </button>
+    {{/if}} {{#if it.canUse}}
+    <button
+      type="button"
+      class="item__act"
+      data-action="consumableUse"
+      data-item-id="{{it.id}}"
+      title="{{localize 'ASTER.consumable.useBtn'}}"
+    >
+      <i class="fas fa-flask-round-potion"></i>
+    </button>
+    {{/if}}
+    <button
+      type="button"
+      class="item__edit"
+      data-action="itemEdit"
+      data-item-id="{{it.id}}"
+      title="{{localize 'ASTER.inventory.edit'}}"
+    >
+      ✎
+    </button>
+    <button
+      type="button"
+      class="item__del"
+      data-action="itemDelete"
+      data-item-id="{{it.id}}"
+      title="{{localize 'ASTER.inventory.delete'}}"
+    >
+      ✕
+    </button>
+  </div>
+  {{else}}
+  <p class="ap-note">{{localize "ASTER.inventory.noItems"}}</p>
+  {{/each}}
+</div>
+
+{{!-- 창고 --}}
+<div class="storage {{#if inv.storage.over}}over{{/if}}">
+  <span class="k">{{localize "ASTER.inventory.storage"}}</span>
+  <span class="box num">
+    <span class="count">{{inv.storage.count}}</span> /
+    <input type="number" name="system.storage.limit" value="{{inv.storage.limit}}" min="0" />
+  </span>
 </div>

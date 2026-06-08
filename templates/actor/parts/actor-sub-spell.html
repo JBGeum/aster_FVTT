@@ -1,51 +1,38 @@
-{{!-- H8 약초첩 시안 — 우측 주문 (.herbarium 스코프). 클래스는 시안, 값·동작은 현재 바인딩. --}}
-<div class="herbarium">
-  <section class="panel panel--inv" data-corner="✶">
-    <div class="panel__bar">
-      <div class="panel__head" style="margin: 0; flex: 1">주문서</div>
-      <button type="button" class="btn-add" data-action="itemCreate" data-type="spell">
-        {{localize "ASTER.spell.add"}}
-      </button>
+{{!-- H8 약초첩 v18 — 주문 콘텐츠 (부모 .panel--inv 안). 값·동작은 현재 바인딩. --}}
+<div class="panel__bar">
+  <div class="panel__head" style="margin: 0; flex: 1">주문서</div>
+  <button type="button" class="btn-add" data-action="itemCreate" data-type="spell">
+    {{localize "ASTER.spell.add"}}
+  </button>
+</div>
+<div class="spells">
+  {{#each spells as |s|}}
+  <div class="spell-card" data-item-id="{{s.id}}">
+    <div class="spell-card__sigil" data-action="itemEdit" data-item-id="{{s.id}}">
+      <img src="{{s.img}}" alt="{{s.name}}" draggable="false" />
     </div>
-    <div class="spells">
-      {{#each spells as |s|}}
-      <div class="spell-card" data-item-id="{{s.id}}">
-        <div class="spell-card__sigil" data-action="itemEdit" data-item-id="{{s.id}}">
-          <img src="{{s.img}}" alt="{{s.name}}" draggable="false" />
-        </div>
-        <div
-          class="spell-card__name"
-          data-action="spellCast"
-          data-item-id="{{s.id}}"
-          title="{{localize 'ASTER.spell.cast'}}"
-        >
-          {{s.name}}
-        </div>
-        <div class="spell-card__meta">{{s.formula}}</div>
-        <div class="spell-card__tools">
-          <span
-            data-action="spellCastWithExtra"
-            data-item-id="{{s.id}}"
-            title="{{localize 'ASTER.spell.castWithExtra'}}"
-          >
-            <i class="fas fa-dice-d6"></i>
-          </span>
-          <span data-action="itemEdit" data-item-id="{{s.id}}" title="{{localize 'ASTER.inventory.edit'}}">
-            <i class="fas fa-gear"></i>
-          </span>
-          <span
-            class="del"
-            data-action="itemDelete"
-            data-item-id="{{s.id}}"
-            title="{{localize 'ASTER.inventory.delete'}}"
-          >
-            <i class="fas fa-trash"></i>
-          </span>
-        </div>
-      </div>
-      {{else}}
-      <p class="ap-note">{{localize "ASTER.spell.empty"}}</p>
-      {{/each}}
+    <div
+      class="spell-card__name"
+      data-action="spellCast"
+      data-item-id="{{s.id}}"
+      title="{{localize 'ASTER.spell.cast'}}"
+    >
+      {{s.name}}
     </div>
-  </section>
+    <div class="spell-card__meta">{{s.formula}}</div>
+    <div class="spell-card__tools">
+      <span data-action="spellCastWithExtra" data-item-id="{{s.id}}" title="{{localize 'ASTER.spell.castWithExtra'}}">
+        <i class="fas fa-dice-d6"></i>
+      </span>
+      <span data-action="itemEdit" data-item-id="{{s.id}}" title="{{localize 'ASTER.inventory.edit'}}">
+        <i class="fas fa-gear"></i>
+      </span>
+      <span class="del" data-action="itemDelete" data-item-id="{{s.id}}" title="{{localize 'ASTER.inventory.delete'}}">
+        <i class="fas fa-trash"></i>
+      </span>
+    </div>
+  </div>
+  {{else}}
+  <p class="ap-note">{{localize "ASTER.spell.empty"}}</p>
+  {{/each}}
 </div>

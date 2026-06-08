@@ -752,6 +752,29 @@
     display: flex;
     gap: 2px;
     margin-bottom: 6px;
+
+    /* 서브탭 nav — Foundry는 활성 항목에 .active 부여 */
+    .tab {
+      font-family: var(--font-display);
+      font-size: 15px;
+      letter-spacing: 1px;
+      padding: 6px 14px 5px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      position: relative;
+      top: 1px;
+
+      &.active {
+        color: var(--ink-strong);
+        background: var(--parchment-soft);
+        border-color: var(--gold);
+        box-shadow: inset 0 2px 0 var(--plum);
+      }
+    }
   }
 
   .items {
@@ -2099,4 +2122,23 @@
       background: var(--parchment-soft);
     }
   }
+}
+
+/* ============================================================
+ * Foundry 통합 — 캐릭터 탭 herbarium sheet__body 컨테이너
+ * (.aster .tab.character 루트에 스크롤/패딩 부여, 서브탭 표시 정합)
+ * ============================================================ */
+.aster .sheet-container > .tab.character {
+  overflow-y: auto;
+}
+.aster .tab.character .herbarium {
+  min-height: 100%;
+  padding: 14px;
+}
+/* .panel--inv 안 서브탭: 활성만 표시 (Foundry .tab:not(.active) 숨김 정합) */
+.aster .tab.character .panel--inv > .tab {
+  min-height: 0;
+}
+.aster .tab.character .panel--inv > .tab:not(.active) {
+  display: none;
 }

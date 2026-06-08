@@ -1,110 +1,105 @@
-{{!-- H8 약초첩 시안 — 우측 전투 (.herbarium 스코프). 클래스는 시안, 값·동작·상태는 현재 바인딩. --}}
-<div class="herbarium">
-  <section class="panel panel--inv" data-corner="✦">
-    {{#if reviveContext.isFallen}}
-    <div class="revive-section">
-      <div class="fallen-indicator">{{localize "ASTER.revive.fallen"}}</div>
-      {{#if reviveContext.canRevive}}
-      <button type="button" data-action="revive">{{localize "ASTER.revive.requestBtn"}}</button>
-      <p class="hint">{{localize "ASTER.revive.requestHint"}}</p>
-      {{/if}} {{#if reviveContext.inCombatBlocked}}
-      <p class="hint warn">{{localize "ASTER.revive.inCombatBlocked"}}</p>
-      {{/if}}
-    </div>
-    {{/if}}
+{{!-- H8 약초첩 v18 — 전투 콘텐츠 (부모 .panel--inv 안). 값·동작·상태는 현재 바인딩. --}} {{#if reviveContext.isFallen}}
+<div class="revive-section">
+  <div class="fallen-indicator">{{localize "ASTER.revive.fallen"}}</div>
+  {{#if reviveContext.canRevive}}
+  <button type="button" data-action="revive">{{localize "ASTER.revive.requestBtn"}}</button>
+  <p class="hint">{{localize "ASTER.revive.requestHint"}}</p>
+  {{/if}} {{#if reviveContext.inCombatBlocked}}
+  <p class="hint warn">{{localize "ASTER.revive.inCombatBlocked"}}</p>
+  {{/if}}
+</div>
+{{/if}}
 
-    <div class="ap-head">
-      <span class="t">{{localize "ASTER.combat.actionPoints"}}</span>
-      <span class="ap-value num">{{#if combatContext.inCombat}}{{combatContext.ap}}{{else}}—{{/if}}</span>
-    </div>
-    {{#if combatContext.focusActive}}
-    <div style="text-align: center; margin-bottom: 10px">
-      <span class="focus-indicator">{{localize "ASTER.combat.focusActiveIndicator"}}</span>
-    </div>
-    {{/if}} {{#unless combatContext.inCombat}}
-    <div class="ap-note">{{localize "ASTER.combat.notInCombat"}}</div>
-    {{/unless}} {{!-- 회피 — 반응 판정(AP 소비 없음), 전투 진행 여부와 무관하게 활성 --}}
-    <button type="button" class="dodge" data-action="rollDodge">
-      {{localize "ASTER.dodge.label"}} <span class="num">{{system.dodge}}</span>
-    </button>
+<div class="ap-head">
+  <span class="t">{{localize "ASTER.combat.actionPoints"}}</span>
+  <span class="ap-value num">{{#if combatContext.inCombat}}{{combatContext.ap}}{{else}}—{{/if}}</span>
+</div>
+{{#if combatContext.focusActive}}
+<div style="text-align: center; margin-bottom: 10px">
+  <span class="focus-indicator">{{localize "ASTER.combat.focusActiveIndicator"}}</span>
+</div>
+{{/if}} {{#unless combatContext.inCombat}}
+<div class="ap-note">{{localize "ASTER.combat.notInCombat"}}</div>
+{{/unless}} {{!-- 회피 — 반응 판정(AP 소비 없음), 전투 진행 여부와 무관하게 활성 --}}
+<button type="button" class="dodge" data-action="rollDodge">
+  {{localize "ASTER.dodge.label"}} <span class="num">{{system.dodge}}</span>
+</button>
 
-    <div class="ap-grid">
-      <button
-        type="button"
-        class="ap-btn"
-        data-action="combatAction"
-        data-action-key="throw"
-        {{disabled
-        combatContext.disabled}}
-      >
-        <span>{{localize "ASTER.combat.action.throw"}}</span><span class="cost">1</span>
-      </button>
-      <button
-        type="button"
-        class="ap-btn {{#if combatContext.defendUsed}}used{{/if}}"
-        data-action="combatAction"
-        data-action-key="defend"
-        {{disabled
-        combatContext.disabled}}
-        {{disabled
-        combatContext.defendUsed}}
-      >
-        <span>{{localize "ASTER.combat.action.defend"}}</span><span class="cost">2</span>
-      </button>
-      <button
-        type="button"
-        class="ap-btn"
-        data-action="combatAction"
-        data-action-key="focus"
-        {{disabled
-        combatContext.disabled}}
-      >
-        <span>{{localize "ASTER.combat.action.focus"}}</span><span class="cost">3</span>
-      </button>
-      <button
-        type="button"
-        class="ap-btn"
-        data-action="combatAction"
-        data-action-key="dash"
-        {{disabled
-        combatContext.disabled}}
-      >
-        <span>{{localize "ASTER.combat.action.dash"}}</span><span class="cost">×</span>
-      </button>
-      <button
-        type="button"
-        class="ap-btn {{#if combatContext.chargeUsed}}used{{/if}}"
-        data-action="combatAction"
-        data-action-key="charge"
-        {{disabled
-        combatContext.disabled}}
-        {{disabled
-        combatContext.chargeUsed}}
-      >
-        <span>{{localize "ASTER.combat.action.charge"}}</span><span class="cost">3</span>
-      </button>
-      <button
-        type="button"
-        class="ap-btn"
-        data-action="combatAction"
-        data-action-key="unisonPrepare"
-        {{disabled
-        combatContext.disabled}}
-      >
-        <span>{{localize "ASTER.combat.action.unisonPrepare"}}</span><span class="cost">1</span>
-      </button>
-    </div>
+<div class="ap-grid">
+  <button
+    type="button"
+    class="ap-btn"
+    data-action="combatAction"
+    data-action-key="throw"
+    {{disabled
+    combatContext.disabled}}
+  >
+    <span>{{localize "ASTER.combat.action.throw"}}</span><span class="cost">1</span>
+  </button>
+  <button
+    type="button"
+    class="ap-btn {{#if combatContext.defendUsed}}used{{/if}}"
+    data-action="combatAction"
+    data-action-key="defend"
+    {{disabled
+    combatContext.disabled}}
+    {{disabled
+    combatContext.defendUsed}}
+  >
+    <span>{{localize "ASTER.combat.action.defend"}}</span><span class="cost">2</span>
+  </button>
+  <button
+    type="button"
+    class="ap-btn"
+    data-action="combatAction"
+    data-action-key="focus"
+    {{disabled
+    combatContext.disabled}}
+  >
+    <span>{{localize "ASTER.combat.action.focus"}}</span><span class="cost">3</span>
+  </button>
+  <button
+    type="button"
+    class="ap-btn"
+    data-action="combatAction"
+    data-action-key="dash"
+    {{disabled
+    combatContext.disabled}}
+  >
+    <span>{{localize "ASTER.combat.action.dash"}}</span><span class="cost">×</span>
+  </button>
+  <button
+    type="button"
+    class="ap-btn {{#if combatContext.chargeUsed}}used{{/if}}"
+    data-action="combatAction"
+    data-action-key="charge"
+    {{disabled
+    combatContext.disabled}}
+    {{disabled
+    combatContext.chargeUsed}}
+  >
+    <span>{{localize "ASTER.combat.action.charge"}}</span><span class="cost">3</span>
+  </button>
+  <button
+    type="button"
+    class="ap-btn"
+    data-action="combatAction"
+    data-action-key="unisonPrepare"
+    {{disabled
+    combatContext.disabled}}
+  >
+    <span>{{localize "ASTER.combat.action.unisonPrepare"}}</span><span class="cost">1</span>
+  </button>
+</div>
 
-    <div class="combat-unison">
-      {{#if combatContext.unisonReady}}
-      <div class="unison-ready-indicator">{{localize "ASTER.combat.unisonReady"}}</div>
-      {{/if}}
-      <button type="button" class="ap-fire" data-action="unisonAttack" {{disabled combatContext.disableUnison}}>
-        {{localize "ASTER.combat.action.unisonAttack"}}
-      </button>
-      {{#if combatContext.unisonReady}} {{#unless combatContext.canUnison}}
-      <div class="unison-hint">{{localize "ASTER.combat.unisonNoPair"}}</div>
-      {{/unless}} {{/if}}
-    </div>
-  </section>
+<div class="combat-unison">
+  {{#if combatContext.unisonReady}}
+  <div class="unison-ready-indicator">{{localize "ASTER.combat.unisonReady"}}</div>
+  {{/if}}
+  <button type="button" class="ap-fire" data-action="unisonAttack" {{disabled combatContext.disableUnison}}>
+    {{localize "ASTER.combat.action.unisonAttack"}}
+  </button>
+  {{#if combatContext.unisonReady}} {{#unless combatContext.canUnison}}
+  <div class="unison-hint">{{localize "ASTER.combat.unisonNoPair"}}</div>
+  {{/unless}} {{/if}}
 </div>
