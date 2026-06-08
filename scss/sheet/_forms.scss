@@ -1,5 +1,4 @@
 @use "../utils/typography" as t;
-@use "../utils/colors" as c;
 
 .aster {
   .item-form {
@@ -18,7 +17,7 @@
 
   .tox {
     .tox-editor-container {
-      background: c.$c-white;
+      background: var(--aster-color-surface-alt);
     }
 
     .tox-edit-area {
