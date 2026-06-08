@@ -1151,6 +1151,44 @@
       object-fit: cover;
       border: none;
     }
+
+    /* 원소 색 sigil (시안: 녹 주문 = sage 등). 아이콘 이미지가 없을 때 색으로 식별. */
+    &--red {
+      background: radial-gradient(
+        circle at 35% 30%,
+        var(--el-red),
+        color-mix(in oklch, var(--el-red) 58%, black)
+      );
+    }
+    &--blue {
+      background: radial-gradient(
+        circle at 35% 30%,
+        var(--el-blue),
+        color-mix(in oklch, var(--el-blue) 58%, black)
+      );
+    }
+    &--green {
+      background: radial-gradient(
+        circle at 35% 30%,
+        var(--sage),
+        color-mix(in oklch, var(--sage) 58%, black)
+      );
+    }
+    &--yellow {
+      background: radial-gradient(
+        circle at 35% 30%,
+        var(--el-yellow),
+        color-mix(in oklch, var(--el-yellow) 58%, black)
+      );
+    }
+    &--white {
+      background: radial-gradient(
+        circle at 35% 30%,
+        var(--el-white),
+        color-mix(in oklch, var(--el-white) 58%, black)
+      );
+      color: var(--ink-soft);
+    }
   }
   .spell-card__name {
     font-weight: 700;
