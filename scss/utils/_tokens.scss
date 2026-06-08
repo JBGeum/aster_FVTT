@@ -20,65 +20,65 @@
  * 모드 무관 토큰(간격·폰트 등)은 mixin이 아니라 :root에 직접 유지.
  * ============================================================ */
 @mixin aster-dark-tokens {
-  /* 배경 영역 */
-  --aster-color-bg: #1a1612;
-  --aster-color-surface: #2a2520;
-  --aster-color-surface-alt: #322a25;
+  /* 배경 영역 (쿨 슬레이트 — 밤하늘 베이스) */
+  --aster-color-bg: #15171c;
+  --aster-color-surface: #22252e;
+  --aster-color-surface-alt: #2c303b;
 
-  /* 텍스트 영역 */
-  --aster-color-text: #e8e2d0;
-  --aster-color-text-muted: #b8a888;
-  --aster-color-text-light: #88775c;
+  /* 텍스트 영역 (쿨 그레이) */
+  --aster-color-text: #dde0e8;
+  --aster-color-text-muted: #9aa0b0;
+  --aster-color-text-light: #6c7180;
 
-  /* 보더 영역 */
-  --aster-color-border: #4a4035;
-  --aster-color-border-light: #5a5045;
-  --aster-color-border-dark: #3a3025;
+  /* 보더 영역 (슬레이트) */
+  --aster-color-border: #3c4150;
+  --aster-color-border-light: #4c5161;
+  --aster-color-border-dark: #2e323d;
 
-  /* 강조 영역 (다크 — 옅은 자줏빛 가독성) */
-  --aster-color-accent: #8c6da3;
-  --aster-color-accent-light: #ad94c0;
-  --aster-color-accent-dark: #5a3f6e;
+  /* 강조 영역 (마녀 보라 — hue 유지, 쿨 배경 정합 위해 채도 ↑ 바이올렛) */
+  --aster-color-accent: #9b7fc4;
+  --aster-color-accent-light: #bda4e0;
+  --aster-color-accent-dark: #6b4f8f;
 
-  /* 능력 색 옅은 영역 (다크 정합) */
+  /* 능력 색 옅은 영역 (다크 정합 — 식별색이라 유지) */
   --aster-color-red-light: #3a201c;
   --aster-color-blue-light: #1a2838;
   --aster-color-green-light: #1c3a26;
   --aster-color-yellow-light: #3a2f1a;
   --aster-color-purple-light: #2a1c33;
 
-  /* 인터랙티브 상태 (다크) */
-  --aster-color-hover-bg: #3a3025;
-  --aster-color-hover-border: #5a5045;
-  --aster-color-focus-ring: #ad94c0;
-  --aster-color-focus-bg: #322a25;
-  --aster-color-active-bg: #4a4035;
-  --aster-color-disabled-bg: #2a2520;
-  --aster-color-disabled-text: #6a5a47;
-  --aster-color-disabled-border: #3a3025;
+  /* 인터랙티브 상태 (다크 쿨) */
+  --aster-color-hover-bg: #2c303b;
+  --aster-color-hover-border: #4c5161;
+  --aster-color-focus-ring: #bda4e0;
+  --aster-color-focus-bg: #262a34;
+  --aster-color-active-bg: #3c4150;
+  --aster-color-disabled-bg: #22252e;
+  --aster-color-disabled-text: #565b68;
+  --aster-color-disabled-border: #2e323d;
 
-  /* 탭 영역 (다크) */
-  --aster-color-tab-active-bg: #322a25;
-  --aster-color-tab-active-text: #e8e2d0;
+  /* 탭 영역 (다크 쿨) */
+  --aster-color-tab-active-bg: #2c303b;
+  --aster-color-tab-active-text: #dde0e8;
   --aster-color-tab-inactive-bg: transparent;
-  --aster-color-tab-inactive-text: #88775c;
-  --aster-color-tab-border: #4a4035;
+  --aster-color-tab-inactive-text: #6c7180;
+  --aster-color-tab-border: #3c4150;
 
-  /* 입력 영역 (다크) */
-  --aster-color-input-bg: #1a1612;
-  --aster-color-input-border: #4a4035;
-  --aster-color-input-text: #e8e2d0;
-  --aster-color-input-placeholder: #6a5a47;
+  /* 입력 영역 (다크 쿨) */
+  --aster-color-input-bg: #15171c;
+  --aster-color-input-border: #3c4150;
+  --aster-color-input-text: #dde0e8;
+  --aster-color-input-placeholder: #565b68;
 
-  /* 체크박스·라디오 (다크) */
-  --aster-color-checkbox-bg: #1a1612;
-  --aster-color-checkbox-border: #5a5045;
-  --aster-color-checkbox-checked: #8c6da3;
+  /* 체크박스·라디오 (다크 쿨) */
+  --aster-color-checkbox-bg: #15171c;
+  --aster-color-checkbox-border: #4c5161;
+  --aster-color-checkbox-checked: #9b7fc4;
 
-  /* 그림자 (다크) */
-  --aster-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
-  --aster-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
-  --aster-shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.25);
+  /* 그림자 (다크 — 청흑) */
+  --aster-shadow-sm: 0 1px 2px rgba(10, 12, 18, 0.4);
+  --aster-shadow-md: 0 2px 4px rgba(10, 12, 18, 0.45), 0 1px 2px rgba(10, 12, 18, 0.3);
+  --aster-shadow-lg: 0 4px 8px rgba(10, 12, 18, 0.5), 0 2px 4px rgba(10, 12, 18, 0.35);
 }
 
 /* ============================================================
