@@ -969,6 +969,10 @@
       object-fit: contain;
       border: none;
     }
+    &.lg img {
+      width: 46px;
+      height: 46px;
+    }
     .n {
       font-size: 9.5px;
       line-height: 1.15;

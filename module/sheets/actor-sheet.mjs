@@ -253,15 +253,21 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
             name: bag.name,
             grid: bagGrid,
             cells,
-            items: inBag.map((i) => ({
-              id: i.id,
-              name: i.name,
-              img: i.img,
-              w: i.system.size?.w ?? 1,
-              h: i.system.size?.h ?? 1,
-              x: i.system.grid?.x ?? 0,
-              y: i.system.grid?.y ?? 0,
-            })),
+            items: inBag.map((i) => {
+              const w = i.system.size?.w ?? 1;
+              const h = i.system.size?.h ?? 1;
+              return {
+                id: i.id,
+                name: i.name,
+                img: i.img,
+                w,
+                h,
+                x: i.system.grid?.x ?? 0,
+                y: i.system.grid?.y ?? 0,
+                // H8 약초첩 .bitem.lg — 2칸 이상 점유 시 아이콘 확대.
+                large: w > 1 || h > 1,
+              };
+            }),
           }
         : null,
       food: food ? { id: food.id, name: food.name, img: food.img } : null,

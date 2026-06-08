@@ -19,7 +19,7 @@
   <div class="bag-items">
     {{#each inv.bag.items as |it|}}
     <div
-      class="bitem"
+      class="bitem {{#if it.large}}lg{{/if}}"
       data-action="itemUnplace"
       data-item-id="{{it.id}}"
       style="grid-column: {{add it.x 1}} / span {{it.w}}; grid-row: {{add it.y 1}} / span {{it.h}};"
