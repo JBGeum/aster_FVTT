@@ -1,91 +1,124 @@
-<div class="record-tab">
-  {{!-- 상단: 캐릭터 배경 (출생/경험/목적 가로 나열, 고정) --}}
-  <div class="record-bio">
-    <div class="bio-item">
-      <label>{{localize "ASTER.features.born"}}</label>
-      <input
-        type="text"
-        name="system.features.born.title"
-        value="{{features.born.title}}"
-        placeholder="{{localize 'ASTER.features.born'}}"
-      />
-      <textarea name="system.features.born.description">{{features.born.description}}</textarea>
+{{!-- H8 약초첩 v18 — Record 탭 (출생·경험·목적 노트 + 세션 일지 카드). 클래스는 시안, 값·동작은 현재 바인딩. --}}
+<div class="herbarium">
+  <div class="record">
+    {{!-- 출생 · 경험 · 목적 (편집 가능) --}}
+    <div class="record-top">
+      <div class="record-field">
+        <div class="panel__head">{{localize "ASTER.features.born"}}</div>
+        <div class="input-line">
+          <input
+            type="text"
+            name="system.features.born.title"
+            value="{{features.born.title}}"
+            placeholder="{{localize 'ASTER.features.born'}}"
+          />
+        </div>
+        <div class="area">
+          <textarea name="system.features.born.description">{{features.born.description}}</textarea>
+        </div>
+      </div>
+      <div class="record-field">
+        <div class="panel__head">{{localize "ASTER.features.past"}}</div>
+        <div class="input-line">
+          <input
+            type="text"
+            name="system.features.past.title"
+            value="{{features.past.title}}"
+            placeholder="{{localize 'ASTER.features.past'}}"
+          />
+        </div>
+        <div class="area">
+          <textarea name="system.features.past.description">{{features.past.description}}</textarea>
+        </div>
+      </div>
+      <div class="record-field">
+        <div class="panel__head">{{localize "ASTER.features.purpose"}}</div>
+        <div class="input-line">
+          <input
+            type="text"
+            name="system.features.purpose.title"
+            value="{{features.purpose.title}}"
+            placeholder="{{localize 'ASTER.features.purpose'}}"
+          />
+        </div>
+        <div class="area">
+          <textarea name="system.features.purpose.description">{{features.purpose.description}}</textarea>
+        </div>
+      </div>
     </div>
-    <div class="bio-item">
-      <label>{{localize "ASTER.features.past"}}</label>
-      <input
-        type="text"
-        name="system.features.past.title"
-        value="{{features.past.title}}"
-        placeholder="{{localize 'ASTER.features.past'}}"
-      />
-      <textarea name="system.features.past.description">{{features.past.description}}</textarea>
-    </div>
-    <div class="bio-item">
-      <label>{{localize "ASTER.features.purpose"}}</label>
-      <input
-        type="text"
-        name="system.features.purpose.title"
-        value="{{features.purpose.title}}"
-        placeholder="{{localize 'ASTER.features.purpose'}}"
-      />
-      <textarea name="system.features.purpose.description">{{features.purpose.description}}</textarea>
-    </div>
-  </div>
 
-  {{!-- 하단: 세션 기록 책 넘기기 --}}
-  <div class="record-book">
-    <div class="book-nav">
-      <button type="button" data-action="recordPrev" {{recordPrevDisabled}}>◀</button>
-      <span class="page-indicator">{{currentPage}} / {{recordCount}}</span>
-      <button type="button" data-action="recordNext" {{recordNextDisabled}}>▶</button>
-      <button type="button" data-action="recordAdd" class="add-btn">+ {{localize "ASTER.record.add"}}</button>
-      {{#if currentRecord}}
-      <button type="button" data-action="itemEdit" data-item-id="{{currentRecord.id}}">
-        {{localize "ASTER.record.edit"}}
-      </button>
-      <button type="button" data-action="recordDelete" data-item-id="{{currentRecord.id}}">🗑</button>
-      {{/if}}
+    {{!-- 세션 기록 네비게이션 --}}
+    <div class="record-nav">
+      <div class="pager">
+        <button type="button" class="pager-btn" data-action="recordPrev" {{recordPrevDisabled}}>◀</button>
+        <span class="count num">{{currentPage}} / {{recordCount}}</span>
+        <button type="button" class="pager-btn" data-action="recordNext" {{recordNextDisabled}}>▶</button>
+      </div>
+      <div class="record-actions">
+        <button type="button" class="rec-btn rec-btn--add" data-action="recordAdd">
+          {{localize "ASTER.record.add"}}
+        </button>
+        {{#if currentRecord}}
+        <button type="button" class="rec-btn" data-action="itemEdit" data-item-id="{{currentRecord.id}}">
+          {{localize "ASTER.record.edit"}}
+        </button>
+        <button
+          type="button"
+          class="rec-btn rec-btn--del"
+          data-action="recordDelete"
+          data-item-id="{{currentRecord.id}}"
+          title="{{localize 'ASTER.inventory.delete'}}"
+        >
+          ✕
+        </button>
+        {{/if}}
+      </div>
     </div>
 
-    {{#if currentRecord}}
+    {{!-- 세션 일지 카드 --}} {{#if currentRecord}}
     <div class="record-card" data-item-id="{{currentRecord.id}}">
-      <div class="card-boxes">
-        <div class="box">
-          <span class="k">{{localize "ASTER.record.city"}}</span>
-          <span class="v">{{currentRecord.city}}</span>
-          <span class="k">{{localize "ASTER.record.alert"}}</span>
-          <span class="v">{{currentRecord.alert}}</span>
+      <div class="rec-line">
+        <div class="pair">
+          <span class="k">{{localize "ASTER.record.city"}}</span><span class="v">{{currentRecord.city}}</span>
         </div>
-        <div class="box">
-          <span class="k">{{localize "ASTER.record.felka"}}</span>
-          <span class="v">{{currentRecord.felka}}</span>
-          <span class="k">{{localize "ASTER.record.scenarioCount"}}</span>
-          <span class="v">{{currentRecord.scenarioCount}}</span>
-          <span class="k">{{localize "ASTER.record.favor"}}</span>
-          <span class="v">{{currentRecord.favor}}</span>
+        <div class="pair">
+          <span class="k">{{localize "ASTER.record.alert"}}</span><span class="v">{{currentRecord.alert}}</span>
         </div>
       </div>
-      <div class="card-scenes">
-        <label>{{localize "ASTER.record.scenes"}}</label>
-        {{#each currentRecord.scenes as |s|}}
-        <div class="scene">◇ {{s}}</div>
-        {{/each}}
+      <div class="rec-line">
+        <div class="pair">
+          <span class="k">{{localize "ASTER.record.felka"}}</span><span class="v">{{currentRecord.felka}}</span>
+        </div>
+        <div class="pair">
+          <span class="k">{{localize "ASTER.record.scenarioCount"}}</span
+          ><span class="v">{{currentRecord.scenarioCount}}</span>
+        </div>
+        <div class="pair">
+          <span class="k">{{localize "ASTER.record.favor"}}</span><span class="v">{{currentRecord.favor}}</span>
+        </div>
       </div>
-      <div class="card-people">
-        <label>{{localize "ASTER.record.people"}}</label>
-        <div class="people-text">{{currentRecord.people}}</div>
+      <div class="rec-block">
+        <span class="k">{{localize "ASTER.record.scenes"}}</span>
+        <ul class="rec-list">
+          {{#each currentRecord.scenes as |s|}}
+          <li>{{s}}</li>
+          {{/each}}
+        </ul>
       </div>
-      <div class="card-memo">
-        <label>{{localize "ASTER.record.memo"}}</label>
-        <div class="memo-scroll">{{currentRecord.memo}}</div>
+      <div class="rec-block">
+        <span class="k">{{localize "ASTER.record.people"}}</span>
+        <div class="rec-people">{{currentRecord.people}}</div>
+      </div>
+      <div class="rec-block">
+        <span class="k">{{localize "ASTER.record.memo"}}</span>
+        <div class="rec-memo">{{currentRecord.memo}}</div>
       </div>
       {{#if currentRecord.updatedAt}}
-      <div class="card-updated">{{localize "ASTER.record.updatedAt"}}: {{currentRecord.updatedAt}}</div>
+      <div class="fnote">{{localize "ASTER.record.updatedAt"}}: {{currentRecord.updatedAt}}</div>
       {{/if}}
     </div>
     {{else}}
-    <p class="no-record">{{localize "ASTER.record.empty"}}</p>
+    <p class="ap-note">{{localize "ASTER.record.empty"}}</p>
     {{/if}}
   </div>
 </div>
