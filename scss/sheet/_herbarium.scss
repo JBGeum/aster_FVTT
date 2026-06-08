@@ -62,6 +62,9 @@
 
 /* ---------- 시트 루트 / 표면 (Foundry 윈도우 내부) ---------- */
 .herbarium {
+  /* STEP 1 — 양피지 표면 텍스처 (Foundry 절대 경로 — Vite는 / 시작 url을 그대로 둠).
+     라이트 시트 배경에 radial 그라디언트 + 텍스처(multiply). 다크(starfield)는 STEP 5. */
+  --surface-tex: url("/systems/aster/assets/textures/parchment-texture.png");
   --tex-1: rgba(168, 136, 78, 0.1);
   --tex-2: rgba(120, 90, 50, 0.08);
   --tex-3: rgba(90, 60, 30, 0.1);
@@ -73,8 +76,10 @@
   background-image:
     radial-gradient(at 18% 8%, var(--tex-1), transparent 42%),
     radial-gradient(at 84% 2%, var(--tex-2), transparent 38%),
-    radial-gradient(at 50% 102%, var(--tex-3), transparent 46%),
-    repeating-linear-gradient(92deg, rgba(120, 90, 50, 0.025) 0 2px, transparent 2px 5px);
+    radial-gradient(at 50% 102%, var(--tex-3), transparent 46%), var(--surface-tex);
+  background-size: auto, auto, auto, cover;
+  background-position: center;
+  background-blend-mode: normal, normal, normal, multiply;
 
   * {
     box-sizing: border-box;
@@ -87,6 +92,11 @@
     background: none;
     border: none;
     outline: none;
+  }
+  /* ApplicationV2 기본 button은 전폭(width:100%)이라 약초첩 버튼이 세로로 쌓인다.
+     기본을 auto로 되돌림 — 전폭이 필요한 버튼(btn-cast·ap-fire 등)은 자체 width:100%로 override. */
+  button {
+    width: auto;
   }
 
   /* 숫자 표기 — 올드스타일 figure */
@@ -120,12 +130,17 @@
   /* ---------- 레이아웃 그리드 (좌상 idn / 중상 stel / 우 inv / 좌하 abil / 중하 memo) ---------- */
   .sheet__body {
     display: grid;
-    grid-template-columns: 1.2fr 0.92fr 346px;
+    /* STEP 2 갱신 — 좌측 2열에 idn/abil/stel/memo 세로 스택, 우측 346px에 inv.
+       abil(능력치+활력 2열)·id-fields(이름+속성 가로)가 좌측 전폭(2열)을 쓴다. */
+    grid-template-columns: 1fr 1fr 346px;
     grid-template-areas:
-      "idn stel inv"
-      "abil memo inv";
+      "idn  idn  inv"
+      "abil abil inv"
+      "stel stel inv"
+      "memo memo inv";
     gap: 14px;
-    align-items: stretch;
+    /* start: 짧은 좌측 패널이 inv 높이로 늘어나지 않게(여백 방지). inv는 align-self로 채움. */
+    align-items: start;
   }
   .col {
     display: contents;
@@ -136,11 +151,23 @@
   .panel--abil {
     grid-area: abil;
   }
+  /* STEP 2 — 능력치 | 활력 2열 */
+  .panel--abil .abil-grid {
+    display: grid;
+    grid-template-columns: minmax(220px, auto) 1fr;
+    gap: 22px;
+    align-items: start;
+  }
   .panel--statel {
     grid-area: stel;
   }
+  /* STEP 2 — statel이 좌측 전폭이므로 원소는 6열 한 줄 */
+  .panel--statel .elements {
+    grid-template-columns: repeat(6, 1fr);
+  }
   .panel--inv {
     grid-area: inv;
+    align-self: stretch;
   }
   .panel--memo {
     grid-area: memo;
@@ -149,9 +176,6 @@
   }
   .panel--memo .memo {
     flex: 1;
-  }
-  .panel--identity .identity {
-    height: 100%;
   }
 
   /* ---------- 패널 ---------- */
@@ -209,11 +233,37 @@
   }
 
   /* ---------- 정체성 패널 ---------- */
+  /* STEP 2 — 초상(2행 span) | 이름·속성(가로) / 판정(가로) */
   .identity {
     display: grid;
-    grid-template-columns: 128px 1fr;
-    gap: 14px;
-    align-items: center;
+    grid-template-columns: 122px 1fr;
+    grid-template-areas:
+      "port fields"
+      "port roll";
+    gap: 10px 13px;
+    align-items: stretch;
+  }
+  .id-fields {
+    grid-area: fields;
+    display: flex;
+    gap: 10px;
+    align-items: end;
+
+    .field {
+      gap: 4px;
+    }
+    .field--name {
+      flex: 1;
+    }
+    .field--aff {
+      width: 104px;
+      flex: none;
+    }
+  }
+  .panel--identity .portrait {
+    grid-area: port;
+    height: 100%;
+    aspect-ratio: auto;
   }
   .portrait {
     position: relative;
@@ -327,6 +377,33 @@
     border: 1px dashed var(--gold-soft);
     border-radius: var(--hb-radius);
     background: rgba(232, 219, 184, 0.4);
+  }
+  /* STEP 2 — 판정 가로 1줄 (일반/대항 + 목표 + 정동판정) */
+  .roll--wide {
+    grid-area: roll;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+
+    .seg {
+      width: auto;
+      margin-bottom: 0;
+
+      label {
+        padding: 9px 14px;
+      }
+    }
+    .roll__target {
+      margin-bottom: 0;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .btn-cast {
+      flex: 1;
+      margin: 0;
+    }
   }
   .roll__title {
     font-family: var(--font-display);
@@ -652,6 +729,11 @@
     padding: 5px 3px 4px;
     background: var(--parchment-sunk);
   }
+  /* STEP 3(FIX) — 증감 오버레이를 헤더(점+이름)에만 한정. 값(.el__val)은 밖이라 안 가려짐.
+     .el__step이 .el__head 기준으로 inset:0 → 헤더만 덮음. */
+  .el__head {
+    position: relative;
+  }
   .el__dot {
     width: 11px;
     height: 11px;
@@ -768,18 +850,22 @@
   }
 
   /* ---------- 인벤토리 (우측) ---------- */
-  .inv-tabs {
+  /* 서브탭 nav. 항목은 .item(Foundry 정합 — .tab이면 코어 .tab:not(.active){display:none}에 숨음).
+     .inv-tabs.tabs로 특정도를 올려 _actor의 nav.tabs>.item 토큰 스타일을 이긴다. */
+  .inv-tabs.tabs {
     display: flex;
     gap: 2px;
     margin-bottom: 6px;
+    border-bottom: none;
 
-    /* 서브탭 nav — Foundry는 활성 항목에 .active 부여 */
-    .tab {
+    .item {
+      flex: 0 0 auto;
       font-family: var(--font-display);
       font-size: 15px;
       letter-spacing: 1px;
       padding: 6px 14px 5px;
       color: var(--ink-soft);
+      background: none;
       cursor: pointer;
       text-decoration: none;
       border: 1px solid transparent;
@@ -788,6 +874,9 @@
       position: relative;
       top: 1px;
 
+      &:hover {
+        color: var(--ink-strong);
+      }
       &.active {
         color: var(--ink-strong);
         background: var(--parchment-soft);
@@ -930,25 +1019,31 @@
       font-weight: 600;
     }
   }
+  /* STEP 2 — 프레임(.bag-frame) + 정사각 셀.
+     그리드 전체를 cols:rows 비율(aspect-ratio)로 잡고 열·행을 1fr 균등 분배 → 셀이 정사각.
+     높이는 행 수에 비례(적응형) — 고정 px·container-query보다 견고하고 작은 가방에서 여백 안 생김. */
   .bag-grid {
     position: relative;
     padding: 3px;
     margin-bottom: 11px;
+    aspect-ratio: var(--bag-cols, 5) / var(--bag-rows, 3);
     background: var(--rule);
     border: 1px solid var(--gold);
     border-radius: var(--hb-radius-sm);
     box-shadow: inset 0 1px 4px rgba(70, 45, 18, 0.18);
   }
-  .bag-cells,
-  .bag-items {
-    display: grid;
-    grid-template-columns: repeat(var(--bag-cols, 5), 1fr);
-    grid-auto-rows: 59px;
-    gap: 3px;
-  }
-  .bag-items {
+  .bag-frame {
     position: absolute;
     inset: 3px;
+  }
+  .bag-cells,
+  .bag-items {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    gap: 3px;
+    grid-template-columns: repeat(var(--bag-cols, 5), 1fr);
+    grid-template-rows: repeat(var(--bag-rows, 3), 1fr);
   }
   .bcell {
     background: var(--parchment-sunk);
@@ -1036,12 +1131,17 @@
       justify-content: space-between;
 
       .tools {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         letter-spacing: 0;
         color: var(--gold);
         font-size: 12px;
         cursor: pointer;
 
         button {
+          width: auto;
+          flex: 0 0 auto;
           background: none;
           border: none;
           color: var(--gold);
@@ -2245,21 +2345,258 @@
       }
     }
   }
+
+  /* ============================================================
+   * NPC 시트 (단일 폼 · 약초첩 라이트)
+   * witch-sheet.css v23 §24 편입. .npc-bar(윈도우 헤더)는 Foundry 네이티브
+   * 윈도우가 담당하므로 미편입(D52 sheet-header 제거 정합). 다크는 본 명세 밖.
+   * ============================================================ */
+  &.npc-sheet {
+    /* Foundry 윈도우 내부 — 시안 624px 고정폭/외곽 테두리 미적용. 본문만 약초첩 톤. */
+    padding: 0;
+    /* STEP 1 — NPC 시트는 텍스처 생략(단색). 시안 정합. */
+    background-image: none;
+  }
+  .npc-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 16px 16px;
+    max-width: 660px;
+    margin: 0 auto;
+    width: 100%;
+
+    .input-line {
+      padding: 6px 11px;
+    }
+  }
+
+  /* 헤더 — 초상 + 이름/도전등급 + 능력치 그리드 */
+  .npc-head {
+    display: grid;
+    grid-template-columns: 132px 1fr;
+    gap: 16px;
+    align-items: start;
+
+    .portrait {
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      border-radius: var(--hb-radius-sm);
+
+      /* 시안 NPC 초상은 단순 사각 — 연금 글리프 장식 생략 */
+      &::before {
+        content: none;
+      }
+    }
+  }
+  .npc-head__main {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .npc-name-row {
+    display: flex;
+    gap: 12px;
+    align-items: end;
+
+    .npc-name {
+      flex: 1;
+    }
+    .stat--cr {
+      width: 132px;
+      flex: none;
+    }
+  }
+  .npc-name .input-line {
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px 14px;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    > label {
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      color: var(--ink-soft);
+    }
+    .input-line {
+      justify-content: center;
+      font-family: var(--font-num);
+      font-weight: 600;
+
+      input {
+        text-align: center;
+      }
+      /* 식(명중·회피·액션)은 음각 톤으로 — 시안 .dim */
+      &.dim {
+        color: var(--ink-soft);
+        input {
+          color: var(--ink-soft);
+        }
+      }
+    }
+    .pair2 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+
+      .input-line {
+        flex: 1;
+      }
+      .sep {
+        color: var(--ink-soft);
+      }
+    }
+  }
+
+  /* 약전(biography) — 시안 메모 자리 */
+  .npc-bio {
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 8px 11px;
+    box-shadow: inset 0 1px 4px rgba(70, 45, 18, 0.16);
+
+    .editor,
+    .editor-content {
+      min-height: 60px;
+      color: var(--ink);
+    }
+  }
+
+  /* 전투(AP) 패널 — 시안 .npc-ap */
+  .npc-ap {
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius);
+    padding: 11px;
+    background: color-mix(in oklch, var(--parchment-deep) 36%, var(--parchment-soft));
+
+    .ap-note {
+      margin-bottom: 9px;
+    }
+  }
+  .npc-ap__row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 9px;
+  }
+  .npc-ap__acts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 9px;
+
+    &.disabled .ap-btn {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+  }
+
+  /* 액션 표 — 시안 .act-table (div grid) */
+  .act-table {
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius);
+    overflow: hidden;
+
+    &__head,
+    .act-row {
+      display: grid;
+      grid-template-columns: 78px 1fr 1.5fr 92px;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+    }
+    &__head {
+      background: var(--parchment-deep);
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--ink-soft);
+    }
+    .act-row {
+      border-top: 1px solid var(--rule);
+
+      &:hover {
+        background: color-mix(in oklch, var(--parchment-deep) 28%, var(--parchment-soft));
+      }
+      .a-cost {
+        text-align: center;
+        font-weight: 700;
+        color: var(--plum);
+      }
+      .a-name {
+        font-weight: 700;
+        color: var(--ink-strong);
+      }
+      .a-eff {
+        font-size: 13px;
+        color: var(--ink-soft);
+
+        .a-target {
+          color: var(--sage);
+          white-space: nowrap;
+        }
+        .a-once {
+          margin-left: 5px;
+          padding: 1px 7px;
+          border: 1px solid var(--gold-soft);
+          border-radius: 10px;
+          font-size: 11px;
+          color: var(--ink-soft);
+          white-space: nowrap;
+        }
+      }
+      .a-tools {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        color: var(--ink-soft);
+
+        button {
+          color: var(--ink-soft);
+          font-size: 13px;
+          cursor: pointer;
+
+          &:hover:not(:disabled) {
+            color: var(--ink-strong);
+          }
+          &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+          }
+          &.del:hover {
+            color: var(--el-red);
+          }
+        }
+      }
+    }
+  }
+  .act-empty {
+    padding: 16px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-style: italic;
+    font-size: 13px;
+  }
 }
 
 /* ============================================================
- * Foundry 통합 — 캐릭터 탭 herbarium sheet__body 컨테이너
- * (.aster .tab.character 루트에 스크롤/패딩 부여, 서브탭 표시 정합)
+ * Foundry 통합 — 캐릭터 탭 herbarium 컨테이너 (콘텐츠 패딩 + 서브탭 표시 정합)
+ * 윈도우 height:"auto"가 콘텐츠에 맞추므로 탭 내부 스크롤·강제 100% 높이는 두지 않는다.
+ * → 짧은 탭이 늘어나지(여백) 않고, 긴 탭이 내부 스크롤되지 않으며, 윈도우가 콘텐츠 높이로 맞는다.
  * ============================================================ */
-.aster .sheet-container > .tab.character,
-.aster .sheet-container > .tab.craft,
-.aster .sheet-container > .tab.record {
-  overflow-y: auto;
-}
 .aster .tab.character .herbarium,
 .aster .tab.craft .herbarium,
 .aster .tab.record .herbarium {
-  min-height: 100%;
   padding: 14px;
 }
 /* .panel--inv 안 서브탭: 활성만 표시 (Foundry .tab:not(.active) 숨김 정합) */
@@ -2268,4 +2605,80 @@
 }
 .aster .tab.character .panel--inv > .tab:not(.active) {
   display: none;
+}
+
+/* ============================================================
+ * H8 — 상단 헤더(.sheet__top: 이름 + 메인 탭) 약초첩 스타일.
+ * 이 영역은 .herbarium 래퍼 밖이라 여기서 직접 부여(토큰은 :root 전역).
+ * ============================================================ */
+.aster .sheet__top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  padding: 10px 14px 0;
+  background: var(--parchment);
+  border-bottom: 1px solid var(--rule);
+
+  .sheet__name {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding-bottom: 7px;
+    min-width: 0;
+
+    .pc {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 1px;
+      color: var(--ink-strong);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .pc-sub {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      white-space: nowrap;
+    }
+  }
+}
+.aster nav.sheet-main-tabs {
+  display: flex;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+
+  > .item {
+    flex: 0 0 auto;
+    font-family: var(--font-display);
+    font-size: 15px;
+    letter-spacing: 1px;
+    text-transform: capitalize;
+    padding: 7px 18px 6px;
+    color: var(--ink-soft);
+    background: none;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    text-shadow: none;
+
+    &:hover {
+      color: var(--ink-strong);
+    }
+    &.active {
+      color: var(--ink-strong);
+      background: var(--parchment-soft);
+      border-color: var(--gold);
+      box-shadow: inset 0 2px 0 var(--plum);
+    }
+  }
 }

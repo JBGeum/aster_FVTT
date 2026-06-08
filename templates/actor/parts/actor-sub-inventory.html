@@ -6,28 +6,31 @@
     >{{inv.bag.grid.cols}} × {{inv.bag.grid.rows}} · <b>{{inv.bag.items.length}}</b>/{{inv.bag.cells.length}}</span
   >
 </div>
-<div class="bag-grid" style="--bag-cols: {{inv.bag.grid.cols}}">
-  <div class="bag-cells">
-    {{#each inv.bag.cells as |cell|}}
-    <div
-      class="bcell {{#if cell.light}}cell-light{{/if}}"
-      data-action="cellClick"
-      data-cell-index="{{cell.index}}"
-    ></div>
-    {{/each}}
-  </div>
-  <div class="bag-items">
-    {{#each inv.bag.items as |it|}}
-    <div
-      class="bitem {{#if it.large}}lg{{/if}}"
-      data-action="itemUnplace"
-      data-item-id="{{it.id}}"
-      style="grid-column: {{add it.x 1}} / span {{it.w}}; grid-row: {{add it.y 1}} / span {{it.h}};"
-    >
-      <img src="{{it.img}}" alt="{{it.name}}" draggable="false" />
-      <span class="n">{{it.name}}</span>
+{{!-- STEP 2 — .bag-frame 래퍼 + --bag-cols/--bag-rows로 정사각 셀(행·열 비율 무관) --}}
+<div class="bag-grid" style="--bag-cols: {{inv.bag.grid.cols}}; --bag-rows: {{inv.bag.grid.rows}}">
+  <div class="bag-frame">
+    <div class="bag-cells">
+      {{#each inv.bag.cells as |cell|}}
+      <div
+        class="bcell {{#if cell.light}}cell-light{{/if}}"
+        data-action="cellClick"
+        data-cell-index="{{cell.index}}"
+      ></div>
+      {{/each}}
     </div>
-    {{/each}}
+    <div class="bag-items">
+      {{#each inv.bag.items as |it|}}
+      <div
+        class="bitem {{#if it.large}}lg{{/if}}"
+        data-action="itemUnplace"
+        data-item-id="{{it.id}}"
+        style="grid-column: {{add it.x 1}} / span {{it.w}}; grid-row: {{add it.y 1}} / span {{it.h}};"
+      >
+        <img src="{{it.img}}" alt="{{it.name}}" draggable="false" />
+        <span class="n">{{it.name}}</span>
+      </div>
+      {{/each}}
+    </div>
   </div>
 </div>
 {{else}}

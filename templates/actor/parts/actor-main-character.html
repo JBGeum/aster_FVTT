@@ -5,14 +5,15 @@
     <div class="portrait">
       <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
     </div>
-    <div class="identity__main">
-      <div class="field">
+    {{!-- STEP 2 — 이름 + 속성 가로(.id-fields) --}}
+    <div class="id-fields">
+      <div class="field field--name">
         <label>이름</label>
         <div class="input-line">
           <input name="name" type="text" value="{{actor.name}}" placeholder="캐릭터이름" />
         </div>
       </div>
-      <div class="field">
+      <div class="field field--aff">
         <label>속성</label>
         <div class="input-line">
           <span class="affinity-dot affinity-dot--{{system.color}}"></span>
@@ -21,78 +22,85 @@
           </select>
         </div>
       </div>
-      <div class="roll">
-        <div class="roll__row">
-          <div class="seg">
-            <label>
-              <input type="radio" name="system.rollMode" value="normal" {{checked rollModeNormal}} />
-              <span>일반</span>
-            </label>
-            <label>
-              <input type="radio" name="system.rollMode" value="vs" {{checked rollModeVs}} />
-              <span>대항</span>
-            </label>
-          </div>
-          <div class="roll__target">
-            <span class="lbl">목표</span>
-            <span class="seal num"><input type="number" name="system.dc" value="{{system.dc}}" /></span>
-          </div>
-        </div>
-        <button type="button" class="btn-cast" data-action="emoRoll" data-label="ASTER.emo.rollLabel">
-          {{localize "ASTER.emo.roll"}}
-        </button>
+    </div>
+    {{!-- STEP 2 — 판정 가로 1줄(.roll--wide) --}}
+    <div class="roll roll--wide">
+      <div class="seg">
+        <label>
+          <input type="radio" name="system.rollMode" value="normal" {{checked rollModeNormal}} />
+          <span>일반</span>
+        </label>
+        <label>
+          <input type="radio" name="system.rollMode" value="vs" {{checked rollModeVs}} />
+          <span>대항</span>
+        </label>
       </div>
+      <div class="roll__target">
+        <span class="lbl">목표</span>
+        <span class="seal num"><input type="number" name="system.dc" value="{{system.dc}}" /></span>
+      </div>
+      <button type="button" class="btn-cast" data-action="emoRoll" data-label="ASTER.emo.rollLabel">
+        {{localize "ASTER.emo.roll"}}
+      </button>
     </div>
   </div>
 </section>
 
 {{!-- 능력치 + 활력 (abil) --}}
 <section class="panel panel--abil" data-corner="❧">
-  <div class="panel__head">능력치</div>
-  <div class="attrs">
-    {{#each system.ability as |ability key|}}
-    <div class="attr">
-      <div class="attr__name abl-roll" data-action="ablRoll" data-ability="{{key}}" data-label="{{ability.label}}">
-        {{ability.label}}
-      </div>
-      <div class="attr__main num">{{ability.total}}</div>
-      <div class="attr__cells">
-        <div class="cell num"><input type="number" name="system.ability.{{key}}.base" value="{{ability.base}}" /></div>
-        <div class="cell cell--accent num">
-          <input type="number" name="system.ability.{{key}}.mod" value="{{ability.mod}}" />
+  {{!-- STEP 2 — 능력치 | 활력 2열(.abil-grid) --}}
+  <div class="abil-grid">
+    <div class="abil-col">
+      <div class="panel__head">능력치</div>
+      <div class="attrs">
+        {{#each system.ability as |ability key|}}
+        <div class="attr">
+          <div class="attr__name abl-roll" data-action="ablRoll" data-ability="{{key}}" data-label="{{ability.label}}">
+            {{ability.label}}
+          </div>
+          <div class="attr__main num">{{ability.total}}</div>
+          <div class="attr__cells">
+            <div class="cell num">
+              <input type="number" name="system.ability.{{key}}.base" value="{{ability.base}}" />
+            </div>
+            <div class="cell cell--accent num">
+              <input type="number" name="system.ability.{{key}}.mod" value="{{ability.mod}}" />
+            </div>
+          </div>
         </div>
+        {{/each}}
       </div>
     </div>
-    {{/each}}
-  </div>
-
-  <div class="panel__head panel__head--sub">활력</div>
-  <div class="vitals">
-    <div class="gauge">
-      <span class="gauge__lbl">건강</span>
-      <div class="vessel">
-        <div class="vessel__fill vessel__fill--hp" style="right: {{healthEmptyPct}}%"></div>
-        <div class="vessel__txt num">
-          <input type="number" name="system.health.value" value="{{system.health.value}}" />
-          /
-          <input type="number" name="system.health.max" value="{{system.health.max}}" />
+    <div class="abil-col">
+      <div class="panel__head">활력</div>
+      <div class="vitals">
+        <div class="gauge">
+          <span class="gauge__lbl">건강</span>
+          <div class="vessel">
+            <div class="vessel__fill vessel__fill--hp" style="right: {{healthEmptyPct}}%"></div>
+            <div class="vessel__txt num">
+              <input type="number" name="system.health.value" value="{{system.health.value}}" />
+              /
+              <input type="number" name="system.health.max" value="{{system.health.max}}" />
+            </div>
+          </div>
+        </div>
+        <div class="gauge">
+          <span class="gauge__lbl">포만도</span>
+          <div class="vessel">
+            <div class="vessel__fill vessel__fill--sat" style="right: {{satietyEmptyPct}}%"></div>
+            <div class="vessel__txt num">
+              <input type="number" name="system.satiety.value" value="{{system.satiety.value}}" />
+              /
+              <input type="number" name="system.satiety.max" value="{{system.satiety.max}}" />
+            </div>
+          </div>
+        </div>
+        <div class="minis">
+          <div class="mini"><span class="k">민첩</span><span class="v num">{{system.speed}}</span></div>
+          <div class="mini"><span class="k">회피</span><span class="v num">{{system.dodge}}</span></div>
         </div>
       </div>
-    </div>
-    <div class="gauge">
-      <span class="gauge__lbl">포만도</span>
-      <div class="vessel">
-        <div class="vessel__fill vessel__fill--sat" style="right: {{satietyEmptyPct}}%"></div>
-        <div class="vessel__txt num">
-          <input type="number" name="system.satiety.value" value="{{system.satiety.value}}" />
-          /
-          <input type="number" name="system.satiety.max" value="{{system.satiety.max}}" />
-        </div>
-      </div>
-    </div>
-    <div class="minis">
-      <div class="mini"><span class="k">민첩</span><span class="v num">{{system.speed}}</span></div>
-      <div class="mini"><span class="k">회피</span><span class="v num">{{system.dodge}}</span></div>
     </div>
   </div>
 </section>
@@ -125,16 +133,25 @@
 
   <div class="panel__head panel__head--sub">아스테르</div>
   <div class="elements">
-    {{#each system.aster as |aster key|}}
+    {{!-- STEP 3(FIX) — 증감버튼은 .el__head(점+이름)에만, 값은 밖. asterStep으로 ±1. --}} {{#each system.aster as
+    |aster key|}}
     <div class="el">
-      <div class="el__dot el__dot--{{key}}"></div>
-      <div class="el__name">{{aster.label}}</div>
+      <div class="el__head">
+        <div class="el__dot el__dot--{{key}}"></div>
+        <div class="el__name">{{aster.label}}</div>
+        <div class="el__step">
+          <span class="minus" data-action="asterStep" data-aster="{{key}}" data-dir="-1">-</span>
+          <span class="plus" data-action="asterStep" data-aster="{{key}}" data-dir="1">+</span>
+        </div>
+      </div>
       <div class="el__val num"><input type="number" name="system.aster.{{key}}.value" value="{{aster.value}}" /></div>
     </div>
-    {{/each}}
+    {{/each}} {{!-- 마테리얼은 증감버튼 제외(시안/FIX 정합) --}}
     <div class="el el--mat">
-      <div class="el__dot el__dot--mat"></div>
-      <div class="el__name">마테리얼</div>
+      <div class="el__head">
+        <div class="el__dot el__dot--mat"></div>
+        <div class="el__name">마테리얼</div>
+      </div>
       <div class="el__val num"><input type="number" name="system.material" value="{{system.material}}" /></div>
     </div>
   </div>

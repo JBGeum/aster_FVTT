@@ -1109,6 +1109,37 @@ N1(DataModel)+N2(Item 타입)+N3(시전 흐름)+N4(AP 자동)+N5(dodge+회귀) =
 
 ---
 
+## D52. N6 NPC 시트 결함 정정 — 헤더 재구성 + itemCreate + hit 굴림
+
+**결정:** 사용자 실 환경 검증에서 발견된 NPC 시트 3 결함 정정. (1) `<header class="sheet-header">` 제거 — Foundry 윈도우 헤더 영역과 겹쳐 드래그가 막히던 문제 해소(능력치 영역을 form 직속 `npc-top` div로 이동, PC 패턴 정합). (2) npc-actions 영역에 `itemCreate` 버튼 추가 — `data-type="npcAction"`로 기존 `#onItemCreate` 핸들러 재사용(PC spell 탭 패턴). (3) hit 굴림 신설 — `Actor.rollHit()`(NPC 전용, dodge 패턴 정합 + `opposedRoll` 인프라 연계 `ability: "hit"`) + 시트 별도 버튼 + npcAction 시전 시 통합(damageFormula 있고 targetType !== "self"일 때 hit 굴림 결과를 시전 카드에 표시). hit vs dodge 자동 대결 비교는 *영역 외* — GM이 시전 카드의 hit 결과를 PC dodge와 수동 비교해 대미지 적용 결정.
+
+**배경:** N1~N5 명세는 데이터 모델·자동화·시전에 집중했고, 기본 UX 영역(드래그·아이템 생성·hit 굴림)이 명세 작성 시 충분히 확인되지 않았다. 사용자 실 환경 검증에서 발견 — *실제 사용 시점에 드러나는 결함*의 가치 회수.
+
+**대안:**
+- 결함 1 — sheet-header CSS만 정정(pointer-events·position): 근본 원인이 구조 차이라 PC 패턴 정합이 자연.
+- 결함 1 — partial 분리: 분량 큼, NPC 전용이라 partial 가치 작음.
+- 결함 3 옵션 A(별도 버튼만): 시전 시 GM이 매번 두 번 클릭 — 비효율.
+- 결함 3 옵션 B(시전 통합만): npcAction 외 시점에서 단독 굴림 불가.
+- 결함 3 자동 대결 비교: 룰 자동화 복잡 — GM 수동 비교가 자연(D30 균형).
+
+**선택 이유:**
+
+(1) **sheet-header 제거** — Foundry 윈도우 헤더 영역 보호, PC 시트와 동일 구조(form 직속에 sheet-header 없음). 시각 정리는 H 트랙에서 PC와 동일 CSS 적용 가능.
+
+(2) **itemCreate 버튼 PC 패턴 정합** — `data-action="itemCreate"` + `data-type="npcAction"`, 동일 핸들러 재사용(D11 자산 누적).
+
+(3) **hit 별도 버튼(옵션 C 일부)** — dodge 버튼 패턴 정합. npc-combat 영역에 hit·dodge 모두 노출, 언제든 굴림 가능, resolveOpposed 연계로 대결 카드 출력.
+
+(4) **시전 시 hit 통합(옵션 C 일부)** — 공격 액션 시전 시 자동 hit 굴림 + 시전 카드에 결과 표시. GM이 한 카드에서 hit + damage 확인. 집중은 시전 통합 hit에도 적용(focusActive flag 1회 만료).
+
+(5) **자동 대결 비교 보류** — hit vs dodge 자동 비교·자동 대미지는 룰 자동화 복잡. GM 수동 비교가 자연(D30 자유 영역 균형).
+
+(6) **NPC 전용 hit 굴림** — PC는 능력치 합산식으로 시전 시 자연 굴림(별도 메서드 불필요). PC가 실수로 `rollHit` 호출 시 경고 + 종료.
+
+> **본 결정의 의미 — 실 환경 검증의 회수**: 명세 + 코드 점검만으로는 기본 UX 결함이 드러나지 않았다. 사용자 실 환경 검증이 명세 누락 영역을 찾아냄 — *검증 단계 결정의 가치 증명*. 향후 명세 작성 시 *기본 UX 영역 점검* 원칙 누적(D26 코드 점검 우선 + 기본 UX 점검 우선). N 트랙 기능·UX 안정 — 다음은 통합 검증 단계.
+
+---
+
 ## 부록: 결정의 커리어적 의미
 
 이 일지는 단순 기록이 아니라 **설계 사고의 증거**다. 각 결정은 "특정 프레임워크 지식"이 아니라 "프레임워크가 바뀌어도 통하는 원칙"을 보여준다.

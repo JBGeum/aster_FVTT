@@ -1,169 +1,157 @@
-<form class="{{cssClass}} {{actor.type}} flexcol" autocomplete="off">
-  {{!-- N6 — sheet-header 제거. PC 시트 패턴 정합(form 직속): Foundry 윈도우 헤더와 겹치지 않아 드래그 충돌 해소. --}}
-  <div class="npc-top flexrow align-center">
-    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100" />
-    <div class="npc-header-fields flexcol">
-      <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="Name" /></h1>
-
-      {{!-- 능력치 행 1: 정수 (건강 / 도전 등급 / 민첩) --}}
-      <div class="resources grid grid-3col">
-        <div class="resource flex-group-center">
-          <label class="resource-label">{{localize "ASTER.label.health"}}</label>
-          <div class="resource-content flexrow flex-center flex-between">
-            <input type="number" name="system.health.value" value="{{system.health.value}}" />
-            <span> / </span>
-            <input type="number" name="system.health.max" value="{{system.health.max}}" />
+<form class="{{cssClass}} {{actor.type}} herbarium theme-herbarium npc-sheet" autocomplete="off">
+  {{!-- H8 약초첩 NPC — 시안 마녀 시트 NPC.html 구조로 재작성. 값·동작은 D52(N트랙) 바인딩 보존. sheet-header 제거
+  유지(D52): form 직속 .npc-body — Foundry 윈도우 헤더와 겹치지 않아 드래그 충돌 없음. --}}
+  <div class="npc-body">
+    {{!-- 헤더 — 초상 + 이름/도전등급 + 능력치 그리드 (시안 .npc-head) --}}
+    <div class="npc-head">
+      <div class="portrait">
+        <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+      </div>
+      <div class="npc-head__main">
+        <div class="npc-name-row">
+          <div class="field npc-name">
+            <label>이름</label>
+            <div class="input-line">
+              <input name="name" type="text" value="{{actor.name}}" placeholder="이름" />
+            </div>
+          </div>
+          <div class="stat stat--cr">
+            <label>도전 등급</label>
+            <div class="input-line">
+              <input type="number" name="system.cr" value="{{system.cr}}" min="0" />
+            </div>
           </div>
         </div>
-        <div class="resource flex-group-center">
-          <label class="resource-label">{{localize "ASTER.label.cr"}}</label>
-          <input type="number" name="system.cr" value="{{system.cr}}" min="0" />
-        </div>
-        <div class="resource flex-group-center">
-          <label class="resource-label">{{localize "ASTER.label.speed"}}</label>
-          <input type="number" name="system.speed" value="{{system.speed}}" />
-        </div>
-      </div>
 
-      {{!-- 능력치 행 2: 식 (명중 / 회피 / 액션) --}}
-      <div class="resources grid grid-3col">
-        <div class="resource flex-group-center">
-          <label class="resource-label">{{localize "ASTER.label.hitFormula"}}</label>
-          <input type="text" name="system.hitFormula" value="{{system.hitFormula}}" placeholder="3D6+4" />
-        </div>
-        <div class="resource flex-group-center">
-          <label class="resource-label">{{localize "ASTER.label.dodgeFormula"}}</label>
-          <input type="text" name="system.dodgeFormula" value="{{system.dodgeFormula}}" placeholder="2D6+3" />
-        </div>
-        <div class="resource flex-group-center">
-          <label class="resource-label">{{localize "ASTER.label.apFormula"}}</label>
-          <input type="text" name="system.apFormula" value="{{system.apFormula}}" placeholder="1D6+6" />
-        </div>
-      </div>
-
-      {{!-- AP 현재 값 — N4에서 자동 굴림, 현재는 수동 입력 --}}
-      <div class="resources grid grid-2col">
-        <div class="resource flex-group-center">
-          <label class="resource-label">{{localize "ASTER.label.ap"}}</label>
-          <div class="resource-content flexrow flex-center flex-between">
-            <input type="number" name="system.ap.value" value="{{system.ap.value}}" min="0" />
-            <span> / </span>
-            <input type="number" name="system.ap.max" value="{{system.ap.max}}" min="0" />
+        <div class="stat-grid">
+          <div class="stat">
+            <label>건강</label>
+            <div class="pair2">
+              <div class="input-line">
+                <input type="number" name="system.health.value" value="{{system.health.value}}" />
+              </div>
+              <span class="sep">/</span>
+              <div class="input-line">
+                <input type="number" name="system.health.max" value="{{system.health.max}}" />
+              </div>
+            </div>
+          </div>
+          <div class="stat">
+            <label>액션 포인트</label>
+            <div class="pair2">
+              <div class="input-line">
+                <input type="number" name="system.ap.value" value="{{system.ap.value}}" min="0" />
+              </div>
+              <span class="sep">/</span>
+              <div class="input-line">
+                <input type="number" name="system.ap.max" value="{{system.ap.max}}" min="0" />
+              </div>
+            </div>
+          </div>
+          <div class="stat">
+            <label>민첩</label>
+            <div class="input-line"><input type="number" name="system.speed" value="{{system.speed}}" /></div>
+          </div>
+          <div class="stat">
+            <label>명중</label>
+            <div class="input-line dim">
+              <input type="text" name="system.hitFormula" value="{{system.hitFormula}}" placeholder="3D6+4" />
+            </div>
+          </div>
+          <div class="stat">
+            <label>회피</label>
+            <div class="input-line dim">
+              <input type="text" name="system.dodgeFormula" value="{{system.dodgeFormula}}" placeholder="2D6+3" />
+            </div>
+          </div>
+          <div class="stat">
+            <label>액션</label>
+            <div class="input-line dim">
+              <input type="text" name="system.apFormula" value="{{system.apFormula}}" placeholder="1D6+6" />
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <section class="sheet-body flexcol">
-    {{!-- 상태이상 5종 토글 — PC 시트 패턴 정합. id는 npc- 접두사로 PC와 충돌 회피 --}}
-    <div class="badstatus-section">
-      <div class="section-label">{{localize "ASTER.label.badstatus"}}</div>
-      <div class="badstatus-grid">
-        <div class="badstatus bs-injury {{checked system.badstatus.injury}}">
-          <input
-            type="checkbox"
-            class="badstatus"
-            id="npc-bs1.{{actor._id}}"
-            name="system.badstatus.injury"
-            {{checked
-            system.badstatus.injury}}
-          />
-          <label for="npc-bs1.{{actor._id}}" class="badstatus">{{localize "ASTER.badstatus.injury"}}</label>
-        </div>
-        <div class="badstatus bs-biginj {{checked system.badstatus.bigInj}}">
-          <input
-            type="checkbox"
-            class="badstatus"
-            id="npc-bs2.{{actor._id}}"
-            name="system.badstatus.bigInj"
-            {{checked
-            system.badstatus.bigInj}}
-          />
-          <label for="npc-bs2.{{actor._id}}" class="badstatus">{{localize "ASTER.badstatus.biginj"}}</label>
-        </div>
-        <div class="badstatus bs-sleepy {{checked system.badstatus.sleepy}}">
-          <input
-            type="checkbox"
-            class="badstatus"
-            id="npc-bs3.{{actor._id}}"
-            name="system.badstatus.sleepy"
-            {{checked
-            system.badstatus.sleepy}}
-          />
-          <label for="npc-bs3.{{actor._id}}" class="badstatus">{{localize "ASTER.badstatus.sleepy"}}</label>
-        </div>
-        <div class="badstatus bs-exhaustion {{checked system.badstatus.exhaustion}}">
-          <input
-            type="checkbox"
-            class="badstatus"
-            id="npc-bs4.{{actor._id}}"
-            name="system.badstatus.exhaustion"
-            {{checked
-            system.badstatus.exhaustion}}
-          />
-          <label for="npc-bs4.{{actor._id}}" class="badstatus">{{localize "ASTER.badstatus.exhaustion"}}</label>
-        </div>
-        <div class="badstatus bs-hungry {{checked system.badstatus.hungry}}">
-          <input
-            type="checkbox"
-            class="badstatus"
-            id="npc-bs5.{{actor._id}}"
-            name="system.badstatus.hungry"
-            {{checked
-            system.badstatus.hungry}}
-          />
-          <label for="npc-bs5.{{actor._id}}" class="badstatus">{{localize "ASTER.badstatus.hungry"}}</label>
-        </div>
+    {{!-- 상태이상 5종 — PC 시트 herb-tag 패턴 정합(:has(input:checked)로 ON). --}}
+    <section class="panel" data-corner="❀">
+      <div class="panel__head">상태이상</div>
+      <div class="status">
+        <label class="herb-tag">
+          <input type="checkbox" name="system.badstatus.injury" {{checked system.badstatus.injury}} />
+          {{localize "ASTER.badstatus.injury"}}
+        </label>
+        <label class="herb-tag">
+          <input type="checkbox" name="system.badstatus.bigInj" {{checked system.badstatus.bigInj}} />
+          {{localize "ASTER.badstatus.biginj"}}
+        </label>
+        <label class="herb-tag">
+          <input type="checkbox" name="system.badstatus.sleepy" {{checked system.badstatus.sleepy}} />
+          {{localize "ASTER.badstatus.sleepy"}}
+        </label>
+        <label class="herb-tag">
+          <input type="checkbox" name="system.badstatus.exhaustion" {{checked system.badstatus.exhaustion}} />
+          {{localize "ASTER.badstatus.exhaustion"}}
+        </label>
+        <label class="herb-tag">
+          <input type="checkbox" name="system.badstatus.hungry" {{checked system.badstatus.hungry}} />
+          {{localize "ASTER.badstatus.hungry"}}
+        </label>
       </div>
-    </div>
+    </section>
 
-    <div class="npc-biography">
-      {{editor system.biography target="system.biography" rollData=rollData button=true owner=owner editable=editable}}
-    </div>
+    {{!-- 약전 (biography editor) --}}
+    <section class="panel" data-corner="✿">
+      <div class="panel__head">약전</div>
+      <div class="npc-bio">
+        {{editor system.biography target="system.biography" rollData=rollData button=true owner=owner
+        editable=editable}}
+      </div>
+    </section>
 
-    {{!-- N3 — NPC combat 영역: AP 표시 + 공통 액션. PC combat 탭 CSS 재사용(시각 일관). charge·unisonPrepare 제외 — NPC
+    {{!-- N3 — 전투(AP) 영역: AP 표시 + 회피·명중(반응 판정) + 공통 액션. 시안 .npc-ap. charge·unisonPrepare 제외 — NPC
     합체기 발동 불가(룰 정합). --}}
-    <div class="npc-combat">
-      <div class="combat-ap-display">
-        <span class="ap-label">{{localize "ASTER.combat.actionPoints"}}</span>
-        <span class="ap-value">{{#if combatContext.inCombat}}{{combatContext.ap}}{{else}}—{{/if}}</span>
-        {{#if combatContext.focusActive}}
-        <span class="focus-indicator">{{localize "ASTER.combat.focusActiveIndicator"}}</span>
-        {{/if}}
+    <div class="npc-ap">
+      <div class="ap-head">
+        <span class="t">{{localize "ASTER.combat.actionPoints"}}</span>
+        <span class="ap-value num">
+          {{#if combatContext.inCombat}}{{combatContext.ap}}{{else}}—{{/if}} {{#if combatContext.focusActive}}<span
+            class="focus-indicator"
+            >{{localize "ASTER.combat.focusActiveIndicator"}}</span
+          >{{/if}}
+        </span>
       </div>
-
       {{#unless combatContext.inCombat}}
-      <div class="combat-disabled-notice">{{localize "ASTER.combat.notInCombat"}}</div>
-      {{/unless}} {{!-- N5 — 회피 버튼. 반응 판정(AP 소비 없음)이라 전투 진행 여부와 무관하게 활성. PC 패턴 정합.
-      rollDodge 핸들러는 Actor 메서드에서 type 분기(NPC는 dodgeFormula 평가). N6 — 명중 버튼도 동일 영역(반응 판정, AP
-      소비 없음). dodge·hit를 .combat-roll-buttons로 묶어 가로 정렬. --}}
-      <div class="combat-roll-buttons">
-        <button type="button" class="dodge-btn" data-action="rollDodge">
-          <span class="dodge-label">{{localize "ASTER.dodge.label"}}</span>
-          <span class="dodge-value">{{system.dodgeFormula}}</span>
+      <div class="ap-note">{{localize "ASTER.combat.notInCombat"}}</div>
+      {{/unless}} {{!-- N5/N6 — 회피·명중. 반응 판정(AP 소비 없음)이라 전투 진행 여부와 무관하게 활성. rollDodge/rollHit
+      핸들러는 Actor 메서드에서 type 분기(NPC는 formula 평가). --}}
+      <div class="npc-ap__row2">
+        <button type="button" class="ap-btn" data-action="rollDodge">
+          <span>{{localize "ASTER.dodge.label"}}</span>
+          <span class="cost num">{{system.dodgeFormula}}</span>
         </button>
-        <button type="button" class="hit-btn" data-action="rollHit">
-          <span class="hit-label">{{localize "ASTER.hit.label"}}</span>
-          <span class="hit-value">{{system.hitFormula}}</span>
+        <button type="button" class="ap-btn" data-action="rollHit">
+          <span>{{localize "ASTER.hit.label"}}</span>
+          <span class="cost num">{{system.hitFormula}}</span>
         </button>
       </div>
 
-      <div class="combat-actions {{#if combatContext.disabled}}disabled{{/if}}">
+      <div class="npc-ap__acts {{#if combatContext.disabled}}disabled{{/if}}">
         <button
           type="button"
-          class="action-btn"
+          class="ap-btn"
           data-action="combatAction"
           data-action-key="throw"
           {{disabled
           combatContext.disabled}}
         >
-          <span class="action-name">{{localize "ASTER.combat.action.throw"}}</span>
-          <span class="action-cost">(1)</span>
+          <span>{{localize "ASTER.combat.action.throw"}}</span>
+          <span class="cost num">1</span>
         </button>
         <button
           type="button"
-          class="action-btn {{#if combatContext.defendUsed}}used{{/if}}"
+          class="ap-btn {{#if combatContext.defendUsed}}used{{/if}}"
           data-action="combatAction"
           data-action-key="defend"
           {{disabled
@@ -171,143 +159,135 @@
           {{disabled
           combatContext.defendUsed}}
         >
-          <span class="action-name">{{localize "ASTER.combat.action.defend"}}</span>
-          <span class="action-cost">(2){{#if combatContext.defendUsed}} ✓{{/if}}</span>
+          <span>{{localize "ASTER.combat.action.defend"}}</span>
+          <span class="cost num">2{{#if combatContext.defendUsed}} ✓{{/if}}</span>
         </button>
         <button
           type="button"
-          class="action-btn"
+          class="ap-btn"
           data-action="combatAction"
           data-action-key="focus"
           {{disabled
           combatContext.disabled}}
         >
-          <span class="action-name">{{localize "ASTER.combat.action.focus"}}</span>
-          <span class="action-cost">(3)</span>
+          <span>{{localize "ASTER.combat.action.focus"}}</span>
+          <span class="cost num">3</span>
         </button>
         <button
           type="button"
-          class="action-btn"
+          class="ap-btn"
           data-action="combatAction"
           data-action-key="dash"
           {{disabled
           combatContext.disabled}}
         >
-          <span class="action-name">{{localize "ASTER.combat.action.dash"}}</span>
-          <span class="action-cost">(X)</span>
+          <span>{{localize "ASTER.combat.action.dash"}}</span>
+          <span class="cost num">×</span>
         </button>
         {{!-- charge·unisonPrepare 버튼 없음 — 룰 정합(NPC 합체기 발동 불가) --}}
       </div>
     </div>
 
-    {{!-- N2 — 액션 표 (npcAction). 시전 버튼은 N3. N6 — 생성 버튼 추가. --}}
+    {{!-- N2 — 액션 표 (npcAction). 시안 .act-table(div grid). N6 — 생성 버튼 추가 (itemCreate + data-type=npcAction,
+    #onItemCreate 핸들러 재사용). --}}
     <div class="npc-actions">
-      {{!-- N6 — npcAction 생성 (PC spell 탭 패턴 정합, #onItemCreate 핸들러 재사용). H2 — section-header로 제목+생성
-      버튼 통합. --}}
-      <div class="section-header">
-        <h2 class="section-title">{{localize "ASTER.npcAction.sectionTitle"}}</h2>
-        <button type="button" class="item-create" data-action="itemCreate" data-type="npcAction">
-          <i class="fas fa-plus"></i> {{localize "ASTER.npcAction.add"}}
+      <div class="panel__bar">
+        <div class="panel__head" style="margin: 0; flex: 1">{{localize "ASTER.npcAction.sectionTitle"}}</div>
+        <button type="button" class="btn-add" data-action="itemCreate" data-type="npcAction">
+          {{localize "ASTER.npcAction.add"}}
         </button>
       </div>
-      <table class="npc-actions-table">
-        <thead>
-          <tr>
-            <th>{{localize "ASTER.npcAction.cost"}}</th>
-            <th>{{localize "ASTER.npcAction.name"}}</th>
-            <th>{{localize "ASTER.npcAction.effect"}}</th>
-            <th>{{localize "ASTER.npcAction.actions"}}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each npcActions as |action|}}
-          <tr class="npc-action-row" data-item-id="{{action._id}}">
-            <td class="cost">{{#if action.system.costVariable}}X{{else}}{{action.system.cost}}{{/if}}</td>
-            <td class="name">{{action.name}}</td>
-            <td class="effect">
-              {{#if action.system.effect}}{{action.system.effect}}{{else}}{{#if
-              action.system.damageFormula}}{{action.system.damageFormula}} 대미지{{/if}}{{/if}}
-              <span class="target">【{{action.targetLabel}}】</span>
-              {{#if action.system.oncePerRound}}<span class="once">1R 1회</span>{{/if}}
-            </td>
-            <td class="action-buttons">
-              {{!-- N3 — 시전 버튼. combat 미진입 시 비활성(combatDisabled는 _prepareContext에서 평면화) --}}
-              <button
-                type="button"
-                class="npcaction-use-btn"
-                data-action="npcActionUse"
-                data-item-id="{{action._id}}"
-                title="{{localize 'ASTER.npcAction.useTooltip'}}"
-                {{disabled
-                action.combatDisabled}}
-              >
-                <i class="fas fa-bolt"></i>
-              </button>
-              <button
-                type="button"
-                data-action="itemEdit"
-                data-item-id="{{action._id}}"
-                title="{{localize 'ASTER.inventory.edit'}}"
-              >
-                <i class="fas fa-pencil"></i>
-              </button>
-              <button
-                type="button"
-                data-action="itemDelete"
-                data-item-id="{{action._id}}"
-                title="{{localize 'ASTER.inventory.delete'}}"
-              >
-                <i class="fas fa-trash"></i>
-              </button>
-            </td>
-          </tr>
-          {{else}}
-          <tr>
-            <td colspan="4" class="items-empty">{{localize "ASTER.npcAction.empty"}}</td>
-          </tr>
-          {{/each}}
-        </tbody>
-      </table>
+      <div class="act-table">
+        <div class="act-table__head">
+          <span>{{localize "ASTER.npcAction.cost"}}</span>
+          <span>{{localize "ASTER.npcAction.name"}}</span>
+          <span>{{localize "ASTER.npcAction.effect"}}</span>
+          <span>{{localize "ASTER.npcAction.actions"}}</span>
+        </div>
+        {{#each npcActions as |action|}}
+        <div class="act-row" data-item-id="{{action._id}}">
+          <span class="a-cost num">{{#if action.system.costVariable}}X{{else}}{{action.system.cost}}{{/if}}</span>
+          <span class="a-name">{{action.name}}</span>
+          <span class="a-eff">
+            {{#if action.system.effect}}{{action.system.effect}}{{else}}{{#if
+            action.system.damageFormula}}{{action.system.damageFormula}} 대미지{{/if}}{{/if}}
+            <span class="a-target">【{{action.targetLabel}}】</span>
+            {{#if action.system.oncePerRound}}<span class="a-once">1R 1회</span>{{/if}}
+          </span>
+          <span class="a-tools">
+            {{!-- N3 — 시전 버튼. combat 미진입 시 비활성(combatDisabled는 _prepareContext에서 평면화) --}}
+            <button
+              type="button"
+              data-action="npcActionUse"
+              data-item-id="{{action._id}}"
+              title="{{localize 'ASTER.npcAction.useTooltip'}}"
+              {{disabled
+              action.combatDisabled}}
+            >
+              <i class="fas fa-bolt"></i>
+            </button>
+            <button
+              type="button"
+              data-action="itemEdit"
+              data-item-id="{{action._id}}"
+              title="{{localize 'ASTER.inventory.edit'}}"
+            >
+              <i class="fas fa-pencil"></i>
+            </button>
+            <button
+              type="button"
+              class="del"
+              data-action="itemDelete"
+              data-item-id="{{action._id}}"
+              title="{{localize 'ASTER.inventory.delete'}}"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          </span>
+        </div>
+        {{else}}
+        <div class="act-empty">{{localize "ASTER.npcAction.empty"}}</div>
+        {{/each}}
+      </div>
     </div>
 
+    {{!-- 소지품 (npcAction 외 아이템) --}}
     <div class="npc-items">
-      <div class="section-header">
-        <h2 class="section-title">{{localize "ASTER.npc.itemsSection"}}</h2>
+      <div class="panel__bar">
+        <div class="panel__head" style="margin: 0; flex: 1">{{localize "ASTER.npc.itemsSection"}}</div>
       </div>
-      <ul class="items-list">
+      <div class="items">
         {{#each npcItems as |item|}}
-        <li class="item-row" data-item-id="{{item._id}}">
-          <img class="item-img" src="{{item.img}}" alt="{{item.name}}" width="24" height="24" />
+        <div class="item" data-item-id="{{item._id}}">
+          <img class="item__ico" src="{{item.img}}" alt="{{item.name}}" width="22" height="22" />
           <span
-            class="item-name"
+            class="item__name"
             data-action="itemChat"
             data-item-id="{{item._id}}"
             title="{{localize 'ASTER.inventory.toChat'}}"
             >{{item.name}}</span
           >
-          <button
-            type="button"
-            class="item-control"
+          <span
+            class="item__edit"
             data-action="itemEdit"
             data-item-id="{{item._id}}"
             title="{{localize 'ASTER.inventory.edit'}}"
           >
             <i class="fas fa-pencil"></i>
-          </button>
-          <button
-            type="button"
-            class="item-control"
+          </span>
+          <span
+            class="item__del"
             data-action="itemDelete"
             data-item-id="{{item._id}}"
             title="{{localize 'ASTER.inventory.delete'}}"
           >
             <i class="fas fa-trash"></i>
-          </button>
-        </li>
+          </span>
+        </div>
         {{else}}
-        <li class="items-empty">{{localize "ASTER.npc.noItems"}}</li>
+        <div class="act-empty">{{localize "ASTER.npc.noItems"}}</div>
         {{/each}}
-      </ul>
+      </div>
     </div>
-  </section>
+  </div>
 </form>

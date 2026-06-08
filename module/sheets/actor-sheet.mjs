@@ -27,7 +27,9 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["aster", "sheet", "actor"],
-    position: { width: 960, height: 800 },
+    // 높이는 height:"auto"로 콘텐츠에 맞춤 — 고정 800은 짧은 탭에서 패널을 늘리고(여백)
+    // 긴 탭에서 스크롤을 만들었다. item 시트와 동일 방침(잘림·여백 동시 해소).
+    position: { width: 960, height: "auto" },
     window: { resizable: true },
     actions: {
       cellClick: AsterActorSheet.#onCellClick,
@@ -58,6 +60,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       recordDelete: AsterActorSheet.#onRecordDelete,
       ablRoll: AsterActorSheet.#onAblRoll,
       emoRoll: AsterActorSheet.#onEmoRoll,
+      asterStep: AsterActorSheet.#onAsterStep,
       itemCreate: AsterActorSheet.#onItemCreate,
     },
   };
@@ -525,13 +528,24 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _onRender(context, options) {
     super._onRender(context, options);
 
-    // 탭 초기 상태 적용 (data-action="tab" 클릭은 ApplicationV2가 자동 처리).
+    // 탭 초기 상태 적용.
     // NPC 시트는 탭 없는 flat 폼이라 매칭 요소가 없다 — changeTab은 요소 부재 시 throw하므로
     // 해당 탭 네비가 실제로 렌더된 경우에만 호출한다.
     for (const [group, tab] of Object.entries(this.tabGroups)) {
       if (this.element.querySelector(`[data-group="${group}"][data-tab="${tab}"]`)) {
         this.changeTab(tab, group, { force: true });
       }
+    }
+
+    // 탭 클릭 전환을 직접 바인딩한다. 이 시트는 static TABS를 쓰지 않아 ApplicationV2의
+    // 네이티브 탭 클릭(_onClickTab)이 바인딩되지 않으므로, data-action="tab" 요소에 직접 건다.
+    // (re-render 시 DOM이 교체되므로 리스너 누적 없음.)
+    for (const navItem of this.element.querySelectorAll("nav.tabs [data-action='tab']")) {
+      navItem.addEventListener("click", (event) => {
+        event.preventDefault();
+        const { tab, group } = navItem.dataset;
+        if (tab && group) this.changeTab(tab, group);
+      });
     }
 
     // craft 탭 자원 input은 메인 탭과 같은 필드(system.aster.*, system.material)를 가리킨다.
@@ -2511,6 +2525,16 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static #onEmoRoll(_event, target) {
     const { label } = target.dataset;
     this.actor.rollEmotion(label, {});
+  }
+
+  /** STEP 3(FIX) — 원소 친화 증감(±1). 헤더 −/+ 버튼. 마테리얼은 버튼 없음(템플릿 제외). */
+  static async #onAsterStep(_event, target) {
+    const key = target.dataset.aster;
+    const dir = Number(target.dataset.dir) || 0;
+    if (!key || !dir) return;
+    const path = `system.aster.${key}.value`;
+    const cur = foundry.utils.getProperty(this.actor, path) ?? 0;
+    await this.actor.update({ [path]: cur + dir });
   }
 
   static async #onSubmit(_event, _form, formData) {

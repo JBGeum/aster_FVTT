@@ -67,6 +67,7 @@ export default defineConfig(({ mode }) => {
           { src: "templates", dest: "." },
           { src: "lang", dest: "." },
           { src: "lib", dest: "." },
+          { src: "assets", dest: "." }, // H8 — 양피지/별밤 텍스처 등 정적 이미지
         ],
       }),
     ],

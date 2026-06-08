@@ -1,9 +1,16 @@
 <form class="{{cssClass}} {{actor.type}}" autocomplete="off">
-  <nav class="sheet-main-tabs tabs" data-group="main">
-    <a class="item" data-group="main" data-action="tab" data-tab="character">character</a>
-    <a class="item" data-group="main" data-action="tab" data-tab="craft">craft</a>
-    <a class="item" data-group="main" data-action="tab" data-tab="record">record</a>
-  </nav>
+  {{!-- 상단 — 이름(PC1) + character sheet 라벨 | 메인 탭 (시안 .sheet__top) --}}
+  <header class="sheet__top">
+    <div class="sheet__name">
+      <span class="pc">{{actor.name}}</span>
+      <span class="pc-sub">character sheet</span>
+    </div>
+    <nav class="sheet-main-tabs tabs" data-group="main">
+      <a class="item" data-group="main" data-action="tab" data-tab="character">character</a>
+      <a class="item" data-group="main" data-action="tab" data-tab="craft">craft</a>
+      <a class="item" data-group="main" data-action="tab" data-tab="record">record</a>
+    </nav>
+  </header>
 
   <section class="sheet-container">
     <div class="tab character" data-group="main" data-tab="character">
@@ -14,10 +21,12 @@
           "systems/aster/templates/actor/parts/actor-main-character.html"}} {{!-- 우측 (inv): 인벤토리·주문·전투 서브탭
           --}}
           <section class="panel panel--inv" data-corner="✿">
+            {{!-- 서브탭 nav 항목은 class="item"(Foundry 정합). class="tab"이면 코어의 .tab:not(.active){display:none}에
+            걸려 비활성 항목(spell·combat)이 숨는다. --}}
             <nav class="inv-tabs tabs" data-group="sub">
-              <a class="tab" data-group="sub" data-action="tab" data-tab="inventory">Inventory</a>
-              <a class="tab" data-group="sub" data-action="tab" data-tab="spell">Spell</a>
-              <a class="tab" data-group="sub" data-action="tab" data-tab="combat">Combat</a>
+              <a class="item" data-group="sub" data-action="tab" data-tab="inventory">Inventory</a>
+              <a class="item" data-group="sub" data-action="tab" data-tab="spell">Spell</a>
+              <a class="item" data-group="sub" data-action="tab" data-tab="combat">Combat</a>
             </nav>
             <div class="tab inventory" data-group="sub" data-tab="inventory">
               {{> "systems/aster/templates/actor/parts/actor-sub-inventory.html"}}
