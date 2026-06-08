@@ -46,7 +46,7 @@
     flex-direction: column;
     gap: 0;
     padding: 6px 8px;
-    border: 1px solid rgba(128, 128, 128, 0.3);
+    border: var(--aster-border-width-base) solid var(--aster-color-border);
     border-radius: 4px;
     flex-shrink: 0;
   }
@@ -63,8 +63,8 @@
     text-align: center;
     font-size: 0.65rem;
     padding: 2px 1px;
-    border: 1px solid rgba(128, 128, 128, 0.35);
-    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+    border: var(--aster-border-width-base) solid var(--aster-color-border);
+    border-bottom: var(--aster-border-width-base) solid var(--aster-color-border-light);
     border-radius: 3px 3px 0 0;
     min-width: 0;
     overflow: hidden;
@@ -72,31 +72,33 @@
     white-space: nowrap;
 
     &.craft-col-red {
-      color: rgba(220, 90, 90, 0.9);
+      color: var(--aster-color-red);
     }
     &.craft-col-blue {
-      color: rgba(90, 130, 220, 0.9);
+      color: var(--aster-color-blue);
     }
     &.craft-col-green {
-      color: rgba(70, 180, 70, 0.9);
+      color: var(--aster-color-green);
     }
     &.craft-col-yellow {
-      color: rgba(200, 165, 0, 0.9);
+      color: var(--aster-color-yellow);
     }
+    // white(중립)·material(재료)·any(보라)·self(자신)·total(합계) — 능력 4색 외 자원 카테고리.
+    // any는 purple 토큰 정합, 나머지는 전용 의미 토큰이 없어 가장 가까운 토큰으로 정합.
     &.craft-col-white {
-      color: rgba(200, 200, 200, 0.9);
+      color: var(--aster-color-text-muted);
     }
     &.craft-col-material {
-      color: rgba(180, 145, 90, 0.9);
+      color: var(--aster-color-border-dark);
     }
     &.craft-col-any {
-      color: rgba(160, 130, 200, 0.9);
+      color: var(--aster-color-purple);
     }
     &.craft-col-self {
-      color: rgba(130, 195, 195, 0.9);
+      color: var(--aster-color-info);
     }
     &.craft-col-total {
-      color: rgba(210, 205, 120, 0.9);
+      color: var(--aster-color-yellow);
     }
   }
 
@@ -105,8 +107,8 @@
     text-align: center;
     font-size: 0.85rem;
     padding: 2px 1px;
-    border-left: 1px solid rgba(128, 128, 128, 0.35);
-    border-right: 1px solid rgba(128, 128, 128, 0.35);
+    border-left: var(--aster-border-width-base) solid var(--aster-color-border);
+    border-right: var(--aster-border-width-base) solid var(--aster-color-border);
     min-width: 0;
 
     input {
@@ -125,8 +127,8 @@
     text-align: center;
     font-size: 0.82rem;
     padding: 2px 1px;
-    border: 1px solid rgba(128, 128, 128, 0.35);
-    border-top: 1px solid rgba(128, 128, 128, 0.2);
+    border: var(--aster-border-width-base) solid var(--aster-color-border);
+    border-top: var(--aster-border-width-base) solid var(--aster-color-border-light);
     border-radius: 0 0 3px 3px;
     min-width: 0;
   }
@@ -138,7 +140,7 @@
       font-weight: bold;
       margin: 0 0 6px;
       padding-bottom: 3px;
-      border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+      border-bottom: var(--aster-border-width-base) solid var(--aster-color-border);
     }
   }
 
@@ -167,13 +169,13 @@
     display: flex;
     flex-direction: column;
     padding: 4px 8px;
-    border: 1px solid rgba(128, 128, 128, 0.5);
+    border: var(--aster-border-width-base) solid var(--aster-color-border);
     border-radius: 4px;
     min-width: 0; // grid 내 overflow 방지
 
     &.acquired {
-      background: rgba(60, 160, 60, 0.15);
-      border-color: rgba(51, 170, 51, 0.7);
+      background: var(--aster-color-green-light);
+      border-color: var(--aster-color-green);
     }
 
     &.locked {
@@ -203,13 +205,13 @@
 
       .lv {
         font-size: 0.7rem;
-        color: rgba(180, 180, 180, 0.7);
+        color: var(--aster-color-text-light);
       }
     }
 
     .node-cost {
       font-size: 0.72rem;
-      color: rgba(160, 160, 160, 0.85);
+      color: var(--aster-color-text-muted);
       margin-top: 3px;
       white-space: nowrap;
     }

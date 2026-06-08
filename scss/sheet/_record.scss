@@ -15,22 +15,22 @@
     gap: 10px;
     flex-shrink: 0;
     padding-bottom: 12px;
-    border-bottom: 2px solid rgba(128, 128, 128, 0.25);
+    border-bottom: var(--aster-border-width-thick) solid var(--aster-color-border-light);
 
     .bio-item {
       display: flex;
       flex-direction: column;
       gap: 4px;
       padding: 8px;
-      background: rgba(0, 0, 0, 0.12);
-      border: 1px solid rgba(128, 128, 128, 0.25);
+      background: var(--aster-color-surface);
+      border: var(--aster-border-width-base) solid var(--aster-color-border-light);
       border-radius: 6px;
 
       label {
         font-size: 0.72rem;
         font-weight: bold;
         letter-spacing: 0.5px;
-        color: rgba(210, 200, 170, 0.85);
+        color: var(--aster-color-text-muted);
       }
 
       input {
@@ -38,7 +38,7 @@
         box-sizing: border-box;
         background: transparent;
         border: none;
-        border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+        border-bottom: var(--aster-border-width-base) solid var(--aster-color-border);
         font-weight: 500;
       }
 
@@ -49,8 +49,8 @@
         resize: vertical;
         font-family: inherit;
         font-size: 0.8rem;
-        background: rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(128, 128, 128, 0.2);
+        background: var(--aster-color-input-bg);
+        border: var(--aster-border-width-base) solid var(--aster-color-input-border);
         border-radius: 4px;
         padding: 4px;
       }
@@ -71,8 +71,8 @@
       button {
         width: auto;
         flex-shrink: 0;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(128, 128, 128, 0.3);
+        background: var(--aster-color-surface-alt);
+        border: var(--aster-border-width-base) solid var(--aster-color-border);
         border-radius: 4px;
         padding: 3px 8px;
         cursor: pointer;
@@ -81,8 +81,8 @@
           border-color 0.15s;
 
         &:hover:not(:disabled) {
-          background: rgba(180, 180, 255, 0.15);
-          border-color: rgba(180, 180, 255, 0.4);
+          background: var(--aster-color-hover-bg);
+          border-color: var(--aster-color-hover-border);
         }
 
         &:disabled {
@@ -111,20 +111,20 @@
       }
 
       [data-action="recordDelete"] {
-        color: rgba(220, 100, 100, 0.9);
+        color: var(--aster-color-danger);
       }
     }
 
     // 카드 (이미지 양식: 박스 테두리 + 2박스 + ◇ 목록)
     .record-card {
-      border: 1px solid rgba(128, 128, 128, 0.4);
+      border: var(--aster-border-width-base) solid var(--aster-color-border);
       border-radius: 8px;
       padding: 12px;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      background: rgba(0, 0, 0, 0.1);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+      background: var(--aster-color-surface);
+      box-shadow: var(--aster-shadow-sm);
       animation: recordCardIn 0.25s ease;
 
       .card-boxes {
@@ -137,15 +137,15 @@
           flex-wrap: wrap;
           align-items: baseline;
           gap: 4px 10px;
-          border: 1px solid rgba(128, 128, 128, 0.3);
+          border: var(--aster-border-width-base) solid var(--aster-color-border-light);
           border-radius: 6px;
           padding: 8px;
-          background: rgba(0, 0, 0, 0.08);
+          background: var(--aster-color-bg);
 
           .k {
             font-size: 0.68rem;
             font-weight: bold;
-            color: rgba(210, 200, 170, 0.7);
+            color: var(--aster-color-text-muted);
           }
 
           .v {
@@ -163,7 +163,7 @@
         font-size: 0.7rem;
         font-weight: bold;
         letter-spacing: 0.5px;
-        color: rgba(210, 200, 170, 0.7);
+        color: var(--aster-color-text-muted);
       }
 
       .card-scenes .scene {
@@ -184,14 +184,14 @@
         font-size: 0.85rem;
         line-height: 1.4;
         padding: 6px;
-        border: 1px solid rgba(128, 128, 128, 0.25);
+        border: var(--aster-border-width-base) solid var(--aster-color-border-light);
         border-radius: 4px;
-        background: rgba(0, 0, 0, 0.12);
+        background: var(--aster-color-input-bg);
       }
 
       .card-updated {
         font-size: 0.68rem;
-        color: rgba(200, 200, 200, 0.5);
+        color: var(--aster-color-text-light);
         text-align: right;
       }
     }
@@ -199,10 +199,10 @@
     // 빈 상태
     .no-record {
       text-align: center;
-      color: rgba(200, 200, 200, 0.5);
+      color: var(--aster-color-text-light);
       font-size: 0.9rem;
       padding: 30px 12px;
-      border: 1px dashed rgba(128, 128, 128, 0.3);
+      border: var(--aster-border-width-base) dashed var(--aster-color-border);
       border-radius: 8px;
     }
   }
@@ -255,7 +255,7 @@
 
       label {
         font-size: 0.75rem;
-        color: rgba(200, 200, 200, 0.7);
+        color: var(--aster-color-text-muted);
       }
 
       input,

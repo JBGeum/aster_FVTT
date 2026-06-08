@@ -11,7 +11,7 @@
     justify-content: space-between;
     align-items: baseline;
     padding: 0.25em 0.5em;
-    background: rgba(255, 200, 0, 0.1);
+    background: var(--aster-color-yellow-light);
     border-radius: 4px;
 
     .ap-label {
@@ -26,16 +26,16 @@
       margin-left: auto;
       padding: 1px 6px;
       border-radius: 3px;
-      background: rgba(255, 220, 0, 0.2);
+      background: var(--aster-color-yellow-light);
       font-size: 0.8em;
       font-weight: 500;
-      color: #b8860b;
+      color: var(--aster-color-yellow);
     }
   }
 
   .combat-disabled-notice {
     font-size: 0.85em;
-    color: var(--color-text-dark-secondary);
+    color: var(--aster-color-text-muted);
     padding: 0.25em 0.5em;
   }
 
@@ -50,7 +50,7 @@
       gap: 0.5em;
       padding: 0.4em 1em;
       cursor: pointer;
-      border: 1px solid var(--color-border-light-1, #888);
+      border: var(--aster-border-width-base) solid var(--aster-color-border);
       border-radius: 4px;
 
       .dodge-label {
@@ -101,16 +101,16 @@
     gap: 0.25em;
     margin-top: 0.5em;
     padding-top: 0.5em;
-    border-top: 1px solid rgba(128, 128, 128, 0.25);
+    border-top: var(--aster-border-width-base) solid var(--aster-color-border-light);
 
     .unison-ready-indicator {
       align-self: flex-end;
       padding: 1px 6px;
       border-radius: 3px;
-      background: rgba(212, 160, 23, 0.18);
+      background: var(--aster-color-yellow-light);
       font-size: 0.8em;
       font-weight: 500;
-      color: #b8860b;
+      color: var(--aster-color-yellow);
     }
 
     .unison-btn {

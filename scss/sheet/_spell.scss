@@ -33,7 +33,7 @@
     align-items: center;
     gap: 6px;
     padding: 6px;
-    border: 1px solid rgba(128, 128, 128, 0.3);
+    border: var(--aster-border-width-base) solid var(--aster-color-border);
     border-radius: 6px;
     min-width: 0;
   }
@@ -69,16 +69,16 @@
 
     .formula {
       &.spell-color-red {
-        color: #c0392b;
+        color: var(--aster-color-red);
       }
       &.spell-color-blue {
-        color: #2980b9;
+        color: var(--aster-color-blue);
       }
       &.spell-color-green {
-        color: #27ae60;
+        color: var(--aster-color-green);
       }
       &.spell-color-yellow {
-        color: #d4a017;
+        color: var(--aster-color-yellow);
       }
     }
   }
@@ -95,7 +95,7 @@
   .spell-empty {
     grid-column: 1 / -1;
     text-align: center;
-    color: rgba(200, 200, 200, 0.5);
+    color: var(--aster-color-text-light);
     font-size: 0.8rem;
     padding: 12px 0;
   }
@@ -138,7 +138,7 @@
         label {
           flex-shrink: 0;
           font-size: 0.75rem;
-          color: rgba(200, 200, 200, 0.7);
+          color: var(--aster-color-text-muted);
         }
 
         select {
@@ -174,7 +174,7 @@
 
       label {
         font-size: 0.75rem;
-        color: rgba(200, 200, 200, 0.7);
+        color: var(--aster-color-text-muted);
       }
 
       // .aster input { width: 80% } 전역 규칙 재정의
