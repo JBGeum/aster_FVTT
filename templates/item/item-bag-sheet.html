@@ -1,36 +1,35 @@
 <form class="aster {{cssClass}}" autocomplete="off">
   <div class="item item-sheet" data-item-id="{{data._id}}">
-    <div class="item-container bag-sheet-body">
-      <div class="item-header">
-        <input type="text" name="name" value="{{item.name}}" placeholder="Name" />
+    <div class="sheet-header">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+      <h1 class="item-name">
+        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'ASTER.item.namePlaceholder'}}" />
+      </h1>
+    </div>
+    <div class="item-detail">
+      <div class="detail-lbl">재료</div>
+      <div class="detail-input material-grid flexrow align-center">
+        {{> "systems/aster/templates/item/parts/material-fields.html"}}
       </div>
-      <div class="item-detail">
-        <div class="detail-lbl">재료</div>
-        <div class="detail-input material-grid flexrow align-center">
-          {{> "systems/aster/templates/item/parts/material-fields.html"}}
-        </div>
-        <div class="detail-lbl">효과</div>
-        <div class="detail-input">
-          <input type="text" name="system.effect" value="{{system.effect}}" />
-        </div>
-        <div class="detail-lbl">요구</div>
-        <div class="detail-input">
-          <input type="text" name="system.requirement" value="{{system.requirement}}" />
-        </div>
-        <div class="detail-lbl">격자 크기</div>
-        <div class="detail-input flexrow align-center">
-          <label>열</label>
-          <input type="number" name="system.grid.cols" value="{{system.grid.cols}}" min="1" />
-          <label>행</label>
-          <input type="number" name="system.grid.rows" value="{{system.grid.rows}}" min="1" />
-        </div>
+      <div class="detail-lbl">효과</div>
+      <div class="detail-input">
+        <input type="text" name="system.effect" value="{{system.effect}}" />
       </div>
-      <div class="bag-storage-img">
-        <img class="bag-storage-img" src="{{system.storageImg}}" data-edit="system.storageImg" />
+      <div class="detail-lbl">요구</div>
+      <div class="detail-input">
+        <input type="text" name="system.requirement" value="{{system.requirement}}" />
       </div>
-      <div class="item-desc">
-        {{editor system.description target="system.description" button=true editable=editable}}
+      <div class="detail-lbl">격자 크기</div>
+      <div class="detail-input flexrow align-center">
+        <label>열</label>
+        <input type="number" name="system.grid.cols" value="{{system.grid.cols}}" min="1" />
+        <label>행</label>
+        <input type="number" name="system.grid.rows" value="{{system.grid.rows}}" min="1" />
       </div>
     </div>
+    <div class="bag-storage-img">
+      <img class="bag-storage-img" src="{{system.storageImg}}" data-edit="system.storageImg" />
+    </div>
+    <div class="item-desc">{{editor system.description target="system.description" button=true editable=editable}}</div>
   </div>
 </form>

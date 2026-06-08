@@ -476,6 +476,7 @@
     },
     "item": {
       "name": "이름",
+      "namePlaceholder": "아이템 이름",
       "effect": "효과",
       "material": {
         "label0": "마테리얼",
