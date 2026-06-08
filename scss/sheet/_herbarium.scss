@@ -1,14 +1,16 @@
 /* ============================================================
- * Aster — 약초첩(Herbarium) 시안 편입 — H8
+ * Aster — 약초첩(Herbarium) 시안 편입 — H8 (witch-sheet.css v18)
  *
- * 출처: memo/design/witch-sheet.css (정적 시안).
- * 방침(경로 B, 옵션 ㄱ): 시안 CSS를 *되도록 그대로* 편입하되,
- *   - 시안 토큰(--parchment 등)은 :root에 그대로 두어 시스템 토큰과 *공존*
- *   - 컴포넌트 스타일은 *.herbarium 스코프*로 격리 (Foundry .tab·.item 등과 충돌 회피)
- *   - standalone .sheet(920px 고정)·.sheet__top 브랜드 헤더는 미사용
- *     (Foundry 윈도우·기존 nav 유지). 시안 surface는 .herbarium에 적용.
- *   - theme-grimoire·theme-modern은 *참고용*이라 미편입. theme-herbarium 글리프만 기본 적용.
- * 듀얼 모드: 시안=라이트. 다크(H7 쿨 슬레이트) override는 후속(STEP 5).
+ * 출처: memo/design/witch-sheet.css (710줄, 라이트 최종).
+ * 방침(경로 B): 시안 CSS를 *되도록 그대로* 편입.
+ *   - 시안 토큰(--parchment·--ink·--plum 등)은 :root에 그대로 (시스템 토큰과 공존).
+ *     단 --radius/--pad/--frame/--hair는 generic 충돌 회피 위해 --hb-* 접두.
+ *   - 컴포넌트 스타일은 *.herbarium 스코프*로 격리 (Foundry .tab·.item 충돌 회피).
+ *   - standalone .sheet의 920px 고정폭·외곽 테두리/그림자는 미적용 (Foundry 윈도우).
+ *     시안 surface(양피지 텍스처)는 .herbarium에 적용.
+ *   - .theme-grimoire·.theme-modern 변형은 *미편입* (herbarium만 사용).
+ *   - 정적 텍스트(.val 등)를 실제 input/select/textarea로 받도록 편집 스타일 보강.
+ * TODO(H8-dark): 다크 = 쿨 슬레이트 override는 본 명세 밖. 후속.
  * ============================================================ */
 
 /* ---------- 디자인 토큰 (라이트 / 양피지) — 시스템 토큰과 공존 ---------- */
@@ -45,29 +47,28 @@
   --el-yellow: #c2a052;
   --el-mat: #7d6e86;
 
-  /* 형태 */
+  /* 형태 (generic 충돌 회피 — hb 접두) */
   --hb-radius: 7px;
   --hb-radius-sm: 4px;
   --hb-frame: 1.5px solid var(--gold);
   --hb-hair: 1px solid var(--rule);
+  --hb-pad: 12px;
 
   /* 타이포 (시안 폰트 — aster.scss CDN) */
   --font-display: "Cinzel", "Gowun Batang", serif;
   --font-serif: "Gowun Batang", "EB Garamond", serif;
   --font-num: "EB Garamond", "Gowun Batang", serif;
-
-  --hb-pad: 18px;
 }
 
-/* ---------- 시트 루트 / 표면 (Foundry 윈도우 내부에 적용) ---------- */
+/* ---------- 시트 루트 / 표면 (Foundry 윈도우 내부) ---------- */
 .herbarium {
   --tex-1: rgba(168, 136, 78, 0.1);
   --tex-2: rgba(120, 90, 50, 0.08);
   --tex-3: rgba(90, 60, 30, 0.1);
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: 15px;
-  line-height: 1.45;
+  font-size: 14px;
+  line-height: 1.4;
   background-color: var(--parchment);
   background-image:
     radial-gradient(at 18% 8%, var(--tex-1), transparent 42%),
@@ -78,7 +79,6 @@
   * {
     box-sizing: border-box;
   }
-
   input,
   select,
   textarea {
@@ -97,11 +97,41 @@
       "kern" 1;
   }
 
-  /* ---------- 컬럼 ---------- */
+  /* ---------- 레이아웃 그리드 (좌상 idn / 중상 stel / 우 inv / 좌하 abil / 중하 memo) ---------- */
+  .sheet__body {
+    display: grid;
+    grid-template-columns: 1.2fr 0.92fr 346px;
+    grid-template-areas:
+      "idn stel inv"
+      "abil memo inv";
+    gap: 14px;
+    align-items: stretch;
+  }
   .col {
+    display: contents;
+  }
+  .panel--identity {
+    grid-area: idn;
+  }
+  .panel--abil {
+    grid-area: abil;
+  }
+  .panel--statel {
+    grid-area: stel;
+  }
+  .panel--inv {
+    grid-area: inv;
+  }
+  .panel--memo {
+    grid-area: memo;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+  }
+  .panel--memo .memo {
+    flex: 1;
+  }
+  .panel--identity .identity {
+    height: 100%;
   }
 
   /* ---------- 패널 ---------- */
@@ -124,7 +154,7 @@
     font-size: 13px;
     letter-spacing: 2px;
     color: var(--ink-soft);
-    margin: -2px 0 14px;
+    margin: -2px 0 6px;
 
     &::before {
       content: "❧"; /* theme-herbarium */
@@ -137,6 +167,15 @@
       height: 1px;
       background: linear-gradient(90deg, var(--rule), transparent);
     }
+    &--sub {
+      margin-top: 9px;
+    }
+  }
+  .panel--bare {
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 4px 2px;
   }
   .panel[data-corner]::after {
     content: attr(data-corner);
@@ -152,8 +191,9 @@
   /* ---------- 정체성 패널 ---------- */
   .identity {
     display: grid;
-    grid-template-columns: 132px 1fr;
-    gap: 16px;
+    grid-template-columns: 128px 1fr;
+    gap: 14px;
+    align-items: center;
   }
   .portrait {
     position: relative;
@@ -186,12 +226,12 @@
   .identity__main {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
   }
   .field {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
 
     > label {
       font-size: 11px;
@@ -224,7 +264,7 @@
       color: var(--ink-soft);
       font-size: 11px;
     }
-    /* 시안엔 정적 val, 실제론 입력 — input·select를 음각 칸 안에서 자연스럽게 */
+    /* 정적 .val → 실제 input/select */
     input,
     select {
       width: 100%;
@@ -262,32 +302,49 @@
 
   /* ---------- ROLL 박스 ---------- */
   .roll {
-    margin-top: 4px;
-    padding: 12px;
+    margin-top: 2px;
+    padding: 7px 9px;
     border: 1px dashed var(--gold-soft);
     border-radius: var(--hb-radius);
     background: rgba(232, 219, 184, 0.4);
   }
   .roll__title {
     font-family: var(--font-display);
-    font-size: 15px;
+    font-size: 13px;
     text-align: center;
     letter-spacing: 2px;
     color: var(--ink-strong);
-    margin-bottom: 9px;
+    margin-bottom: 6px;
     font-weight: 700;
+  }
+  .roll__row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: stretch;
+    margin-bottom: 6px;
+
+    .seg {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    .roll__target {
+      margin-bottom: 0;
+      gap: 7px;
+      justify-content: center;
+    }
   }
   .seg {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px;
-    margin-bottom: 9px;
+    margin-bottom: 6px;
 
     /* 라디오 토글 — 라벨을 버튼처럼 */
     label {
       position: relative;
       text-align: center;
-      padding: 7px 0;
+      padding: 5px 0;
       border-radius: var(--hb-radius-sm);
       cursor: pointer;
       border: 1px solid var(--gold);
@@ -311,7 +368,7 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 
     .lbl {
       font-size: 12px;
@@ -321,15 +378,15 @@
     }
   }
   .seal {
-    width: 38px;
-    height: 38px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: grid;
     place-items: center;
     background: radial-gradient(circle at 35% 30%, var(--plum), var(--plum-deep));
     color: var(--cream);
     font-weight: 700;
-    font-size: 18px;
+    font-size: 16px;
     box-shadow:
       inset 0 1px 2px rgba(255, 255, 255, 0.25),
       0 2px 5px rgba(40, 20, 40, 0.4);
@@ -341,17 +398,17 @@
       text-align: center;
       color: var(--cream);
       font-weight: 700;
-      font-size: 18px;
+      font-size: 15px;
     }
   }
   .btn-cast {
     width: 100%;
-    padding: 11px 0;
+    padding: 7px 0;
     border-radius: var(--hb-radius);
     cursor: pointer;
     font-family: var(--font-serif);
     font-weight: 700;
-    font-size: 16px;
+    font-size: 15px;
     letter-spacing: 2px;
     color: var(--cream);
     background: linear-gradient(180deg, var(--plum), var(--plum-deep));
@@ -376,7 +433,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: 3px;
     text-align: center;
   }
   .attr__name {
@@ -390,7 +447,7 @@
   .attr__main {
     font-family: var(--font-num);
     font-feature-settings: "lnum" 1;
-    font-size: 40px;
+    font-size: 29px;
     line-height: 0.95;
     font-weight: 600;
     color: var(--ink-strong);
@@ -432,7 +489,7 @@
   .vitals {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
   }
   .gauge {
     display: grid;
@@ -448,8 +505,8 @@
   }
   .vessel {
     position: relative;
-    height: 30px;
-    border-radius: 16px;
+    height: 25px;
+    border-radius: 13px;
     overflow: hidden;
     background: var(--parchment-sunk);
     border: 1px solid var(--gold);
@@ -504,7 +561,7 @@
     background: var(--parchment-sunk);
     border: 1px solid var(--rule);
     border-radius: var(--hb-radius-sm);
-    padding: 7px 12px;
+    padding: 6px 11px;
 
     .k {
       font-size: 13px;
@@ -523,15 +580,15 @@
   .status {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 5px;
   }
   .herb-tag {
     position: relative;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 13px;
-    padding: 6px 13px;
+    font-size: 12.5px;
+    padding: 4px 10px;
     border-radius: 20px;
     border: 1px solid var(--gold-soft);
     color: var(--ink-soft);
@@ -539,12 +596,11 @@
     cursor: pointer;
 
     &::before {
-      content: "❀";
+      content: "✤";
       font-size: 10px;
       color: var(--sage);
       opacity: 0.7;
     }
-    /* 체크박스는 숨기고 라벨 토글 (:has — is-on 클래스 불필요) */
     input[type="checkbox"] {
       position: absolute;
       opacity: 0;
@@ -561,24 +617,26 @@
     }
   }
 
-  /* ---------- 원소 친화 ---------- */
+  /* ---------- 원소 저항 (3열 + hover +/- 오버레이) ---------- */
   .elements {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
   }
   .el {
+    position: relative;
+    overflow: hidden;
     text-align: center;
     border: 1px solid var(--rule);
     border-radius: var(--hb-radius-sm);
-    padding: 9px 4px 8px;
+    padding: 5px 3px 4px;
     background: var(--parchment-sunk);
   }
   .el__dot {
-    width: 13px;
-    height: 13px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
-    margin: 0 auto 5px;
+    margin: 0 auto 3px;
     border: 1px solid rgba(60, 40, 18, 0.35);
 
     &--white {
@@ -601,13 +659,13 @@
     }
   }
   .el__name {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--ink-soft);
   }
   .el__val {
     font-family: var(--font-num);
     font-weight: 700;
-    font-size: 16px;
+    font-size: 15px;
     color: var(--ink-strong);
 
     input {
@@ -620,14 +678,53 @@
       color: var(--el-red);
     }
   }
+  .el--mat {
+    grid-column: span 1;
+  }
+  /* hover 증감 오버레이 */
+  .el__step {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+  }
+  .el:hover .el__step {
+    opacity: 1;
+  }
+  .el__step span {
+    display: grid;
+    place-items: center;
+    font-family: var(--font-num);
+    font-size: 19px;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+  }
+  .el__step .minus {
+    color: var(--el-red);
+    background: rgba(243, 233, 210, 0.92);
+    border-right: 1px solid var(--gold-soft);
+    &:hover {
+      background: color-mix(in oklch, var(--el-red) 18%, #f3e9d2);
+    }
+  }
+  .el__step .plus {
+    color: var(--sage);
+    background: rgba(243, 233, 210, 0.92);
+    &:hover {
+      background: color-mix(in oklch, var(--sage) 18%, #f3e9d2);
+    }
+  }
 
   /* ---------- 메모 ---------- */
   .memo {
-    min-height: 92px;
+    min-height: 56px;
     background: var(--parchment-sunk);
     border: 1px solid var(--rule);
     border-radius: var(--hb-radius-sm);
-    padding: 12px 14px;
+    padding: 10px 12px;
     color: var(--ink);
     box-shadow: inset 0 1px 4px rgba(70, 45, 18, 0.16);
     background-image: repeating-linear-gradient(
@@ -637,8 +734,9 @@
 
     textarea {
       width: 100%;
-      min-height: 92px;
-      resize: vertical;
+      min-height: 56px;
+      height: 100%;
+      resize: none;
       color: var(--ink);
       line-height: 28px;
 
@@ -653,7 +751,7 @@
   .inv-tabs {
     display: flex;
     gap: 2px;
-    margin-bottom: 14px;
+    margin-bottom: 6px;
   }
 
   .items {
@@ -663,9 +761,10 @@
   .item {
     display: flex;
     align-items: center;
-    gap: 9px;
-    padding: 9px 4px;
+    gap: 7px;
+    padding: 2px 4px;
     border-bottom: 1px solid var(--rule);
+    font-size: 13px;
 
     &:last-child {
       border-bottom: none;
@@ -737,8 +836,8 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-top: 12px;
-    padding-top: 12px;
+    margin-top: 5px;
+    padding-top: 5px;
     border-top: 1px solid var(--rule);
 
     .k {
@@ -770,12 +869,12 @@
     }
   }
 
-  /* ---------- 충진형 가방 (5×3 격자) ---------- */
+  /* ---------- 충진형 가방 (격자) ---------- */
   .bag__head {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
   .bag__cap {
     font-family: var(--font-num);
@@ -791,7 +890,7 @@
   .bag-grid {
     position: relative;
     padding: 3px;
-    margin-bottom: 16px;
+    margin-bottom: 11px;
     background: var(--rule);
     border: 1px solid var(--gold);
     border-radius: var(--hb-radius-sm);
@@ -801,7 +900,7 @@
   .bag-items {
     display: grid;
     grid-template-columns: repeat(var(--bag-cols, 5), 1fr);
-    grid-auto-rows: 52px;
+    grid-auto-rows: 59px;
     gap: 3px;
   }
   .bag-items {
@@ -842,8 +941,8 @@
       font-size: 30px;
     }
     img {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       object-fit: contain;
       border: none;
     }
@@ -863,8 +962,8 @@
   .carry {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 16px;
+    gap: 5px;
+    margin-bottom: 11px;
 
     .basket {
       grid-column: 1 / -1;
@@ -873,12 +972,12 @@
   .cslot {
     border: 1px solid var(--rule);
     border-radius: var(--hb-radius-sm);
-    padding: 9px 11px;
+    padding: 5px 9px;
     background: var(--parchment-sunk);
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    min-height: 56px;
+    gap: 4px;
+    min-height: 36px;
     box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.1);
 
     .ttl {
@@ -894,6 +993,14 @@
         color: var(--gold);
         font-size: 12px;
         cursor: pointer;
+
+        button {
+          background: none;
+          border: none;
+          color: var(--gold);
+          cursor: pointer;
+          padding: 0 1px;
+        }
       }
     }
     .content {
@@ -907,8 +1014,8 @@
         font-size: 18px;
       }
       img {
-        width: 24px;
-        height: 24px;
+        width: 22px;
+        height: 22px;
         object-fit: contain;
         border: none;
       }
@@ -956,7 +1063,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
   }
   .btn-add {
     font: inherit;
@@ -973,7 +1080,7 @@
     white-space: nowrap;
 
     &::before {
-      content: "✚";
+      content: "✛";
       font-size: 12px;
     }
   }
@@ -1069,6 +1176,12 @@
     .min {
       color: var(--ink-soft);
     }
+    .ap-value {
+      font-family: var(--font-num);
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--ink-strong);
+    }
   }
   .ap-note {
     font-size: 13px;
@@ -1109,8 +1222,7 @@
     color: var(--ink-soft);
     cursor: pointer;
 
-    &:disabled,
-    &.is-disabled {
+    &:disabled {
       opacity: 0.55;
       cursor: not-allowed;
     }
@@ -1153,14 +1265,6 @@
       cursor: not-allowed;
     }
   }
-
-  /* ---------- combat 보조 (시안 미커버 — 양피지 톤 정합) ---------- */
-  .ap-head .ap-value {
-    font-family: var(--font-num);
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--ink-strong);
-  }
   .focus-indicator,
   .unison-ready-indicator {
     display: inline-block;
@@ -1184,8 +1288,6 @@
   .combat-unison {
     margin-top: 12px;
   }
-
-  /* 소생 (혼절 시) */
   .revive-section {
     margin-bottom: 14px;
     padding: 12px;
@@ -1218,25 +1320,783 @@
       }
     }
   }
-}
 
-/* ============================================================
- * STEP 4 — craft·record 탭 톤 정합 (최소)
- *
- * 시안 미커버 영역. 구조·기능·입력칸은 *그대로 유지*하고,
- * 양피지 표면 + 시안 serif 폰트 + 잉크 본문색만 입혀 character 탭과 이질감 제거.
- * .herbarium 래핑을 피해 입력 리셋(background/border none) 부작용 없음.
- * 본문은 var(--ink) 상속 → 라이트/다크 양쪽에서 양피지 위 가독성 유지.
- * 카드 내부의 명시 색(아스테르 색 등)은 식별 의미라 그대로 둠.
- * (다크 모드 전체 정합은 STEP 5.)
- * ============================================================ */
-.aster .tab.craft,
-.aster .tab.record {
-  background-color: var(--parchment);
-  background-image:
-    radial-gradient(at 18% 8%, rgba(168, 136, 78, 0.1), transparent 42%),
-    radial-gradient(at 84% 2%, rgba(120, 90, 50, 0.08), transparent 38%),
-    repeating-linear-gradient(92deg, rgba(120, 90, 50, 0.025) 0 2px, transparent 2px 5px);
-  color: var(--ink);
-  font-family: var(--font-serif);
+  /* ============================================================
+   * CRAFT 탭
+   * ============================================================ */
+  .craft-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .btn-craft {
+    font: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    padding: 9px 20px;
+    border-radius: var(--hb-radius);
+    cursor: pointer;
+    white-space: nowrap;
+    color: var(--cream);
+    background: linear-gradient(180deg, var(--plum), var(--plum-deep));
+    border: 1px solid var(--plum-deep);
+    box-shadow:
+      inset 0 0 0 1px var(--gold-soft),
+      0 2px 6px rgba(50, 20, 45, 0.3);
+  }
+  .lock {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--hb-radius);
+    background: var(--parchment-sunk);
+    border: 1px solid var(--gold);
+    color: var(--ink-soft);
+    font-size: 15px;
+    cursor: pointer;
+
+    .ico {
+      font-size: 16px;
+    }
+  }
+
+  /* 재료 합계표 */
+  .mat-table {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    margin-bottom: 26px;
+    border: 1px solid var(--gold);
+    border-radius: var(--hb-radius);
+    overflow: hidden;
+    background: var(--parchment-soft);
+    box-shadow: 0 2px 6px rgba(60, 40, 18, 0.1);
+  }
+  .mat-col {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--rule);
+
+    &:last-child {
+      border-right: none;
+    }
+    &--total {
+      background: var(--parchment-deep);
+
+      .mat-col__head {
+        background: var(--plum);
+        color: var(--cream);
+      }
+      .mat-cell {
+        font-size: 17px;
+      }
+    }
+  }
+  .mat-col__head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    text-align: center;
+    padding: 8px 3px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    white-space: nowrap;
+    background: var(--parchment-deep);
+    border-bottom: 1px solid var(--rule);
+    min-height: 34px;
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      border: 1px solid rgba(60, 40, 18, 0.35);
+      flex: none;
+    }
+  }
+  .mat-cell {
+    padding: 9px 3px;
+    text-align: center;
+    font-family: var(--font-num);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink-strong);
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--rule);
+    }
+    &.neg {
+      color: var(--el-red);
+    }
+    &.muted {
+      color: var(--ink-faint);
+    }
+    input {
+      width: 100%;
+      text-align: center;
+      color: inherit;
+      font-weight: 600;
+    }
+  }
+
+  /* 레시피 그룹 */
+  .recipe-group {
+    margin-bottom: 22px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  .recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .recipe {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    grid-template-rows: auto auto;
+    gap: 3px 11px;
+    align-items: center;
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius);
+    padding: 11px 13px;
+    background: var(--parchment-sunk);
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.1);
+    cursor: pointer;
+
+    &.is-made {
+      background: color-mix(in oklch, var(--sage) 13%, var(--parchment-soft));
+      border-color: color-mix(in oklch, var(--sage) 55%, var(--rule));
+    }
+    &.is-locked {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+  .recipe__check {
+    grid-row: span 2;
+    width: 19px;
+    height: 19px;
+    border-radius: 4px;
+    border: 1.5px solid var(--gold-soft);
+    background: var(--parchment-soft);
+    display: grid;
+    place-items: center;
+    color: transparent;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .recipe.is-made .recipe__check {
+    background: var(--sage);
+    border-color: color-mix(in oklch, var(--sage) 65%, black);
+    color: var(--cream);
+  }
+  .recipe.is-locked .recipe__check {
+    background: var(--parchment-deep);
+  }
+  .recipe__name {
+    font-weight: 700;
+    color: var(--ink-strong);
+    font-size: 14.5px;
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+
+    .lv {
+      font-family: var(--font-num);
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: var(--ink-soft);
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      padding: 1px 7px;
+    }
+  }
+  .recipe__cost {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-num);
+    font-size: 13px;
+    color: var(--ink-soft);
+    white-space: nowrap;
+
+    .main {
+      color: var(--plum);
+      font-weight: 600;
+      position: relative;
+      padding-left: 16px;
+
+      &::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 8px;
+        height: 8px;
+        background: var(--gold);
+        transform: translateY(-50%) rotate(45deg);
+      }
+    }
+    .sub {
+      position: relative;
+      padding-left: 16px;
+
+      &::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 7px;
+        height: 7px;
+        border: 1.5px solid var(--gold-soft);
+        transform: translateY(-50%) rotate(45deg);
+      }
+    }
+  }
+
+  /* ============================================================
+   * RECORD 탭
+   * ============================================================ */
+  .record-top {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .record-field {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gold);
+    border-radius: var(--hb-radius);
+    padding: 14px;
+    box-shadow: 0 2px 6px rgba(60, 40, 18, 0.08);
+
+    .panel__head {
+      margin: -2px 0 10px;
+    }
+    .input-line {
+      margin-bottom: 8px;
+    }
+  }
+  .area {
+    min-height: 78px;
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 10px 12px;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 26px;
+    box-shadow: inset 0 1px 4px rgba(70, 45, 18, 0.14);
+    background-image: repeating-linear-gradient(
+      transparent 0 25px,
+      rgba(120, 90, 50, 0.14) 25px 26px
+    );
+    background-attachment: local;
+
+    textarea {
+      width: 100%;
+      min-height: 78px;
+      resize: vertical;
+      color: var(--ink);
+      line-height: 26px;
+    }
+  }
+  .record-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .pager {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .count {
+      font-family: var(--font-num);
+      font-size: 15px;
+      color: var(--ink-strong);
+      min-width: 40px;
+      text-align: center;
+    }
+  }
+  .pager-btn {
+    width: 34px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--hb-radius-sm);
+    background: var(--parchment-sunk);
+    border: 1px solid var(--gold);
+    color: var(--ink-soft);
+    font-size: 13px;
+    cursor: pointer;
+
+    &.is-off,
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+  .record-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .rec-btn {
+    font: inherit;
+    font-size: 13px;
+    padding: 7px 14px;
+    border-radius: var(--hb-radius-sm);
+    cursor: pointer;
+    background: var(--parchment-sunk);
+    border: 1px solid var(--gold);
+    color: var(--ink-soft);
+    white-space: nowrap;
+
+    &--add {
+      color: var(--plum);
+      border-color: var(--plum);
+      &::before {
+        content: "✛ ";
+        font-size: 11px;
+      }
+    }
+    &--del {
+      color: var(--el-red);
+      border-color: color-mix(in oklch, var(--el-red) 55%, var(--rule));
+    }
+  }
+  .record-card {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gold);
+    border-radius: var(--hb-radius);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 2px 6px rgba(60, 40, 18, 0.1);
+  }
+  .rec-line {
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 11px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 32px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.1);
+  }
+  .pair {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+
+    .k {
+      color: var(--ink-soft);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .v {
+      font-family: var(--font-num);
+      color: var(--ink-strong);
+      font-weight: 600;
+      font-size: 15px;
+    }
+  }
+  .rec-block {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    > .k {
+      font-size: 13px;
+      letter-spacing: 1px;
+      color: var(--ink-soft);
+      &::before {
+        content: none;
+      }
+    }
+  }
+  .rec-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    li {
+      position: relative;
+      font-family: var(--font-num);
+      color: var(--ink-strong);
+      font-size: 14px;
+      padding-left: 18px;
+
+      &::before {
+        content: "";
+        position: absolute;
+        left: 3px;
+        top: 50%;
+        width: 7px;
+        height: 7px;
+        background: var(--gold);
+        transform: translateY(-50%) rotate(45deg);
+      }
+    }
+  }
+  .rec-people {
+    font-family: var(--font-num);
+    color: var(--ink-strong);
+    font-size: 14px;
+    padding-left: 6px;
+  }
+  .rec-memo {
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 10px 14px;
+    font-family: var(--font-num);
+    color: var(--ink-strong);
+    font-size: 14px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.1);
+  }
+
+  /* ============================================================
+   * 다이얼로그 (아이템 편집 시트)
+   * ============================================================ */
+  .dialog {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gold);
+    border-radius: var(--hb-radius);
+    overflow: hidden;
+    box-shadow:
+      0 14px 40px rgba(40, 26, 12, 0.4),
+      inset 0 0 0 3px var(--parchment-soft),
+      inset 0 0 0 4px var(--rule);
+  }
+  .dialog__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 16px;
+    background: linear-gradient(180deg, var(--parchment-deep), var(--parchment-sunk));
+    border-bottom: 1px solid var(--gold);
+
+    .t {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: 1px;
+      color: var(--ink-strong);
+
+      small {
+        font-family: var(--font-serif);
+        font-weight: 400;
+        font-size: 12px;
+        letter-spacing: 0;
+        color: var(--ink-soft);
+        margin-left: 8px;
+      }
+    }
+    .x {
+      color: var(--ink-soft);
+      font-size: 14px;
+    }
+  }
+  .dialog__body {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .dialog__hero {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+  }
+  .thumb {
+    width: 60px;
+    flex: none;
+    border-radius: var(--hb-radius-sm);
+    border: 1px solid var(--gold);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: repeating-linear-gradient(
+      45deg,
+      var(--parchment-deep) 0 6px,
+      var(--parchment-sunk) 6px 12px
+    );
+    box-shadow:
+      inset 0 0 0 3px var(--parchment-soft),
+      inset 0 0 10px rgba(80, 55, 25, 0.2);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+      border: none;
+    }
+    span {
+      font-family: var(--font-num);
+      font-size: 10px;
+      color: var(--ink-soft);
+      background: rgba(246, 239, 218, 0.82);
+      padding: 1px 7px;
+      border-radius: 10px;
+      border: 1px solid var(--rule);
+      white-space: nowrap;
+    }
+  }
+  .hero-fields {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+  }
+  .frow {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    align-items: center;
+    gap: 10px;
+
+    > label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 0.5px;
+    }
+    &--stack {
+      grid-template-columns: 1fr;
+      gap: 5px;
+      align-items: stretch;
+    }
+  }
+  .f-input,
+  .f-select {
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 7px 11px;
+    color: var(--ink-strong);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.16);
+    font-family: var(--font-num);
+    gap: 8px;
+
+    > span {
+      white-space: nowrap;
+    }
+    input,
+    select {
+      width: 100%;
+      color: var(--ink-strong);
+    }
+    &.ph {
+      color: var(--ink-faint);
+      font-style: italic;
+      font-family: var(--font-serif);
+    }
+  }
+  .f-select select {
+    cursor: pointer;
+  }
+  .f-area {
+    min-height: 46px;
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 8px 11px;
+    color: var(--ink);
+    font-size: 13px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.16);
+
+    textarea {
+      width: 100%;
+      min-height: 46px;
+      resize: vertical;
+      color: var(--ink);
+      &::placeholder {
+        color: var(--ink-faint);
+        font-style: italic;
+      }
+    }
+  }
+  .mats {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+  }
+  .mat-in {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+
+    .lbl {
+      font-size: 9.5px;
+      color: var(--ink-soft);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1px solid rgba(60, 40, 18, 0.35);
+    }
+    .box {
+      width: 100%;
+      text-align: center;
+      background: var(--parchment-sunk);
+      border: 1px solid var(--rule);
+      border-radius: var(--hb-radius-sm);
+      padding: 5px 0;
+      font-family: var(--font-num);
+      font-weight: 600;
+      color: var(--ink-strong);
+      box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.14);
+    }
+  }
+  .size-row {
+    display: flex;
+    gap: 14px;
+
+    .pair {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .k {
+        font-size: 13px;
+        color: var(--ink-soft);
+        white-space: nowrap;
+      }
+      .box {
+        width: 46px;
+        text-align: center;
+        background: var(--parchment-sunk);
+        border: 1px solid var(--rule);
+        border-radius: var(--hb-radius-sm);
+        padding: 6px 0;
+        font-family: var(--font-num);
+        font-weight: 600;
+        color: var(--ink-strong);
+        box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.14);
+      }
+    }
+  }
+  .chk-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chk {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: var(--hb-radius-sm);
+    border: 1px solid var(--rule);
+    background: var(--parchment-sunk);
+    color: var(--ink-soft);
+    white-space: nowrap;
+    cursor: pointer;
+
+    .box {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1.5px solid var(--gold-soft);
+      background: var(--parchment-soft);
+      display: grid;
+      place-items: center;
+      color: transparent;
+      font-size: 11px;
+      font-weight: 700;
+      flex: none;
+    }
+    input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    &:has(input:checked) {
+      border-color: color-mix(in oklch, var(--sage) 55%, var(--rule));
+      color: var(--ink-strong);
+
+      .box {
+        background: var(--sage);
+        border-color: color-mix(in oklch, var(--sage) 65%, black);
+        color: var(--cream);
+      }
+    }
+  }
+  .fnote {
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-style: italic;
+    line-height: 1.55;
+  }
+  .fieldset {
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius);
+    padding: 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: color-mix(in oklch, var(--parchment-deep) 40%, var(--parchment-soft));
+
+    > .legend {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--ink-soft);
+      &::before {
+        content: "❧ ";
+        color: var(--gold);
+      }
+    }
+  }
+  .npc-id {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 12px;
+    align-items: center;
+
+    .portrait {
+      aspect-ratio: 1;
+    }
+  }
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    white-space: nowrap;
+
+    .box {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1.5px solid var(--gold-soft);
+      background: var(--parchment-soft);
+    }
+  }
 }
