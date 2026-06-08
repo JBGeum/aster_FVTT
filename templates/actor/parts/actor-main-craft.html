@@ -1,100 +1,102 @@
-<div class="craft-tab{{#if craft.locked}} locked{{/if}}">
-  {{!-- 수정 잠금/해제 토글 + 아이템 제작 --}}
-  <div class="craft-header">
-    <button type="button" data-action="craftItemOpen" title="{{localize 'ASTER.craft.openCraftItemHint'}}">
-      {{localize "ASTER.craft.openCraftItem"}}
-    </button>
-    <button type="button" class="craft-lock" data-action="craftLockToggle" title="{{localize craft.lockTitle}}">
-      <i class="fa-solid {{craft.lockIcon}}"></i>
-    </button>
-  </div>
-
-  {{!-- 자원 요약 (3행 9열 그리드) --}}
-  <div class="craft-summary">
-    {{!-- 행 1: 레이블 --}}
-    <div class="craft-res-row craft-label-row">
-      {{#each craft.summaryColumns as |col|}}
-      <div class="res-label-cell craft-col-{{col.key}}">
-        {{#if col.labelKey}}{{localize col.labelKey}}{{else}}{{col.label}}{{/if}}
-      </div>
-      {{/each}}
-    </div>
-    {{!-- 행 2: 보유량 (아스테르·마테리얼은 직접 수정 가능, 임의·자속성·총합은 표시만) --}}
-    <div class="craft-res-row craft-have-row">
-      {{#each craft.summaryColumns as |col|}}
-      <div class="res-have-cell">
-        {{#if col.editable}}
-        <input type="number" class="craft-res-input" data-field="{{col.inputName}}" value="{{col.have}}" />
-        {{else}}{{#unless col.haveEmpty}}{{col.have}}{{/unless}}{{/if}}
-      </div>
-      {{/each}}
-    </div>
-    {{!-- 행 3: 사용량 합계 --}}
-    <div class="craft-res-row craft-cost-row">
-      {{#each craft.summaryColumns as |col|}}
-      <div class="res-cost-cell">{{#unless col.usedEmpty}}{{col.used}}{{/unless}}</div>
-      {{/each}}
-    </div>
-  </div>
-
-  {{#each craft.categories as |cat|}}
-  <div class="craft-category" data-category="{{cat.id}}">
-    <h3 class="cat-title">{{localize cat.label}}</h3>
-
-    {{#if cat.isFamiliar}} {{!-- 사역마: 6×1 단일 행 --}}
-    <div class="craft-nodes craft-nodes--familiar">
-      {{#each cat.nodes as |node|}}
-      <div
-        class="craft-node{{#if node.acquired}} acquired{{/if}}{{#if node.locked}} locked{{/if}}"
-        data-skill-id="{{node.id}}"
+{{!-- H8 약초첩 v18 — Craft 탭 (재료 합계표 + 레시피 그룹). 클래스는 시안, 값·동작은 현재 바인딩. --}}
+<div class="herbarium">
+  <div class="craft{{#if craft.locked}} locked{{/if}}">
+    {{!-- 상단 바: 아이템 만들기 + 초기화 + 잠금 토글 --}}
+    <div class="craft-bar">
+      <button
+        type="button"
+        class="rec-btn rec-btn--del"
+        data-action="craftReset"
+        title="{{localize 'ASTER.craft.reset'}}"
       >
-        <label class="node-label">
+        {{localize "ASTER.craft.reset"}}
+      </button>
+      <button
+        type="button"
+        class="btn-craft"
+        data-action="craftItemOpen"
+        title="{{localize 'ASTER.craft.openCraftItemHint'}}"
+      >
+        {{localize "ASTER.craft.openCraftItem"}}
+      </button>
+      <div class="lock" data-action="craftLockToggle" title="{{localize craft.lockTitle}}">
+        <i class="fa-solid {{craft.lockIcon}} ico"></i>
+      </div>
+    </div>
+
+    {{!-- 재료 합계표 (사용/보유 9열) --}}
+    <div class="mat-table">
+      {{#each craft.summaryColumns as |col|}}
+      <div class="mat-col{{#if col.total}} mat-col--total{{/if}}">
+        <div class="mat-col__head">
+          {{#if col.dotKey}}<span class="dot dot--{{col.dotKey}}"></span>{{/if}} {{#if col.labelKey}}{{localize
+          col.labelKey}}{{else}}{{col.label}}{{/if}}
+        </div>
+        {{!-- 사용량 --}}
+        <div class="mat-cell {{#if col.usedEmpty}}muted{{else}}{{#if col.used}}neg{{/if}}{{/if}}">
+          {{#if col.usedEmpty}}–{{else}}{{col.used}}{{/if}}
+        </div>
+        {{!-- 보유량 (아스테르·마테리얼은 편집) --}}
+        <div class="mat-cell {{#if col.haveEmpty}}muted{{/if}}">
+          {{#if col.editable}}
+          <input type="number" class="craft-res-input" data-field="{{col.inputName}}" value="{{col.have}}" />
+          {{else}}{{#if col.haveEmpty}}–{{else}}{{col.have}}{{/if}}{{/if}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+
+    {{!-- 레시피 그룹 (제조 · 점술 · 요리 · 사역마) --}} {{#each craft.categories as |cat|}}
+    <div class="recipe-group" data-category="{{cat.id}}">
+      <div class="panel__head">{{localize cat.label}}</div>
+      <div class="recipe-grid">
+        {{#if cat.isFamiliar}} {{#each cat.nodes as |node|}}
+        <label class="recipe{{#if node.acquired}} is-made{{/if}}{{#if node.locked}} is-locked{{/if}}">
           <input
             type="checkbox"
+            class="recipe__toggle"
             data-action="toggleSkill"
             data-skill-id="{{node.id}}"
             {{checked
             node.acquired}}
             {{node.disabledAttr}}
           />
-          <span class="node-title">{{localize node.label}}</span>
+          <div class="recipe__check">{{#if node.acquired}}✓{{/if}}</div>
+          <div class="recipe__name">{{localize node.label}}</div>
+          <div class="recipe__cost">
+            <span class="main">{{node.cost.material}}</span>
+            <span class="sub"
+              >{{node.cost.aster.red}}/{{node.cost.aster.blue}}/{{node.cost.aster.green}}/{{node.cost.aster.yellow}}{{#if
+              node.cost.anyAster}} +{{node.cost.anyAster}}{{/if}}</span
+            >
+          </div>
         </label>
-        <div class="node-cost">{{node.costLabel}}</div>
-      </div>
-      {{/each}}
-    </div>
-
-    {{else}} {{!-- 일반 카테고리: 체인별 행, 선행 깊이 기준 열 정렬 --}}
-    <div class="craft-chains" style="--col-count: {{cat.colCount}}">
-      {{#each cat.chains as |chain|}}
-      <div class="craft-chain">
-        {{#each chain as |node|}}
-        <div
-          class="craft-node{{#if node.acquired}} acquired{{/if}}{{#if node.locked}} locked{{/if}}"
-          data-skill-id="{{node.id}}"
-          style="grid-column: {{node.col}}"
+        {{/each}} {{else}} {{#each cat.chains as |chain|}} {{#each chain as |node|}}
+        <label
+          class="recipe{{#if node.acquired}} is-made{{/if}}{{#if node.locked}} is-locked{{/if}}{{#if @first}} chain-start{{/if}}"
         >
-          <label class="node-label">
-            <input
-              type="checkbox"
-              data-action="toggleSkill"
-              data-skill-id="{{node.id}}"
-              {{checked
-              node.acquired}}
-              {{node.disabledAttr}}
-            />
-            <span class="node-title">{{localize node.label}}<span class="lv"> Lv.{{node.level}}</span></span>
-          </label>
-          <div class="node-cost">{{node.costLabel}}</div>
-        </div>
-        {{/each}}
+          <input
+            type="checkbox"
+            class="recipe__toggle"
+            data-action="toggleSkill"
+            data-skill-id="{{node.id}}"
+            {{checked
+            node.acquired}}
+            {{node.disabledAttr}}
+          />
+          <div class="recipe__check">{{#if node.acquired}}✓{{/if}}</div>
+          <div class="recipe__name">{{localize node.label}} <span class="lv">Lv.{{node.level}}</span></div>
+          <div class="recipe__cost">
+            <span class="main">{{node.cost.material}}</span>
+            <span class="sub"
+              >{{node.cost.aster.red}}/{{node.cost.aster.blue}}/{{node.cost.aster.green}}/{{node.cost.aster.yellow}}{{#if
+              node.cost.anyAster}} +{{node.cost.anyAster}}{{/if}}</span
+            >
+          </div>
+        </label>
+        {{/each}} {{/each}} {{/if}}
       </div>
-      {{/each}}
     </div>
-    {{/if}}
-  </div>
-  {{/each}} {{!-- 전체 초기화 --}}
-  <div class="craft-footer">
-    <button type="button" data-action="craftReset" class="craft-reset">{{localize "ASTER.craft.reset"}}</button>
+    {{/each}}
   </div>
 </div>

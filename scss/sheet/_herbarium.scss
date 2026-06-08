@@ -1480,6 +1480,25 @@
       border-radius: 50%;
       border: 1px solid rgba(60, 40, 18, 0.35);
       flex: none;
+
+      &--red {
+        background: var(--el-red);
+      }
+      &--blue {
+        background: var(--el-blue);
+      }
+      &--green {
+        background: var(--el-green);
+      }
+      &--yellow {
+        background: var(--el-yellow);
+      }
+      &--white {
+        background: var(--el-white);
+      }
+      &--mat {
+        background: var(--el-mat);
+      }
     }
   }
   .mat-cell {
@@ -1540,7 +1559,18 @@
     &.is-locked {
       opacity: 0.5;
       cursor: not-allowed;
+      pointer-events: none;
     }
+    /* 체인(같은 아이템의 레벨 묶음) 첫 노드는 새 행에서 시작 */
+    &.chain-start {
+      grid-column-start: 1;
+    }
+  }
+  /* 레시피 토글 — 라벨 클릭 → 숨김 체크박스(toggleSkill). disabled 시 토글 차단. */
+  .recipe__toggle {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
   }
   .recipe__check {
     grid-row: span 2;
@@ -2170,10 +2200,14 @@
  * Foundry 통합 — 캐릭터 탭 herbarium sheet__body 컨테이너
  * (.aster .tab.character 루트에 스크롤/패딩 부여, 서브탭 표시 정합)
  * ============================================================ */
-.aster .sheet-container > .tab.character {
+.aster .sheet-container > .tab.character,
+.aster .sheet-container > .tab.craft,
+.aster .sheet-container > .tab.record {
   overflow-y: auto;
 }
-.aster .tab.character .herbarium {
+.aster .tab.character .herbarium,
+.aster .tab.craft .herbarium,
+.aster .tab.record .herbarium {
   min-height: 100%;
   padding: 14px;
 }

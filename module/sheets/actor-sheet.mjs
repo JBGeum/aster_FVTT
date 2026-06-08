@@ -382,6 +382,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       ...asterColors.map((c) => ({
         key: c,
         labelKey: `ASTER.aster.${c}`,
+        dotKey: c,
         have: resources.aster[c] ?? 0,
         used: cost.aster[c],
         haveEmpty: false,
@@ -392,6 +393,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       {
         key: "material",
         label: "마테리얼",
+        dotKey: "mat",
         have: resources.material ?? 0,
         used: cost.material,
         haveEmpty: false,
@@ -420,6 +422,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       {
         key: "total",
         label: "총합",
+        total: true,
         have: asterHaveTotal,
         used: asterUsedTotal,
         haveEmpty: false,
