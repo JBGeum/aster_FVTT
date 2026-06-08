@@ -4,6 +4,17 @@
   font-family: t.$font-primary;
 }
 
+// ── 윈도우 콘텐츠 영역 배경 (요청 5) ──────────────────────────────────────────
+// .aster 클래스는 <form>에 붙어서, 그 바깥 .window-content(Foundry 코어 윈도우
+// 영역)는 시스템 토큰이 닿지 않아 코어 다크가 남아 "검은 테두리"로 보였음.
+// Aster 시트(form.aster를 포함하는 윈도우)의 콘텐츠 영역에만 토큰 배경 적용.
+// → 고칠 수 없는 영역이 아니라 "변경 누락"이었음.
+.window-content:has(> form.aster),
+.application.aster .window-content {
+  background: var(--aster-color-bg);
+  padding: 0;
+}
+
 .rollable {
   &:hover,
   &:focus {

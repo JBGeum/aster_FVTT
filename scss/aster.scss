@@ -22,6 +22,7 @@
 @use "sheet/record";
 @use "sheet/combat-tab";
 @use "sheet/npc"; // ⭐ H2 신설 — NPC 시트 시각 정체성
+@use "sheet/item-base";
 
 // Component
 @use "component/gm-panel";

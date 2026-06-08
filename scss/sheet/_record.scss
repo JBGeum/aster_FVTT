@@ -6,6 +6,17 @@
     display: flex;
     flex-direction: column;
     gap: 14px;
+
+    // H4 정정: 입력 요소 색 명시 — transparent 배경 + inherit 의존 시
+    // 라이트 모드에서 값·placeholder가 양피지와 대비 부족해 안 보이는 문제 해소.
+    input,
+    textarea {
+      color: var(--aster-color-input-text);
+
+      &::placeholder {
+        color: var(--aster-color-input-placeholder);
+      }
+    }
   }
 
   // ── 상단 배경: 출생/경험/목적 (하단 카드와 시각 구분) ─────────────────────────
@@ -191,7 +202,7 @@
 
       .card-updated {
         font-size: 0.68rem;
-        color: var(--aster-color-text-light);
+        color: var(--aster-color-text-muted);
         text-align: right;
       }
     }
@@ -199,7 +210,7 @@
     // 빈 상태
     .no-record {
       text-align: center;
-      color: var(--aster-color-text-light);
+      color: var(--aster-color-text-muted);
       font-size: 0.9rem;
       padding: 30px 12px;
       border: var(--aster-border-width-base) dashed var(--aster-color-border);

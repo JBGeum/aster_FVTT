@@ -8,7 +8,38 @@
     flex-direction: column;
     height: 100%;
     overflow: hidden;
+    // H4 정정: 시트 루트 배경·텍스트 토큰 — 모드 혼재 해소.
+    // 이게 없으면 토큰 배경을 칠한 영역(인벤토리 등)만 라이트가 되고
+    // 배경 미지정 영역(character)은 Foundry 코어 다크가 비쳐 좌우가 갈림.
+    background: var(--aster-color-bg);
+    color: var(--aster-color-text);
   }
+
+  // ── 탭 네비 색 (요청 1) ──────────────────────────────────────────────────────
+  // tab 토큰이 정의만 되고 미사용이라 Foundry 코어 탭 스타일(밝은 글씨)이
+  // 양피지 배경에서 거의 안 보였음. 토큰을 실제 selector에 연결.
+  nav.tabs {
+    border-bottom: var(--aster-border-width-base) solid var(--aster-color-tab-border);
+
+    > .item {
+      color: var(--aster-color-tab-inactive-text);
+      background: var(--aster-color-tab-inactive-bg);
+      border: none;
+      transition: var(--aster-transition-fast);
+
+      &:hover {
+        color: var(--aster-color-tab-active-text);
+      }
+
+      &.active {
+        color: var(--aster-color-tab-active-text);
+        background: var(--aster-color-tab-active-bg);
+        text-shadow: none;
+      }
+    }
+  }
+
+  // ── 폼 기본 (이어서) ─────────────────────────────────────────────────────────
 
   // ── 전체 탭 콘텐츠 컨테이너 — 높이를 자식에게 전달 ──────────────────────────
   section.sheet-container {
@@ -407,6 +438,29 @@
   // ── 공통 input 너비 재정의 ────────────────────────────────────────────────────
   input {
     width: 80%;
+    // H4 정정 (요청 2): input 색 토큰 — 기존엔 배경 미지정이라
+    // Foundry 코어 다크 input이 비쳐 라이트 배경에서 과하게 어두웠음.
+    background: var(--aster-color-input-bg);
+    border: var(--aster-border-width-base) solid var(--aster-color-input-border);
+    color: var(--aster-color-input-text);
+    border-radius: var(--aster-radius-sm);
+
+    &::placeholder {
+      color: var(--aster-color-input-placeholder);
+    }
+
+    &:focus {
+      outline: 2px solid var(--aster-color-focus-ring);
+      outline-offset: 1px;
+    }
+  }
+
+  // ── 셀렉트도 input과 동일 정합 ────────────────────────────────────────────────
+  select {
+    background: var(--aster-color-input-bg);
+    border: var(--aster-border-width-base) solid var(--aster-color-input-border);
+    color: var(--aster-color-input-text);
+    border-radius: var(--aster-radius-sm);
   }
 }
 
