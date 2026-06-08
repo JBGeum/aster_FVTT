@@ -1,0 +1,550 @@
+/* ============================================================
+ * NPC 시트 — H2
+ *
+ * 밝은 양피지 분위기 + 시각 위계 3단계 + grid 정렬.
+ * 기존 SCSS 패턴 정합 (.aster {} 래퍼 + NPC 전용 클래스 격리).
+ * 토큰 영역만 사용 (하드코딩 지양).
+ * ============================================================ */
+
+.aster {
+  /* ─────────────────────────────
+   * NPC 시트 헤더 영역 — img + 정보
+   * ───────────────────────────── */
+  .npc-top {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--aster-space-md);
+    padding: var(--aster-space-md);
+    background: var(--aster-color-bg);
+    border-bottom: var(--aster-border-width-base) solid var(--aster-color-border);
+
+    .profile-img {
+      flex: 0 0 80px;
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border: var(--aster-border-width-base) solid var(--aster-color-border);
+      border-radius: var(--aster-radius-md);
+      background: var(--aster-color-surface);
+    }
+
+    .npc-header-fields {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--aster-space-sm);
+
+      /* charname — NPC 영역 격리 */
+      .charname {
+        margin: 0;
+
+        input {
+          width: 100%;
+          height: var(--aster-input-height);
+          padding: 0 var(--aster-input-padding-x);
+          background: var(--aster-color-input-bg);
+          border: var(--aster-border-width-base) solid var(--aster-color-input-border);
+          border-radius: var(--aster-radius-md);
+          color: var(--aster-color-text);
+          font-size: var(--aster-font-size-lg);
+          font-weight: var(--aster-font-weight-semibold);
+          font-family: var(--aster-font-family-sans);
+
+          &:focus {
+            outline: 2px solid var(--aster-color-focus-ring);
+            outline-offset: 1px;
+          }
+        }
+      }
+
+      /* 능력치 행 — NPC 영역 격리 grid */
+      .resources {
+        display: grid;
+        gap: var(--aster-space-sm);
+
+        &.grid-3col {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        &.grid-2col {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .resource {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: var(--aster-space-xs);
+
+          .resource-label {
+            font-size: var(--aster-font-size-sm);
+            font-weight: var(--aster-font-weight-medium);
+            color: var(--aster-color-text-muted);
+            font-family: var(--aster-font-family-sans);
+          }
+
+          .resource-content {
+            display: flex;
+            align-items: center;
+            gap: var(--aster-space-xs);
+            width: 100%;
+          }
+
+          input {
+            flex: 1;
+            height: var(--aster-input-height);
+            padding: 0 var(--aster-input-padding-x);
+            background: var(--aster-color-input-bg);
+            border: var(--aster-border-width-base) solid var(--aster-color-input-border);
+            border-radius: var(--aster-radius-md);
+            color: var(--aster-color-text);
+            font-size: var(--aster-font-size-base);
+            font-family: var(--aster-font-family-sans);
+            text-align: center;
+            min-width: 0;
+
+            &::placeholder {
+              color: var(--aster-color-input-placeholder);
+            }
+            &:focus {
+              outline: 2px solid var(--aster-color-focus-ring);
+              outline-offset: 1px;
+            }
+          }
+
+          span {
+            color: var(--aster-color-text-muted);
+          }
+        }
+      }
+    }
+  }
+
+  /* ─────────────────────────────
+   * badstatus 영역 — NPC 영역 격리
+   * ───────────────────────────── */
+  .badstatus-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aster-space-sm);
+    padding: 0 var(--aster-space-md);
+
+    .section-label {
+      font-size: var(--aster-font-size-sm);
+      font-weight: var(--aster-font-weight-medium);
+      color: var(--aster-color-text-muted);
+    }
+
+    .badstatus-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--aster-space-xs);
+
+      .badstatus {
+        position: relative;
+
+        input[type="checkbox"] {
+          position: absolute;
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        label {
+          display: block;
+          padding: var(--aster-space-xs) var(--aster-space-sm);
+          background: var(--aster-color-surface);
+          border: var(--aster-border-width-base) solid var(--aster-color-border);
+          border-radius: var(--aster-radius-md);
+          color: var(--aster-color-text);
+          font-size: var(--aster-font-size-sm);
+          text-align: center;
+          cursor: pointer;
+          transition: var(--aster-transition-fast);
+
+          &:hover {
+            background: var(--aster-color-hover-bg);
+            border-color: var(--aster-color-hover-border);
+          }
+        }
+
+        input[type="checkbox"]:checked + label {
+          background: var(--aster-color-accent);
+          border-color: var(--aster-color-accent-dark);
+          color: var(--aster-color-surface-alt);
+        }
+
+        input[type="checkbox"]:focus-visible + label {
+          outline: 2px solid var(--aster-color-focus-ring);
+          outline-offset: 1px;
+        }
+      }
+    }
+  }
+
+  /* ─────────────────────────────
+   * npc-combat 영역 — AP + dodge·hit + 공통 액션
+   * ───────────────────────────── */
+  .npc-combat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aster-space-md);
+    margin: var(--aster-space-md);
+    padding: var(--aster-space-md);
+    background: var(--aster-color-surface);
+    border: var(--aster-border-width-base) solid var(--aster-color-border);
+    border-radius: var(--aster-radius-md);
+
+    .combat-ap-display {
+      display: flex;
+      align-items: center;
+      gap: var(--aster-space-sm);
+      font-size: var(--aster-font-size-md);
+
+      .ap-label {
+        font-weight: var(--aster-font-weight-medium);
+        color: var(--aster-color-text-muted);
+      }
+
+      .ap-value {
+        font-family: var(--aster-font-family-mono);
+        font-weight: var(--aster-font-weight-semibold);
+        color: var(--aster-color-accent);
+      }
+
+      .focus-indicator {
+        margin-left: auto;
+        padding: 2px var(--aster-space-sm);
+        background: var(--aster-color-yellow-light);
+        border-radius: var(--aster-radius-sm);
+        font-size: var(--aster-font-size-xs);
+        color: var(--aster-color-text);
+      }
+    }
+
+    .combat-disabled-notice {
+      padding: var(--aster-space-sm);
+      background: var(--aster-color-disabled-bg);
+      border-radius: var(--aster-radius-sm);
+      color: var(--aster-color-text-muted);
+      font-size: var(--aster-font-size-sm);
+      text-align: center;
+    }
+
+    /* dodge·hit 버튼 영역 (반응 판정) */
+    .combat-roll-buttons {
+      display: flex;
+      gap: var(--aster-space-sm);
+
+      .dodge-btn,
+      .hit-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: var(--aster-button-height);
+        padding: 0 var(--aster-button-padding-x);
+        background: var(--aster-color-surface-alt);
+        border: var(--aster-border-width-base) solid var(--aster-color-border);
+        border-radius: var(--aster-radius-md);
+        color: var(--aster-color-text);
+        font-size: var(--aster-font-size-sm);
+        font-family: var(--aster-font-family-sans);
+        cursor: pointer;
+        transition: var(--aster-transition-fast);
+
+        &:hover {
+          background: var(--aster-color-hover-bg);
+          border-color: var(--aster-color-hover-border);
+        }
+
+        &:focus-visible {
+          outline: 2px solid var(--aster-color-focus-ring);
+          outline-offset: 1px;
+        }
+
+        .dodge-label,
+        .hit-label {
+          font-weight: var(--aster-font-weight-medium);
+        }
+        .dodge-value,
+        .hit-value {
+          font-family: var(--aster-font-family-mono);
+          color: var(--aster-color-text-muted);
+        }
+      }
+    }
+
+    /* 공통 액션 4 버튼 — 가로 grid */
+    .combat-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--aster-space-sm);
+
+      &.disabled .action-btn {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        height: 44px;
+        padding: var(--aster-space-xs) var(--aster-space-sm);
+        background: var(--aster-color-surface-alt);
+        border: var(--aster-border-width-base) solid var(--aster-color-border);
+        border-radius: var(--aster-radius-md);
+        color: var(--aster-color-text);
+        font-size: var(--aster-font-size-sm);
+        font-family: var(--aster-font-family-sans);
+        cursor: pointer;
+        transition: var(--aster-transition-fast);
+
+        &:hover:not(:disabled) {
+          background: var(--aster-color-hover-bg);
+          border-color: var(--aster-color-hover-border);
+        }
+
+        &:focus-visible {
+          outline: 2px solid var(--aster-color-focus-ring);
+          outline-offset: 1px;
+        }
+
+        &:disabled,
+        &[disabled] {
+          background: var(--aster-color-disabled-bg);
+          color: var(--aster-color-disabled-text);
+          cursor: not-allowed;
+        }
+
+        &.used {
+          background: var(--aster-color-disabled-bg);
+          color: var(--aster-color-disabled-text);
+          &::after {
+            content: " ✓";
+            color: var(--aster-color-success);
+          }
+        }
+
+        .action-name {
+          font-weight: var(--aster-font-weight-medium);
+        }
+        .action-cost {
+          font-family: var(--aster-font-family-mono);
+          font-size: var(--aster-font-size-xs);
+          color: var(--aster-color-text-muted);
+        }
+      }
+    }
+  }
+
+  /* ─────────────────────────────
+   * NPC 시트 — 섹션 헤더 (npc-actions·npc-items 공통)
+   * ───────────────────────────── */
+  .npc-actions,
+  .npc-items {
+    margin: var(--aster-space-md);
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--aster-space-sm);
+      padding-bottom: var(--aster-space-xs);
+      border-bottom: var(--aster-border-width-base) solid var(--aster-color-border);
+
+      h2,
+      .section-title {
+        margin: 0;
+        font-size: var(--aster-font-size-lg); /* 과도 영역 정정: 3xl → lg */
+        font-weight: var(--aster-font-weight-semibold);
+        color: var(--aster-color-text);
+        font-family: var(--aster-font-family-sans);
+      }
+
+      .item-create {
+        height: var(--aster-button-height);
+        padding: 0 var(--aster-button-padding-x);
+        background: var(--aster-color-accent);
+        border: none;
+        border-radius: var(--aster-radius-md);
+        color: var(--aster-color-surface-alt);
+        font-size: var(--aster-font-size-sm);
+        font-weight: var(--aster-font-weight-medium);
+        font-family: var(--aster-font-family-sans);
+        cursor: pointer;
+        transition: var(--aster-transition-fast);
+
+        &:hover {
+          background: var(--aster-color-accent-dark);
+        }
+        &:focus-visible {
+          outline: 2px solid var(--aster-color-focus-ring);
+          outline-offset: 2px;
+        }
+      }
+    }
+  }
+
+  /* ─────────────────────────────
+   * npc-actions 표
+   * ───────────────────────────── */
+  .npc-actions {
+    .npc-actions-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--aster-color-surface);
+      border: var(--aster-border-width-base) solid var(--aster-color-border);
+      border-radius: var(--aster-radius-md);
+      overflow: hidden;
+
+      thead th {
+        padding: var(--aster-space-sm);
+        background: var(--aster-color-surface-alt);
+        border-bottom: var(--aster-border-width-base) solid var(--aster-color-border);
+        color: var(--aster-color-text-muted);
+        font-size: var(--aster-font-size-sm);
+        font-weight: var(--aster-font-weight-medium);
+        text-align: left;
+      }
+
+      tbody {
+        tr {
+          border-top: var(--aster-border-width-base) solid var(--aster-color-border-light);
+          transition: var(--aster-transition-fast);
+
+          &:hover {
+            background: var(--aster-color-hover-bg);
+          }
+        }
+
+        td {
+          padding: var(--aster-space-sm);
+          font-size: var(--aster-font-size-sm);
+
+          &.cost {
+            width: 60px;
+            font-family: var(--aster-font-family-mono);
+            font-weight: var(--aster-font-weight-semibold);
+            color: var(--aster-color-accent);
+            text-align: center;
+          }
+
+          &.name {
+            font-weight: var(--aster-font-weight-medium);
+          }
+
+          &.effect {
+            color: var(--aster-color-text-muted);
+
+            .target {
+              margin-left: var(--aster-space-sm);
+              color: var(--aster-color-blue);
+            }
+
+            .once {
+              margin-left: var(--aster-space-sm);
+              padding: 1px var(--aster-space-xs);
+              background: var(--aster-color-yellow-light);
+              border-radius: var(--aster-radius-sm);
+              font-size: var(--aster-font-size-xs);
+              color: var(--aster-color-text);
+            }
+          }
+
+          &.action-buttons {
+            width: 100px;
+            display: flex;
+            gap: var(--aster-space-xs);
+            justify-content: flex-end;
+
+            button {
+              width: 24px;
+              height: 24px;
+              padding: 0;
+              background: transparent;
+              border: var(--aster-border-width-base) solid var(--aster-color-border);
+              border-radius: var(--aster-radius-sm);
+              color: var(--aster-color-text-muted);
+              cursor: pointer;
+              transition: var(--aster-transition-fast);
+
+              &:hover:not(:disabled) {
+                background: var(--aster-color-hover-bg);
+                color: var(--aster-color-text);
+              }
+
+              &:focus-visible {
+                outline: 2px solid var(--aster-color-focus-ring);
+                outline-offset: 1px;
+              }
+
+              &.npcaction-use-btn:hover:not(:disabled) {
+                background: var(--aster-color-accent);
+                color: var(--aster-color-surface-alt);
+                border-color: var(--aster-color-accent);
+              }
+            }
+          }
+        }
+
+        .items-empty {
+          padding: var(--aster-space-lg);
+          text-align: center;
+          color: var(--aster-color-text-light);
+          font-size: var(--aster-font-size-sm);
+        }
+      }
+    }
+  }
+
+  /* ─────────────────────────────
+   * npc-items (소지 아이템 목록)
+   * ───────────────────────────── */
+  .npc-items {
+    .items-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--aster-space-xs);
+
+      .item-row {
+        display: flex;
+        align-items: center;
+        gap: var(--aster-space-sm);
+        padding: var(--aster-space-xs) var(--aster-space-sm);
+        background: var(--aster-color-surface);
+        border: var(--aster-border-width-base) solid var(--aster-color-border);
+        border-radius: var(--aster-radius-md);
+        font-size: var(--aster-font-size-sm);
+      }
+    }
+
+    .items-empty {
+      padding: var(--aster-space-md);
+      text-align: center;
+      color: var(--aster-color-text-light);
+      font-size: var(--aster-font-size-sm);
+      font-style: italic;
+    }
+  }
+
+  /* ─────────────────────────────
+   * NPC biography editor 영역
+   * ───────────────────────────── */
+  .npc-biography {
+    margin: var(--aster-space-md);
+    padding: var(--aster-space-sm);
+    background: var(--aster-color-surface);
+    border: var(--aster-border-width-base) solid var(--aster-color-border);
+    border-radius: var(--aster-radius-md);
+
+    .editor {
+      min-height: 60px;
+    }
+  }
+}

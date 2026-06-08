@@ -57,8 +57,8 @@
 
   <section class="sheet-body flexcol">
     {{!-- 상태이상 5종 토글 — PC 시트 패턴 정합. id는 npc- 접두사로 PC와 충돌 회피 --}}
-    <div class="row-badstatus">
-      <div class="bs-section-label">{{localize "ASTER.label.badstatus"}}</div>
+    <div class="badstatus-section">
+      <div class="section-label">{{localize "ASTER.label.badstatus"}}</div>
       <div class="badstatus-grid">
         <div class="badstatus bs-injury {{checked system.badstatus.injury}}">
           <input
@@ -136,16 +136,13 @@
       {{#unless combatContext.inCombat}}
       <div class="combat-disabled-notice">{{localize "ASTER.combat.notInCombat"}}</div>
       {{/unless}} {{!-- N5 — 회피 버튼. 반응 판정(AP 소비 없음)이라 전투 진행 여부와 무관하게 활성. PC 패턴 정합.
-      rollDodge 핸들러는 Actor 메서드에서 type 분기(NPC는 dodgeFormula 평가). --}}
-      <div class="combat-dodge">
+      rollDodge 핸들러는 Actor 메서드에서 type 분기(NPC는 dodgeFormula 평가). N6 — 명중 버튼도 동일 영역(반응 판정, AP
+      소비 없음). dodge·hit를 .combat-roll-buttons로 묶어 가로 정렬. --}}
+      <div class="combat-roll-buttons">
         <button type="button" class="dodge-btn" data-action="rollDodge">
           <span class="dodge-label">{{localize "ASTER.dodge.label"}}</span>
           <span class="dodge-value">{{system.dodgeFormula}}</span>
         </button>
-      </div>
-
-      {{!-- N6 — 명중 버튼. AP 소비 없는 별도 굴림(NPC 전용, dodge 패턴 정합). rollHit 핸들러가 Actor.rollHit 호출. --}}
-      <div class="combat-hit">
         <button type="button" class="hit-btn" data-action="rollHit">
           <span class="hit-label">{{localize "ASTER.hit.label"}}</span>
           <span class="hit-value">{{system.hitFormula}}</span>
@@ -205,13 +202,14 @@
 
     {{!-- N2 — 액션 표 (npcAction). 시전 버튼은 N3. N6 — 생성 버튼 추가. --}}
     <div class="npc-actions">
-      {{!-- N6 — npcAction 생성 (PC spell 탭 패턴 정합, #onItemCreate 핸들러 재사용). --}}
-      <div class="npc-actions-toolbar">
+      {{!-- N6 — npcAction 생성 (PC spell 탭 패턴 정합, #onItemCreate 핸들러 재사용). H2 — section-header로 제목+생성
+      버튼 통합. --}}
+      <div class="section-header">
+        <h2 class="section-title">{{localize "ASTER.npcAction.sectionTitle"}}</h2>
         <button type="button" class="item-create" data-action="itemCreate" data-type="npcAction">
           <i class="fas fa-plus"></i> {{localize "ASTER.npcAction.add"}}
         </button>
       </div>
-      <h2>{{localize "ASTER.npcAction.sectionTitle"}}</h2>
       <table class="npc-actions-table">
         <thead>
           <tr>
@@ -273,6 +271,9 @@
     </div>
 
     <div class="npc-items">
+      <div class="section-header">
+        <h2 class="section-title">{{localize "ASTER.npc.itemsSection"}}</h2>
+      </div>
       <ul class="items-list">
         {{#each npcItems as |item|}}
         <li class="item-row" data-item-id="{{item._id}}">
@@ -304,7 +305,7 @@
           </button>
         </li>
         {{else}}
-        <li class="items-empty">{{localize "ASTER.inventory.noItems"}}</li>
+        <li class="items-empty">{{localize "ASTER.npc.noItems"}}</li>
         {{/each}}
       </ul>
     </div>
