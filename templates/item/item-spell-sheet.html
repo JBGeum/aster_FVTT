@@ -1,81 +1,83 @@
-<form class="spell-item-sheet {{cssClass}}" autocomplete="off">
-  <header class="spell-header">
-    <img class="spell-portrait" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
-    <div class="spell-head-fields">
-      <input
-        class="spell-name-input"
-        name="name"
-        type="text"
-        value="{{item.name}}"
-        placeholder="{{localize 'ASTER.spell.name'}}"
-      />
-      <input
-        class="spell-ruby-input"
-        name="system.ruby"
-        type="text"
-        value="{{system.ruby}}"
-        placeholder="{{localize 'ASTER.spell.ruby'}}"
-      />
-      <div class="spell-head-color">
-        <label>{{localize "ASTER.spell.color"}}</label>
-        <select name="system.color">
-          {{selectOptions config.color selected=system.color blank="" localize=true}}
-        </select>
+<form class="aster {{cssClass}}" autocomplete="off">
+  <div class="item-sheet spell" data-item-id="{{data._id}}">
+    <header class="sheet-header">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+      <div class="spell-head-fields">
+        <input
+          class="spell-name-input"
+          name="name"
+          type="text"
+          value="{{item.name}}"
+          placeholder="{{localize 'ASTER.spell.name'}}"
+        />
+        <input
+          class="spell-ruby-input"
+          name="system.ruby"
+          type="text"
+          value="{{system.ruby}}"
+          placeholder="{{localize 'ASTER.spell.ruby'}}"
+        />
+        <div class="spell-head-color">
+          <label>{{localize "ASTER.spell.color"}}</label>
+          <select name="system.color">
+            {{selectOptions config.color selected=system.color blank="" localize=true}}
+          </select>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <section class="spell-sheet">
-    <div class="form-row">
-      <div class="form-group">
-        <label>{{localize "ASTER.spell.ability"}}</label>
-        <select name="system.ability">
-          {{selectOptions config.ability selected=system.ability blank="" localize=true}}
-        </select>
+    <section class="spell-sheet">
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{localize "ASTER.spell.ability"}}</label>
+          <select name="system.ability">
+            {{selectOptions config.ability selected=system.ability blank="" localize=true}}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>{{localize "ASTER.spell.target"}}</label>
+          <input type="number" name="system.target" value="{{system.target}}" min="0" />
+        </div>
       </div>
-      <div class="form-group">
-        <label>{{localize "ASTER.spell.target"}}</label>
-        <input type="number" name="system.target" value="{{system.target}}" min="0" />
-      </div>
-    </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>{{localize "ASTER.spell.alertMin"}}</label>
-        <input type="number" name="system.alert.min" value="{{system.alert.min}}" min="0" />
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{localize "ASTER.spell.alertMin"}}</label>
+          <input type="number" name="system.alert.min" value="{{system.alert.min}}" min="0" />
+        </div>
+        <div class="form-group">
+          <label>{{localize "ASTER.spell.alertMax"}}</label>
+          <input type="number" name="system.alert.max" value="{{system.alert.max}}" min="0" />
+        </div>
       </div>
-      <div class="form-group">
-        <label>{{localize "ASTER.spell.alertMax"}}</label>
-        <input type="number" name="system.alert.max" value="{{system.alert.max}}" min="0" />
-      </div>
-    </div>
 
-    <div class="form-group">
-      <label>{{localize "ASTER.spell.material"}}</label>
-      <div class="material-grid flexrow align-center">
-        {{> "systems/aster/templates/item/parts/material-fields.html"}}
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>{{localize "ASTER.spell.effect"}}</label>
-      <textarea name="system.effect">{{system.effect}}</textarea>
-    </div>
-
-    <div class="form-row">
       <div class="form-group">
-        <label>{{localize "ASTER.spell.critical"}}</label>
-        <input type="text" name="system.message.critical" value="{{system.message.critical}}" />
+        <label>{{localize "ASTER.spell.material"}}</label>
+        <div class="material-grid flexrow align-center">
+          {{> "systems/aster/templates/item/parts/material-fields.html"}}
+        </div>
       </div>
-      <div class="form-group">
-        <label>{{localize "ASTER.spell.fumble"}}</label>
-        <input type="text" name="system.message.fumble" value="{{system.message.fumble}}" />
-      </div>
-    </div>
 
-    <div class="form-group">
-      <label>{{localize "ASTER.spell.description"}}</label>
-      <textarea name="system.description">{{system.description}}</textarea>
-    </div>
-  </section>
+      <div class="form-group">
+        <label>{{localize "ASTER.spell.effect"}}</label>
+        <textarea name="system.effect">{{system.effect}}</textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{localize "ASTER.spell.critical"}}</label>
+          <input type="text" name="system.message.critical" value="{{system.message.critical}}" />
+        </div>
+        <div class="form-group">
+          <label>{{localize "ASTER.spell.fumble"}}</label>
+          <input type="text" name="system.message.fumble" value="{{system.message.fumble}}" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>{{localize "ASTER.spell.description"}}</label>
+        <textarea name="system.description">{{system.description}}</textarea>
+      </div>
+    </section>
+  </div>
 </form>

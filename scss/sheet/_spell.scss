@@ -100,95 +100,129 @@
     padding: 12px 0;
   }
 
-  // ── spell 아이템 시트 헤더 (아이콘 고정 + 이름/색) ───────────────────────────
-  .spell-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 8px 0;
-
-    .spell-portrait {
-      width: 56px;
-      height: 56px;
-      flex-shrink: 0;
-      object-fit: cover;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .spell-head-fields {
+  // ── spell 아이템 시트 (H4-c — .item-sheet.spell 전략) ───────────────────────
+  // 루트·헤더·타이포는 item-base(.item-sheet) 공유. spell 고유 헤더 필드와
+  // 2-up 압축 폼(column form-group)은 .item-sheet.spell specificity로 보존.
+  .item-sheet.spell {
+    // 헤더 — base가 .sheet-header(flex·이미지 60px·border-bottom) 제공. 고유 필드만.
+    .sheet-header .spell-head-fields {
       flex: 1;
       min-width: 0;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: var(--aster-space-xs);
 
-      .spell-name-input {
+      .spell-name-input,
+      .spell-ruby-input {
         width: 100%;
         box-sizing: border-box;
-        font-size: 1rem;
+        height: var(--aster-input-height);
+        padding: 0 var(--aster-input-padding-x);
+        background: var(--aster-color-input-bg);
+        border: var(--aster-border-width-base) solid var(--aster-color-input-border);
+        border-radius: var(--aster-radius-md);
+        color: var(--aster-color-text);
+      }
+
+      .spell-name-input {
+        font-size: var(--aster-font-size-lg);
+        font-weight: var(--aster-font-weight-semibold);
+      }
+
+      .spell-ruby-input {
+        color: var(--aster-color-text-muted);
+        font-size: var(--aster-font-size-sm);
       }
 
       .spell-head-color {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: var(--aster-space-sm);
 
         label {
           flex-shrink: 0;
-          font-size: 0.75rem;
+          font-size: var(--aster-font-size-sm);
           color: var(--aster-color-text-muted);
         }
 
         select {
           flex: 1;
           min-width: 0;
-          width: auto;
+          height: var(--aster-input-height);
+          padding: 0 var(--aster-input-padding-x);
+          background: var(--aster-color-input-bg);
+          border: var(--aster-border-width-base) solid var(--aster-color-input-border);
+          border-radius: var(--aster-radius-md);
+          color: var(--aster-color-text);
+          font-size: var(--aster-font-size-base);
         }
       }
     }
-  }
 
-  // ── spell 아이템 시트 입력 폼 ─────────────────────────────────────────────────
-  .spell-sheet {
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-
-    .form-row {
-      display: flex;
-      gap: 8px;
-
-      .form-group {
-        flex: 1;
-        min-width: 0;
-      }
-    }
-
-    .form-group {
+    // 입력 폼 — 2-up 압축 유지(column form-group). base 가로 form-group을 override.
+    .spell-sheet {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: var(--aster-space-sm);
 
-      label {
-        font-size: 0.75rem;
-        color: var(--aster-color-text-muted);
+      .form-row {
+        display: flex;
+        gap: var(--aster-space-sm);
+
+        .form-group {
+          flex: 1;
+          min-width: 0;
+        }
       }
 
-      // .aster input { width: 80% } 전역 규칙 재정의
-      input,
-      select,
-      textarea {
-        width: 100%;
-        box-sizing: border-box;
-      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--aster-space-xs);
 
-      textarea {
-        min-height: 60px;
-        resize: vertical;
-        font-family: inherit;
+        > label {
+          flex: 0 0 auto;
+          font-size: var(--aster-font-size-sm);
+          font-weight: var(--aster-font-weight-medium);
+          color: var(--aster-color-text-muted);
+        }
+
+        input,
+        select,
+        textarea {
+          width: 100%;
+          box-sizing: border-box;
+          padding: 0 var(--aster-input-padding-x);
+          background: var(--aster-color-input-bg);
+          border: var(--aster-border-width-base) solid var(--aster-color-input-border);
+          border-radius: var(--aster-radius-md);
+          color: var(--aster-color-text);
+          font-size: var(--aster-font-size-base);
+
+          &:focus {
+            outline: 2px solid var(--aster-color-focus-ring);
+            outline-offset: 1px;
+          }
+        }
+
+        input,
+        select {
+          height: var(--aster-input-height);
+        }
+
+        textarea {
+          min-height: 60px;
+          padding: var(--aster-space-xs) var(--aster-input-padding-x);
+          font-family: var(--aster-font-family-sans);
+          resize: vertical;
+        }
+
+        .material-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: var(--aster-space-xs);
+        }
       }
     }
   }
