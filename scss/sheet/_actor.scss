@@ -1,5 +1,14 @@
-@use "../global/grid" as g;
-@use "../global/flex" as f;
+/* ============================================================
+ * 액터 시트 공통 구조 — 폼·탭 네비·컨테이너·전역 input/select.
+ *
+ * H8: character 탭 내부(좌측 패널·인벤·craft·record)는 _herbarium.scss로 전면 이관.
+ * 여기엔 *전 액터 시트 공통 골격*만 남긴다.
+ *   - form / nav.tabs / sheet-container : 윈도우 골격 (character·NPC 공용)
+ *   - input / select : 비-herbarium 시트(NPC·아이템 record 등) 토큰 정합
+ *     (.herbarium 내부는 herbarium 규칙이 @use 순서상 override)
+ * 제거: character 좌측 레이아웃(character-layout·sheet-left·row/col·abl·
+ *   aster-container·abilities-top·row-memo·badstatus·container query) — herbarium 대체로 0 usage.
+ * ============================================================ */
 
 .aster {
   // ── 폼 기본 ──────────────────────────────────────────────────────────────────
@@ -8,16 +17,11 @@
     flex-direction: column;
     height: 100%;
     overflow: hidden;
-    // H4 정정: 시트 루트 배경·텍스트 토큰 — 모드 혼재 해소.
-    // 이게 없으면 토큰 배경을 칠한 영역(인벤토리 등)만 라이트가 되고
-    // 배경 미지정 영역(character)은 Foundry 코어 다크가 비쳐 좌우가 갈림.
     background: var(--aster-color-bg);
     color: var(--aster-color-text);
   }
 
-  // ── 탭 네비 색 (요청 1) ──────────────────────────────────────────────────────
-  // tab 토큰이 정의만 되고 미사용이라 Foundry 코어 탭 스타일(밝은 글씨)이
-  // 양피지 배경에서 거의 안 보였음. 토큰을 실제 selector에 연결.
+  // ── 탭 네비 색 — 토큰을 실제 selector에 연결 ─────────────────────────────────
   nav.tabs {
     border-bottom: var(--aster-border-width-base) solid var(--aster-color-tab-border);
 
@@ -39,8 +43,6 @@
     }
   }
 
-  // ── 폼 기본 (이어서) ─────────────────────────────────────────────────────────
-
   // ── 전체 탭 콘텐츠 컨테이너 — 높이를 자식에게 전달 ──────────────────────────
   section.sheet-container {
     flex: 1 1 0;
@@ -56,391 +58,9 @@
     overflow: hidden;
   }
 
-  // ── character 탭: 좌(나머지) | 우(px 고정) ──────────────────────────────────
-  .character-layout {
-    display: grid;
-    // 우측 패널: 고정 380px → 창 크기 따라 유연 (minmax). grid 구조는 유지.
-    grid-template-columns: 1fr minmax(360px, 400px);
-    height: 100%;
-    gap: var(--aster-space-md);
-  }
-
-  .sheet-left {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    min-height: 0;
-    overflow-y: auto;
-    padding: var(--aster-space-sm);
-    border-right: var(--aster-border-width-base) solid var(--aster-color-border);
-    container-type: inline-size;
-  }
-
-  .sheet-right {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    min-height: 0;
-  }
-
-  .sheet-bottom {
-    flex: 1 1 0;
-    min-height: 0;
-    overflow: hidden;
-    padding: var(--aster-space-sm);
-  }
-
-  .sheet-bottom > .tab {
-    height: 100%;
-    min-height: 0;
-  }
-
-  // 활성 탭만 표시 (비활성은 Foundry 기본 .tab:not(.active) 숨김에 맡김)
-  .sheet-bottom > .tab.active {
-    display: flex;
-    flex-direction: column;
-  }
-
-  // ── sheet-left 내부: flex 세로 스택 ─────────────────────────────────────────
-  .sheet-top {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--aster-space-sm);
-  }
-
-  // ── 행 1: 1fr(초상화+이름) | 1fr(색상+ROLL) ─────────────────────────────────
-  .row-1 {
-    flex-shrink: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--aster-space-sm);
-    align-items: start;
-  }
-
-  .col-portrait {
-    display: flex;
-    flex-direction: column;
-    gap: var(--aster-space-xs);
-
-    img.profile-img {
-      width: 200px;
-      aspect-ratio: 1;
-      object-fit: cover;
-      border-radius: 6px;
-      border: none;
-      display: block;
-      cursor: pointer;
-    }
-  }
-
-  // ── ROLL 열 (색상 드롭다운 위, 좌측 구분선) ──────────────────────────────────
-  .col-roll {
-    min-width: 0;
-    border-left: var(--aster-border-width-base) solid var(--aster-color-border);
-    padding-left: var(--aster-space-sm);
-    display: flex;
-    flex-direction: column;
-    gap: var(--aster-space-sm);
-
-    .char-name input {
-      width: 100%;
-      text-align: center;
-    }
-
-    .color {
-      display: flex;
-      align-items: center;
-      gap: var(--aster-space-xs);
-
-      .color-logo {
-        width: 14px;
-        height: 14px;
-        border: var(--aster-border-width-thick) solid var(--aster-color-border);
-        background: var(--aster-color-surface-alt);
-        flex-shrink: 0;
-      }
-
-      select {
-        flex: 1;
-        min-width: 0;
-      }
-    }
-
-    .roll-option {
-      .roll-opt-header {
-        text-align: center;
-        font-weight: bold;
-      }
-
-      .roll-option-list {
-        gap: var(--aster-space-xs);
-        justify-content: center;
-      }
-
-      // 라디오 입력은 숨기고 라벨을 토글 버튼처럼 표시한다.
-      .roll-option-btn {
-        flex: 1;
-        text-align: center;
-        white-space: nowrap;
-        padding: var(--aster-space-xs) var(--aster-space-sm);
-        border: var(--aster-border-width-base) solid var(--aster-color-border);
-        border-radius: 4px;
-        cursor: pointer;
-        user-select: none;
-
-        input[type="radio"] {
-          display: none;
-        }
-
-        &:has(input:checked) {
-          background: var(--aster-color-active-bg);
-          font-weight: bold;
-        }
-      }
-
-      .roll-input {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: var(--aster-space-xs);
-
-        label {
-          font-size: 0.78rem;
-          opacity: 0.8;
-        }
-
-        input {
-          width: 3rem;
-          text-align: center;
-        }
-      }
-
-      .emo-roll-btn {
-        width: 100%;
-        font-size: 0.8rem;
-      }
-    }
-  }
-
-  // ── 행 2: 능력치 4개 — 자연 높이 ─────────────────────────────────────────────
-  .row-2 {
-    flex-shrink: 0;
-  }
-
-  .col-abilities {
-    min-width: 0;
-  }
-
-  // ── 행 3: 건강+포만도(1fr) | 민첩+회피(auto) — 자연 높이 ────────────────────
-  .row-3 {
-    flex-shrink: 0;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: var(--aster-space-sm);
-    align-items: start;
-  }
-
-  .col-resources {
-    min-width: 0;
-  }
-
-  .col-derived {
-    min-width: 0;
-  }
-
-  .abl-health {
-    display: grid;
-    grid-template-columns: 36px 1fr;
-    grid-template-rows: auto auto;
-    gap: var(--aster-space-xs);
-    align-items: center;
-
-    .health-input,
-    .satiety-input {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 2px;
-
-      input {
-        width: 38%;
-        text-align: center;
-      }
-    }
-  }
-
-  .abl-derived {
-    display: grid;
-    grid-template-columns: 36px 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: var(--aster-space-xs);
-    align-items: center;
-
-    .derived-value {
-      display: inline-block;
-      text-align: center;
-    }
-  }
-
-  .abl-label {
-    font-size: 0.75rem;
-    text-align: right;
-    padding-right: 4px;
-  }
-
-  // ── 행 상태이상 — 자연 높이 ──────────────────────────────────────────────────
-  .row-badstatus {
-    flex-shrink: 0;
-  }
-
-  .bs-section-label {
-    font-size: 0.7rem;
-    color: var(--aster-color-text-muted);
-    margin-bottom: 3px;
-    user-select: none;
-  }
-
-  // 기본: 5열 × 1행
-  .badstatus-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: var(--aster-space-xs);
-
-    > div {
-      text-align: center;
-      border: var(--aster-border-width-base) solid var(--aster-color-border);
-    }
-  }
-
-  .badstatus {
-    input[type="checkbox"] {
-      display: none;
-    }
-
-    &.checked {
-      background-color: var(--aster-color-accent);
-      color: var(--aster-color-surface-alt);
-      border: var(--aster-border-width-base) solid var(--aster-color-accent-dark);
-    }
-
-    label.badstatus {
-      cursor: pointer;
-      padding: var(--aster-space-xs) var(--aster-space-sm);
-      font-size: 0.8rem;
-      display: block;
-    }
-  }
-
-  // ── 행 아스테르 — 자연 높이 ──────────────────────────────────────────────────
-  .row-aster {
-    flex-shrink: 0;
-  }
-
-  // 기본: 6열 × 1행
-  .aster-container {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 5px;
-    align-content: start;
-
-    input {
-      background: transparent;
-      border: var(--aster-border-width-base) solid var(--aster-color-border);
-      text-align: center;
-    }
-
-    .aster {
-      border: var(--aster-border-width-base) solid var(--aster-color-border);
-      display: grid;
-      grid-template-rows: auto auto;
-
-      div {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 2px 0;
-      }
-
-      input {
-        width: 80%;
-        border: none;
-        font-size: 1rem;
-        padding: 2px 0;
-      }
-    }
-  }
-
-  // ── abilities-top: 능력치 4개 ────────────────────────────────────────────────
-  .abilities-top {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
-
-    .grid.ability {
-      grid-template-columns: 1fr 1fr;
-
-      > div {
-        @include f.flex-center;
-      }
-
-      .abl-name {
-        grid-column: 1 / span 2;
-        grid-row: 1 / span 1;
-        text-align: center;
-      }
-
-      .abl-value {
-        grid-column: 1 / span 2;
-        grid-row: 2 / span 1;
-      }
-    }
-  }
-
-  // ── 행 메모 — 남는 세로 공간 흡수 ────────────────────────────────────────────
-  .row-memo {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-
-    .memo-label {
-      flex-shrink: 0;
-      font-size: 0.7rem;
-      color: var(--aster-color-text-muted);
-      user-select: none;
-    }
-
-    textarea {
-      flex: 1;
-      min-height: 0;
-      width: 100%;
-      resize: none;
-      background: var(--aster-color-input-bg);
-      border: var(--aster-border-width-base) solid var(--aster-color-input-border);
-      border-radius: 3px;
-      padding: 4px 6px;
-      font-size: 0.8rem;
-      color: var(--aster-color-input-text);
-      font-family: inherit;
-      line-height: 1.4;
-      box-sizing: border-box;
-
-      &:focus {
-        outline: 2px solid var(--aster-color-focus-ring);
-        outline-offset: 1px;
-        border-color: var(--aster-color-focus-ring);
-      }
-    }
-  }
-
-  // ── 공통 input 너비 재정의 ────────────────────────────────────────────────────
+  // ── 공통 input / select 토큰 (NPC·아이템 record 등 비-herbarium 영역) ────────
   input {
     width: 80%;
-    // H4 정정 (요청 2): input 색 토큰 — 기존엔 배경 미지정이라
-    // Foundry 코어 다크 input이 비쳐 라이트 배경에서 과하게 어두웠음.
     background: var(--aster-color-input-bg);
     border: var(--aster-border-width-base) solid var(--aster-color-input-border);
     color: var(--aster-color-input-text);
@@ -456,53 +76,10 @@
     }
   }
 
-  // ── 셀렉트도 input과 동일 정합 ────────────────────────────────────────────────
   select {
     background: var(--aster-color-input-bg);
     border: var(--aster-border-width-base) solid var(--aster-color-input-border);
     color: var(--aster-color-input-text);
     border-radius: var(--aster-radius-sm);
-  }
-
-  // ── 능력치·자원 input 높이 통일 (input-height 토큰 28px) ──────────────────────
-  .col-abilities input,
-  .abl-health input,
-  .abl-derived input {
-    height: var(--aster-input-height);
-  }
-}
-
-// ── 컨테이너 쿼리 (기준: .sheet-left의 inline-size) ──────────────────────────────
-// .aster 접두사 포함 — 일반 규칙과 명시도 동등하게 유지
-
-// 아스테르: 6×1 → 3×2
-@container (max-width: 360px) {
-  .aster .aster-container {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-// 상태이상: 5×1 → 2+3 (6 unit 그리드로 첫 행 2칸, 둘째 행 3칸)
-@container (max-width: 360px) {
-  .aster .badstatus-grid {
-    grid-template-columns: repeat(6, 1fr);
-
-    // 첫 행: 2칸 (각 3 unit)
-    > div:nth-child(1) {
-      grid-column: span 3;
-    }
-    > div:nth-child(2) {
-      grid-column: span 3;
-    }
-    // 둘째 행: 3칸 (각 2 unit)
-    > div:nth-child(3) {
-      grid-column: span 2;
-    }
-    > div:nth-child(4) {
-      grid-column: span 2;
-    }
-    > div:nth-child(5) {
-      grid-column: span 2;
-    }
   }
 }
