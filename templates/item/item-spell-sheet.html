@@ -1,83 +1,85 @@
 <form class="aster {{cssClass}}" autocomplete="off">
-  <div class="item-sheet spell" data-item-id="{{data._id}}">
-    <header class="sheet-header">
-      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
-      <div class="spell-head-fields">
-        <input
-          class="spell-name-input"
-          name="name"
-          type="text"
-          value="{{item.name}}"
-          placeholder="{{localize 'ASTER.spell.name'}}"
-        />
-        <input
-          class="spell-ruby-input"
-          name="system.ruby"
-          type="text"
-          value="{{system.ruby}}"
-          placeholder="{{localize 'ASTER.spell.ruby'}}"
-        />
-        <div class="spell-head-color">
-          <label>{{localize "ASTER.spell.color"}}</label>
+  <div class="herbarium">
+    <div class="dialog__body">
+      <div class="dialog__hero">
+        <div class="thumb"><img src="{{item.img}}" data-edit="img" title="{{item.name}}" /></div>
+        <div class="hero-fields">
+          <div class="frow">
+            <label>술식명</label>
+            <div class="f-input">
+              <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'ASTER.spell.name'}}" />
+            </div>
+          </div>
+          <div class="frow">
+            <label>{{localize "ASTER.spell.ruby"}}</label>
+            <div class="f-input">
+              <input
+                type="text"
+                name="system.ruby"
+                value="{{system.ruby}}"
+                placeholder="{{localize 'ASTER.spell.ruby'}}"
+              />
+            </div>
+          </div>
+          <div class="frow">
+            <label>경계도</label>
+            <div class="size-row">
+              <div class="pair">
+                <span class="k">최소</span
+                ><input class="box" type="number" name="system.alert.min" value="{{system.alert.min}}" min="0" />
+              </div>
+              <div class="pair">
+                <span class="k">최대</span
+                ><input class="box" type="number" name="system.alert.max" value="{{system.alert.max}}" min="0" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="frow">
+        <label>{{localize "ASTER.spell.color"}}</label>
+        <div class="f-select">
           <select name="system.color">
             {{selectOptions config.color selected=system.color blank="" localize=true}}
           </select>
         </div>
       </div>
-    </header>
-
-    <section class="spell-sheet">
-      <div class="form-row">
-        <div class="form-group">
-          <label>{{localize "ASTER.spell.ability"}}</label>
+      <div class="frow">
+        <label>{{localize "ASTER.spell.ability"}}</label>
+        <div class="f-select">
           <select name="system.ability">
             {{selectOptions config.ability selected=system.ability blank="" localize=true}}
           </select>
         </div>
-        <div class="form-group">
-          <label>{{localize "ASTER.spell.target"}}</label>
-          <input type="number" name="system.target" value="{{system.target}}" min="0" />
-        </div>
+      </div>
+      <div class="frow">
+        <label>{{localize "ASTER.spell.target"}}</label>
+        <div class="f-input"><input type="number" name="system.target" value="{{system.target}}" min="0" /></div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>{{localize "ASTER.spell.alertMin"}}</label>
-          <input type="number" name="system.alert.min" value="{{system.alert.min}}" min="0" />
-        </div>
-        <div class="form-group">
-          <label>{{localize "ASTER.spell.alertMax"}}</label>
-          <input type="number" name="system.alert.max" value="{{system.alert.max}}" min="0" />
-        </div>
-      </div>
-
-      <div class="form-group">
+      <div class="frow frow--stack">
         <label>{{localize "ASTER.spell.material"}}</label>
-        <div class="material-grid flexrow align-center">
-          {{> "systems/aster/templates/item/parts/material-fields.html"}}
-        </div>
+        {{> "systems/aster/templates/item/parts/material-mats.html"}}
       </div>
-
-      <div class="form-group">
+      <div class="frow frow--stack">
         <label>{{localize "ASTER.spell.effect"}}</label>
-        <textarea name="system.effect">{{system.effect}}</textarea>
+        <div class="f-area"><textarea name="system.effect">{{system.effect}}</textarea></div>
       </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>{{localize "ASTER.spell.critical"}}</label>
+      <div class="frow">
+        <label>{{localize "ASTER.spell.critical"}}</label>
+        <div class="f-input">
           <input type="text" name="system.message.critical" value="{{system.message.critical}}" />
         </div>
-        <div class="form-group">
-          <label>{{localize "ASTER.spell.fumble"}}</label>
-          <input type="text" name="system.message.fumble" value="{{system.message.fumble}}" />
-        </div>
       </div>
-
-      <div class="form-group">
+      <div class="frow">
+        <label>{{localize "ASTER.spell.fumble"}}</label>
+        <div class="f-input"><input type="text" name="system.message.fumble" value="{{system.message.fumble}}" /></div>
+      </div>
+      <div class="frow frow--stack">
         <label>{{localize "ASTER.spell.description"}}</label>
-        <textarea name="system.description">{{system.description}}</textarea>
+        <div class="f-area"><textarea name="system.description">{{system.description}}</textarea></div>
       </div>
-    </section>
+    </div>
   </div>
 </form>

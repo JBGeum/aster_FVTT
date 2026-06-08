@@ -1,81 +1,97 @@
 <form class="aster {{cssClass}}" autocomplete="off">
-  <div class="item item-sheet" data-item-id="{{data._id}}">
-    <div class="sheet-header">
-      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
-      <h1 class="item-name">
-        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'ASTER.item.namePlaceholder'}}" />
-      </h1>
-    </div>
-    <div class="form-group">
-      <label>재료</label>
-      <div class="detail-input material-grid flexrow align-center">
-        {{> "systems/aster/templates/item/parts/material-fields.html"}}
-      </div>
-    </div>
-    <div class="form-group">
-      <label>{{localize "ASTER.consumable.timingLabel"}}</label>
-      <div class="detail-input">
-        <select name="system.timing">
-          {{selectOptions config.itemTiming selected=system.timing blank="" localize=true}}
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>효과</label>
-      <div class="detail-input">
-        <input type="text" name="system.effect" value="{{system.effect}}" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label>요구</label>
-      <div class="detail-input">
-        <input type="text" name="system.requirement" value="{{system.requirement}}" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label>크기</label>
-      <div class="detail-input flexrow align-center">
-        <label>가로</label>
-        <input type="number" name="system.size.w" value="{{system.size.w}}" min="1" />
-        <label>세로</label>
-        <input type="number" name="system.size.h" value="{{system.size.h}}" min="1" />
-      </div>
-    </div>
-    <fieldset class="heal-section">
-      <legend>{{localize "ASTER.consumable.healSection"}}</legend>
-      <div class="form-group">
-        <label>{{localize "ASTER.consumable.healHealth"}}</label>
-        <div class="detail-input">
-          <input type="number" name="system.healHealth" value="{{system.healHealth}}" min="0" />
+  <div class="herbarium">
+    <div class="dialog__body">
+      <div class="dialog__hero">
+        <div class="thumb"><img src="{{item.img}}" data-edit="img" title="{{item.name}}" /></div>
+        <div class="hero-fields">
+          <div class="frow">
+            <label>이름</label>
+            <div class="f-input">
+              <input
+                type="text"
+                name="name"
+                value="{{item.name}}"
+                placeholder="{{localize 'ASTER.item.namePlaceholder'}}"
+              />
+            </div>
+          </div>
+          <div class="frow">
+            <label>{{localize "ASTER.consumable.timingLabel"}}</label>
+            <div class="f-select">
+              <select name="system.timing">
+                {{selectOptions config.itemTiming selected=system.timing blank="" localize=true}}
+              </select>
+            </div>
+          </div>
+          <div class="frow">
+            <label>크기</label>
+            <div class="size-row">
+              <div class="pair">
+                <span class="k">가로</span
+                ><input class="box" type="number" name="system.size.w" value="{{system.size.w}}" min="1" />
+              </div>
+              <div class="pair">
+                <span class="k">세로</span
+                ><input class="box" type="number" name="system.size.h" value="{{system.size.h}}" min="1" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="form-group">
-        <label>{{localize "ASTER.consumable.cureStatusLabel"}}</label>
-        <div class="detail-input cure-status-checkboxes">
-          {{#each cureStatusOptions as |opt|}}
-          <label>
-            <input type="checkbox" class="cure-status-check" data-status="{{opt.key}}" {{checked opt.checked}} />
-            {{opt.label}}
-          </label>
-          {{/each}}
-        </div>
+
+      <div class="frow frow--stack">
+        <label>재료</label>
+        {{> "systems/aster/templates/item/parts/material-mats.html"}}
       </div>
-      <div class="form-group">
-        <label>{{localize "ASTER.consumable.cureAllStatus"}}</label>
-        <div class="detail-input cure-all-row">
-          <label>
+      <div class="frow">
+        <label>요구</label>
+        <div class="f-input"><input type="text" name="system.requirement" value="{{system.requirement}}" /></div>
+      </div>
+      <div class="frow frow--stack">
+        <label>효과</label>
+        <div class="f-area"><textarea name="system.effect">{{system.effect}}</textarea></div>
+      </div>
+
+      <div class="fieldset">
+        <span class="legend">{{localize "ASTER.consumable.healSection"}}</span>
+        <div class="frow">
+          <label>{{localize "ASTER.consumable.healHealth"}}</label>
+          <div class="f-input">
+            <input type="number" name="system.healHealth" value="{{system.healHealth}}" min="0" />
+          </div>
+        </div>
+        <div class="frow frow--stack">
+          <label>{{localize "ASTER.consumable.cureStatusLabel"}}</label>
+          <div class="chk-group">
+            {{#each cureStatusOptions as |opt|}}
+            <label class="chk">
+              <input type="checkbox" class="cure-status-check" data-status="{{opt.key}}" {{checked opt.checked}} />
+              <span class="box">✓</span>{{opt.label}}
+            </label>
+            {{/each}}
+          </div>
+        </div>
+        <div class="frow frow--stack">
+          <label class="toggle">
             <input type="checkbox" name="system.cureAllStatus" {{checked system.cureAllStatus}} />
-            {{localize "ASTER.consumable.cureAllStatus"}}
+            <span class="box">✓</span>{{localize "ASTER.consumable.cureAllStatus"}}
           </label>
-          <p class="hint">{{localize "ASTER.consumable.cureAllStatusHint"}}</p>
+          <p class="fnote">{{localize "ASTER.consumable.cureAllStatusHint"}}</p>
         </div>
       </div>
-    </fieldset>
-    <div class="item-desc">{{editor system.description target="system.description" button=true editable=editable}}</div>
-    {{#if showUseButton}}
-    <footer class="consumable-actions">
-      <button type="button" data-action="useConsumable">{{localize "ASTER.consumable.useBtn"}}</button>
-    </footer>
-    {{/if}}
+
+      <div class="frow frow--stack">
+        <label>설명</label>
+        <div class="f-area">
+          {{editor system.description target="system.description" button=true editable=editable}}
+        </div>
+      </div>
+
+      {{#if showUseButton}}
+      <button type="button" class="btn-craft" data-action="useConsumable">
+        {{localize "ASTER.consumable.useBtn"}}
+      </button>
+      {{/if}}
+    </div>
   </div>
 </form>

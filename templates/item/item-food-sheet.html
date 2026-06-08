@@ -1,42 +1,51 @@
 <form class="aster {{cssClass}}" autocomplete="off">
-  <div class="item item-sheet" data-item-id="{{data._id}}">
-    <div class="sheet-header">
-      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
-      <h1 class="item-name">
-        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'ASTER.item.namePlaceholder'}}" />
-      </h1>
-    </div>
-    <div class="form-group">
-      <label>재료</label>
-      <div class="detail-input material-grid flexrow align-center">
-        {{> "systems/aster/templates/item/parts/material-fields.html"}}
+  <div class="herbarium">
+    <div class="dialog__body">
+      <div class="dialog__hero">
+        <div class="thumb"><img src="{{item.img}}" data-edit="img" title="{{item.name}}" /></div>
+        <div class="hero-fields">
+          <div class="frow">
+            <label>이름</label>
+            <div class="f-input">
+              <input
+                type="text"
+                name="name"
+                value="{{item.name}}"
+                placeholder="{{localize 'ASTER.item.namePlaceholder'}}"
+              />
+            </div>
+          </div>
+          <div class="frow">
+            <label>{{localize "ASTER.food.restore"}}</label>
+            <div class="f-input"><input type="number" name="system.restore" value="{{system.restore}}" min="0" /></div>
+          </div>
+          <div class="frow">
+            <label>요구</label>
+            <div class="f-input"><input type="text" name="system.requirement" value="{{system.requirement}}" /></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="frow frow--stack">
+        <label>재료</label>
+        {{> "systems/aster/templates/item/parts/material-mats.html"}}
+      </div>
+      <div class="frow frow--stack">
+        <label>{{localize "ASTER.food.bonusEffect"}}</label>
+        <div class="f-area"><textarea name="system.bonusEffect">{{system.bonusEffect}}</textarea></div>
+      </div>
+      <div class="frow frow--stack">
+        <label>효과</label>
+        <div class="f-area"><textarea name="system.effect">{{system.effect}}</textarea></div>
+      </div>
+      <p class="fnote">{{localize "ASTER.food.bonusEffectHint"}}</p>
+
+      <div class="frow frow--stack">
+        <label>설명</label>
+        <div class="f-area">
+          {{editor system.description target="system.description" button=true editable=editable}}
+        </div>
       </div>
     </div>
-    <div class="form-group">
-      <label>{{localize "ASTER.food.restore"}}</label>
-      <div class="detail-input">
-        <input type="number" name="system.restore" value="{{system.restore}}" min="0" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label>{{localize "ASTER.food.bonusEffect"}}</label>
-      <div class="detail-input">
-        <textarea name="system.bonusEffect" rows="2">{{system.bonusEffect}}</textarea>
-        <p class="hint">{{localize "ASTER.food.bonusEffectHint"}}</p>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>효과</label>
-      <div class="detail-input">
-        <input type="text" name="system.effect" value="{{system.effect}}" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label>요구</label>
-      <div class="detail-input">
-        <input type="text" name="system.requirement" value="{{system.requirement}}" />
-      </div>
-    </div>
-    <div class="item-desc">{{editor system.description target="system.description" button=true editable=editable}}</div>
   </div>
 </form>

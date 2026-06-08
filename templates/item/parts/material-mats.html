@@ -1,0 +1,9 @@
+{{!-- H8 약초첩 — 재료(원소) 6칸 입력. materialFields(item-sheet.mjs)로 라벨·점색·값 표시. --}}
+<div class="mats">
+  {{#each materialFields}}
+  <div class="mat-in">
+    <span class="lbl"><span class="dot dot--{{this.dotKey}}"></span>{{this.label}}</span>
+    <input class="box" type="number" name="system.material" value="{{this.value}}" min="0" />
+  </div>
+  {{/each}}
+</div>

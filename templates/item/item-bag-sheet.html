@@ -1,41 +1,59 @@
 <form class="aster {{cssClass}}" autocomplete="off">
-  <div class="item item-sheet" data-item-id="{{data._id}}">
-    <div class="sheet-header">
-      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
-      <h1 class="item-name">
-        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'ASTER.item.namePlaceholder'}}" />
-      </h1>
-    </div>
-    <div class="form-group">
-      <label>재료</label>
-      <div class="detail-input material-grid flexrow align-center">
-        {{> "systems/aster/templates/item/parts/material-fields.html"}}
+  <div class="herbarium">
+    <div class="dialog__body">
+      <div class="dialog__hero">
+        <div class="thumb"><img src="{{item.img}}" data-edit="img" title="{{item.name}}" /></div>
+        <div class="hero-fields">
+          <div class="frow">
+            <label>이름</label>
+            <div class="f-input">
+              <input
+                type="text"
+                name="name"
+                value="{{item.name}}"
+                placeholder="{{localize 'ASTER.item.namePlaceholder'}}"
+              />
+            </div>
+          </div>
+          <div class="frow">
+            <label>격자 크기</label>
+            <div class="size-row">
+              <div class="pair">
+                <span class="k">열</span
+                ><input class="box" type="number" name="system.grid.cols" value="{{system.grid.cols}}" min="1" />
+              </div>
+              <div class="pair">
+                <span class="k">행</span
+                ><input class="box" type="number" name="system.grid.rows" value="{{system.grid.rows}}" min="1" />
+              </div>
+            </div>
+          </div>
+          <div class="frow">
+            <label>요구</label>
+            <div class="f-input"><input type="text" name="system.requirement" value="{{system.requirement}}" /></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="frow frow--stack">
+        <label>재료</label>
+        {{> "systems/aster/templates/item/parts/material-mats.html"}}
+      </div>
+      <div class="frow frow--stack">
+        <label>효과</label>
+        <div class="f-area"><textarea name="system.effect">{{system.effect}}</textarea></div>
+      </div>
+      <div class="frow">
+        <label>창고 그림</label>
+        <div class="thumb"><img src="{{system.storageImg}}" data-edit="system.storageImg" /></div>
+      </div>
+
+      <div class="frow frow--stack">
+        <label>설명</label>
+        <div class="f-area">
+          {{editor system.description target="system.description" button=true editable=editable}}
+        </div>
       </div>
     </div>
-    <div class="form-group">
-      <label>효과</label>
-      <div class="detail-input">
-        <input type="text" name="system.effect" value="{{system.effect}}" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label>요구</label>
-      <div class="detail-input">
-        <input type="text" name="system.requirement" value="{{system.requirement}}" />
-      </div>
-    </div>
-    <div class="form-group">
-      <label>격자</label>
-      <div class="detail-input flexrow align-center">
-        <label>열</label>
-        <input type="number" name="system.grid.cols" value="{{system.grid.cols}}" min="1" />
-        <label>행</label>
-        <input type="number" name="system.grid.rows" value="{{system.grid.rows}}" min="1" />
-      </div>
-    </div>
-    <div class="bag-storage-img">
-      <img class="bag-storage-img" src="{{system.storageImg}}" data-edit="system.storageImg" />
-    </div>
-    <div class="item-desc">{{editor system.description target="system.description" button=true editable=editable}}</div>
   </div>
 </form>

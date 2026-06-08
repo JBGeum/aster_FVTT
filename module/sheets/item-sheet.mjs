@@ -104,9 +104,12 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.config = CONFIG.ASTER;
 
     // material[6] 인덱스별 라벨 — 코드에 인덱스 의미가 없어 UI에서 명시(마테리얼 + 적·청·녹·황·백).
+    // dotKey: H8 약초첩 .mat-in 점 색 (index 0=마테리얼 … 5=백).
+    const MAT_DOT = ["mat", "red", "blue", "green", "yellow", "white"];
     context.materialFields = (this.item.system.material ?? []).map((value, i) => ({
       value,
       label: game.i18n.localize(`ASTER.item.material.label${i}`),
+      dotKey: MAT_DOT[i] ?? "mat",
     }));
 
     if (this.item.type === "consumable") {

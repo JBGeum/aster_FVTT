@@ -1,97 +1,106 @@
 <form class="aster {{cssClass}}" autocomplete="off">
-  {{!-- H2 — .item-sheet.npcaction은 .aster의 자손이어야 selector 정합(form==.aster). class="npcaction"로 격리. --}}
-  <div class="item-sheet npcaction" data-item-id="{{data._id}}">
-    {{!-- 헤더 — 이미지 + 이름 (spell 시트 data-edit="img" 패턴 정합) --}}
-    <div class="sheet-header">
-      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
-      <h1 class="charname">
-        <input
-          type="text"
-          name="name"
-          value="{{item.name}}"
-          placeholder="{{localize 'ASTER.npcAction.namePlaceholder'}}"
-        />
-      </h1>
-    </div>
+  <div class="herbarium">
+    <div class="dialog__body">
+      <div class="dialog__hero">
+        <div class="thumb"><img src="{{item.img}}" data-edit="img" title="{{item.name}}" /></div>
+        <div class="hero-fields">
+          <div class="frow">
+            <label>이름</label>
+            <div class="f-input">
+              <input
+                type="text"
+                name="name"
+                value="{{item.name}}"
+                placeholder="{{localize 'ASTER.npcAction.namePlaceholder'}}"
+              />
+            </div>
+          </div>
+          <div class="frow">
+            <label>{{localize "ASTER.npcAction.targetType"}}</label>
+            <div class="f-select">
+              <select name="system.targetType">
+                {{selectOptions config.npcTargetType selected=system.targetType localize=true}}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    {{!-- cost + costVariable --}}
-    <div class="form-group">
-      <label>{{localize "ASTER.npcAction.cost"}}</label>
-      <input type="number" name="system.cost" value="{{system.cost}}" min="0" {{disabled system.costVariable}} />
-      <label>
-        <input type="checkbox" name="system.costVariable" {{checked system.costVariable}} />
-        {{localize "ASTER.npcAction.costVariable"}}
-      </label>
-    </div>
+      <div class="frow">
+        <label>{{localize "ASTER.npcAction.cost"}}</label>
+        <div class="f-inline">
+          <div class="f-input">
+            <input type="number" name="system.cost" value="{{system.cost}}" min="0" {{disabled system.costVariable}} />
+          </div>
+          <label class="toggle">
+            <input type="checkbox" name="system.costVariable" {{checked system.costVariable}} />
+            <span class="box">✓</span>{{localize "ASTER.npcAction.costVariable"}}
+          </label>
+        </div>
+      </div>
+      <div class="frow">
+        <label>{{localize "ASTER.npcAction.damageFormula"}}</label>
+        <div class="f-inline">
+          <div class="f-input">
+            <input type="text" name="system.damageFormula" value="{{system.damageFormula}}" placeholder="3D6+4" />
+          </div>
+          <label class="toggle">
+            <input type="checkbox" name="system.oncePerRound" {{checked system.oncePerRound}} />
+            <span class="box">✓</span>{{localize "ASTER.npcAction.oncePerRound"}}
+          </label>
+        </div>
+      </div>
 
-    {{!-- targetType --}}
-    <div class="form-group">
-      <label>{{localize "ASTER.npcAction.targetType"}}</label>
-      <select name="system.targetType">
-        {{selectOptions config.npcTargetType selected=system.targetType localize=true}}
-      </select>
-    </div>
+      <div class="frow frow--stack">
+        <label>{{localize "ASTER.npcAction.addStatus"}}</label>
+        <div class="chk-group">
+          {{#each addStatusOptions as |opt|}}
+          <label class="chk">
+            <input type="checkbox" class="npcaction-add-status" data-status="{{opt.key}}" {{checked opt.checked}} />
+            <span class="box">✓</span>{{opt.label}}
+          </label>
+          {{/each}}
+        </div>
+      </div>
 
-    {{!-- damageFormula + oncePerRound --}}
-    <div class="form-group">
-      <label>{{localize "ASTER.npcAction.damageFormula"}}</label>
-      <input type="text" name="system.damageFormula" value="{{system.damageFormula}}" placeholder="3D6+4" />
-      <label>
-        <input type="checkbox" name="system.oncePerRound" {{checked system.oncePerRound}} />
-        {{localize "ASTER.npcAction.oncePerRound"}}
-      </label>
-    </div>
-
-    {{!-- addStatus 5칸 (폼 name 대신 커스텀 리스너 .npcaction-add-status로 배열 update) --}}
-    <div class="form-group flexcol">
-      <label>{{localize "ASTER.npcAction.addStatus"}}</label>
-      <div class="status-checkbox-grid">
-        {{#each addStatusOptions as |opt|}}
-        <label>
-          <input type="checkbox" class="npcaction-add-status" data-status="{{opt.key}}" {{checked opt.checked}} />
-          {{opt.label}}
+      <div class="frow frow--stack">
+        <label>{{localize "ASTER.npcAction.cureStatus"}}</label>
+        <label class="toggle">
+          <input type="checkbox" name="system.cureAllStatus" {{checked system.cureAllStatus}} />
+          <span class="box">✓</span>{{localize "ASTER.npcAction.cureAllStatus"}}
         </label>
-        {{/each}}
+        <div class="chk-group">
+          {{#each cureStatusOptions as |opt|}}
+          <label class="chk">
+            <input
+              type="checkbox"
+              class="npcaction-cure-status"
+              data-status="{{opt.key}}"
+              {{checked
+              opt.checked}}
+              {{disabled
+              system.cureAllStatus}}
+            />
+            <span class="box">✓</span>{{opt.label}}
+          </label>
+          {{/each}}
+        </div>
+      </div>
+
+      <div class="frow frow--stack">
+        <label>{{localize "ASTER.npcAction.effect"}}</label>
+        <div class="f-area">
+          <textarea name="system.effect" placeholder="{{localize 'ASTER.npcAction.effectPlaceholder'}}">
+{{system.effect}}</textarea
+          >
+        </div>
+      </div>
+      <div class="frow frow--stack">
+        <label>설명</label>
+        <div class="f-area">
+          {{editor system.description target="system.description" button=true editable=editable}}
+        </div>
       </div>
     </div>
-
-    {{!-- cureStatus 5칸 + cureAllStatus --}}
-    <div class="form-group flexcol">
-      <label>{{localize "ASTER.npcAction.cureStatus"}}</label>
-      <label>
-        <input type="checkbox" name="system.cureAllStatus" {{checked system.cureAllStatus}} />
-        {{localize "ASTER.npcAction.cureAllStatus"}}
-      </label>
-      <div class="status-checkbox-grid">
-        {{#each cureStatusOptions as |opt|}}
-        <label>
-          <input
-            type="checkbox"
-            class="npcaction-cure-status"
-            data-status="{{opt.key}}"
-            {{checked
-            opt.checked}}
-            {{disabled
-            system.cureAllStatus}}
-          />
-          {{opt.label}}
-        </label>
-        {{/each}}
-      </div>
-    </div>
-
-    {{!-- 효과 자유 텍스트 (D30) --}}
-    <div class="form-group">
-      <label>{{localize "ASTER.npcAction.effect"}}</label>
-      <input
-        type="text"
-        name="system.effect"
-        value="{{system.effect}}"
-        placeholder="{{localize 'ASTER.npcAction.effectPlaceholder'}}"
-      />
-    </div>
-
-    {{!-- 설명 에디터 --}}
-    <div class="editor">{{editor system.description target="system.description" button=true editable=editable}}</div>
   </div>
 </form>

@@ -97,6 +97,26 @@
       "kern" 1;
   }
 
+  /* 원소 점 색 (공용 — .mat-in·.f-select·.mat-col__head 등) */
+  .dot--red {
+    background: var(--el-red);
+  }
+  .dot--blue {
+    background: var(--el-blue);
+  }
+  .dot--green {
+    background: var(--el-green);
+  }
+  .dot--yellow {
+    background: var(--el-yellow);
+  }
+  .dot--white {
+    background: var(--el-white);
+  }
+  .dot--mat {
+    background: var(--el-mat);
+  }
+
   /* ---------- 레이아웃 그리드 (좌상 idn / 중상 stel / 우 inv / 좌하 abil / 중하 memo) ---------- */
   .sheet__body {
     display: grid;
@@ -2028,6 +2048,17 @@
       }
     }
   }
+  /* 한 행에 입력 + 토글/보조 (npcaction AP·대미지식 등) */
+  .f-inline {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+
+    .f-input,
+    .f-select {
+      flex: 1;
+    }
+  }
   .mats {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -2185,13 +2216,33 @@
     font-size: 12px;
     color: var(--ink-soft);
     white-space: nowrap;
+    cursor: pointer;
 
+    input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
     .box {
       width: 16px;
       height: 16px;
       border-radius: 4px;
       border: 1.5px solid var(--gold-soft);
       background: var(--parchment-soft);
+      display: grid;
+      place-items: center;
+      color: transparent;
+      font-size: 11px;
+      font-weight: 700;
+      flex: none;
+    }
+    &:has(input:checked) {
+      color: var(--ink-strong);
+      .box {
+        background: var(--sage);
+        border-color: color-mix(in oklch, var(--sage) 65%, black);
+        color: var(--cream);
+      }
     }
   }
 }
