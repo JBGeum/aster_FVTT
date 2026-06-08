@@ -59,9 +59,10 @@
   // ── character 탭: 좌(나머지) | 우(px 고정) ──────────────────────────────────
   .character-layout {
     display: grid;
-    grid-template-columns: 1fr 380px;
+    // 우측 패널: 고정 380px → 창 크기 따라 유연 (minmax). grid 구조는 유지.
+    grid-template-columns: 1fr minmax(360px, 400px);
     height: 100%;
-    gap: 12px;
+    gap: var(--aster-space-md);
   }
 
   .sheet-left {
@@ -70,7 +71,7 @@
     min-width: 0;
     min-height: 0;
     overflow-y: auto;
-    padding: 8px;
+    padding: var(--aster-space-sm);
     border-right: var(--aster-border-width-base) solid var(--aster-color-border);
     container-type: inline-size;
   }
@@ -86,7 +87,7 @@
     flex: 1 1 0;
     min-height: 0;
     overflow: hidden;
-    padding: 8px;
+    padding: var(--aster-space-sm);
   }
 
   .sheet-bottom > .tab {
@@ -106,7 +107,7 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--aster-space-sm);
   }
 
   // ── 행 1: 1fr(초상화+이름) | 1fr(색상+ROLL) ─────────────────────────────────
@@ -114,14 +115,14 @@
     flex-shrink: 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: var(--aster-space-sm);
     align-items: start;
   }
 
   .col-portrait {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--aster-space-xs);
 
     img.profile-img {
       width: 200px;
@@ -138,10 +139,10 @@
   .col-roll {
     min-width: 0;
     border-left: var(--aster-border-width-base) solid var(--aster-color-border);
-    padding-left: 6px;
+    padding-left: var(--aster-space-sm);
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: var(--aster-space-sm);
 
     .char-name input {
       width: 100%;
@@ -151,7 +152,7 @@
     .color {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: var(--aster-space-xs);
 
       .color-logo {
         width: 14px;
@@ -174,7 +175,7 @@
       }
 
       .roll-option-list {
-        gap: 4px;
+        gap: var(--aster-space-xs);
         justify-content: center;
       }
 
@@ -183,7 +184,7 @@
         flex: 1;
         text-align: center;
         white-space: nowrap;
-        padding: 2px 6px;
+        padding: var(--aster-space-xs) var(--aster-space-sm);
         border: var(--aster-border-width-base) solid var(--aster-color-border);
         border-radius: 4px;
         cursor: pointer;
@@ -203,7 +204,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 4px;
+        gap: var(--aster-space-xs);
 
         label {
           font-size: 0.78rem;
@@ -237,7 +238,7 @@
     flex-shrink: 0;
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 8px;
+    gap: var(--aster-space-sm);
     align-items: start;
   }
 
@@ -253,7 +254,7 @@
     display: grid;
     grid-template-columns: 36px 1fr;
     grid-template-rows: auto auto;
-    gap: 4px;
+    gap: var(--aster-space-xs);
     align-items: center;
 
     .health-input,
@@ -274,7 +275,7 @@
     display: grid;
     grid-template-columns: 36px 1fr;
     grid-template-rows: 1fr 1fr;
-    gap: 4px;
+    gap: var(--aster-space-xs);
     align-items: center;
 
     .derived-value {
@@ -305,7 +306,7 @@
   .badstatus-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
+    gap: var(--aster-space-xs);
 
     > div {
       text-align: center;
@@ -326,7 +327,7 @@
 
     label.badstatus {
       cursor: pointer;
-      padding: 2px 6px;
+      padding: var(--aster-space-xs) var(--aster-space-sm);
       font-size: 0.8rem;
       display: block;
     }
@@ -461,6 +462,13 @@
     border: var(--aster-border-width-base) solid var(--aster-color-input-border);
     color: var(--aster-color-input-text);
     border-radius: var(--aster-radius-sm);
+  }
+
+  // ── 능력치·자원 input 높이 통일 (input-height 토큰 28px) ──────────────────────
+  .col-abilities input,
+  .abl-health input,
+  .abl-derived input {
+    height: var(--aster-input-height);
   }
 }
 
