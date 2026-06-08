@@ -9,7 +9,14 @@
       }
       .item-detail {
         display: grid;
-        grid-template-columns: 1fr 4fr;
+        // H4 정정 (요청 4): 1fr 4fr → 라벨은 내용폭 확보(최소 90px), 입력은 나머지.
+        // 기존 1fr은 "카테고리"·"크기 (가로×세로)" 같은 긴 라벨이 잘렸음.
+        grid-template-columns: minmax(90px, max-content) 1fr;
+        gap: var(--aster-space-xs) var(--aster-space-sm);
+        align-items: center;
+        .detail-lbl {
+          white-space: nowrap;
+        }
         .detail-input {
           input {
             width: 100%;
@@ -156,5 +163,14 @@
     .editor {
       min-height: 80px;
     }
+  }
+}
+
+// H4-b — 아이템 시트 height:"auto" 시 에디터(ProseMirror) 접힘 방지.
+// 앱 루트 클래스 .aster.sheet.item으로 스코프 (아이템 시트 전용, 액터 시트 영향 0).
+.aster.sheet.item {
+  .editor,
+  .prosemirror {
+    min-height: 120px;
   }
 }

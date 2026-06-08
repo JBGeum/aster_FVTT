@@ -4,15 +4,42 @@ import { AsterActorSheet } from "./actor-sheet.mjs";
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 
+// H4-b — type별 권장 윈도우 너비. 높이는 height:"auto"로 콘텐츠에 맞춤(잘림·여백 동시 해소).
+// 너비 하한 460px = 재료 6열 그리드가 가로로 가장 넓은 요소이기 때문. spell만 입력 11개로 더 넓게.
+const ASTER_ITEM_WIDTHS = {
+  spell: 500,
+  consumable: 480,
+  record: 480,
+  equipment: 460,
+  food: 460,
+  bag: 460,
+  item: 440,
+  feature: 420,
+};
+
 export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["aster", "sheet", "item"],
-    position: { width: 400, height: 480 },
+    position: { width: 460, height: "auto" },
     window: { resizable: true },
     actions: {
       useConsumable: AsterItemSheet.#onItemConsumableUse,
     },
   };
+
+  /**
+   * H4-b — type별 윈도우 크기 적용.
+   * 너비는 type별 권장값(미정의 type은 DEFAULT 460 fallback), 높이는 콘텐츠 자동.
+   * 사용자 리사이즈 후 위치 기억은 ApplicationV2 기본 동작이 보존(강제 고정 안 함).
+   */
+  _initializeApplicationOptions(options) {
+    const opts = super._initializeApplicationOptions(options);
+    const width = ASTER_ITEM_WIDTHS[options.document?.type];
+    if (width) {
+      opts.position = { ...opts.position, width, height: "auto" };
+    }
+    return opts;
+  }
 
   static #formConfig = {
     handler: AsterItemSheet.#onSubmit,
