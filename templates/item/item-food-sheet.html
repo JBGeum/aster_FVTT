@@ -6,25 +6,33 @@
         <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'ASTER.item.namePlaceholder'}}" />
       </h1>
     </div>
-    <div class="item-detail">
-      <div class="detail-lbl">재료</div>
+    <div class="form-group">
+      <label>재료</label>
       <div class="detail-input material-grid flexrow align-center">
         {{> "systems/aster/templates/item/parts/material-fields.html"}}
       </div>
-      <div class="detail-lbl">{{localize "ASTER.food.restore"}}</div>
+    </div>
+    <div class="form-group">
+      <label>{{localize "ASTER.food.restore"}}</label>
       <div class="detail-input">
         <input type="number" name="system.restore" value="{{system.restore}}" min="0" />
       </div>
-      <div class="detail-lbl">{{localize "ASTER.food.bonusEffect"}}</div>
+    </div>
+    <div class="form-group">
+      <label>{{localize "ASTER.food.bonusEffect"}}</label>
       <div class="detail-input">
         <textarea name="system.bonusEffect" rows="2">{{system.bonusEffect}}</textarea>
         <p class="hint">{{localize "ASTER.food.bonusEffectHint"}}</p>
       </div>
-      <div class="detail-lbl">효과</div>
+    </div>
+    <div class="form-group">
+      <label>효과</label>
       <div class="detail-input">
         <input type="text" name="system.effect" value="{{system.effect}}" />
       </div>
-      <div class="detail-lbl">요구</div>
+    </div>
+    <div class="form-group">
+      <label>요구</label>
       <div class="detail-input">
         <input type="text" name="system.requirement" value="{{system.requirement}}" />
       </div>

@@ -65,6 +65,52 @@
       }
     }
 
+    /* ── 입력 공통 스타일 — .item-detail·.form-group 양쪽의 .detail-input 공유 ──
+     * 컨텍스트 독립으로 분리해 grid(.item-detail)·flex(.form-group) 어디서든 동일. */
+    .detail-input {
+      input[type="text"],
+      input[type="number"],
+      select {
+        width: 100%;
+        height: var(--aster-input-height);
+        padding: 0 var(--aster-input-padding-x);
+        background: var(--aster-color-input-bg);
+        border: var(--aster-border-width-base) solid var(--aster-color-input-border);
+        border-radius: var(--aster-radius-md);
+        color: var(--aster-color-text);
+        font-size: var(--aster-font-size-base);
+
+        &:focus {
+          outline: 2px solid var(--aster-color-focus-ring);
+          outline-offset: 1px;
+        }
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 48px;
+        padding: var(--aster-space-xs) var(--aster-input-padding-x);
+        background: var(--aster-color-input-bg);
+        border: var(--aster-border-width-base) solid var(--aster-color-input-border);
+        border-radius: var(--aster-radius-md);
+        color: var(--aster-color-text);
+        font-family: var(--aster-font-family-sans);
+        font-size: var(--aster-font-size-base);
+        resize: vertical;
+
+        &:focus {
+          outline: 2px solid var(--aster-color-focus-ring);
+          outline-offset: 1px;
+        }
+      }
+
+      .hint {
+        margin: var(--aster-space-xs) 0 0;
+        font-size: var(--aster-font-size-xs);
+        color: var(--aster-color-text-light);
+      }
+    }
+
     /* ── 라벨 + 입력 가로 정렬 (npcaction .form-group 기준) ── */
     .form-group {
       display: flex;
@@ -83,10 +129,17 @@
         color: var(--aster-color-text-muted);
       }
 
-      input[type="number"],
-      input[type="text"],
-      select {
+      /* flexcol에서는 라벨이 세로축 basis 100px가 되어 과하게 높아지므로 auto로 */
+      &.flexcol > label {
+        flex: 0 0 auto;
+      }
+
+      /* form-group 직속 input/select (spell 등 .detail-input 없이 바로 두는 경우) */
+      > input[type="number"],
+      > input[type="text"],
+      > select {
         flex: 1;
+        min-width: 0;
         height: var(--aster-input-height);
         padding: 0 var(--aster-input-padding-x);
         background: var(--aster-color-input-bg);
@@ -106,6 +159,12 @@
         }
       }
 
+      /* 라벨 옆 내용 래퍼(.detail-input — material-grid·다중 input·input+hint)도 남는 폭 채움 */
+      > .detail-input {
+        flex: 1;
+        min-width: 0;
+      }
+
       > label:has(input[type="checkbox"]) {
         flex: 0 0 auto;
         gap: var(--aster-space-xs);
@@ -113,8 +172,7 @@
     }
 
     /* ── 기존 .item-detail (grid) 패턴도 npcaction 톤에 맞춤 ──
-     * 템플릿을 form-group으로 바꾸기 전까지의 *과도기 정합*.
-     * grid 라벨/입력을 동일 글씨체·간격·input 스타일로. */
+     * grid 라벨/입력을 동일 글씨체·간격으로(.detail-input 스타일은 위에서 공유). */
     .item-detail {
       display: grid;
       grid-template-columns: minmax(90px, max-content) 1fr;
@@ -126,32 +184,6 @@
         font-weight: var(--aster-font-weight-medium);
         color: var(--aster-color-text-muted);
         white-space: nowrap;
-      }
-
-      .detail-input {
-        input[type="text"],
-        input[type="number"],
-        select {
-          width: 100%;
-          height: var(--aster-input-height);
-          padding: 0 var(--aster-input-padding-x);
-          background: var(--aster-color-input-bg);
-          border: var(--aster-border-width-base) solid var(--aster-color-input-border);
-          border-radius: var(--aster-radius-md);
-          color: var(--aster-color-text);
-          font-size: var(--aster-font-size-base);
-
-          &:focus {
-            outline: 2px solid var(--aster-color-focus-ring);
-            outline-offset: 1px;
-          }
-        }
-
-        .hint {
-          margin: var(--aster-space-xs) 0 0;
-          font-size: var(--aster-font-size-xs);
-          color: var(--aster-color-text-light);
-        }
       }
     }
 
