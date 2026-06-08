@@ -101,9 +101,44 @@ Hooks.once("init", async function () {
     });
   }
 
+  // ============================
+  // H1 — Aster 시스템 자체 theme 설정 영역 (3 영역)
+  // ============================
+  game.settings.register("aster", "theme", {
+    name: "ASTER.settings.theme.name",
+    hint: "ASTER.settings.theme.hint",
+    scope: "client", // 사용자별 영역
+    config: true, // Foundry 설정 메뉴 노출
+    type: String,
+    choices: {
+      auto: "ASTER.settings.theme.auto",
+      dark: "ASTER.settings.theme.dark",
+      light: "ASTER.settings.theme.light",
+    },
+    default: "auto", // V13 OS 자동 영역 정합 기본
+    onChange: (value) => applyAsterTheme(value),
+  });
+
   registerHandlebarsHelpers();
   return preloadHandlebarsTemplates();
 });
+
+/**
+ * Aster theme 적용 영역.
+ * - auto: data-aster-theme 영역 제거 → @media 영역 자동 정합 (OS 영역)
+ * - dark: [data-aster-theme="dark"] 명시 → OS 영역 무시
+ * - light: [data-aster-theme="light"] 명시 → OS 영역 무시
+ *
+ * @param {string} theme  "auto" / "dark" / "light"
+ */
+function applyAsterTheme(theme) {
+  const body = document.body;
+  if (theme === "auto") {
+    body.removeAttribute("data-aster-theme");
+  } else {
+    body.setAttribute("data-aster-theme", theme);
+  }
+}
 
 /* -------------------------------------------- */
 /*  Bag Deletion → Storage Transfer             */
@@ -892,6 +927,9 @@ Hooks.once("ready", async function () {
       if (app instanceof AsterGMPanel) app.render();
     }
   });
+
+  // H1 — 초기 theme 영역 적용 (body data-attribute 토글)
+  applyAsterTheme(game.settings.get("aster", "theme"));
 
   await migrateInventoryFields();
   await migrateSpellTarget();

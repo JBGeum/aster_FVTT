@@ -1,0 +1,269 @@
+/* ============================================================
+ * Aster Design Tokens — H1 3 영역 듀얼 모드 (auto/dark/light)
+ *
+ * 영역 정책:
+ * - 정체성 색 (능력·상태)·간격·폰트·보더·반지름·전환·z-index는 *모드 무관* 영역
+ * - 시트 영역 색 (배경·표면·텍스트·보더·인터랙티브)은 *모드 정합*
+ * - 채팅 카드·다이얼로그 영역은 *다크 모드 영역 유지* (모드 무관, 옵션 ㄱ 정합)
+ *
+ * 3 영역 정합:
+ * - auto (기본): V13 OS 자동 영역 정합 (@media prefers-color-scheme)
+ * - dark: 시스템 명시 다크 ([data-aster-theme="dark"])
+ * - light: 시스템 명시 라이트 ([data-aster-theme="light"])
+ *
+ * 명시 영역이 OS 영역 override (specificity 큼).
+ * ============================================================ */
+
+:root {
+  /* ============================
+   * 정체성 색 — 모드 무관 영역
+   * ============================ */
+
+  /* 능력 색 (시스템 정체성, 기존 chat-card 영역 정합) */
+  --aster-color-red: #c0392b;
+  --aster-color-blue: #1a5a8a;
+  --aster-color-green: #27ae60;
+  --aster-color-yellow: #d4a017;
+  --aster-color-purple: #8e44ad;
+
+  /* 상태 색 */
+  --aster-color-success: #27ae60;
+  --aster-color-warning: #d4a017;
+  --aster-color-danger: #c0392b;
+  --aster-color-info: #1a5a8a;
+
+  /* ============================
+   * 간격 — 8px 그리드 (모드 무관)
+   * ============================ */
+  --aster-space-xs: 4px;
+  --aster-space-sm: 8px;
+  --aster-space-md: 12px;
+  --aster-space-lg: 16px;
+  --aster-space-xl: 24px;
+  --aster-space-2xl: 32px;
+  --aster-space-3xl: 48px;
+
+  /* ============================
+   * 폰트 (모드 무관)
+   * ============================ */
+  --aster-font-family-sans:
+    "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo",
+    "Noto Sans KR", sans-serif;
+  --aster-font-family-mono:
+    "JetBrains Mono", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --aster-font-size-xs: 11px;
+  --aster-font-size-sm: 13px;
+  --aster-font-size-base: 14px;
+  --aster-font-size-md: 15px;
+  --aster-font-size-lg: 17px;
+  --aster-font-size-xl: 20px;
+  --aster-font-size-2xl: 24px;
+  --aster-font-size-3xl: 30px;
+
+  --aster-font-weight-normal: 400;
+  --aster-font-weight-medium: 500;
+  --aster-font-weight-semibold: 600;
+  --aster-font-weight-bold: 700;
+
+  --aster-line-height-tight: 1.25;
+  --aster-line-height-base: 1.5;
+  --aster-line-height-relaxed: 1.75;
+
+  /* ============================
+   * 보더·반지름 (모드 무관)
+   * ============================ */
+  --aster-border-width-thin: 1px;
+  --aster-border-width-base: 1px;
+  --aster-border-width-thick: 2px;
+
+  --aster-radius-sm: 4px;
+  --aster-radius-md: 6px;
+  --aster-radius-lg: 8px;
+  --aster-radius-xl: 12px;
+  --aster-radius-full: 9999px;
+
+  /* ============================
+   * 전환·z-index (모드 무관)
+   * ============================ */
+  --aster-transition-fast: 150ms ease;
+  --aster-transition-base: 250ms ease;
+  --aster-transition-slow: 400ms ease;
+
+  --aster-z-base: 1;
+  --aster-z-tooltip: 100;
+  --aster-z-dropdown: 200;
+  --aster-z-overlay: 300;
+  --aster-z-modal: 400;
+
+  /* ============================
+   * 폼 영역 간격 (모드 무관)
+   * ============================ */
+  --aster-input-height: 28px;
+  --aster-input-padding-x: 8px;
+  --aster-button-height: 28px;
+  --aster-button-padding-x: 12px;
+
+  /* ============================
+   * 시트 영역 색 — 다크 기본 (auto + OS 라이트 미정합 시·명시 안 함 시)
+   * 라이트 모드 시 *@media* 또는 *[data-aster-theme="light"]* 영역에서 override.
+   * ============================ */
+
+  /* 배경 영역 (다크 기본) */
+  --aster-color-bg: #1a1612;
+  --aster-color-surface: #2a2520;
+  --aster-color-surface-alt: #322a25;
+
+  /* 텍스트 영역 (다크 기본) */
+  --aster-color-text: #e8e2d0;
+  --aster-color-text-muted: #b8a888;
+  --aster-color-text-light: #88775c;
+
+  /* 보더 영역 (다크 기본) */
+  --aster-color-border: #4a4035;
+  --aster-color-border-light: #5a5045;
+  --aster-color-border-dark: #3a3025;
+
+  /* 강조 영역 (다크 기본 — 옅은 자줏빛 가독성) */
+  --aster-color-accent: #8c6da3;
+  --aster-color-accent-light: #ad94c0;
+  --aster-color-accent-dark: #5a3f6e;
+
+  /* 능력 색 옅은 영역 (다크 정합) */
+  --aster-color-red-light: #3a201c;
+  --aster-color-blue-light: #1a2838;
+  --aster-color-green-light: #1c3a26;
+  --aster-color-yellow-light: #3a2f1a;
+  --aster-color-purple-light: #2a1c33;
+
+  /* 인터랙티브 상태 (다크 기본) */
+  --aster-color-hover-bg: #3a3025;
+  --aster-color-hover-border: #5a5045;
+  --aster-color-focus-ring: #ad94c0;
+  --aster-color-focus-bg: #322a25;
+  --aster-color-active-bg: #4a4035;
+  --aster-color-disabled-bg: #2a2520;
+  --aster-color-disabled-text: #6a5a47;
+  --aster-color-disabled-border: #3a3025;
+
+  /* 탭 영역 (다크 기본) */
+  --aster-color-tab-active-bg: #322a25;
+  --aster-color-tab-active-text: #e8e2d0;
+  --aster-color-tab-inactive-bg: transparent;
+  --aster-color-tab-inactive-text: #88775c;
+  --aster-color-tab-border: #4a4035;
+
+  /* 입력 영역 (다크 기본) */
+  --aster-color-input-bg: #1a1612;
+  --aster-color-input-border: #4a4035;
+  --aster-color-input-text: #e8e2d0;
+  --aster-color-input-placeholder: #6a5a47;
+
+  /* 체크박스·라디오 (다크 기본) */
+  --aster-color-checkbox-bg: #1a1612;
+  --aster-color-checkbox-border: #5a5045;
+  --aster-color-checkbox-checked: #8c6da3;
+
+  /* 그림자 (다크 기본) */
+  --aster-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --aster-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --aster-shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* ============================================================
+ * 라이트 모드 색 영역 — 시트 영역만
+ * SCSS @mixin으로 *중복 회피*.
+ * @media·[data-aster-theme="light"] 영역에서 *동일 토큰* 적용.
+ * ============================================================ */
+
+@mixin aster-light-tokens {
+  /* 배경 영역 */
+  --aster-color-bg: #f4ede0;
+  --aster-color-surface: #ebe1cc;
+  --aster-color-surface-alt: #ffffff;
+
+  /* 텍스트 영역 */
+  --aster-color-text: #3a2f25;
+  --aster-color-text-muted: #6b5a47;
+  --aster-color-text-light: #9b8a75;
+
+  /* 보더 영역 */
+  --aster-color-border: #c9b88a;
+  --aster-color-border-light: #d8c9a4;
+  --aster-color-border-dark: #8a7858;
+
+  /* 강조 영역 (라이트 — 짙은 자줏빛 대비) */
+  --aster-color-accent: #5a3f6e;
+  --aster-color-accent-light: #8c6da3;
+  --aster-color-accent-dark: #3a2747;
+
+  /* 능력 색 옅은 영역 (라이트 정합) */
+  --aster-color-red-light: #f5e0e0;
+  --aster-color-blue-light: #e0eaf5;
+  --aster-color-green-light: #e2f0e2;
+  --aster-color-yellow-light: #f7eed1;
+  --aster-color-purple-light: #f0e5f5;
+
+  /* 인터랙티브 상태 (라이트) */
+  --aster-color-hover-bg: #e0d4b8;
+  --aster-color-hover-border: #b89f6a;
+  --aster-color-focus-ring: #5a3f6e;
+  --aster-color-focus-bg: #f8f1e2;
+  --aster-color-active-bg: #c9b88a;
+  --aster-color-disabled-bg: #e0d6c2;
+  --aster-color-disabled-text: #a89c87;
+  --aster-color-disabled-border: #c9b88a;
+
+  /* 탭 영역 (라이트) */
+  --aster-color-tab-active-bg: #ebe1cc;
+  --aster-color-tab-active-text: #3a2f25;
+  --aster-color-tab-inactive-text: #9b8a75;
+  --aster-color-tab-border: #c9b88a;
+
+  /* 입력 영역 (라이트) */
+  --aster-color-input-bg: #fdf9f0;
+  --aster-color-input-border: #c9b88a;
+  --aster-color-input-text: #3a2f25;
+  --aster-color-input-placeholder: #a89c87;
+
+  /* 체크박스·라디오 (라이트) */
+  --aster-color-checkbox-bg: #fdf9f0;
+  --aster-color-checkbox-border: #8a7858;
+  --aster-color-checkbox-checked: #5a3f6e;
+
+  /* 그림자 (라이트 — 옅은 영역) */
+  --aster-shadow-sm: 0 1px 2px rgba(58, 47, 37, 0.08);
+  --aster-shadow-md: 0 2px 4px rgba(58, 47, 37, 0.1), 0 1px 2px rgba(58, 47, 37, 0.06);
+  --aster-shadow-lg: 0 4px 8px rgba(58, 47, 37, 0.12), 0 2px 4px rgba(58, 47, 37, 0.08);
+}
+
+/* ============================================================
+ * 1. auto 영역 — V13 OS 자동 영역 정합
+ *
+ * 시스템 설정이 "auto" (기본)일 때 OS 영역 정합 동작.
+ * auto + OS 다크 → 다크 토큰 (기본 :root 영역 유지)
+ * auto + OS 라이트 → 라이트 토큰 (@media override)
+ *
+ * [data-aster-theme] 명시 영역이 없을 때만 동작 (specificity 어김).
+ * ============================================================ */
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-aster-theme]) {
+    @include aster-light-tokens;
+  }
+}
+
+/* ============================================================
+ * 2. 명시 영역 — 시스템 설정에서 *override*
+ *
+ * dark/light 명시 시 *OS 영역 무시*.
+ * data-aster-theme 영역이 specificity 더 큼 → @media 영역 override.
+ * ============================================================ */
+
+[data-aster-theme="dark"] {
+  /* 다크 토큰은 :root 영역과 동일이라 *override 영역 없음* (자연 정합) */
+}
+
+[data-aster-theme="light"] {
+  @include aster-light-tokens;
+}

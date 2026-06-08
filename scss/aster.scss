@@ -3,6 +3,7 @@
 @use "utils/colors";
 @use "utils/mixins";
 @use "utils/variables";
+@use "utils/tokens"; // ⭐ H1 — 신규 디자인 토큰 (CSS 변수)
 
 // Global
 @use "global/window";
@@ -26,5 +27,10 @@
 @use "component/chat-card";
 @use "component/combat";
 
-// CSS @import — 구글 폰트 (CSS 규칙이므로 @use 뒤에 위치)
+// CSS @import — 폰트 영역 (CSS 규칙이므로 @use 뒤에 위치)
+// Pretendard — 한글 + 영문 통합 (CDN dynamic subset)
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+// JetBrains Mono — 다이스·식·고정폭 영역
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
+// Roboto — 기존 영역 (점진 마이그레이션 — H2~에서 Pretendard로 정합 가능)
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
