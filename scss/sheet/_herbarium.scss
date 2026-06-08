@@ -1219,3 +1219,24 @@
     }
   }
 }
+
+/* ============================================================
+ * STEP 4 — craft·record 탭 톤 정합 (최소)
+ *
+ * 시안 미커버 영역. 구조·기능·입력칸은 *그대로 유지*하고,
+ * 양피지 표면 + 시안 serif 폰트 + 잉크 본문색만 입혀 character 탭과 이질감 제거.
+ * .herbarium 래핑을 피해 입력 리셋(background/border none) 부작용 없음.
+ * 본문은 var(--ink) 상속 → 라이트/다크 양쪽에서 양피지 위 가독성 유지.
+ * 카드 내부의 명시 색(아스테르 색 등)은 식별 의미라 그대로 둠.
+ * (다크 모드 전체 정합은 STEP 5.)
+ * ============================================================ */
+.aster .tab.craft,
+.aster .tab.record {
+  background-color: var(--parchment);
+  background-image:
+    radial-gradient(at 18% 8%, rgba(168, 136, 78, 0.1), transparent 42%),
+    radial-gradient(at 84% 2%, rgba(120, 90, 50, 0.08), transparent 38%),
+    repeating-linear-gradient(92deg, rgba(120, 90, 50, 0.025) 0 2px, transparent 2px 5px);
+  color: var(--ink);
+  font-family: var(--font-serif);
+}
