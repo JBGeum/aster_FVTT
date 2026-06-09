@@ -1,0 +1,21 @@
+// ============================================================
+//  공용 — Font Awesome family/믹스인 (family 한 곳 관리 → 재발 방지).
+//
+//  이 Foundry 환경은 FA6 *Pro* 를 번들한다. scss가 "Font Awesome 6 Free"로
+//  지정하면 그 이름의 family가 없어 장식 글리프가 tofu(네모x)가 된다.
+//  → Pro 우선 + Free 폴백으로 두 환경 모두 최대한 표시.
+//    (e 계열 글리프 \e2ca·\e4dc 등은 Pro 전용이라 Free 환경에선 불가피하게 불가)
+// ============================================================
+$family: "Font Awesome 6 Pro", "Font Awesome 6 Free";
+
+@mixin fa($glyph, $weight: 900) {
+  font-family: $family;
+  font-weight: $weight;
+  content: $glyph;
+  // FA 글리프는 line-height·baseline이 본문 글자와 달라 세로로 어긋난다.
+  // inline-flex + 중앙정렬 + line-height:1로 글리프 박스를 글자 높이에 맞춰 정렬.
+  // (position:absolute로 쓰는 장식은 display가 flex로 블록화돼도 무해)
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}

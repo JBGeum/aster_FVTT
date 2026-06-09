@@ -5,6 +5,9 @@
 //  • 토큰은 CSS 커스텀 프로퍼티로 노출 → 부모 클래스로 라이트/다크 전환
 // ============================================================
 
+// FA family 한 곳 관리(공용) — 이 Foundry는 FA Pro 번들이라 Free 지정 시 tofu.
+@use "../utils/fa" as *;
+
 // ── 테마 토큰: 라이트(약초첩) 기본값 ──────────────────────────
 @mixin aster-cc-tokens-light {
   --cc-surface: #f3e9d2;
@@ -612,7 +615,7 @@
     font-style: normal;
   }
   .roll-block .dice::before {
-    font-family: "Font Awesome 6 Free";
+    font-family: $family;
     font-weight: 900;
     content: "";
     color: var(--cc-gold);
@@ -621,7 +624,7 @@
     vertical-align: 1px;
   }
   .verdict::before {
-    font-family: "Font Awesome 6 Free";
+    font-family: $family;
     font-weight: 900;
     margin-right: 7px;
     font-size: 0.85em;
@@ -641,7 +644,7 @@
 
   &[class*="spell-color-"] .card-header .name::after,
   &.unison-card .card-header .name::after {
-    font-family: "Font Awesome 6 Free";
+    font-family: $family;
     font-weight: 900;
     content: "";
     color: var(--cc-gold);
@@ -672,7 +675,7 @@
     letter-spacing: 1px;
   }
   .hit-result .dice-text::before {
-    font-family: "Font Awesome 6 Free";
+    font-family: $family;
     font-weight: 900;
     content: "";
     color: var(--cc-gold);
