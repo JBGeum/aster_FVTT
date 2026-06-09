@@ -62,8 +62,9 @@
 
 /* ---------- 시트 루트 / 표면 (Foundry 윈도우 내부) ---------- */
 .herbarium {
-  /* STEP 1 — 양피지 표면 텍스처 (Foundry 절대 경로 — Vite는 / 시작 url을 그대로 둠).
-     라이트 시트 배경에 radial 그라디언트 + 텍스처(multiply). 다크(starfield)는 STEP 5. */
+  /* STEP 1 — 양피지 텍스처 토큰 (Foundry 절대 경로 — Vite는 / 시작 url을 그대로 둠).
+     변경: 시트 표면은 평평한 양피지 단색으로 두고, 텍스처는 종이 요소(.panel·.dialog·
+     카드·표)에만 입힌다(아래 ".herbarium 종이 요소 텍스처" 규칙). 다크(starfield)는 STEP 5. */
   --surface-tex: url("/systems/aster/assets/textures/parchment-texture.png");
   --tex-1: rgba(168, 136, 78, 0.1);
   --tex-2: rgba(120, 90, 50, 0.08);
@@ -73,13 +74,7 @@
   font-size: 14px;
   line-height: 1.4;
   background-color: var(--parchment);
-  background-image:
-    radial-gradient(at 18% 8%, var(--tex-1), transparent 42%),
-    radial-gradient(at 84% 2%, var(--tex-2), transparent 38%),
-    radial-gradient(at 50% 102%, var(--tex-3), transparent 46%), var(--surface-tex);
-  background-size: auto, auto, auto, cover;
-  background-position: center;
-  background-blend-mode: normal, normal, normal, multiply;
+  background-image: none;
 
   * {
     box-sizing: border-box;
@@ -133,14 +128,20 @@
     /* STEP 2 갱신 — 좌측 2열에 idn/abil/stel/memo 세로 스택, 우측 346px에 inv.
        abil(능력치+활력 2열)·id-fields(이름+속성 가로)가 좌측 전폭(2열)을 쓴다. */
     grid-template-columns: 1fr 1fr 346px;
+    /* memo 행만 1fr — 윈도우 세로가 늘면 남는 높이를 memo가 흡수(아래로 늘어남).
+       inv는 4행 전체를 span+stretch라 그리드 총높이를 채운다. */
+    grid-template-rows: auto auto auto 1fr;
     grid-template-areas:
       "idn  idn  inv"
       "abil abil inv"
       "stel stel inv"
       "memo memo inv";
     gap: 14px;
-    /* start: 짧은 좌측 패널이 inv 높이로 늘어나지 않게(여백 방지). inv는 align-self로 채움. */
+    /* start: 짧은 좌측 패널이 inv 높이로 늘어나지 않게(여백 방지). inv·memo는 align-self로 채움. */
     align-items: start;
+    /* herbarium(flex 컬럼)를 채워 grid 총높이를 윈도우 높이에 맞춘다 → 1fr 행이 의미를 가짐. */
+    flex: 1 0 auto;
+    min-height: 0;
   }
   .col {
     display: contents;
@@ -168,9 +169,16 @@
   .panel--inv {
     grid-area: inv;
     align-self: stretch;
+    /* 내부를 세로 flex로 — 활성 서브탭이 패널을 채우고, 그 안 .items가 내부 스크롤한다.
+       min-height:0이라야 자식이 패널 높이를 넘겨도 스크롤 영역으로 가둘 수 있다. */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
   .panel--memo {
     grid-area: memo;
+    /* 1fr 행(memo)을 세로로 가득 채운다 — align-items:start 기본을 개별 override. */
+    align-self: stretch;
     display: flex;
     flex-direction: column;
   }
@@ -639,10 +647,24 @@
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
 
     input {
-      width: 2.4em;
+      width: 1.8em;
+      min-width: 0;
+      padding: 0;
+      border: none;
+      background: transparent;
       text-align: center;
       color: var(--ink-strong);
+      font: inherit;
       font-weight: 700;
+
+      /* number 스피너 제거 — 폭 확보 (잘림 방지) */
+      -moz-appearance: textfield;
+      appearance: textfield;
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
     }
   }
   .minis {
@@ -1778,11 +1800,19 @@
   /* ============================================================
    * RECORD 탭
    * ============================================================ */
+  /* herbarium(flex 컬럼)를 채워, 남는 세로 공간을 기록 카드가 흡수하게 한다. */
+  .record {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    min-height: 0;
+  }
   .record-top {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 14px;
-    margin-bottom: 24px;
+    /* 상단 노트↔세션 네비 사이 간격 축소(24→12) — character 세로 밀도에 맞춤. */
+    margin-bottom: 12px;
   }
   .record-field {
     background: var(--parchment-soft);
@@ -1826,7 +1856,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    /* 세션 네비↔카드 사이 간격 축소(16→10). */
+    margin-bottom: 10px;
   }
   .pager {
     display: flex;
@@ -1896,6 +1927,12 @@
     flex-direction: column;
     gap: 14px;
     box-shadow: 0 2px 6px rgba(60, 40, 18, 0.1);
+    /* 남는 세로 공간을 채워 화면 하단까지 늘어난다(윈도우를 키우면 함께 커짐). */
+    flex: 1 0 auto;
+  }
+  /* 기록이 없을 때의 안내도 동일하게 영역을 채운다. */
+  .record > .ap-note {
+    flex: 1 0 auto;
   }
   .rec-line {
     background: var(--parchment-sunk);
@@ -2587,6 +2624,27 @@
     font-style: italic;
     font-size: 13px;
   }
+
+  /* ---------- 종이 요소 텍스처 (시트 표면에서 이관) ----------
+     평평해진 .herbarium 위에서, 실제 종이(패널·다이얼로그·기록 카드·재료표·주문 카드)에만
+     양피지 텍스처를 입힌다(시안 change.css 추가 규칙). 3번째 레이어는 surface-tex PNG 대신
+     미세 종이결(repeating-linear-gradient)로 교체됨 — 값은 시안 그대로 raw rgba 사용.
+     블록 끝에 둬 각 요소의 background 단축속성을 소스 순서로 덮어쓴다(같은 특정도).
+     .dialog__body는 아이템 시트 본문(=종이)이라 .dialog와 함께 포함. */
+  .panel,
+  .dialog,
+  .dialog__body,
+  .record-field,
+  .record-card,
+  .mat-table,
+  .spell-card {
+    background-color: var(--parchment-soft);
+    background-image:
+      radial-gradient(at 12% 6%, rgba(168, 136, 78, 0.1), transparent 45%),
+      radial-gradient(at 88% 4%, rgba(120, 90, 50, 0.07), transparent 42%),
+      repeating-linear-gradient(92deg, rgba(120, 90, 50, 0.022) 0 2px, transparent 2px 5px);
+    background-blend-mode: normal;
+  }
 }
 
 /* ============================================================
@@ -2598,6 +2656,19 @@
 .aster .tab.craft .herbarium,
 .aster .tab.record .herbarium {
   padding: 14px;
+  box-sizing: border-box;
+  /* 고정 높이 탭을 양피지로 가득 채운다 — :root 라이트 토큰이라 테마 무관 항상 라이트.
+     짧으면 채워 다크 form 배경(--aster-color-bg) 노출을 막고(검정 프레임 차단),
+     길면 콘텐츠 높이를 유지해 .tab.active가 스크롤한다(grow 1 / shrink 0). */
+  flex: 1 0 auto;
+}
+/* character·record는 내부 콘텐츠(.sheet__body·.record)가 herbarium를 채워야
+   memo·inv·기록 카드가 세로로 늘어난다. craft는 본문이 위에서 흐르고 넘치면
+   스크롤하는 현재 동작을 유지하므로 flex 컬럼을 적용하지 않는다. */
+.aster .tab.character .herbarium,
+.aster .tab.record .herbarium {
+  display: flex;
+  flex-direction: column;
 }
 /* .panel--inv 안 서브탭: 활성만 표시 (Foundry .tab:not(.active) 숨김 정합) */
 .aster .tab.character .panel--inv > .tab {
@@ -2605,6 +2676,21 @@
 }
 .aster .tab.character .panel--inv > .tab:not(.active) {
   display: none;
+}
+/* 활성 서브탭(inventory/spell/combat)이 패널 높이를 채우는 세로 flex 컨테이너가 되어,
+   내부 스크롤 영역(소지품 .items 등)이 definite 높이를 받게 한다. */
+.aster .tab.character .panel--inv > .tab.active {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* 소지품(가방+창고 통합) 목록 — 활성 서브탭의 잔여 높이를 채우고, 항목이 표시 공간보다
+   길어지면 목록 안에서만 세로 스크롤한다(가방칸·착용/휴대·창고 카운터는 고정). */
+.aster .tab.character .panel--inv .items {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* ============================================================

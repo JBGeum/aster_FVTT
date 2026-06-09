@@ -1,9 +1,9 @@
 .aster {
-  // ── 공방 탭 외부 컨테이너 (overflow 재정의) ──────────────────────────────────
-  .sheet-container > .tab.craft {
-    overflow-y: auto;
-    padding: 8px;
-  }
+  // 공방 탭 스크롤·채움은 공통 규칙이 담당한다:
+  //   - 스크롤: _actor.scss `.sheet-container > .tab.active { overflow-y:auto }`
+  //   - 바탕 채움: _herbarium.scss `.tab.craft .herbarium { flex:1 0 auto }`
+  // 이전 `.tab.craft { padding:8px }`는 양피지 밖 다크 form 배경(--aster-color-bg)을
+  // 8px 거터로 노출해 라이트 모드에서도 검은 테두리로 보였다 → 제거.
 
   // ── 내부 레이아웃 래퍼 ───────────────────────────────────────────────────────
   .craft-tab {

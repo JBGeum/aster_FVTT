@@ -4,15 +4,21 @@ import { AsterActorSheet } from "./actor-sheet.mjs";
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 
-// H4-b — type별 권장 윈도우 너비. 높이는 height:"auto"로 콘텐츠에 맞춤(잘림·여백 동시 해소).
-// 너비 하한 460px = 재료 6열 그리드가 가로로 가장 넓은 요소이기 때문. spell만 입력 11개로 더 넓게.
+// H8 약초첩 다이얼로그 시안(memo/design/마녀 시트 - 다이얼로그.html) 정합.
+// 시안은 모든 다이얼로그를 .dialog-wrap{flex:0 0 360px} 고정폭으로 렌더한다.
+// .dialog__body 패딩 14px을 빼면 내부 콘텐츠 ≈ 330px이고, 재료 6열 그리드가 그 폭에
+// 정확히 수용된다(시안이 그 폭에서 렌더되는 것이 근거). 윈도우 테두리(~2px)를 감안해
+// position.width=360이면 콘텐츠 영역이 시안과 일치한다. 460+는 frow(88px 1fr)·1fr이
+// 가로로 늘어나 "넓적"하게 보였던 원인이라 360 고정으로 환원.
+// 높이는 height:"auto"로 콘텐츠에 맞춤(잘림·여백 동시 해소).
 const ASTER_ITEM_WIDTHS = {
-  spell: 500,
-  consumable: 480,
+  spell: 360,
+  consumable: 360,
+  equipment: 360,
+  food: 360,
+  bag: 360,
+  npcAction: 360,
   record: 480,
-  equipment: 460,
-  food: 460,
-  bag: 460,
   item: 440,
   feature: 420,
 };

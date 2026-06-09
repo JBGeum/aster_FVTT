@@ -16,6 +16,7 @@ export const preloadHandlebarsTemplates = async function () {
 
     // Item partials
     "systems/aster/templates/item/parts/material-fields.html",
+    "systems/aster/templates/item/parts/material-mats.html",
 
     // Chat cards
     "systems/aster/templates/chatcard/roll-asterabl.html",

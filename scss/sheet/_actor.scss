@@ -43,24 +43,32 @@
     }
   }
 
-  // ── 전체 탭 콘텐츠 컨테이너 — 높이를 자식에게 전달 ──────────────────────────
-  // flex-basis auto: height:"auto" 윈도우에서는 콘텐츠 높이로, 고정 높이 윈도우에서는
-  // grow로 채움 — 두 경우 모두 동작(basis 0이면 auto 높이에서 0으로 붕괴).
+  // ── 전체 탭 콘텐츠 컨테이너 — 고정 높이 윈도우를 자식에게 전달 ──────────────
+  // 윈도우가 고정 높이(800)이므로 컨테이너는 그 높이를 채우고(flex:1 1) 넘침은 가둔다.
+  // 실제 스크롤은 활성 탭(.tab.active)이 담당 → 탭 전환에도 윈도우 높이는 일정.
   section.sheet-container {
-    flex: 1 0 auto;
+    flex: 1 1 auto;
     min-height: 0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
   .sheet-container > .tab {
-    flex: 1 0 auto;
+    flex: 1 1 auto;
     min-height: 0;
   }
   // 비활성 메인 탭(character/craft/record) 숨김 — changeTab의 .active 토글과 정합.
   // (서브탭 inventory/spell/combat 숨김은 _herbarium.scss의 .panel--inv > .tab 규칙)
   .sheet-container > .tab:not(.active) {
     display: none;
+  }
+  // 활성 탭은 flex 컬럼 + 세로 스크롤 — 콘텐츠가 800을 넘으면 내부에서만 스크롤한다.
+  // (자식 .herbarium은 flex로 탭을 채워 양피지가 바탕을 덮음 — _herbarium.scss)
+  .sheet-container > .tab.active {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
   }
 
   // ── 공통 input / select 토큰 (NPC·아이템 record 등 비-herbarium 영역) ────────
