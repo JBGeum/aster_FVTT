@@ -2398,6 +2398,11 @@
     padding: 0;
     /* STEP 1 — NPC 시트는 텍스처 생략(단색). 시안 정합. */
     background-image: none;
+    /* NPC는 form 자체가 .herbarium이라(character/item처럼 자식 div가 아님) _actor.scss의
+       `.aster form`(0,1,1)이 .herbarium(0,1,0)의 배경·텍스트를 덮어 다크로 보였다.
+       .herbarium.npc-sheet(0,2,0)에서 양피지 톤을 직접 강제해 교정. */
+    background-color: var(--parchment);
+    color: var(--ink);
   }
   .npc-body {
     display: flex;
