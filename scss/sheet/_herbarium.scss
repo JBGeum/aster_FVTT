@@ -54,10 +54,14 @@
   --hb-hair: 1px solid var(--rule);
   --hb-pad: 12px;
 
-  /* 타이포 (시안 폰트 — aster.scss CDN) */
+  /* 타이포 (시안 폰트 — aster.scss CDN). change.css: 본문 serif/num 1순위 Noto Serif KR. */
   --font-display: "Cinzel", "Gowun Batang", serif;
-  --font-serif: "Gowun Batang", "EB Garamond", serif;
-  --font-num: "EB Garamond", "Gowun Batang", serif;
+  --font-serif: "Noto Serif KR", "Gowun Batang", serif;
+  --font-num: "Noto Serif KR", "EB Garamond", serif;
+
+  /* 본문 가중치 (change.css — Noto Serif KR 정합) */
+  --weight: 500; /* 본문 기본 */
+  --weight-sm: 600; /* 작은 라벨·보조 텍스트 */
 }
 
 /* ---------- 시트 루트 / 표면 (Foundry 윈도우 내부) ---------- */
@@ -71,6 +75,7 @@
   --tex-3: rgba(90, 60, 30, 0.1);
   color: var(--ink);
   font-family: var(--font-serif);
+  font-weight: var(--weight);
   font-size: 14px;
   line-height: 1.4;
   background-color: var(--parchment);
@@ -2766,5 +2771,30 @@
       border-color: var(--gold);
       box-shadow: inset 0 2px 0 var(--plum);
     }
+  }
+}
+
+/* change.css 신규 — 작은 라벨·보조 텍스트는 --weight-sm(600). .pc-sub는 .herbarium 밖
+   (.sheet__top)이라 .aster 스코프로 안팎을 함께 커버하고, 파일 끝에 둬 기존 라벨
+   font-weight(예: .frow > label 700)를 소스 순서로 override한다. */
+.aster {
+  .field > label,
+  .pc-sub,
+  .el__name,
+  .bag__cap,
+  .mini .k,
+  .attr__rank,
+  .roll__target .lbl,
+  .item__loc,
+  .storage .k,
+  .cslot .ttl,
+  .mat-col__head,
+  .recipe__name .lv,
+  .stat > label,
+  .dialog__bar .t small,
+  .frow > label,
+  .mat-in .lbl,
+  .id-fields .field > label {
+    font-weight: var(--weight-sm);
   }
 }

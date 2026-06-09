@@ -1,85 +1,203 @@
-// 모든 채팅 카드 공통 디자인. 새 카드는 .aster-chat-card 컨테이너 + 아래 하위 구조를 사용한다.
-// 여기 스타일을 바꾸면 능력/대항/정동/마법/발생 카드에 일관 적용된다.
+// ============================================================
+//  _chat-card.scss  —  aster 판정/카드류 채팅 카드 (테마: 약초첩/별밤)
+//  • 기존 .aster-chat-card 구조·클래스 그대로 (템플릿 변경 0)
+//  • 라이트(약초첩)=기본 / 다크(별밤)=.aster-night 또는 Foundry .theme-dark 부모
+//  • 토큰은 CSS 커스텀 프로퍼티로 노출 → 부모 클래스로 라이트/다크 전환
+// ============================================================
+
+// ── 테마 토큰: 라이트(약초첩) 기본값 ──────────────────────────
+@mixin aster-cc-tokens-light {
+  --cc-surface: #f3e9d2;
+  --cc-surface-2: #e9dcbd;
+  --cc-sunk: #e7d6b3;
+  --cc-ink: #3a2a17;
+  --cc-ink-soft: #6b5638;
+  --cc-ink-faint: #978463;
+  --cc-gold: #a8884e;
+  --cc-rule: #cdb787;
+  --cc-success: #4f7a3a;
+  --cc-fail: #a8473b;
+  --cc-crit: #b07d27;
+  --cc-crit-glow: rgba(176, 125, 39, 0.45);
+  --cc-fumble: #7a4ea0;
+  --cc-el-red: #a85a4e;
+  --cc-el-blue: #5f7a96;
+  --cc-el-green: #6f8a5a;
+  --cc-el-yellow: #c2a052;
+  --cc-win-bg: rgba(176, 125, 39, 0.13);
+  --cc-radius: 7px;
+  // 가독성용 폰트 — Noto Serif KR(가중치 넓고 작은 크기 선명). 대체: "Nanum Myeongjo", "Pretendard"
+  --cc-font: "Noto Serif KR", "Gowun Batang", serif;
+  --cc-font-num: "Noto Serif KR", "EB Garamond", serif;
+  --cc-weight: 500;
+  --cc-weight-sm: 600;
+}
+
+// ── 테마 토큰: 다크(별밤) 오버라이드 ──────────────────────────
+@mixin aster-cc-tokens-night {
+  --cc-surface: #241f3c;
+  --cc-surface-2: #2e284c;
+  --cc-sunk: #14101f;
+  --cc-ink: #ece6fa;
+  --cc-ink-soft: #b3a9d0;
+  --cc-ink-faint: #7d749e;
+  --cc-gold: #c2a363;
+  --cc-rule: #3b3560;
+  --cc-success: #7bbf6b;
+  --cc-fail: #d2776b;
+  --cc-crit: #eccd6a;
+  --cc-crit-glow: rgba(236, 205, 106, 0.5);
+  --cc-fumble: #b89af0;
+  --cc-el-red: #d2776b;
+  --cc-el-blue: #82a8e0;
+  --cc-el-green: #8bc079;
+  --cc-el-yellow: #e2c777;
+  --cc-win-bg: rgba(236, 205, 106, 0.14);
+}
+
 .aster-chat-card {
+  @include aster-cc-tokens-light;
+
+  font-family: var(--cc-font);
+  font-weight: var(--cc-weight);
+  color: var(--cc-ink);
+  word-break: keep-all;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 6px;
-  border: 1px solid rgba(128, 128, 128, 0.3);
-  border-radius: 6px;
+  gap: 7px;
+  padding: 9px 10px;
+  background-color: var(--cc-surface);
+  background-image:
+    radial-gradient(at 12% 6%, rgba(168, 136, 78, 0.1), transparent 45%),
+    radial-gradient(at 88% 4%, rgba(120, 90, 50, 0.07), transparent 42%),
+    repeating-linear-gradient(92deg, rgba(120, 90, 50, 0.022) 0 2px, transparent 2px 5px);
+  border: 1px solid var(--cc-gold);
+  border-radius: var(--cc-radius);
+  box-shadow:
+    inset 0 0 0 1px rgba(246, 239, 218, 0.5),
+    0 2px 7px rgba(60, 40, 18, 0.16);
 
+  // ── 헤더 ──
   .card-header {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 9px;
+    border-bottom: 1px solid var(--cc-rule);
+    padding-bottom: 6px;
 
     img {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       object-fit: cover;
-      border: none;
-      border-radius: 4px;
       flex-shrink: 0;
+      border: 1px solid var(--cc-gold);
+      border-radius: 5px;
+      box-shadow: inset 0 0 0 2px var(--cc-surface);
     }
 
     .title {
       min-width: 0;
+      flex: 1 1 auto;
 
       .name {
-        font-weight: bold;
+        font-weight: 700;
+        color: var(--cc-ink);
+        font-size: 0.98rem;
+        letter-spacing: 0.2px;
       }
 
       .formula {
-        font-size: 0.78rem;
-        opacity: 0.8;
+        font-family: var(--cc-font-num);
+        font-size: 0.76rem;
+        color: var(--cc-ink-soft);
+        opacity: 0.9;
+        margin-top: 1px;
       }
     }
   }
 
+  // ── 굴림 블록 ──
   .roll-block {
     text-align: center;
+    padding: 2px 0;
 
     .dice {
-      font-size: 1.1rem;
-      font-weight: bold;
+      font-family: var(--cc-font-num);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--cc-ink);
+    }
+
+    .selected-dice {
+      font-family: var(--cc-font-num);
+      font-weight: 700;
+    }
+
+    .discarded-dice,
+    .extra-info {
+      font-size: 0.74rem;
+      color: var(--cc-ink-faint);
+      font-style: italic;
     }
 
     .breakdown {
-      font-size: 0.78rem;
-      opacity: 0.85;
-    }
-
-    .verdict {
-      margin-top: 2px;
-      font-weight: bold;
-
-      &.success {
-        color: #27ae60;
-      }
-      &.fail {
-        color: #c0392b;
-      }
-      &.critical {
-        color: #d4a017;
-        text-shadow: 0 0 4px rgba(212, 160, 23, 0.5);
-      }
-      &.fumble {
-        color: #8e44ad;
-      }
+      font-family: var(--cc-font-num);
+      font-size: 0.8rem;
+      color: var(--cc-ink-soft);
+      margin-top: 1px;
     }
   }
 
-  // 본문 아래 부가 정보 블록 (구분선 + 라벨)
+  .focus-applied-line,
+  .penalty-line {
+    font-size: 0.74rem;
+    color: var(--cc-ink-faint);
+  }
+
+  // ── 판정 결과 ──
+  .verdict {
+    margin-top: 4px;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    display: inline-block;
+    padding: 2px 14px;
+    border-radius: 20px;
+
+    &.success {
+      color: #efe7d0;
+      background: var(--cc-success);
+    }
+    &.fail {
+      color: #f3e9d2;
+      background: var(--cc-fail);
+    }
+    &.critical {
+      color: #2e2410;
+      background: linear-gradient(180deg, #e7c878, var(--cc-crit));
+      box-shadow:
+        0 0 12px var(--cc-crit-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+    &.fumble {
+      color: #f1e7f6;
+      background: var(--cc-fumble);
+    }
+  }
+
+  // ── 부가 정보 블록 ──
   .effect,
   .alert-block,
-  .emo-fav {
-    border-top: 1px solid rgba(128, 128, 128, 0.2);
-    padding-top: 4px;
+  .emo-fav,
+  .spell-target {
+    border-top: 1px solid var(--cc-rule);
+    padding-top: 5px;
+    font-size: 0.85rem;
+  }
 
-    .label {
-      font-size: 0.7rem;
-      opacity: 0.6;
-    }
+  .spell-target {
+    color: var(--cc-ink-soft);
   }
 
   .alert-block,
@@ -89,179 +207,585 @@
     align-items: baseline;
   }
 
-  .emo-fav .value {
-    font-weight: bold;
+  .effect .label,
+  .alert-block .label,
+  .emo-fav .label {
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+    color: var(--cc-ink-faint);
+    text-transform: uppercase;
   }
 
-  .emo-gen-list {
-    text-align: center;
-    font-size: 1rem;
-    font-weight: bold;
-    padding: 2px 0;
+  .effect .text {
+    color: var(--cc-ink);
+    margin-top: 2px;
+  }
+  .emo-fav .value,
+  .alert-block .value {
+    font-family: var(--cc-font-num);
+    font-weight: 700;
+    color: var(--cc-ink);
   }
 
+  // ── 액션 버튼 ──
   .card-actions {
+    display: flex;
+    gap: 5px;
+
     button {
       width: 100%;
-      font-size: 0.8rem;
-    }
+      font-family: var(--cc-font);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #f3e9d2;
+      cursor: pointer;
+      padding: 7px 0;
+      border-radius: var(--cc-radius);
+      background: linear-gradient(180deg, #7a4f5e, #5e3a45);
+      border: 1px solid #4a2c35;
+      box-shadow:
+        inset 0 0 0 1px var(--cc-gold),
+        0 2px 5px rgba(50, 20, 45, 0.3);
+      transition: filter 0.12s ease;
 
-    // 대결판정 결합 버튼 — 능동/수동 가로 2분할
-    &.opposed-actions {
-      display: flex;
-      gap: 4px;
+      &:hover {
+        filter: brightness(1.1);
+      }
     }
   }
 
-  // ── 대결판정 결과 카드 ───────────────────────────────────────────────────────
+  // ── 대결판정 결과 카드 ──
   &.opposed-result {
     .opposed-side {
-      border: 1px solid rgba(128, 128, 128, 0.3);
-      border-radius: 4px;
-      padding: 4px 6px;
+      border: 1px solid var(--cc-rule);
+      border-radius: 5px;
+      padding: 6px 9px;
+      background: var(--cc-sunk);
 
       &.winner {
-        border-color: #d4a017;
-        background: rgba(212, 160, 23, 0.12);
+        border-color: var(--cc-crit);
+        background: var(--cc-win-bg);
+        box-shadow: 0 0 10px var(--cc-crit-glow);
       }
 
       .side-label {
         font-size: 0.7rem;
-        opacity: 0.6;
+        letter-spacing: 0.5px;
+        color: var(--cc-ink-faint);
+        text-transform: uppercase;
       }
-
       .side-actor {
-        font-weight: bold;
+        font-weight: 700;
+        color: var(--cc-ink);
       }
-
       .side-roll {
-        font-size: 0.85rem;
-      }
-    }
-
-    .badge {
-      margin-left: 4px;
-      padding: 0 4px;
-      border-radius: 3px;
-      font-size: 0.7rem;
-      font-weight: bold;
-
-      &.critical {
-        color: #d4a017;
-      }
-      &.fumble {
-        color: #8e44ad;
+        font-family: var(--cc-font-num);
+        font-size: 0.88rem;
+        color: var(--cc-ink-soft);
+        strong {
+          color: var(--cc-ink);
+        }
       }
     }
 
     .opposed-verdict {
       text-align: center;
-      border-top: 1px solid rgba(128, 128, 128, 0.2);
-      padding-top: 4px;
+      border-top: 1px solid var(--cc-rule);
+      padding-top: 5px;
 
-      .winner-name {
-        font-weight: bold;
-        color: #d4a017;
+      .winner-label {
+        font-size: 0.72rem;
+        color: var(--cc-ink-faint);
       }
-
+      .winner-name {
+        font-weight: 700;
+        color: var(--cc-crit);
+      }
       .reason {
         font-size: 0.78rem;
-        opacity: 0.8;
-      }
-    }
-
-    .dodge-result {
-      text-align: center;
-      margin-top: 4px;
-      padding: 2px 4px;
-      border-radius: 3px;
-      font-size: 0.85rem;
-
-      .dodge-label {
-        font-weight: bold;
-        margin-right: 4px;
-      }
-
-      &.dodge-won {
-        background: rgba(39, 174, 96, 0.15);
-        color: #1e8449;
-      }
-
-      &.dodge-lost {
-        background: rgba(192, 57, 43, 0.15);
-        color: #c0392b;
+        color: var(--cc-ink-soft);
+        font-style: italic;
       }
     }
   }
 
-  // ── 마법 카드 전용: 색별 좌측 강조 바 ────────────────────────────────────────
+  .badge {
+    margin-left: 5px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 700;
+
+    &.critical {
+      color: #2e2410;
+      background: var(--cc-crit);
+    }
+    &.fumble {
+      color: #f1e7f6;
+      background: var(--cc-fumble);
+    }
+  }
+
+  .dodge-result {
+    text-align: center;
+    margin-top: 4px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 0.86rem;
+
+    .dodge-label {
+      font-weight: 700;
+      margin-right: 5px;
+    }
+    &.dodge-won {
+      background: color-mix(in oklch, var(--cc-success) 20%, transparent);
+      color: var(--cc-success);
+    }
+    &.dodge-lost {
+      background: color-mix(in oklch, var(--cc-fail) 18%, transparent);
+      color: var(--cc-fail);
+    }
+  }
+
+  // ── 마법 카드 색별 좌측 바 ──
   &.spell-color-red {
-    border-left: 3px solid #c0392b;
+    border-left: 4px solid var(--cc-el-red);
   }
   &.spell-color-blue {
-    border-left: 3px solid #2980b9;
+    border-left: 4px solid var(--cc-el-blue);
   }
   &.spell-color-green {
-    border-left: 3px solid #27ae60;
+    border-left: 4px solid var(--cc-el-green);
   }
   &.spell-color-yellow {
-    border-left: 3px solid #d4a017;
+    border-left: 4px solid var(--cc-el-yellow);
   }
 
-  // ── 합체기 카드: RollTable 플레이버 텍스트는 흐릿하게, 효과 결과는 기본 색 ──────
+  // ── 합체기 카드 ──
+  .unison-elements {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    strong {
+      color: var(--cc-crit);
+    }
+  }
+  .unison-dice {
+    border-top: 1px solid var(--cc-rule);
+    padding-top: 5px;
+    margin-top: 4px;
+    font-family: var(--cc-font-num);
+    font-size: 0.86rem;
+
+    .dice-line {
+      color: var(--cc-ink-soft);
+      strong {
+        color: var(--cc-ink);
+      }
+    }
+    .charge-extra {
+      font-size: 0.76rem;
+      color: var(--cc-ink-faint);
+      font-style: italic;
+    }
+    .total-line {
+      font-weight: 700;
+      color: var(--cc-ink);
+      margin-top: 2px;
+    }
+  }
+  .unison-main-result,
+  .unison-sub-result {
+    border-top: 1px solid var(--cc-rule);
+    padding-top: 5px;
+    margin-top: 4px;
+
+    .main-label,
+    .sub-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.5px;
+      color: var(--cc-ink-faint);
+      text-transform: uppercase;
+    }
+  }
   .unison-main-result .unison-flavor {
-    color: var(--color-text-secondary, #888);
+    color: var(--cc-ink-faint);
     font-style: italic;
     font-size: 0.9em;
   }
+  .self-turn-end-line.warn {
+    color: var(--cc-fail);
+    font-size: 0.8rem;
+  }
+  .unison-main-table-hint,
+  .unison-notes .note {
+    font-size: 0.76rem;
+    color: var(--cc-ink-faint);
+    font-style: italic;
+  }
+  .unison-footer {
+    flex-direction: column;
+  }
 
-  // ── consumable 사용 카드: 회복(녹)·상태이상 회복(청) 영역 색 구분 (R1) ──────
+  // ── 소모품 사용 카드 ──
   &.consumable-card {
     .heal-line {
       margin-top: 0.3em;
-      color: #2c7a2c;
+      color: var(--cc-success);
+      font-weight: 600;
     }
     .cure-all-line,
     .cure-line {
       margin-top: 0.3em;
-      color: #1a5a8a;
-
+      color: var(--cc-el-blue);
+      font-weight: 600;
       .cured-none {
         font-style: italic;
-        color: var(--color-text-secondary, #888);
+        color: var(--cc-ink-faint);
+        font-weight: 400;
       }
     }
   }
 
-  // ── 협력 회복 카드: 건강 회복 라인(녹) + 포만 차감 목록 (R2) ──────
+  // ── 협력 회복 카드 ──
   &.revive-card {
     .fallen-line {
       margin: 0.3em 0;
-      font-weight: 500;
-      color: #2c7a2c;
+      font-weight: 600;
+      color: var(--cc-success);
     }
     .satiety-section {
       margin-top: 0.5em;
-
       .section-label {
         font-size: 0.9em;
-        color: var(--color-text-secondary, #888);
+        color: var(--cc-ink-faint);
         margin-bottom: 0.2em;
       }
       .satiety-lines {
         margin: 0;
         padding-left: 1.2em;
         font-size: 0.9em;
+        color: var(--cc-ink-soft);
       }
     }
   }
+  &.revive-auto-card .revived-lines {
+    margin: 0;
+    padding-left: 1.2em;
+    color: var(--cc-success);
+  }
 
-  // ── 전투 종료 자동 회복 카드 (F1, 룰북 537) — 회복된 PC 목록 ──────
-  &.revive-auto-card {
-    .revived-lines {
-      margin: 0;
-      padding-left: 1.2em;
-      color: #2c7a2c;
+  // ── 피크닉(음식) 카드 ──
+  &.picnic-card {
+    .picnic-item {
+      display: flex;
+      gap: 9px;
+      img {
+        width: 44px;
+        height: 44px;
+        object-fit: cover;
+        border: 1px solid var(--cc-gold);
+        border-radius: 5px;
+      }
+    }
+    .picnic-info {
+      min-width: 0;
+    }
+    .picnic-item-name {
+      font-weight: 700;
+      color: var(--cc-ink);
+    }
+    .picnic-restore {
+      font-family: var(--cc-font-num);
+      font-size: 0.86rem;
+      color: var(--cc-success);
+      margin-top: 1px;
+      strong {
+        color: var(--cc-success);
+      }
+    }
+    .picnic-bonus {
+      margin-top: 8px;
+      border-top: 1px solid var(--cc-rule);
+      padding-top: 5px;
+    }
+    .bonus-label {
+      font-size: 0.7rem;
+      color: var(--cc-ink-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .bonus-text {
+      font-size: 0.85rem;
+      color: var(--cc-ink);
+    }
+  }
+
+  // ── 전투 액션 / 대미지 결과 / NPC 액션 카드 ──
+  .action-effect {
+    font-size: 0.88rem;
+    color: var(--cc-ink);
+  }
+  &.damage-result-card .damage-lines {
+    margin: 0;
+    padding-left: 1.2em;
+    font-size: 0.86rem;
+    color: var(--cc-ink);
+  }
+  .hit-result,
+  .damage-results,
+  .cure-results {
+    border-top: 1px solid var(--cc-rule);
+    padding-top: 5px;
+    margin-top: 4px;
+    font-size: 0.86rem;
+  }
+  .formula-line {
+    font-family: var(--cc-font-num);
+    color: var(--cc-ink-soft);
+    strong {
+      color: var(--cc-ink);
+    }
+  }
+  .dice-text {
+    color: var(--cc-ink-faint);
+    font-size: 0.78rem;
+  }
+  .result-line {
+    color: var(--cc-ink-soft);
+    .target {
+      font-weight: 700;
+      color: var(--cc-ink);
+    }
+    .hp {
+      font-family: var(--cc-font-num);
+    }
+    .status {
+      color: var(--cc-fail);
+    }
+    .cure {
+      color: var(--cc-el-blue);
+    }
+  }
+  .critical {
+    color: var(--cc-crit);
+    font-weight: 700;
+  }
+  .fumble {
+    color: var(--cc-fumble);
+    font-weight: 700;
+  }
+
+  // 작은 라벨·보조 텍스트 가중치 보강 (작은 크기 흐림 방지)
+  .formula,
+  .breakdown,
+  .side-label,
+  .discarded-dice,
+  .extra-info,
+  .focus-applied-line,
+  .penalty-line,
+  .reason,
+  .charge-extra,
+  .dice-text,
+  .section-label,
+  .bonus-label,
+  .winner-label,
+  .unison-main-table-hint,
+  .result-line,
+  .formula-line,
+  .effect .label,
+  .alert-block .label,
+  .emo-fav .label,
+  .main-label,
+  .sub-label,
+  .unison-notes .note {
+    font-weight: var(--cc-weight-sm);
+  }
+
+  // ── 꾸밈: Font Awesome 아이콘 / 강조 (::before 주입, 템플릿 변경 없음) ──
+  .roll-block .dice::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "";
+    color: var(--cc-gold);
+    font-size: 0.82em;
+    margin-right: 8px;
+    vertical-align: 1px;
+  }
+  .verdict::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    margin-right: 7px;
+    font-size: 0.85em;
+  }
+  .verdict.success::before {
+    content: "";
+  }
+  .verdict.fail::before {
+    content: "";
+  }
+  .verdict.critical::before {
+    content: "";
+  }
+  .verdict.fumble::before {
+    content: "";
+  }
+
+  &[class*="spell-color-"] .card-header .name::after,
+  &.unison-card .card-header .name::after {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "";
+    color: var(--cc-gold);
+    font-size: 0.72em;
+    margin-left: 7px;
+    opacity: 0.8;
+    vertical-align: 1px;
+  }
+
+  // 명중 판정 — 라인 확대 + 줄나눔 + 다이스 강조
+  .hit-result {
+    text-align: center;
+  }
+  .hit-result .formula-line {
+    font-size: 1.04rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    line-height: 1.3;
+  }
+  .hit-result .formula-line strong {
+    font-size: 1.22rem;
+  }
+  .hit-result .dice-text {
+    font-size: 0.92rem;
+    color: var(--cc-ink-soft);
+    letter-spacing: 1px;
+  }
+  .hit-result .dice-text::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    content: "";
+    color: var(--cc-gold);
+    margin-right: 7px;
+    font-size: 0.9em;
+  }
+  .hit-result .critical,
+  .hit-result .fumble {
+    display: inline-block;
+    margin-top: 2px;
+  }
+
+  // 픽셀 다이스(.dice-pips) — 템플릿에서 fa-dice-* 사용 시
+  .dice-pips {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    margin: 3px 0;
+    font-size: 1.5rem;
+    color: var(--cc-crit);
+  }
+  .dice-pips i {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+  }
+
+  // 합체기 주효과 / 부효과 — 가운데 정렬 + 라벨 장식선
+  .unison-elements {
+    justify-content: center;
+    gap: 22px;
+  }
+  .unison-dice {
+    text-align: center;
+  }
+  .unison-main-result,
+  .unison-sub-result {
+    text-align: center;
+  }
+  .unison-main-result .main-label,
+  .unison-sub-result .sub-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    justify-content: center;
+  }
+  .unison-main-result .main-label::before,
+  .unison-main-result .main-label::after,
+  .unison-sub-result .sub-label::before,
+  .unison-sub-result .sub-label::after {
+    content: "";
+    width: 18px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cc-gold));
+  }
+  .unison-notes {
+    text-align: center;
+  }
+
+  // 섹션 라벨(효과·경계도) 좌측 다이아 장식
+  .effect .label::before,
+  .alert-block .label::before {
+    content: "◆";
+    color: var(--cc-gold);
+    font-size: 0.7em;
+    margin-right: 5px;
+    vertical-align: 1px;
+  }
+}
+
+// ============================================================
+//  다크(별밤) — .aster-night 또는 Foundry .theme-dark 부모
+// ============================================================
+.aster-night,
+.theme-dark {
+  .aster-chat-card {
+    @include aster-cc-tokens-night;
+
+    background-color: var(--cc-surface);
+    background-image:
+      radial-gradient(1px 1px at 18% 22%, rgba(255, 255, 255, 0.55), transparent),
+      radial-gradient(1px 1px at 72% 12%, rgba(236, 228, 255, 0.45), transparent),
+      radial-gradient(1.3px 1.3px at 86% 60%, rgba(255, 244, 200, 0.5), transparent),
+      radial-gradient(1px 1px at 34% 78%, rgba(255, 255, 255, 0.4), transparent),
+      radial-gradient(120% 90% at 10% 0%, rgba(96, 72, 168, 0.25), transparent 50%);
+    border-color: var(--cc-gold);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 3px 10px rgba(0, 0, 0, 0.45);
+
+    .card-header img {
+      box-shadow: inset 0 0 0 2px var(--cc-surface-2);
+    }
+
+    .verdict {
+      &.success {
+        color: #14201a;
+      }
+      &.fail {
+        color: #2a1410;
+      }
+      &.fumble {
+        color: #1c1430;
+      }
+      &.critical {
+        color: #2e2410;
+        background: linear-gradient(180deg, #f4dd8a, var(--cc-crit));
+        box-shadow:
+          0 0 14px var(--cc-crit-glow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      }
+    }
+
+    .card-actions button {
+      color: #f3eeff;
+      background: linear-gradient(180deg, #6f4f86, #4a3460);
+      border-color: #382a4c;
+      box-shadow:
+        inset 0 0 0 1px var(--cc-gold),
+        0 0 12px rgba(150, 110, 235, 0.4),
+        0 2px 5px rgba(0, 0, 0, 0.4);
     }
   }
 }
