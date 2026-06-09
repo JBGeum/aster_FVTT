@@ -13,6 +13,14 @@
  * TODO(H8-dark): 다크 = 쿨 슬레이트 override는 본 명세 밖. 후속.
  * ============================================================ */
 
+/* change.txt — 장식 글리프를 Font Awesome 아이콘으로(텍스트 기호 대체).
+   Foundry가 FA6 Free를 번들하므로 weight 900(solid)으로 렌더된다. */
+@mixin fa($glyph) {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  content: $glyph;
+}
+
 /* ---------- 디자인 토큰 (라이트 / 양피지) — 시스템 토큰과 공존 ---------- */
 :root {
   /* 양피지 표면 */
@@ -54,14 +62,75 @@
   --hb-hair: 1px solid var(--rule);
   --hb-pad: 12px;
 
-  /* 타이포 (시안 폰트 — aster.scss CDN). change.css: 본문 serif/num 1순위 Noto Serif KR. */
+  /* 타이포 (시안 폰트 — aster.scss CDN). change.txt: 본문 serif/num 1순위 Noto Serif KR. */
   --font-display: "Cinzel", "Gowun Batang", serif;
   --font-serif: "Noto Serif KR", "Gowun Batang", serif;
   --font-num: "Noto Serif KR", "EB Garamond", serif;
 
-  /* 본문 가중치 (change.css — Noto Serif KR 정합) */
+  /* 본문 가중치 (change.txt — Noto Serif KR 정합) */
   --weight: 500; /* 본문 기본 */
   --weight-sm: 600; /* 작은 라벨·보조 텍스트 */
+
+  /* 테마 스왑 값 (라이트 기본 — 다크는 herbarium-night-tokens에서 교체).
+     종이 텍스처: 라이트=양피지 결(radial+grain), 다크=별밤 PNG(soft-light). */
+  --paper-tex:
+    radial-gradient(at 12% 6%, rgba(168, 136, 78, 0.1), transparent 45%),
+    radial-gradient(at 88% 4%, rgba(120, 90, 50, 0.07), transparent 42%),
+    repeating-linear-gradient(92deg, rgba(120, 90, 50, 0.022) 0 2px, transparent 2px 5px);
+  --paper-tex-size: auto;
+  --paper-tex-blend: normal;
+  --panel-shadow: inset 0 0 0 1px rgba(246, 239, 218, 0.6), 0 2px 6px rgba(60, 40, 18, 0.1);
+  --thumb-ph-bg: rgba(246, 239, 218, 0.82);
+  --txt-emboss: 0 1px 0 rgba(255, 255, 255, 0.45);
+  --bcell-light: #dcc89c; /* 가방 격자 교차 칸(밝은 체커) */
+}
+
+/* ============================================================
+ * 다크(별밤) — herbarium 토큰 스왑. _tokens.scss와 동일 정책:
+ * auto+OS다크는 @media, 명시 다크는 [data-aster-theme="dark"].
+ * 시스템 토큰(--aster-color-*)과 같은 신호로 함께 전환된다(시안 .theme-night 팔레트).
+ * ============================================================ */
+@mixin herbarium-night-tokens {
+  --parchment: #1b1730;
+  --parchment-soft: #241f3c;
+  --parchment-deep: #2e284c;
+  --parchment-sunk: #14101f;
+  --ink: #e9e3f6;
+  --ink-strong: #f7f3ff;
+  --ink-soft: #aaa0c8;
+  --ink-faint: #6f6791;
+  --gold: #c8a24f;
+  --gold-soft: #8b774a;
+  --rule: #3b3560;
+  --plum: oklch(0.64 0.17 300);
+  --plum-deep: oklch(0.5 0.16 300);
+  --sage: oklch(0.72 0.13 155);
+  --amber: oklch(0.8 0.12 78);
+  --cream: #f7f3ff;
+  --el-white: #e0e1ee;
+  --el-red: #d2776b;
+  --el-blue: #6f9ad8;
+  --el-green: #7ab06a;
+  --el-yellow: #d8b95b;
+  --el-mat: #a78fce;
+  /* 종이 텍스처 → 별밤 PNG (카드면에 은은히) */
+  --surface-tex: url("/systems/aster/assets/textures/starfield-texture.png");
+  --paper-tex: url("/systems/aster/assets/textures/starfield-texture.png");
+  --paper-tex-size: cover;
+  --paper-tex-blend: soft-light;
+  /* 인셋·임보스 — 밝은 크림 인셋을 은은한 흰빛/검은 그림자로 교체 */
+  --panel-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.045), 0 3px 10px rgba(0, 0, 0, 0.4);
+  --thumb-ph-bg: rgba(20, 16, 31, 0.85);
+  --txt-emboss: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --bcell-light: #2a2547; /* 시안 .theme-night .bcell:nth-child(even) */
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-aster-theme]) {
+    @include herbarium-night-tokens;
+  }
+}
+:root[data-aster-theme="dark"] {
+  @include herbarium-night-tokens;
 }
 
 /* ---------- 시트 루트 / 표면 (Foundry 윈도우 내부) ---------- */
@@ -92,6 +161,12 @@
     background: none;
     border: none;
     outline: none;
+  }
+  /* select 펼침 목록(option)은 OS/브라우저 네이티브라 inherit(투명+밝은 ink)만으론
+     배경과 구분이 안 됐다. 양피지 톤으로 명시(테마 인식 — 다크에서도 가독). */
+  option {
+    background-color: var(--parchment-soft);
+    color: var(--ink);
   }
   /* ApplicationV2 기본 button은 전폭(width:100%)이라 약초첩 버튼이 세로로 쌓인다.
      기본을 auto로 되돌림 — 전폭이 필요한 버튼(btn-cast·ap-fire 등)은 자체 width:100%로 override. */
@@ -198,9 +273,7 @@
     border: var(--hb-frame);
     border-radius: var(--hb-radius);
     padding: var(--hb-pad);
-    box-shadow:
-      inset 0 0 0 1px rgba(246, 239, 218, 0.6),
-      0 2px 6px rgba(60, 40, 18, 0.1);
+    box-shadow: var(--panel-shadow);
   }
   .panel__head {
     display: flex;
@@ -214,9 +287,9 @@
     margin: -2px 0 6px;
 
     &::before {
-      content: "❧"; /* theme-herbarium */
+      @include fa("\f005"); /* star */
       color: var(--gold);
-      font-size: 11px;
+      font-size: 10px;
     }
     &::after {
       content: "";
@@ -235,9 +308,9 @@
     padding: 4px 2px;
   }
   .panel[data-corner]::after {
-    content: attr(data-corner);
+    @include fa("\f0a3"); /* certificate(별무리) — data-corner 값과 무관하게 통일 */
     position: absolute;
-    top: 6px;
+    top: 7px;
     right: 10px;
     color: var(--gold-soft);
     font-size: 15px;
@@ -304,6 +377,20 @@
       object-fit: cover;
       cursor: pointer;
       border: none;
+    }
+    /* change.txt — 초상 상단 장식 글리프. img(absolute)가 덮으므로 z-index로 위에,
+       클릭(파일선택)을 막지 않게 pointer-events:none. */
+    &::before {
+      @include fa("\f6e8"); /* hat-wizard */
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      font-size: 13px;
+      color: var(--gold);
+      opacity: 0.85;
+      pointer-events: none;
     }
   }
   .identity__main {
@@ -416,6 +503,11 @@
     .btn-cast {
       flex: 1;
       margin: 0;
+      /* 행(seg/목표) 높이만큼 채워 시안처럼 — 짧던 버튼 해소 + 텍스트 세로·가로 중앙. */
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
   .roll__title {
@@ -528,7 +620,8 @@
       0 3px 8px rgba(50, 20, 45, 0.35);
 
     &::before {
-      content: "✶ ";
+      @include fa("\e2ca"); /* wand-magic-sparkles */
+      margin-right: 7px;
       color: var(--gold-soft);
     }
   }
@@ -588,7 +681,15 @@
         inset 0 1px 3px rgba(70, 45, 18, 0.14);
     }
     input {
+      /* <input>은 기본 size=20자를 intrinsic(max-content)으로 보고하고, width:100%(퍼센트)는
+         max-content 계산 시 auto로 취급돼 그 20자 폭이 그대로 .abil-grid col1의 minmax(220px,
+         auto) 상한(=max-content)을 부풀린다 → 능력치 열 폭주, 건강바 열 짓눌림.
+         field-sizing:content로 값 길이에 맞춰 좁게(시안의 정적 텍스트 정합). 미대응 렌더러는
+         max-width로 20자 폭주를 캡(콘텐츠는 width:100%로 셀을 채워 클릭 영역 유지). */
+      field-sizing: content;
       width: 100%;
+      min-width: 0;
+      max-width: 2.6em;
       text-align: center;
       color: inherit;
       font-weight: 600;
@@ -649,7 +750,7 @@
     font-weight: 700;
     font-size: 15px;
     color: var(--ink-strong);
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+    text-shadow: var(--txt-emboss);
 
     input {
       width: 1.8em;
@@ -680,7 +781,9 @@
   .mini {
     flex: 1;
     display: flex;
-    align-items: center;
+    /* 라벨(13px)과 숫자(num 16px)는 글자 크기·메트릭이 달라 center로는 어긋난다 —
+       텍스트 베이스라인 정렬로 한 줄에 맞춘다(.pair와 동일 방침). */
+    align-items: baseline;
     justify-content: space-between;
     background: var(--parchment-sunk);
     border: 1px solid var(--rule);
@@ -720,7 +823,7 @@
     cursor: pointer;
 
     &::before {
-      content: "✤";
+      @include fa("\f005"); /* star */
       font-size: 10px;
       color: var(--sage);
       opacity: 0.7;
@@ -1076,7 +1179,7 @@
     background: var(--parchment-sunk);
 
     &.cell-light {
-      background: #dcc89c;
+      background: var(--bcell-light);
     }
   }
   .bitem {
@@ -1254,7 +1357,7 @@
     white-space: nowrap;
 
     &::before {
-      content: "✛";
+      @include fa("\f067"); /* plus */
       font-size: 12px;
     }
   }
@@ -1914,7 +2017,8 @@
       color: var(--plum);
       border-color: var(--plum);
       &::before {
-        content: "✛ ";
+        @include fa("\f067"); /* plus */
+        margin-right: 5px;
         font-size: 11px;
       }
     }
@@ -2075,10 +2179,13 @@
   .dialog__hero {
     display: flex;
     gap: 12px;
-    align-items: stretch;
+    /* new 시안 — 그림 100px에 맞춰 상단 정렬(필드 3행 compact). */
+    align-items: flex-start;
   }
   .thumb {
-    width: 60px;
+    /* new 시안 — 60px → 100×100 정사각 그림 자리. */
+    width: 100px;
+    height: 100px;
     flex: none;
     border-radius: var(--hb-radius-sm);
     border: 1px solid var(--gold);
@@ -2105,7 +2212,7 @@
       font-family: var(--font-num);
       font-size: 10px;
       color: var(--ink-soft);
-      background: rgba(246, 239, 218, 0.82);
+      background: var(--thumb-ph-bg);
       padding: 1px 7px;
       border-radius: 10px;
       border: 1px solid var(--rule);
@@ -2117,8 +2224,39 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     justify-content: center;
+  }
+  /* new 시안 — 히어로 입력란 compact(이름은 dlg-name으로 분리, 여기엔 2~3행). 그림 100px 높이 정합. */
+  .dialog__hero .frow {
+    grid-template-columns: 66px 1fr;
+    gap: 9px;
+  }
+  .dialog__hero .frow > label {
+    font-size: 12px;
+    letter-spacing: 0;
+    line-height: 1.2;
+  }
+  .dialog__hero .f-select,
+  .dialog__hero .f-input {
+    padding: 5px 10px;
+    min-height: 28px;
+  }
+  .dialog__hero .size-row {
+    gap: 8px;
+    justify-content: space-between;
+    min-width: 0;
+  }
+  .dialog__hero .size-row .pair {
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+  .dialog__hero .size-row .pair .box {
+    width: auto;
+    flex: 1;
+    min-width: 0;
+    padding: 4px 0;
   }
   .frow {
     display: grid;
@@ -2136,6 +2274,18 @@
       grid-template-columns: 1fr;
       gap: 5px;
       align-items: stretch;
+    }
+  }
+  /* change.txt — 이름(술식명) 행을 .dialog__body 최상단 전폭으로(.frow.dlg-name).
+     hero(썸네일+필드) 위에 제목처럼: 입력 강조 + 아래 가는 구분선으로 hero와 구획. */
+  .dlg-name {
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--rule);
+
+    .f-input input {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink-strong);
     }
   }
   .f-input,
@@ -2270,15 +2420,16 @@
   .chk-group {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
   }
   .chk {
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    font-size: 13px;
-    padding: 6px 12px;
+    /* change.txt — 체크 항목 compact(가로폭↓): 상태이상 5개가 좁은 다이얼로그에서 한 줄에 들어가도록. */
+    gap: 5px;
+    font-size: 12.5px;
+    padding: 4px 9px;
     border-radius: var(--hb-radius-sm);
     border: 1px solid var(--rule);
     background: var(--parchment-sunk);
@@ -2287,15 +2438,15 @@
     cursor: pointer;
 
     .box {
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       border-radius: 4px;
       border: 1.5px solid var(--gold-soft);
       background: var(--parchment-soft);
       display: grid;
       place-items: center;
       color: transparent;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       flex: none;
     }
@@ -2336,7 +2487,8 @@
       letter-spacing: 1px;
       color: var(--ink-soft);
       &::before {
-        content: "❧ ";
+        @include fa("\e4dc"); /* burst(반짝임) */
+        margin-right: 6px;
         color: var(--gold);
       }
     }
@@ -2637,7 +2789,7 @@
 
   /* ---------- 종이 요소 텍스처 (시트 표면에서 이관) ----------
      평평해진 .herbarium 위에서, 실제 종이(패널·다이얼로그·기록 카드·재료표·주문 카드)에만
-     양피지 텍스처를 입힌다(시안 change.css 추가 규칙). 3번째 레이어는 surface-tex PNG 대신
+     양피지 텍스처를 입힌다(시안 change.txt 추가 규칙). 3번째 레이어는 surface-tex PNG 대신
      미세 종이결(repeating-linear-gradient)로 교체됨 — 값은 시안 그대로 raw rgba 사용.
      블록 끝에 둬 각 요소의 background 단축속성을 소스 순서로 덮어쓴다(같은 특정도).
      .dialog__body는 아이템 시트 본문(=종이)이라 .dialog와 함께 포함. */
@@ -2649,11 +2801,10 @@
   .mat-table,
   .spell-card {
     background-color: var(--parchment-soft);
-    background-image:
-      radial-gradient(at 12% 6%, rgba(168, 136, 78, 0.1), transparent 45%),
-      radial-gradient(at 88% 4%, rgba(120, 90, 50, 0.07), transparent 42%),
-      repeating-linear-gradient(92deg, rgba(120, 90, 50, 0.022) 0 2px, transparent 2px 5px);
-    background-blend-mode: normal;
+    background-image: var(--paper-tex);
+    background-size: var(--paper-tex-size);
+    background-position: center;
+    background-blend-mode: var(--paper-tex-blend);
   }
 }
 
@@ -2708,6 +2859,7 @@
  * 이 영역은 .herbarium 래퍼 밖이라 여기서 직접 부여(토큰은 :root 전역).
  * ============================================================ */
 .aster .sheet__top {
+  position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -2716,6 +2868,19 @@
   padding: 10px 14px 0;
   background: var(--parchment);
   border-bottom: 1px solid var(--rule);
+
+  /* change.txt — 헤더 하단 중앙 장식(테두리선 위 메달리온). */
+  &::after {
+    @include fa("\f699"); /* star-and-crescent */
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+    transform: translateX(-50%);
+    color: var(--gold);
+    background: var(--parchment);
+    padding: 0 9px;
+    font-size: 12px;
+  }
 
   .sheet__name {
     display: flex;
@@ -2779,7 +2944,7 @@
   }
 }
 
-/* change.css 신규 — 작은 라벨·보조 텍스트는 --weight-sm(600). .pc-sub는 .herbarium 밖
+/* change.txt 신규 — 작은 라벨·보조 텍스트는 --weight-sm(600). .pc-sub는 .herbarium 밖
    (.sheet__top)이라 .aster 스코프로 안팎을 함께 커버하고, 파일 끝에 둬 기존 라벨
    font-weight(예: .frow > label 700)를 소스 순서로 override한다. */
 .aster {

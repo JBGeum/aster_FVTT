@@ -1,15 +1,15 @@
 <form class="aster {{cssClass}}" autocomplete="off">
   <div class="herbarium">
     <div class="dialog__body">
+      <div class="frow dlg-name">
+        <label>술식명</label>
+        <div class="f-input">
+          <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'ASTER.spell.name'}}" />
+        </div>
+      </div>
       <div class="dialog__hero">
         <div class="thumb"><img src="{{item.img}}" data-edit="img" title="{{item.name}}" /></div>
         <div class="hero-fields">
-          <div class="frow">
-            <label>술식명</label>
-            <div class="f-input">
-              <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'ASTER.spell.name'}}" />
-            </div>
-          </div>
           <div class="frow">
             <label>{{localize "ASTER.spell.ruby"}}</label>
             <div class="f-input">

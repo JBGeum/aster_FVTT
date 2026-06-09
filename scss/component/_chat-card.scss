@@ -742,56 +742,68 @@
 }
 
 // ============================================================
-//  다크(별밤) — .aster-night 또는 Foundry .theme-dark 부모
+//  다크(별밤) — Aster 테마 신호(data-aster-theme)에 연결.
+//  시트(herbarium)와 동일 정책: 명시 [data-aster-theme="dark"] + auto는 @media.
+//  .aster-night는 수동 훅으로 유지. Foundry .theme-dark 의존은 제거 —
+//  시트는 라이트인데 챗카드만 어두워지던 신호 분절(엇박)을 없애기 위함.
 // ============================================================
-.aster-night,
-.theme-dark {
-  .aster-chat-card {
-    @include aster-cc-tokens-night;
+@mixin aster-cc-dark {
+  @include aster-cc-tokens-night;
 
-    background-color: var(--cc-surface);
-    background-image:
-      radial-gradient(1px 1px at 18% 22%, rgba(255, 255, 255, 0.55), transparent),
-      radial-gradient(1px 1px at 72% 12%, rgba(236, 228, 255, 0.45), transparent),
-      radial-gradient(1.3px 1.3px at 86% 60%, rgba(255, 244, 200, 0.5), transparent),
-      radial-gradient(1px 1px at 34% 78%, rgba(255, 255, 255, 0.4), transparent),
-      radial-gradient(120% 90% at 10% 0%, rgba(96, 72, 168, 0.25), transparent 50%);
-    border-color: var(--cc-gold);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.04),
-      0 3px 10px rgba(0, 0, 0, 0.45);
+  background-color: var(--cc-surface);
+  background-image:
+    radial-gradient(1px 1px at 18% 22%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 72% 12%, rgba(236, 228, 255, 0.45), transparent),
+    radial-gradient(1.3px 1.3px at 86% 60%, rgba(255, 244, 200, 0.5), transparent),
+    radial-gradient(1px 1px at 34% 78%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(120% 90% at 10% 0%, rgba(96, 72, 168, 0.25), transparent 50%);
+  border-color: var(--cc-gold);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 3px 10px rgba(0, 0, 0, 0.45);
 
-    .card-header img {
-      box-shadow: inset 0 0 0 2px var(--cc-surface-2);
+  .card-header img {
+    box-shadow: inset 0 0 0 2px var(--cc-surface-2);
+  }
+
+  .verdict {
+    &.success {
+      color: #14201a;
     }
-
-    .verdict {
-      &.success {
-        color: #14201a;
-      }
-      &.fail {
-        color: #2a1410;
-      }
-      &.fumble {
-        color: #1c1430;
-      }
-      &.critical {
-        color: #2e2410;
-        background: linear-gradient(180deg, #f4dd8a, var(--cc-crit));
-        box-shadow:
-          0 0 14px var(--cc-crit-glow),
-          inset 0 1px 0 rgba(255, 255, 255, 0.45);
-      }
+    &.fail {
+      color: #2a1410;
     }
-
-    .card-actions button {
-      color: #f3eeff;
-      background: linear-gradient(180deg, #6f4f86, #4a3460);
-      border-color: #382a4c;
+    &.fumble {
+      color: #1c1430;
+    }
+    &.critical {
+      color: #2e2410;
+      background: linear-gradient(180deg, #f4dd8a, var(--cc-crit));
       box-shadow:
-        inset 0 0 0 1px var(--cc-gold),
-        0 0 12px rgba(150, 110, 235, 0.4),
-        0 2px 5px rgba(0, 0, 0, 0.4);
+        0 0 14px var(--cc-crit-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45);
     }
+  }
+
+  .card-actions button {
+    color: #f3eeff;
+    background: linear-gradient(180deg, #6f4f86, #4a3460);
+    border-color: #382a4c;
+    box-shadow:
+      inset 0 0 0 1px var(--cc-gold),
+      0 0 12px rgba(150, 110, 235, 0.4),
+      0 2px 5px rgba(0, 0, 0, 0.4);
+  }
+}
+
+// 명시 다크 + 수동 훅(.aster-night)
+:root[data-aster-theme="dark"] .aster-chat-card,
+.aster-night .aster-chat-card {
+  @include aster-cc-dark;
+}
+// auto + OS 다크 (시스템 설정이 명시되지 않은 경우만)
+@media (prefers-color-scheme: dark) {
+  :root:not([data-aster-theme]) .aster-chat-card {
+    @include aster-cc-dark;
   }
 }

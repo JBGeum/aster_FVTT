@@ -1,20 +1,20 @@
 <form class="aster {{cssClass}}" autocomplete="off">
   <div class="herbarium">
     <div class="dialog__body">
+      <div class="frow dlg-name">
+        <label>이름</label>
+        <div class="f-input">
+          <input
+            type="text"
+            name="name"
+            value="{{item.name}}"
+            placeholder="{{localize 'ASTER.item.namePlaceholder'}}"
+          />
+        </div>
+      </div>
       <div class="dialog__hero">
         <div class="thumb"><img src="{{item.img}}" data-edit="img" title="{{item.name}}" /></div>
         <div class="hero-fields">
-          <div class="frow">
-            <label>이름</label>
-            <div class="f-input">
-              <input
-                type="text"
-                name="name"
-                value="{{item.name}}"
-                placeholder="{{localize 'ASTER.item.namePlaceholder'}}"
-              />
-            </div>
-          </div>
           <div class="frow">
             <label>{{localize "ASTER.equipment.type.label"}}</label>
             <div class="f-select">

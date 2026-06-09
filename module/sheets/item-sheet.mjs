@@ -12,12 +12,13 @@ const { ItemSheetV2 } = foundry.applications.sheets;
 // 가로로 늘어나 "넓적"하게 보였던 원인이라 360 고정으로 환원.
 // 높이는 height:"auto"로 콘텐츠에 맞춤(잘림·여백 동시 해소).
 const ASTER_ITEM_WIDTHS = {
-  spell: 360,
-  consumable: 360,
-  equipment: 360,
-  food: 360,
-  bag: 360,
-  npcAction: 360,
+  // new 시안 — 모든 다이얼로그 .dialog-wrap 폭 430(그림 100px hero + compact 필드 + 상태 5개 한 줄).
+  spell: 430,
+  consumable: 430,
+  equipment: 430,
+  food: 430,
+  bag: 430,
+  npcAction: 430,
   record: 480,
   item: 440,
   feature: 420,
