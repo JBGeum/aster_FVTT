@@ -328,15 +328,20 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
       }
       await actor.update(update);
 
-      const parts = CRIT_COLORS.filter((k) => result[k] > 0).map(
-        (k) => `${game.i18n.localize(`ASTER.aster.${k}`)} ${result[k]}`,
-      );
+      // 후속 카드 — 아스테르 획득(.aster-gain-card): 색별 칩으로 표시
+      const chips = CRIT_COLORS.filter((k) => result[k] > 0)
+        .map(
+          (k) =>
+            `<span class="gain-chip el-${k}"><i class="dot"></i>${game.i18n.localize(`ASTER.aster.${k}`)} +${result[k]}</span>`,
+        )
+        .join("");
       await ChatMessage.create({
-        content: `<div class="aster-chat-card">
-          <header class="card-header"><div class="title"><div class="name">
-            ${game.i18n.format("ASTER.roll.critGained", { actor: actor.name })}
-          </div></div></header>
-          <div class="emo-gen-list">${parts.join(" / ")}</div>
+        content: `<div class="aster-chat-card aster-gain-card">
+          <header class="card-header"><div class="title">
+            <div class="name">${game.i18n.localize("ASTER.roll.critGainTitle")}</div>
+            <div class="formula">${actor.name} — ${game.i18n.localize("ASTER.roll.critical")}</div>
+          </div></header>
+          <div class="gain-body"><div class="gain-chips">${chips}</div></div>
         </div>`,
         speaker: ChatMessage.getSpeaker({ actor }),
       });
@@ -356,11 +361,25 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
       const cur = Number(game.settings.get("aster", "alertLevel")) || 0;
       const next = cur + roll.total;
       await game.settings.set("aster", "alertLevel", next);
-      await roll.toMessage({
-        flavor: game.i18n.format("ASTER.roll.fumbleAlertFlavor", {
-          delta: roll.total,
-          total: next,
-        }),
+      // 후속 카드 — 경계도 상승(.alert-rise-card). rolls 배열로 다이스 애니메이션 트리거.
+      await ChatMessage.create({
+        content: `<div class="aster-chat-card alert-rise-card">
+          <header class="card-header"><div class="title">
+            <div class="name">${game.i18n.localize("ASTER.roll.alertRiseTitle")}</div>
+            <div class="formula">${game.i18n.localize("ASTER.roll.fumble")} — +1d6</div>
+          </div></header>
+          <div class="alert-body">
+            <div class="alert-roll">
+              <span class="die">[${roll.total}]</span>
+              <span class="delta">${game.i18n.localize("ASTER.world.alert")} +${roll.total}</span>
+            </div>
+            <div class="alert-total">
+              <span class="label">${game.i18n.localize("ASTER.roll.alertCumulative")}</span>
+              <span class="value">${next}</span>
+            </div>
+          </div>
+        </div>`,
+        rolls: [roll],
         speaker: ChatMessage.getSpeaker({
           alias: game.i18n.localize("ASTER.world.panelTitle"),
         }),

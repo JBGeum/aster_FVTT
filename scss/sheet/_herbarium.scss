@@ -80,6 +80,19 @@
   --txt-emboss: 0 1px 0 rgba(255, 255, 255, 0.45);
   --bcell-light: #dcc89c; /* 가방 격자 교차 칸(밝은 체커) */
   --memo-rule: rgba(120, 90, 50, 0.16); /* 메모 줄무늬(따뜻) */
+  /* 정체성 로고 명판 — 라이트는 투명(로고만), 다크는 크림 명판으로 가독 확보(night 믹스인). */
+  --id-logo-bg: none;
+  --id-logo-border: 0 solid transparent;
+  --id-logo-radius: 0;
+  --id-logo-pad: 0;
+  --id-logo-shadow: none;
+  --record-watermark-opacity: 0.07; /* 기록 카드 별 워터마크(다크는 약간 진하게) */
+  /* §24 인터랙션 — 호버/포커스 셰도우. 라이트=양피지 톤, 다크는 별빛 글로우(night 믹스인). */
+  --shadow-main-hover: inset 0 0 0 1px var(--gold-soft), 0 4px 12px rgba(50, 20, 45, 0.38);
+  --shadow-card-hover: 0 3px 9px rgba(60, 40, 18, 0.16);
+  --shadow-focus-ring:
+    inset 0 1px 3px rgba(70, 45, 18, 0.16),
+    0 0 0 2px color-mix(in oklch, var(--gold) 28%, transparent);
 }
 
 /* ============================================================
@@ -121,6 +134,24 @@
   --txt-emboss: 0 1px 2px rgba(0, 0, 0, 0.6);
   --bcell-light: #2a2547; /* 시안 .theme-night .bcell:nth-child(even) */
   --memo-rule: rgba(180, 170, 220, 0.13); /* 메모 줄무늬(차가운 보라) — 시안 .theme-night */
+  /* 다크 로고 — 진한 상단 글자 가독성용 크림 명판 + 별빛(시안 .theme-night .id-logo). */
+  --id-logo-bg: radial-gradient(
+    120% 130% at 50% 40%,
+    rgba(247, 243, 255, 0.96),
+    rgba(238, 232, 250, 0.82)
+  );
+  --id-logo-border: 1px solid var(--gold-soft);
+  --id-logo-radius: 9px;
+  --id-logo-pad: 6px 9px;
+  --id-logo-shadow: 0 0 14px rgba(200, 162, 79, 0.28), 0 2px 6px rgba(0, 0, 0, 0.45);
+  --record-watermark-opacity: 0.1; /* 시안 .theme-night .record-card::after */
+  /* §24 — 별빛 글로우(시안 .theme-night --glow: 150 110 235). rgb()/slash로 알파 합성. */
+  --glow: 150 110 235;
+  --shadow-main-hover:
+    inset 0 0 0 1px var(--gold-soft), 0 0 22px rgb(var(--glow) / 0.6),
+    0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px rgb(var(--glow) / 0.25);
+  --shadow-focus-ring: inset 0 1px 4px rgba(0, 0, 0, 0.45), 0 0 0 2px rgb(var(--glow) / 0.35);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-aster-theme]) {
@@ -204,7 +235,7 @@
   .sheet__body {
     display: grid;
     /* STEP 2 갱신 — 좌측 2열에 idn/abil/stel/memo 세로 스택, 우측 346px에 inv.
-       abil(능력치+활력 2열)·id-fields(이름+속성 가로)가 좌측 전폭(2열)을 쓴다. */
+       abil(능력치+활력 2열)·identity(좌측열·이름·초상·판정 그리드)가 좌측 전폭(2열)을 쓴다. */
     grid-template-columns: 1fr 1fr 346px;
     /* memo 행만 1fr — 윈도우 세로가 늘면 남는 높이를 memo가 흡수(아래로 늘어남).
        inv는 4행 전체를 span+stretch라 그리드 총높이를 채운다. */
@@ -334,37 +365,152 @@
   }
 
   /* ---------- 정체성 패널 ---------- */
-  /* STEP 2 — 초상(2행 span) | 이름·속성(가로) / 판정(가로) */
+  /* change.txt — 좌측 열(로고·속성·엠블럼) | 이름(초상화 위) / 초상화(중앙)·판정(우측).
+     "left name name" / "left port roll" 2행 그리드. */
   .identity {
     display: grid;
-    grid-template-columns: 122px 1fr;
+    grid-template-columns: 1fr 172px 1fr;
     grid-template-areas:
-      "port fields"
-      "port roll";
-    gap: 10px 13px;
+      "left name name"
+      "left port roll";
+    gap: 11px 16px;
     align-items: stretch;
   }
-  .id-fields {
-    grid-area: fields;
+  /* 이름 — 초상화 위·우측 상단 */
+  .id-row {
+    grid-area: name;
     display: flex;
-    gap: 10px;
     align-items: end;
 
-    .field {
-      gap: 4px;
-    }
     .field--name {
       flex: 1;
-    }
-    .field--aff {
-      width: 104px;
-      flex: none;
+      gap: 4px;
     }
   }
+  /* 좌측 열(전체 높이) — 로고 · 디바이더 · 속성 · 임시 엠블럼 */
+  .id-left {
+    grid-area: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 2px;
+  }
+  .id-logo {
+    width: 100%;
+    max-width: 152px;
+    height: auto;
+    display: block;
+    /* 다크 명판(라이트=none) — 진한 상단 글자가 별밤에 묻히지 않게. 토큰은 night 믹스인에서 교체. */
+    background: var(--id-logo-bg);
+    border: var(--id-logo-border);
+    border-radius: var(--id-logo-radius);
+    padding: var(--id-logo-pad);
+    box-shadow: var(--id-logo-shadow);
+  }
+  .id-div {
+    width: 78%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--gold-soft) 25%,
+      var(--gold-soft) 75%,
+      transparent
+    );
+  }
+  .id-aff {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+
+    .aff-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--ink-soft);
+      white-space: nowrap;
+    }
+  }
+  .id-affbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 5px 10px 5px 6px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.16);
+
+    /* 정적 시안의 .aff-name 자리 — 실제 select. affbox에 녹아들게 크롬 제거. */
+    select {
+      font-weight: 700;
+      color: var(--ink-strong);
+      cursor: pointer;
+    }
+    .chev {
+      color: var(--ink-soft);
+      font-size: 10px;
+    }
+  }
+  /* 원소색 아이콘 박스 — 색은 --el-* 토큰(다크 자동 호환) */
+  .aff-ico {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 12px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+      0 1px 2px rgba(40, 26, 12, 0.3);
+
+    &--red {
+      background: var(--el-red);
+    }
+    &--blue {
+      background: var(--el-blue);
+    }
+    &--green {
+      background: var(--el-green);
+    }
+    &--yellow {
+      background: var(--el-yellow);
+    }
+    &--white {
+      background: var(--el-white);
+    }
+  }
+  /* 임시 직사각 엠블럼 자리. 추후 system.color별 로고로 교체 — 템플릿이 .id-emblem--{color}를
+     붙이므로, 이미지 준비되면 색상별 background-image 모디파이어만 추가하면 점선 박스가 교체됨. */
+  .id-emblem {
+    width: 100%;
+    max-width: 150px;
+    aspect-ratio: 5 / 2;
+    border: 1px dashed var(--gold-soft);
+    border-radius: var(--hb-radius-sm);
+    background: var(--parchment-sunk);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: grid;
+    place-items: center;
+    color: var(--ink-faint);
+    font-size: 11px;
+    letter-spacing: 1px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.12);
+  }
+  /* 초상화 중앙(크기 유지) */
   .panel--identity .portrait {
     grid-area: port;
+    width: 172px;
     height: 100%;
+    min-height: 158px;
     aspect-ratio: auto;
+    align-self: stretch;
+    justify-self: center;
   }
   .portrait {
     position: relative;
@@ -493,46 +639,44 @@
     border-radius: var(--hb-radius);
     background: rgba(232, 219, 184, 0.4);
   }
-  /* STEP 2 — 판정 가로 1줄 (일반/대항 + 목표 + 정동판정) */
+  /* change.txt — 판정: 세로 스택(일반·대항 / 목표 / 정동판정). 초상화 우측 열을 채운다. */
   .roll--wide {
     grid-area: roll;
-    margin-top: 0;
-    /* change.txt — 그리드 영역 높이를 채움(정체성 패널 정합). */
-    height: 100%;
+    margin: 0;
+    height: auto;
     display: flex;
-    /* 일반/대항(seg) · 목표 · 정동판정 버튼을 한 줄에 배치(버튼은 flex로 남은 폭 채움). */
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
+    flex-direction: column;
+    gap: 9px;
+    justify-content: center;
+    padding: 11px 12px;
 
+    .roll__row {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
     .seg {
-      width: auto;
-      margin-bottom: 0;
-
-      label {
-        /* change.txt — seg 버튼 높이 키움(9→12). */
-        padding: 12px 14px;
-      }
+      width: 100%;
+      margin: 0;
     }
     .roll__target {
-      margin-bottom: 0;
-      gap: 8px;
+      justify-content: center;
+      gap: 9px;
+      margin: 0;
       white-space: nowrap;
     }
     .btn-cast {
-      /* seg·목표와 같은 줄에서 남은 폭 채움 + 아이콘·텍스트 중앙. */
-      flex: 1;
       margin: 0;
       display: flex;
       align-items: center;
       justify-content: center;
     }
   }
-  /* change.txt — 정체성 패널의 정동판정 버튼은 크게(전폭 줄). */
+  /* change.txt — 정체성 패널의 정동판정 버튼은 크게. */
   .panel--identity .btn-cast {
-    padding: 15px 0;
+    padding: 12px 0;
     font-size: 17px;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
   }
   .roll__title {
     font-family: var(--font-display);
@@ -626,6 +770,12 @@
       font-weight: 700;
       font-size: 15px;
     }
+  }
+  /* change.txt — 정체성 패널의 목표 인장은 크게. */
+  .panel--identity .seal {
+    width: 46px;
+    height: 46px;
+    font-size: 23px;
   }
   .btn-cast {
     width: 100%;
@@ -830,16 +980,20 @@
   }
 
   /* ---------- 상태이상 ---------- */
+  /* change.txt — 가로 가운데 정렬 + 간격 소폭(5→6). */
   .status {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    justify-content: center;
+    gap: 6px;
   }
   .herb-tag {
     position: relative;
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    /* change.txt — 태그 텍스트/글리프 세로 정합. */
+    line-height: 1.1;
     font-size: 12.5px;
     padding: 4px 10px;
     border-radius: 20px;
@@ -1963,8 +2117,18 @@
     .panel__head {
       margin: -2px 0 10px;
     }
+    /* change.txt — 제목 입력을 가운데 정렬 + 큰 num 글꼴(.val 정적 시안 / input 라이브 공통). */
     .input-line {
       margin-bottom: 8px;
+      justify-content: center;
+
+      input,
+      .val {
+        font-family: var(--font-num);
+        font-size: 17px;
+        font-weight: 600;
+        text-align: center;
+      }
     }
   }
   .area {
@@ -1998,34 +2162,54 @@
     /* 세션 네비↔카드 사이 간격 축소(16→10). */
     margin-bottom: 10px;
   }
+  /* change.txt — 책갈피형 페이지네이션(둥근 플라크 안에 버튼·카운트). */
   .pager {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 4px;
+    background: var(--parchment-sunk);
+    border: 1px solid var(--gold-soft);
+    border-radius: 22px;
+    padding: 3px 6px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.12);
 
     .count {
       font-family: var(--font-num);
-      font-size: 15px;
+      font-size: 14px;
       color: var(--ink-strong);
-      min-width: 40px;
-      text-align: center;
+      min-width: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+
+      /* 카운트 양옆 작은 별 장식 */
+      &::before,
+      &::after {
+        @include fa("\f005"); /* star */
+        font-size: 6px;
+        color: var(--gold-soft);
+      }
     }
   }
   .pager-btn {
-    width: 34px;
-    height: 32px;
+    width: 30px;
+    height: 28px;
     display: grid;
     place-items: center;
-    border-radius: var(--hb-radius-sm);
-    background: var(--parchment-sunk);
-    border: 1px solid var(--gold);
+    border-radius: 16px;
+    background: none;
+    border: none;
     color: var(--ink-soft);
-    font-size: 13px;
+    font-size: 12px;
     cursor: pointer;
 
+    &:not(.is-off):not(:disabled):hover {
+      background: var(--parchment-deep);
+    }
     &.is-off,
     &:disabled {
-      opacity: 0.4;
+      opacity: 0.35;
       cursor: not-allowed;
     }
   }
@@ -2059,6 +2243,9 @@
     }
   }
   .record-card {
+    /* change.txt — 우상단 흐린 별 워터마크를 카드 안에 가두기 위해 relative+clip. */
+    position: relative;
+    overflow: hidden;
     background: var(--parchment-soft);
     border: 1px solid var(--gold);
     border-radius: var(--hb-radius);
@@ -2069,6 +2256,19 @@
     box-shadow: 0 2px 6px rgba(60, 40, 18, 0.1);
     /* 남는 세로 공간을 채워 화면 하단까지 늘어난다(윈도우를 키우면 함께 커짐). */
     flex: 1 0 auto;
+
+    /* 우상단 흐린 별 워터마크. 다크는 약간 진하게(--record-watermark-opacity 토큰). */
+    &::after {
+      @include fa("\f005"); /* star */
+      position: absolute;
+      top: -18px;
+      right: -12px;
+      font-size: 96px;
+      color: var(--gold);
+      opacity: var(--record-watermark-opacity);
+      transform: rotate(18deg);
+      pointer-events: none;
+    }
   }
   /* 기록이 없을 때의 안내도 동일하게 영역을 채운다. */
   .record > .ap-note {
@@ -2083,6 +2283,20 @@
     flex-wrap: wrap;
     gap: 10px 32px;
     box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.1);
+  }
+  /* change.txt — 체재도시 헤더 라인: 위치 아이콘 + 강조면. (템플릿 첫 .rec-line에 부여) */
+  .rec-line--head {
+    align-items: center;
+    background: var(--parchment-deep);
+    border-color: var(--gold-soft);
+
+    &::before {
+      @include fa("\f3c5"); /* map-marker-alt */
+      font-size: 13px;
+      color: var(--gold);
+      margin-right: -16px;
+      align-self: center;
+    }
   }
   .pair {
     display: flex;
@@ -2106,12 +2320,19 @@
     flex-direction: column;
     gap: 7px;
 
+    /* change.txt — 블록 제목에 작은 별 마커 + 굵게. */
     > .k {
       font-size: 13px;
       letter-spacing: 1px;
       color: var(--ink-soft);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       &::before {
-        content: none;
+        @include fa("\f005"); /* star */
+        font-size: 8px;
+        color: var(--gold);
       }
     }
   }
@@ -2995,7 +3216,7 @@
   .dialog__bar .t small,
   .frow > label,
   .mat-in .lbl,
-  .id-fields .field > label {
+  .id-row .field > label {
     font-weight: var(--weight-sm);
   }
 }

@@ -12,29 +12,29 @@
   {{/if}}
 
   <div class="roll-block">
+    <div class="dice-pips">{{dicePips resultDiceset}}</div>
     <div class="dice">
       {{#if extraN}}
       <div class="extra-info">{{localize "ASTER.spell.extraUsed"}}: {{extraColorLabel}} × {{extraN}}</div>
       {{/if}}
-      <div class="selected-dice">[{{diceText}}]</div>
-      {{#if discardedDiceText}}
+      <span class="selected-dice">[{{diceText}}]</span> · 2d({{breakdown.base}}) + {{breakdown.ability}} {{#if
+      breakdown.specialty}}+ {{localize "ASTER.spell.specialty"}}({{breakdown.specialty}}){{/if}} {{#if
+      breakdown.penalties.sleepy}}{{breakdown.penalties.sleepy}} ({{localize "ASTER.badstatus.sleepy"}}){{/if}} {{#if
+      breakdown.penalties.satiety}}{{breakdown.penalties.satiety}} ({{localize "ASTER.label.satiety"}}){{/if}} {{#if
+      discardedDiceText}}
       <div class="discarded-dice">{{localize "ASTER.spell.discarded"}}: ({{discardedDiceText}})</div>
       {{/if}}
     </div>
-    <div class="breakdown">
-      2d({{breakdown.base}}) + {{breakdown.ability}} {{#if breakdown.specialty}}+ {{localize
-      "ASTER.spell.specialty"}}({{breakdown.specialty}}){{/if}} {{#if
-      breakdown.penalties.sleepy}}{{breakdown.penalties.sleepy}} ({{localize "ASTER.badstatus.sleepy"}}){{/if}} {{#if
-      breakdown.penalties.satiety}}{{breakdown.penalties.satiety}} ({{localize "ASTER.label.satiety"}}){{/if}} =
-      <strong>{{achievement}}</strong>
-      / {{localize "ASTER.spell.target"}} {{target}}
+    <div class="roll-total">
+      <strong>{{achievement}}</strong><span class="vs">/ {{localize "ASTER.spell.target"}} {{target}}</span>
     </div>
-    <div
-      class="verdict {{#if isCritical}}critical{{else if isFumble}}fumble{{else if success}}success{{else}}fail{{/if}}"
-    >
-      {{#if isCritical}}{{localize "ASTER.roll.critical"}} {{else if isFumble}}{{localize "ASTER.roll.fumble"}} {{else
-      if success}}{{localize "ASTER.spell.success"}} {{else}}{{localize "ASTER.spell.fail"}} {{/if}}
+    {{!-- 대성공/대실패는 공통 배너(기본 template)로, 일반 성공/실패는 기존 verdict로 표시 --}} {{#if isCritical}} {{>
+    "systems/aster/templates/chatcard/critfumble-banner.html"}} {{else if isFumble}} {{>
+    "systems/aster/templates/chatcard/critfumble-banner.html"}} {{else}}
+    <div class="verdict {{#if success}}success{{else}}fail{{/if}}">
+      {{#if success}}{{localize "ASTER.spell.success"}}{{else}}{{localize "ASTER.spell.fail"}}{{/if}}
     </div>
+    {{/if}}
   </div>
 
   {{#if effect}}

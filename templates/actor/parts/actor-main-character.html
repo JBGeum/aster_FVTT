@@ -2,42 +2,52 @@
 .herbarium 래퍼 없이 section만 출력. 값·동작은 현재 바인딩. --}} {{!-- 정체성 (idn) --}}
 <section class="panel panel--identity" data-corner="✿">
   <div class="identity">
-    <div class="portrait">
-      <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
-    </div>
-    {{!-- STEP 2 — 이름 + 속성 가로(.id-fields) --}}
-    <div class="id-fields">
+    {{!-- change.txt — 이름: 초상화 위·우측 상단(.id-row) --}}
+    <div class="id-row">
       <div class="field field--name">
         <label>이름</label>
         <div class="input-line">
           <input name="name" type="text" value="{{actor.name}}" placeholder="캐릭터이름" />
         </div>
       </div>
-      <div class="field field--aff">
-        <label>속성</label>
-        <div class="input-line">
-          <span class="affinity-dot affinity-dot--{{system.color}}"></span>
+    </div>
+    {{!-- change.txt — 좌측 열: 로고 · 디바이더 · 속성 · 임시 엠블럼(.id-left) --}}
+    <div class="id-left">
+      <img class="id-logo" src="systems/aster/assets/aster-logo.png" alt="마녀와 채애의 아스테르" />
+      <div class="id-div"></div>
+      <div class="id-aff">
+        <span class="aff-label">속성</span>
+        <div class="id-affbox">
+          <span class="aff-ico aff-ico--{{system.color}}"></span>
           <select name="system.color">
             {{selectOptions config.color selected=system.color localize=true}}
           </select>
         </div>
       </div>
+      {{!-- 임시 점선 박스. 추후 system.color별 로고 이미지로 교체(.id-emblem--{color} background-image). --}}
+      <div class="id-emblem id-emblem--{{system.color}}">로고</div>
     </div>
-    {{!-- STEP 2 — 판정 가로 1줄(.roll--wide) --}}
+    {{!-- 초상화 (중앙) --}}
+    <div class="portrait">
+      <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+    </div>
+    {{!-- change.txt — 판정: 세로 스택(.roll__row > 일반·대항 + 목표) + 정동판정(.roll--wide) --}}
     <div class="roll roll--wide">
-      <div class="seg">
-        <label>
-          <input type="radio" name="system.rollMode" value="normal" {{checked rollModeNormal}} />
-          <span>일반</span>
-        </label>
-        <label>
-          <input type="radio" name="system.rollMode" value="vs" {{checked rollModeVs}} />
-          <span>대항</span>
-        </label>
-      </div>
-      <div class="roll__target">
-        <span class="lbl">목표</span>
-        <span class="seal num"><input type="number" name="system.dc" value="{{system.dc}}" /></span>
+      <div class="roll__row">
+        <div class="seg">
+          <label>
+            <input type="radio" name="system.rollMode" value="normal" {{checked rollModeNormal}} />
+            <span>일반</span>
+          </label>
+          <label>
+            <input type="radio" name="system.rollMode" value="vs" {{checked rollModeVs}} />
+            <span>대항</span>
+          </label>
+        </div>
+        <div class="roll__target">
+          <span class="lbl">목표</span>
+          <span class="seal num"><input type="number" name="system.dc" value="{{system.dc}}" /></span>
+        </div>
       </div>
       <button type="button" class="btn-cast" data-action="emoRoll" data-label="ASTER.emo.rollLabel">
         {{localize "ASTER.emo.roll"}}

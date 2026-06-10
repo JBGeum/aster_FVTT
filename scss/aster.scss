@@ -23,6 +23,7 @@
 @use "sheet/combat-tab";
 @use "sheet/item-base";
 @use "sheet/herbarium"; // ⭐ H8 — 약초첩 시안 편입 (.herbarium 스코프)
+@use "sheet/interactions"; // §24 — 호버/포커스/스크롤바 (.herbarium 스코프)
 
 // Component
 @use "component/gm-panel";

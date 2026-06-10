@@ -2443,6 +2443,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       isPC: this.actor.type === "character",
       breakdown: result.breakdown,
       diceText: selectedDice.join(", "),
+      resultDiceset: selectedDice, // .dice-pips 시각화용(고른 2개)
       discardedDiceText: extraDice.length ? extraDice.join(", ") : "",
       extraN: ctx.n,
       extraColor: ctx.color,

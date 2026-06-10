@@ -77,7 +77,8 @@
 
     {{!-- 세션 일지 카드 --}} {{#if currentRecord}}
     <div class="record-card" data-item-id="{{currentRecord.id}}">
-      <div class="rec-line">
+      {{!-- change.txt — 체재도시 헤더 라인(위치 아이콘 + 강조면) --}}
+      <div class="rec-line rec-line--head">
         <div class="pair">
           <span class="k">{{localize "ASTER.record.city"}}</span><span class="v">{{currentRecord.city}}</span>
         </div>

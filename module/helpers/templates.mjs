@@ -23,6 +23,9 @@ export const preloadHandlebarsTemplates = async function () {
     "systems/aster/templates/chatcard/roll-asterabl-emo.html",
     "systems/aster/templates/chatcard/roll-asterabl-vs.html",
     "systems/aster/templates/chatcard/opposed-result.html",
+    // 대성공/대실패 전용 카드 + 공통 배너(기본 template — partial)
+    "systems/aster/templates/chatcard/critfumble-banner.html",
+    "systems/aster/templates/chatcard/roll-critfumble.html",
 
     // Apps
     "systems/aster/templates/apps/gm-panel.html",
@@ -64,4 +67,16 @@ export function registerHandlebarsHelpers() {
   Handlebars.registerHelper("join", (arr, sep) =>
     Array.isArray(arr) ? arr.join(typeof sep === "string" ? sep : ", ") : "",
   );
+  // 다이스 눈 시각화 — d6 결과 배열을 Font Awesome 주사위 아이콘(fa-dice-*)으로. 챗카드 .dice-pips.
+  const DICE_WORDS = ["one", "two", "three", "four", "five", "six"];
+  Handlebars.registerHelper("dicePips", (dice) => {
+    if (!Array.isArray(dice)) return "";
+    const icons = dice
+      .map((v) => {
+        const word = DICE_WORDS[Number(v) - 1];
+        return word ? `<i class="fa-solid fa-dice-${word}"></i>` : "";
+      })
+      .join("");
+    return new Handlebars.SafeString(icons);
+  });
 }

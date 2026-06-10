@@ -1,0 +1,138 @@
+/* ============================================================
+ *  §24 인터랙션 상태 — 호버 / 포커스 / 스크롤바
+ *  (change.txt 이관. 정적 목업엔 없지만 실사용 품질 담당)
+ *
+ *  목업과 라이브 차이 적응:
+ *   - 루트 .sheet            → .herbarium
+ *   - 다크 .theme-night X    → 토큰(--shadow-*·--glow)으로 흡수(테마 자동 전환)
+ *   - 상태 .is-on/.is-active → 라이브 실제 셀렉터(:has(input:checked) / .tabs .item.active)
+ * ============================================================ */
+.herbarium {
+  /* ---------- 공통 트랜지션 ---------- */
+  .btn-cast,
+  .ap-fire,
+  .btn-craft,
+  .btn-add,
+  .rec-btn,
+  .pager-btn,
+  .seg label,
+  .tabs .item,
+  .recipe,
+  .item,
+  .bitem,
+  .herb-tag,
+  .spell-card,
+  .cslot,
+  .lock,
+  .input-line,
+  .f-input,
+  .f-select,
+  .el__step span,
+  .item__edit,
+  .item__del,
+  .spell-card__tools span {
+    transition:
+      background-color 0.12s ease,
+      color 0.12s ease,
+      border-color 0.12s ease,
+      box-shadow 0.15s ease,
+      transform 0.12s ease,
+      filter 0.12s ease;
+  }
+
+  /* ---------- 주 액션 — 살짝 밝아지며 1px 떠오름(다크는 별빛 글로우) ---------- */
+  .btn-cast:hover,
+  .ap-fire:hover,
+  .btn-craft:hover {
+    filter: brightness(1.07);
+    box-shadow: var(--shadow-main-hover);
+    transform: translateY(-1px);
+  }
+
+  /* ---------- 보조 버튼·칩 ---------- */
+  .btn-add:hover,
+  .rec-btn:hover,
+  .lock:hover {
+    background: var(--parchment-deep);
+    color: var(--ink-strong);
+  }
+  /* seg: 라이브는 label + :has(input:checked) 활성 → 비활성만 hover */
+  .seg label:not(:has(input:checked)):hover {
+    background: var(--parchment-deep);
+    color: var(--ink-strong);
+  }
+  /* 탭: 라이브는 nav.tabs > .item + .active(Foundry) */
+  .tabs .item:not(.active):hover {
+    color: var(--ink-strong);
+  }
+  /* 상태이상 칩: 라이브는 :has(input:checked) 체크 → 미체크만 hover */
+  .herb-tag:not(:has(input:checked)):hover {
+    border-color: var(--gold);
+    color: var(--ink-strong);
+  }
+
+  /* ---------- 카드·리스트 — 미세한 리프트(다크는 글로우 동반) ---------- */
+  .recipe:not(.is-locked):hover {
+    border-color: var(--gold);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-card-hover);
+  }
+  .spell-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-card-hover);
+  }
+  .item:hover {
+    background: color-mix(in oklch, var(--parchment-deep) 45%, transparent);
+  }
+  .bitem:hover {
+    border-color: var(--gold);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+      0 3px 8px rgba(40, 26, 12, 0.3);
+  }
+  .item__edit:hover,
+  .spell-card__tools span:hover {
+    color: var(--ink-strong);
+  }
+  .item__del:hover,
+  .spell-card__tools .del:hover {
+    opacity: 1;
+  }
+
+  /* ---------- 포커스 (접근성) ---------- */
+  :is(input, select, textarea, button):focus-visible {
+    outline: 1.5px solid var(--gold);
+    outline-offset: 1px;
+  }
+  /* 입력 칸 — 금테 + 부드러운 링(다크는 별빛 링) */
+  .input-line:focus-within,
+  .f-input:focus-within,
+  .f-select:focus-within,
+  .memo:focus-within,
+  .area:focus-within {
+    border-color: var(--gold);
+    box-shadow: var(--shadow-focus-ring);
+  }
+
+  /* ---------- 커스텀 스크롤바 — 양피지/별밤 톤(토큰 자동 전환) ---------- */
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-soft) var(--parchment-sunk);
+
+  /* 자식 스크롤 영역(.items·textarea 등) — 목업 ".sheet ::scrollbar" 정합(descendant) */
+  ::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--parchment-sunk);
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--gold-soft);
+    border-radius: 8px;
+    border: 2px solid var(--parchment-sunk);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--gold);
+  }
+}

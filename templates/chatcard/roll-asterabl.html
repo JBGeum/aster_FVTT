@@ -7,6 +7,7 @@
   </header>
 
   <div class="roll-block">
+    <div class="dice-pips">{{dicePips resultDiceset}}</div>
     <div class="dice">[{{diceText}}] + {{ablValue}}</div>
     {{#if focusApplied}}
     <div class="focus-applied-line">{{localize "ASTER.combat.focusApplied"}}</div>
@@ -15,7 +16,7 @@
     {{/if}} {{#if penalties.satiety}}
     <div class="penalty-line">{{localize "ASTER.label.satiety"}}: {{penalties.satiety}}</div>
     {{/if}}
-    <div class="breakdown">{{total}} &ge; {{rollDC}}</div>
+    <div class="roll-total"><strong>{{total}}</strong><span class="vs">&ge; DC {{rollDC}}</span></div>
     <div
       class="verdict {{#if isCritical}}critical{{else if isFumble}}fumble{{else if isSuccess}}success{{else}}fail{{/if}}"
     >

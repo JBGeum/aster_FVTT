@@ -45,7 +45,9 @@
       "critGained": "{actor} — 대성공 아스테르 획득",
       "critOwnerOnly": "본인 또는 GM만 획득 처리할 수 있습니다.",
       "fumbleAlert": "경계도 +1d6",
-      "fumbleAlertFlavor": "대실패 — 경계도 +{delta} (누적 {total})"
+      "fumbleAlertFlavor": "대실패 — 경계도 +{delta} (누적 {total})",
+      "alertRiseTitle": "경계도 상승",
+      "alertCumulative": "누적 경계도"
     },
     "opposed": {
       "setActive": "능동 지정",

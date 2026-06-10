@@ -189,6 +189,8 @@
     }
   }
 
+  // 대성공/대실패 임팩트 배너는 .verdict.critical/.fumble로 통일 — 파일 하단 전용 섹션 참조.
+
   // ── 부가 정보 블록 ──
   .effect,
   .alert-block,
@@ -434,43 +436,116 @@
 
   // ── 소모품 사용 카드 ──
   &.consumable-card {
-    .heal-line {
-      margin-top: 0.3em;
-      color: var(--cc-success);
+    .consumable-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 2px;
+    }
+    .heal-line,
+    .cure-all-line,
+    .cure-line {
+      margin: 0;
+      padding: 6px 11px;
+      border-radius: 6px;
       font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+      row-gap: 2px;
+    }
+    .heal-line {
+      color: var(--cc-success);
+      background: color-mix(in oklch, var(--cc-success) 10%, transparent);
+      border: 1px solid color-mix(in oklch, var(--cc-success) 35%, var(--cc-rule));
+      &::before {
+        @include fa("\f004"); // heart
+        font-size: 0.82em;
+      }
+      strong {
+        font-family: var(--cc-font-num);
+        font-size: 1.1em;
+        white-space: nowrap;
+      }
     }
     .cure-all-line,
     .cure-line {
-      margin-top: 0.3em;
       color: var(--cc-el-blue);
-      font-weight: 600;
-      .cured-none {
-        font-style: italic;
-        color: var(--cc-ink-faint);
-        font-weight: 400;
+      background: color-mix(in oklch, var(--cc-el-blue) 9%, transparent);
+      border: 1px solid color-mix(in oklch, var(--cc-el-blue) 32%, var(--cc-rule));
+      &::before {
+        @include fa("\f890"); // sparkles
+        font-size: 0.82em;
       }
+    }
+    .cured-keys {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .cured-none {
+      font-style: italic;
+      color: var(--cc-ink-faint);
+      font-weight: 400;
     }
   }
 
   // ── 협력 회복 카드 ──
   &.revive-card {
     .fallen-line {
-      margin: 0.3em 0;
+      margin: 2px 0 0;
+      padding: 7px 11px;
+      border-radius: 6px;
       font-weight: 600;
+      font-size: 0.9rem;
       color: var(--cc-success);
+      background: color-mix(in oklch, var(--cc-success) 10%, transparent);
+      border: 1px solid color-mix(in oklch, var(--cc-success) 35%, var(--cc-rule));
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      &::before {
+        @include fa("\f4be"); // hand-holding-heart
+        font-size: 0.85em;
+      }
     }
     .satiety-section {
-      margin-top: 0.5em;
+      margin-top: 8px;
+      border-top: 1px solid var(--cc-rule);
+      padding-top: 6px;
       .section-label {
-        font-size: 0.9em;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 1px;
         color: var(--cc-ink-faint);
-        margin-bottom: 0.2em;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        &::before {
+          @include fa("\f2e7"); // utensils
+          font-size: 0.9em;
+          color: var(--cc-gold);
+        }
       }
       .satiety-lines {
         margin: 0;
-        padding-left: 1.2em;
-        font-size: 0.9em;
-        color: var(--cc-ink-soft);
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        li {
+          font-size: 0.82rem;
+          font-weight: 600;
+          color: var(--cc-ink-soft);
+          font-family: var(--cc-font-num);
+          padding: 3px 10px;
+          border-radius: 14px;
+          background: color-mix(in oklch, var(--cc-fail) 8%, transparent);
+          border: 1px solid color-mix(in oklch, var(--cc-fail) 28%, var(--cc-rule));
+        }
       }
     }
   }
@@ -484,41 +559,71 @@
   &.picnic-card {
     .picnic-item {
       display: flex;
-      gap: 9px;
+      gap: 11px;
+      align-items: flex-start;
       img {
-        width: 44px;
-        height: 44px;
+        width: 50px;
+        height: 50px;
         object-fit: cover;
         border: 1px solid var(--cc-gold);
-        border-radius: 5px;
+        border-radius: 6px;
+        box-shadow:
+          inset 0 0 0 2px var(--cc-surface),
+          0 1px 4px rgba(60, 40, 18, 0.2);
       }
     }
     .picnic-info {
       min-width: 0;
+      flex: 1;
     }
     .picnic-item-name {
       font-weight: 700;
+      font-size: 1rem;
       color: var(--cc-ink);
     }
     .picnic-restore {
       font-family: var(--cc-font-num);
       font-size: 0.86rem;
+      font-weight: 600;
       color: var(--cc-success);
-      margin-top: 1px;
+      margin-top: 3px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 14px;
+      background: color-mix(in oklch, var(--cc-success) 10%, transparent);
+      border: 1px solid color-mix(in oklch, var(--cc-success) 32%, var(--cc-rule));
+      &::before {
+        @include fa("\f2e7"); // utensils
+        font-size: 0.8em;
+      }
       strong {
         color: var(--cc-success);
+        font-size: 1.12em;
       }
     }
     .picnic-bonus {
       margin-top: 8px;
-      border-top: 1px solid var(--cc-rule);
-      padding-top: 5px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: var(--cc-win-bg);
+      border: 1px solid color-mix(in oklch, var(--cc-crit) 35%, var(--cc-rule));
     }
     .bonus-label {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
+      font-weight: 700;
       color: var(--cc-ink-faint);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
+      margin-bottom: 1px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      &::before {
+        @include fa("\f005"); // star
+        font-size: 0.85em;
+        color: var(--cc-crit);
+      }
     }
     .bonus-text {
       font-size: 0.85rem;
@@ -530,12 +635,67 @@
   .action-effect {
     font-size: 0.88rem;
     color: var(--cc-ink);
+    line-height: 1.5;
+    padding: 7px 11px;
+    border-radius: 6px;
+    background: color-mix(in oklch, var(--cc-gold) 9%, transparent);
+    border: 1px solid color-mix(in oklch, var(--cc-gold) 35%, var(--cc-rule));
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    &::before {
+      @include fa("\f3ed"); // shield-halved
+      font-size: 0.85em;
+      color: var(--cc-gold);
+      margin-top: 3px;
+    }
+  }
+  &.npc-action-card .action-effect::before {
+    @include fa("\f6de"); // fist
+    color: var(--cc-fail);
+  }
+  &.combat-action-card .card-header .formula,
+  &.npc-action-card .card-header .formula {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 700;
+    color: var(--cc-ink-soft);
+    &::before {
+      @include fa("\f0e7"); // AP = bolt
+      font-size: 0.8em;
+      color: var(--cc-crit);
+    }
   }
   &.damage-result-card .damage-lines {
     margin: 0;
-    padding-left: 1.2em;
-    font-size: 0.86rem;
-    color: var(--cc-ink);
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    li {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--cc-ink);
+      font-family: var(--cc-font-num);
+      padding: 6px 11px;
+      border-radius: 6px;
+      background: color-mix(in oklch, var(--cc-fail) 8%, transparent);
+      border: 1px solid color-mix(in oklch, var(--cc-fail) 30%, var(--cc-rule));
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      &::before {
+        @include fa("\f0e7"); // bolt
+        font-size: 0.8em;
+        color: var(--cc-fail);
+      }
+      strong {
+        font-size: 1.14em;
+        color: var(--cc-fail);
+      }
+    }
   }
   .hit-result,
   .damage-results,
@@ -745,6 +905,450 @@
 }
 
 // ============================================================
+//  new 시안 갱신 — 판정 시각화(다이스 눈/최종값) · 대성공/대실패 임팩트 배너 ·
+//  속성색(.eltx-*) · 후속 카드(아스테르 획득/경계도 상승)
+//  메인 블록 뒤에 두어 기존 규칙을 소스 순서로 오버라이드한다.
+// ============================================================
+
+// ── 판정 결과 시각화 — 다이스 눈 나열 + 위계 구분(큐브 제거) ──
+.aster-chat-card .roll-block .dice::before {
+  content: none;
+}
+.aster-chat-card .roll-block .dice-pips {
+  margin: 2px 0 0;
+  font-size: 1.55rem;
+  gap: 8px;
+}
+.aster-chat-card .dice-pips.sm {
+  font-size: 1.02rem;
+  gap: 5px;
+  justify-content: flex-start;
+  margin: 2px 0 0;
+}
+// 산출식(각 눈 숫자 + 보정) — 보조 톤
+.aster-chat-card .roll-block .dice {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--cc-ink-soft);
+}
+.aster-chat-card .roll-block .dice .selected-dice {
+  display: inline;
+  font-size: 1em;
+}
+// 최종값 — 크게 + 양옆 헤어라인
+.aster-chat-card .roll-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--cc-font-num);
+  margin-top: 1px;
+}
+.aster-chat-card .roll-total::before,
+.aster-chat-card .roll-total::after {
+  content: "";
+  width: 26px;
+  height: 1px;
+  align-self: center;
+  background: linear-gradient(90deg, transparent, var(--cc-gold));
+}
+.aster-chat-card .roll-total::after {
+  background: linear-gradient(270deg, transparent, var(--cc-gold));
+}
+.aster-chat-card .roll-total strong {
+  font-size: 1.42rem;
+  line-height: 1.05;
+  color: var(--cc-ink);
+}
+.aster-chat-card .roll-total .vs {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--cc-ink-faint);
+}
+
+// ── 대성공 / 대실패 임팩트 배너 (.verdict.critical/.fumble) ──
+.aster-chat-card .verdict.critical,
+.aster-chat-card .verdict.fumble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: auto;
+  box-sizing: border-box;
+  margin-top: 6px;
+  padding: 7px 24px;
+  font-size: 1.04rem;
+  letter-spacing: 3px;
+  text-indent: 3px;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+// 대성공 — 금빛 배너 + 빛줄기 sweep + 양옆 별
+.aster-chat-card .verdict.critical {
+  color: #2e2410;
+  background:
+    linear-gradient(
+      110deg,
+      transparent 32%,
+      rgba(255, 255, 255, 0.55) 46%,
+      rgba(255, 255, 255, 0.18) 52%,
+      transparent 64%
+    ),
+    linear-gradient(180deg, #f0d488, var(--cc-crit));
+  background-size:
+    240% 100%,
+    100% 100%;
+  border: 1px solid #8a5f1c;
+  box-shadow:
+    0 0 18px var(--cc-crit-glow),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+    inset 0 -6px 12px rgba(138, 95, 28, 0.25);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  animation: cc-crit-shimmer 2.8s ease-in-out infinite;
+}
+.aster-chat-card .verdict.critical::before,
+.aster-chat-card .verdict.critical::after {
+  @include fa("\f005"); // star
+  font-size: 0.92em;
+  margin: 0;
+  text-indent: 0;
+  color: #6e4c12;
+  animation: cc-star-twinkle 1.9s ease-in-out infinite;
+}
+.aster-chat-card .verdict.critical::after {
+  @include fa("\f890"); // sparkles
+  font-size: 0.8em;
+  animation-delay: 0.6s;
+}
+@keyframes cc-crit-shimmer {
+  0%,
+  55% {
+    background-position:
+      -120% 0,
+      0 0;
+  }
+  85%,
+  100% {
+    background-position:
+      130% 0,
+      0 0;
+  }
+}
+@keyframes cc-star-twinkle {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.22) rotate(8deg);
+    opacity: 0.85;
+  }
+}
+// 대실패 — 저주 보라 배너 + 연기 비네트 + 해골
+.aster-chat-card .verdict.fumble {
+  color: #f3eaff;
+  background:
+    radial-gradient(130% 170% at 50% -20%, rgba(184, 154, 240, 0.5), transparent 55%),
+    radial-gradient(120% 150% at 50% 115%, rgba(16, 8, 28, 0.7), transparent 60%),
+    linear-gradient(180deg, #6b4394, #46295f);
+  border: 1px solid #321c47;
+  box-shadow:
+    0 0 16px rgba(122, 78, 160, 0.55),
+    inset 0 0 14px rgba(10, 4, 20, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  text-shadow: 0 1px 3px rgba(10, 4, 20, 0.6);
+  animation: cc-fumble-pulse 2.4s ease-in-out infinite;
+}
+.aster-chat-card .verdict.fumble::before,
+.aster-chat-card .verdict.fumble::after {
+  @include fa("\f54c"); // skull
+  font-size: 0.92em;
+  margin: 0;
+  text-indent: 0;
+  color: #cdb3ee;
+}
+.aster-chat-card .verdict.fumble::before {
+  animation: cc-skull-sway 2.4s ease-in-out infinite;
+}
+.aster-chat-card .verdict.fumble::after {
+  @include fa("\f0e7"); // bolt
+  font-size: 0.78em;
+  opacity: 0.75;
+}
+@keyframes cc-fumble-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 12px rgba(122, 78, 160, 0.4),
+      inset 0 0 14px rgba(10, 4, 20, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 22px rgba(122, 78, 160, 0.7),
+      inset 0 0 14px rgba(10, 4, 20, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+}
+@keyframes cc-skull-sway {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+// 카드 전체 상태 연출
+.aster-chat-card:has(.verdict.critical) {
+  border-color: var(--cc-crit);
+  box-shadow:
+    0 0 0 1px rgba(176, 125, 39, 0.3),
+    0 0 20px var(--cc-crit-glow),
+    0 2px 8px rgba(40, 26, 12, 0.25);
+}
+.aster-chat-card:has(.verdict.critical) .roll-block {
+  position: relative;
+}
+.aster-chat-card:has(.verdict.critical) .roll-block::before {
+  @include fa("\f005");
+  position: absolute;
+  top: 2px;
+  left: 8px;
+  font-size: 11px;
+  color: var(--cc-crit);
+  opacity: 0.4;
+}
+.aster-chat-card:has(.verdict.critical) .roll-block::after {
+  @include fa("\f890");
+  position: absolute;
+  top: 4px;
+  right: 9px;
+  font-size: 12px;
+  color: var(--cc-crit);
+  opacity: 0.45;
+}
+.aster-chat-card:has(.verdict.fumble) {
+  border-color: #6a4292;
+  box-shadow:
+    0 0 0 1px rgba(106, 66, 146, 0.35),
+    0 0 18px rgba(122, 78, 160, 0.35),
+    0 2px 8px rgba(20, 8, 30, 0.3);
+}
+// 모션 최소화 환경
+@media (prefers-reduced-motion: reduce) {
+  .aster-chat-card .verdict.critical,
+  .aster-chat-card .verdict.fumble,
+  .aster-chat-card .verdict.critical::before,
+  .aster-chat-card .verdict.critical::after,
+  .aster-chat-card .verdict.fumble::before {
+    animation: none;
+  }
+}
+
+// ── 속성 글자색 — 주/부 속성 표기(토큰 기반, 다크 자동 전환) ──
+.aster-chat-card .eltx-red {
+  color: var(--cc-el-red) !important;
+}
+.aster-chat-card .eltx-blue {
+  color: var(--cc-el-blue) !important;
+}
+.aster-chat-card .eltx-green {
+  color: var(--cc-el-green) !important;
+}
+.aster-chat-card .eltx-yellow {
+  color: var(--cc-el-yellow) !important;
+}
+.aster-chat-card .eltx-white {
+  color: var(--cc-ink-soft) !important;
+}
+
+// ── 후속 카드 — 아스테르 획득(대성공) / 경계도 상승(대실패) ──
+.aster-chat-card.aster-gain-card {
+  border-color: var(--cc-crit);
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(246, 239, 218, 0.5),
+    0 0 0 1px rgba(176, 125, 39, 0.22),
+    0 0 14px var(--cc-crit-glow),
+    0 2px 7px rgba(60, 40, 18, 0.16);
+}
+.aster-gain-card .card-header .name::before {
+  @include fa("\f005");
+  color: var(--cc-crit);
+  margin-right: 7px;
+  font-size: 0.82em;
+  vertical-align: 1px;
+}
+.aster-gain-card::after {
+  @include fa("\f005"); // 우상단 별 워터마크
+  position: absolute;
+  top: -16px;
+  right: -10px;
+  font-size: 64px;
+  line-height: 1;
+  color: var(--cc-crit);
+  opacity: 0.09;
+  transform: rotate(18deg);
+  pointer-events: none;
+}
+.aster-gain-card .gain-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 0 2px;
+}
+.aster-gain-card .gain-actor {
+  font-size: 0.8rem;
+  color: var(--cc-ink-soft);
+  letter-spacing: 1px;
+}
+.aster-gain-card .gain-actor strong {
+  color: var(--cc-crit);
+  font-weight: 700;
+}
+.aster-gain-card .gain-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.aster-gain-card .gain-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-family: var(--cc-font-num);
+  font-weight: 700;
+  font-size: 1.02rem;
+  color: var(--cc-ink);
+  background: var(--cc-win-bg);
+  border: 1px solid var(--cc-crit);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 1px 4px rgba(60, 40, 18, 0.14);
+}
+.aster-gain-card .gain-chip .dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  flex: none;
+  border: 1px solid rgba(60, 40, 18, 0.35);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35);
+}
+.aster-gain-card .gain-chip.el-red .dot {
+  background: var(--cc-el-red);
+}
+.aster-gain-card .gain-chip.el-blue .dot {
+  background: var(--cc-el-blue);
+}
+.aster-gain-card .gain-chip.el-green .dot {
+  background: var(--cc-el-green);
+}
+.aster-gain-card .gain-chip.el-yellow .dot {
+  background: var(--cc-el-yellow);
+}
+.aster-gain-card .gain-chip.el-white .dot {
+  background: #e9ddc0;
+}
+.aster-chat-card.alert-rise-card {
+  border-color: #6a4292;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(246, 239, 218, 0.5),
+    0 0 0 1px rgba(106, 66, 146, 0.28),
+    0 0 13px rgba(122, 78, 160, 0.3),
+    0 2px 7px rgba(60, 40, 18, 0.16);
+}
+.alert-rise-card .card-header .name::before {
+  @include fa("\f06e"); // 감시의 눈
+  color: var(--cc-fumble);
+  margin-right: 7px;
+  font-size: 0.82em;
+  vertical-align: 1px;
+}
+.alert-rise-card::after {
+  @include fa("\f54c"); // 우상단 해골 워터마크
+  position: absolute;
+  top: -12px;
+  right: -8px;
+  font-size: 58px;
+  line-height: 1;
+  color: var(--cc-fumble);
+  opacity: 0.08;
+  transform: rotate(14deg);
+  pointer-events: none;
+}
+.alert-rise-card .alert-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0 2px;
+}
+.alert-rise-card .alert-roll {
+  display: flex;
+  align-items: baseline;
+  gap: 11px;
+  font-family: var(--cc-font-num);
+  white-space: nowrap;
+  flex-wrap: nowrap;
+}
+.alert-rise-card .alert-roll .die {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--cc-ink);
+}
+.alert-rise-card .alert-roll .die::before {
+  @include fa("\f6d1"); // dice
+  color: var(--cc-fumble);
+  font-size: 0.8em;
+  margin-right: 7px;
+  vertical-align: 1px;
+}
+.alert-rise-card .alert-roll .delta {
+  font-weight: 700;
+  font-size: 1.04rem;
+  color: var(--cc-fumble);
+  letter-spacing: 1px;
+}
+.alert-rise-card .alert-total {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  padding: 7px 20px;
+  border-radius: 8px;
+  background:
+    radial-gradient(130% 170% at 50% -20%, rgba(184, 154, 240, 0.4), transparent 55%),
+    linear-gradient(180deg, #6b4394, #46295f);
+  border: 1px solid #321c47;
+  color: #f3eaff;
+  box-shadow:
+    inset 0 0 10px rgba(10, 4, 20, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 0 12px rgba(122, 78, 160, 0.4);
+}
+.alert-rise-card .alert-total .label {
+  font-size: 0.76rem;
+  letter-spacing: 2px;
+  opacity: 0.85;
+}
+.alert-rise-card .alert-total .value {
+  font-family: var(--cc-font-num);
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(10, 4, 20, 0.5);
+}
+
+// ============================================================
 //  다크(별밤) — Aster 테마 신호(data-aster-theme)에 연결.
 //  시트(herbarium)와 동일 정책: 명시 [data-aster-theme="dark"] + auto는 @media.
 //  .aster-night는 수동 훅으로 유지. Foundry .theme-dark 의존은 제거 —
@@ -776,15 +1380,95 @@
     &.fail {
       color: #2a1410;
     }
+    // 대실패 — 더 깊은 밤 보라 + 별빛 연무(밝은 글자 유지)
     &.fumble {
-      color: #1c1430;
+      color: #f6efff;
+      background:
+        radial-gradient(130% 170% at 50% -20%, rgba(196, 166, 255, 0.55), transparent 55%),
+        radial-gradient(120% 150% at 50% 115%, rgba(6, 2, 14, 0.85), transparent 60%),
+        linear-gradient(180deg, #7a4fae, #3c2158);
+      border-color: #2a163e;
+      box-shadow:
+        0 0 20px rgba(150, 110, 235, 0.6),
+        inset 0 0 16px rgba(4, 0, 12, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      &::before,
+      &::after {
+        color: #ddc9fb;
+      }
     }
+    // 대성공 — 별빛 금 + 동일 shimmer 레이어 유지
     &.critical {
       color: #2e2410;
-      background: linear-gradient(180deg, #f4dd8a, var(--cc-crit));
+      background:
+        linear-gradient(
+          110deg,
+          transparent 32%,
+          rgba(255, 255, 255, 0.6) 46%,
+          rgba(255, 255, 255, 0.2) 52%,
+          transparent 64%
+        ),
+        linear-gradient(180deg, #f6e29a, var(--cc-crit));
+      background-size:
+        240% 100%,
+        100% 100%;
+      border-color: #9c7d2e;
       box-shadow:
-        0 0 14px var(--cc-crit-glow),
-        inset 0 1px 0 rgba(255, 255, 255, 0.45);
+        0 0 22px var(--cc-crit-glow),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.45),
+        inset 0 -6px 12px rgba(140, 105, 30, 0.3);
+      &::before,
+      &::after {
+        color: #7a5a16;
+      }
+    }
+  }
+  // 카드 전체 글로우 강화
+  &:has(.verdict.critical) {
+    box-shadow:
+      0 0 0 1px rgba(236, 205, 106, 0.35),
+      0 0 24px var(--cc-crit-glow),
+      0 2px 10px rgba(0, 0, 0, 0.5);
+  }
+  &:has(.verdict.fumble) {
+    border-color: #7a55a8;
+    box-shadow:
+      0 0 0 1px rgba(150, 110, 235, 0.4),
+      0 0 22px rgba(150, 110, 235, 0.35),
+      0 2px 10px rgba(0, 0, 0, 0.5);
+  }
+  // 후속 카드 — 다크 보정
+  &.aster-gain-card {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+      0 0 0 1px rgba(236, 205, 106, 0.3),
+      0 0 18px var(--cc-crit-glow),
+      0 3px 10px rgba(0, 0, 0, 0.45);
+    .gain-chip {
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 0 8px rgba(236, 205, 106, 0.18);
+      .dot {
+        border-color: rgba(0, 0, 0, 0.4);
+      }
+    }
+  }
+  &.alert-rise-card {
+    border-color: #7a55a8;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+      0 0 0 1px rgba(150, 110, 235, 0.35),
+      0 0 18px rgba(150, 110, 235, 0.3),
+      0 3px 10px rgba(0, 0, 0, 0.45);
+    .alert-total {
+      background:
+        radial-gradient(130% 170% at 50% -20%, rgba(196, 166, 255, 0.5), transparent 55%),
+        linear-gradient(180deg, #7a4fae, #3c2158);
+      border-color: #2a163e;
+      box-shadow:
+        inset 0 0 12px rgba(4, 0, 12, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 0 16px rgba(150, 110, 235, 0.5);
     }
   }
 

@@ -1,0 +1,49 @@
+{{!-- 대성공/대실패 전용 카드. detectCritFumble이 crit/fumble일 때 각 판정 경로(능력치·정동·회피·명중)가 평소 카드 대신
+이 카드로 교체 렌더한다(critFumbleCardPath 헬퍼). 공통 입력: label · diceText · total · isCritical · isFumble · isPC ·
+actorId 선택 입력: rollDC(일반판정) · formula(NPC 식) · opposed(대결: 회피/명중/대결판정) · favColorLabel(정동 대성공)
+--}}
+<div class="aster-chat-card aster-chat-card--cf {{#if isCritical}}is-crit{{else if isFumble}}is-fumble{{/if}}">
+  <header class="card-header">
+    <div class="title">
+      <div class="name">{{localize label}}</div>
+      {{#if rollDC}}
+      <div class="formula">DC {{rollDC}}</div>
+      {{else if formula}}
+      <div class="formula">{{formula}}</div>
+      {{/if}}
+    </div>
+  </header>
+
+  <div class="roll-block">
+    <div class="dice-pips">{{dicePips resultDiceset}}</div>
+    <div class="dice">[{{diceText}}]</div>
+    {{#if total}}
+    <div class="roll-total">
+      <strong>{{total}}</strong>{{#if rollDC}}<span class="vs">&ge; DC {{rollDC}}</span>{{/if}}
+    </div>
+    {{/if}}
+  </div>
+
+  {{> "systems/aster/templates/chatcard/critfumble-banner.html"}} {{!-- 정동 대성공 — 특기색 가산 안내(자동 가산 아님,
+  표시만) --}} {{#if isCritical}} {{#if favColorLabel}}
+  <div class="emo-fav">
+    <span class="label">{{localize "ASTER.emo.favLabel"}}</span>
+    <span class="value">{{favColorLabel}}</span>
+  </div>
+  {{/if}} {{/if}} {{#if isPC}} {{#if isCritical}}
+  <footer class="card-actions">
+    <button type="button" data-action="crit-aster-gain" data-actor-id="{{actorId}}">
+      {{localize "ASTER.roll.critGain"}}
+    </button>
+  </footer>
+  {{/if}} {{#if isFumble}}
+  <footer class="card-actions">
+    <button type="button" data-action="fumble-alert">{{localize "ASTER.roll.fumbleAlert"}}</button>
+  </footer>
+  {{/if}} {{/if}} {{!-- 대결판정(회피·명중·VS) — opposed 결합 푸터 보존(GM 권한 체크는 핸들러에서) --}} {{#if opposed}}
+  <footer class="card-actions opposed-actions">
+    <button type="button" data-action="opposed-set-active">{{localize "ASTER.opposed.setActive"}}</button>
+    <button type="button" data-action="opposed-set-passive">{{localize "ASTER.opposed.setPassive"}}</button>
+  </footer>
+  {{/if}}
+</div>

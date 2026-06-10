@@ -7,7 +7,8 @@
   </header>
 
   <div class="roll-block">
-    {{#if formula}} {{!-- NPC 분기 — 식 전체 표시(상수 포함). rawTotal은 식 평가 결과, 최종 보정값은 아래 breakdown.
+    <div class="dice-pips">{{dicePips resultDiceset}}</div>
+    {{#if formula}} {{!-- NPC 분기 — 식 전체 표시(상수 포함). rawTotal은 식 평가 결과, 최종 보정값은 아래 roll-total.
     --}}
     <div class="dice">
       <span class="formula-text">{{formula}}</span> = <strong>{{rawTotal}}</strong>
@@ -24,7 +25,7 @@
     {{/if}} {{#if penalties.exhaustion}}
     <div class="penalty-line">{{localize "ASTER.badstatus.exhaustion"}}: {{penalties.exhaustion}}</div>
     {{/if}}
-    <div class="breakdown">= {{total}}</div>
+    <div class="roll-total"><strong>{{total}}</strong></div>
     {{#if isCritical}}
     <div class="verdict critical">{{localize "ASTER.roll.critical"}}</div>
     {{else if isFumble}}

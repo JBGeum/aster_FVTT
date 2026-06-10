@@ -24,6 +24,21 @@ export function detectCritFumble(twoDice) {
 }
 
 /**
+ * 대성공/대실패면 전용 카드 경로, 아니면 평소 카드 경로를 반환.
+ * 각 판정 경로가 renderTemplate 호출 시 이 함수로 템플릿을 분기한다(전용 카드로 교체).
+ *
+ * @param {{critical:boolean, fumble:boolean}} cf  detectCritFumble 결과
+ * @param {string} fallbackTemplate  crit/fumble이 아닐 때 쓸 평소 카드 경로
+ * @returns {string} 렌더할 Handlebars 템플릿 경로
+ */
+export function critFumbleCardPath(cf, fallbackTemplate) {
+  if (cf.critical || cf.fumble) {
+    return "systems/aster/templates/chatcard/roll-critfumble.html";
+  }
+  return fallbackTemplate;
+}
+
+/**
  * 액터 상태에서 판정 달성치 보정을 계산.
  * 룰: 정동판정은 보정 대상 아님 (호출자가 정동판정에서 호출하지 않도록 책임).
  *

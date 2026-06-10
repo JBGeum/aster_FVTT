@@ -1,5 +1,5 @@
 import { asterRoll } from "./roll.mjs";
-import { detectCritFumble, computePenalties } from "../helpers/roll-result.mjs";
+import { detectCritFumble, computePenalties, critFumbleCardPath } from "../helpers/roll-result.mjs";
 import { syncBadstatusEffect } from "../helpers/badstatus-effects.mjs";
 
 /**
@@ -159,9 +159,10 @@ export class AsterActor extends Actor {
         focusApplied,
         actorId: this.id,
         isPC: this.type === "character",
+        opposed: true, // 전용 카드(roll-critfumble)에서 대결 결합 푸터 유지용
       };
       const content = await renderTemplate(
-        "systems/aster/templates/chatcard/roll-asterabl-vs.html",
+        critFumbleCardPath(cf, "systems/aster/templates/chatcard/roll-asterabl-vs.html"),
         templateData,
       );
       await ChatMessage.create({
@@ -205,7 +206,7 @@ export class AsterActor extends Actor {
         isPC: this.type === "character",
       };
       const content = await renderTemplate(
-        "systems/aster/templates/chatcard/roll-asterabl.html",
+        critFumbleCardPath(cf, "systems/aster/templates/chatcard/roll-asterabl.html"),
         templateData,
       );
       // rolls 배열을 넣어야 Dice So Nice 등 다이스 애니메이션·소리가 트리거된다(대결 판정과 정합).
@@ -344,7 +345,7 @@ export class AsterActor extends Actor {
       isPC: this.type === "character",
     };
     const content = await renderTemplate(
-      "systems/aster/templates/chatcard/roll-asterabl-emo.html",
+      critFumbleCardPath(cf, "systems/aster/templates/chatcard/roll-asterabl-emo.html"),
       templateData,
     );
     // rolls 배열을 넣어야 다이스 애니메이션·소리가 트리거된다(일반 판정과 정합).
@@ -433,9 +434,10 @@ export class AsterActor extends Actor {
       actorId: this.id,
       isPC: this.type === "character",
       isDodge: true,
+      opposed: true, // 전용 카드(roll-critfumble)에서 대결 결합 푸터 유지용
     };
     const content = await renderTemplate(
-      "systems/aster/templates/chatcard/roll-asterabl-vs.html",
+      critFumbleCardPath(cf, "systems/aster/templates/chatcard/roll-asterabl-vs.html"),
       templateData,
     );
     await ChatMessage.create({
@@ -525,9 +527,10 @@ export class AsterActor extends Actor {
       actorId: this.id,
       isPC: false, // NPC 전용
       isDodge: false, // 명중 영역
+      opposed: true, // 전용 카드(roll-critfumble)에서 대결 결합 푸터 유지용
     };
     const content = await renderTemplate(
-      "systems/aster/templates/chatcard/roll-asterabl-vs.html",
+      critFumbleCardPath(cf, "systems/aster/templates/chatcard/roll-asterabl-vs.html"),
       templateData,
     );
     await ChatMessage.create({
