@@ -58,11 +58,11 @@
   --hb-hair: 1px solid var(--rule);
   --hb-pad: 12px;
 
-  /* 타이포 (aster.scss CDN). 본문=나눔스퀘어라운드 / 수치·라벨·display fallback=을유1945. */
-  --hb-font-display: "Cinzel", "Eulyoo1945", serif; /* 제목 — fallback만 교체 */
+  /* 타이포 (aster.scss CDN). 본문=나눔스퀘어라운드 / 수치·라벨·display fallback=마루부리. */
+  --hb-font-display: "Cinzel", "Noto Serif KR", serif; /* 제목 — fallback만 교체 */
   --hb-font-serif: "NanumSquareRound", "Gowun Dodum", sans-serif; /* 본문 */
-  --hb-font-num: "Eulyoo1945", "Noto Serif KR", serif; /* 수치 */
-  --hb-font-label: "Eulyoo1945", "Noto Serif KR", serif; /* 라벨·칩 — 본문과 분리 */
+  --hb-font-num: "Noto Serif KR", "MaruBuri", serif; /* 수치 */
+  --hb-font-label: "Noto Serif KR", "MaruBuri", serif; /* 라벨·칩 — 본문과 분리 */
 
   /* 본문 가중치 (나눔스퀘어라운드는 400/700/800만 — 600은 700으로 튀므로 400 사용) */
   --weight: 400; /* 본문 기본 */
@@ -175,7 +175,7 @@
   color: var(--ink);
   font-family: var(--hb-font-serif);
   font-weight: var(--weight);
-  /* 을유1945는 최대 600 — 700 선언 시 브라우저 가짜 볼드 합성 방지(600 페이스 그대로 사용). */
+  /* 가짜 볼드/이탤릭 합성 방지. 마루부리는 700 실페이스가 있어 합성은 안 일어나나 무해하게 유지. */
   font-synthesis: none;
   font-size: 14px;
   line-height: 1.4;
@@ -261,7 +261,9 @@
       "abil abil inv"
       "stel stel inv"
       "memo memo inv";
-    gap: 14px;
+    /* 행 간격 9px — 윈도우가 뷰포트 높이에 클램프(예: 849px)될 때 좌측 패널 스택이 잘리지 않도록
+       세로 간격 축소(행 3개 × 5px ≈ 15px 회수). 가로 간격은 14px 유지. */
+    gap: 9px 14px;
     /* start: 짧은 좌측 패널이 inv 높이로 늘어나지 않게(여백 방지). inv·memo는 align-self로 채움. */
     align-items: start;
     /* herbarium(flex 컬럼)를 채워 grid 총높이를 윈도우 높이에 맞춘다 → 1fr 행이 의미를 가짐. */
@@ -338,7 +340,7 @@
     align-items: center;
     gap: 10px;
     font-family: var(--hb-font-label);
-    font-weight: 600;
+    font-weight: 700;
     font-size: 13px;
     letter-spacing: 2px;
     color: var(--ink-soft);
@@ -402,6 +404,10 @@
       flex: 1;
       gap: 4px;
     }
+    /* 이름 input — 기본 .input-line(8px 12px)보다 compact (record 등 타 input-line 불변). */
+    .input-line {
+      padding: 4px 11px;
+    }
   }
   /* 좌측 열(전체 높이) — 로고 · 디바이더 · 속성 · 임시 엠블럼 */
   .id-left {
@@ -452,15 +458,16 @@
   .id-affbox {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     background: var(--parchment-sunk);
     border: 1px solid var(--rule);
     border-radius: var(--hb-radius-sm);
-    padding: 5px 10px 5px 6px;
+    padding: 3px 7px 3px 5px;
     box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.16);
 
-    /* 정적 시안의 .aff-name 자리 — 실제 select. affbox에 녹아들게 크롬 제거. */
+    /* 정적 시안의 .aff-name 자리 — 실제 select. affbox에 녹아들게 크롬·기본 패딩 제거. */
     select {
+      padding: 0;
       font-weight: 700;
       color: var(--ink-strong);
       cursor: pointer;
@@ -799,7 +806,7 @@
     border-radius: var(--hb-radius);
     cursor: pointer;
     font-family: var(--hb-font-label);
-    font-weight: 600;
+    font-weight: 700;
     font-size: 15px;
     letter-spacing: 2px;
     color: var(--cream);
@@ -1168,21 +1175,29 @@
     background: var(--parchment-sunk);
     border: 1px solid var(--rule);
     border-radius: var(--hb-radius-sm);
-    /* change.txt — 첫 줄을 줄무늬(28px 주기)에 맞춤. */
-    padding: 7px 12px 0;
-    line-height: 28px;
     color: var(--ink);
     box-shadow: inset 0 1px 4px rgba(70, 45, 18, 0.16);
-    /* 줄무늬 색은 테마 토큰(라이트 따뜻 / 다크 차가운 보라). 주기 27/28 동일. */
-    background-image: repeating-linear-gradient(transparent 0 27px, var(--memo-rule) 27px 28px);
+    /* 줄무늬·패딩을 textarea로 이동 — 컨테이너는 박스만. */
+    padding: 0;
+    overflow: hidden;
 
     textarea {
+      display: block;
       width: 100%;
       min-height: 56px;
       height: 100%;
+      box-sizing: border-box;
+      padding: 0 12px;
+      margin: 0;
+      border: none;
+      background: transparent;
+      /* 줄무늬 색은 테마 토큰(라이트 따뜻 / 다크 차가운 보라). 주기 27/28. */
+      background-image: repeating-linear-gradient(transparent 0 27px, var(--memo-rule) 27px 28px);
+      background-attachment: local;
       resize: none;
       color: var(--ink);
       line-height: 28px;
+      font-family: inherit;
 
       &::placeholder {
         color: var(--ink-faint);
@@ -1695,7 +1710,7 @@
 
     .t {
       font-family: var(--hb-font-label);
-      font-weight: 600;
+      font-weight: 700;
       font-size: 15px;
       letter-spacing: 2px;
       color: var(--ink-strong);
@@ -1778,7 +1793,7 @@
     border-radius: var(--hb-radius);
     cursor: pointer;
     font-family: var(--hb-font-label);
-    font-weight: 600;
+    font-weight: 700;
     font-size: 15px;
     letter-spacing: 3px;
     color: var(--cream);
@@ -2164,23 +2179,35 @@
     background: var(--parchment-sunk);
     border: 1px solid var(--rule);
     border-radius: var(--hb-radius-sm);
-    padding: 10px 12px;
     color: var(--ink);
     font-size: 14px;
     line-height: 26px;
     box-shadow: inset 0 1px 4px rgba(70, 45, 18, 0.14);
-    background-image: repeating-linear-gradient(
-      transparent 0 25px,
-      rgba(120, 90, 50, 0.14) 25px 26px
-    );
-    background-attachment: local;
+    /* 줄무늬·패딩을 textarea로 이동 — 컨테이너는 박스만.
+       (배경이 div, 글자가 textarea로 나뉘면 줄과 글자가 어긋나고
+        리사이즈 마크도 박스 모서리와 안 맞음) */
+    padding: 0;
+    overflow: hidden;
 
     textarea {
+      display: block;
       width: 100%;
       min-height: 78px;
+      box-sizing: border-box;
+      padding: 0 12px;
+      margin: 0;
+      border: none;
+      background: transparent;
+      background-image: repeating-linear-gradient(
+        transparent 0 25px,
+        rgba(120, 90, 50, 0.14) 25px 26px
+      );
+      background-attachment: local;
       resize: vertical;
       color: var(--ink);
+      font-size: 14px;
       line-height: 26px;
+      font-family: inherit;
     }
   }
   .record-nav {
@@ -3145,7 +3172,8 @@
   justify-content: space-between;
   gap: 16px;
   margin: 0;
-  padding: 10px 14px 0;
+  /* 상단 패딩 축소(10→6) — 뷰포트 클램프 시 본문 세로 공간 확보. */
+  padding: 6px 14px 0;
   background: var(--parchment);
   border-bottom: 1px solid var(--rule);
 
@@ -3166,7 +3194,7 @@
     display: flex;
     align-items: baseline;
     gap: 10px;
-    padding-bottom: 7px;
+    padding-bottom: 4px;
     min-width: 0;
 
     .pc {
@@ -3246,5 +3274,31 @@
   .mat-in .lbl,
   .id-row .field > label {
     font-weight: var(--weight-sm);
+  }
+}
+
+/* ===== 라벨·제목·소제목 — 을유1945 통일 =====
+   본문(description)만 나눔스퀘어라운드, 라벨류는 전부 을유.
+   파일 끝(위 .aster weight 블록 뒤)에 둬 기존 라벨 폰트·굵기를 소스 순서로 override.
+   (섹션 제목 .panel__head·칩 .herb-tag·수치 --hb-font-num은 이미 을유라 제외.) */
+.herbarium {
+  .pair .k, /* 체재도시·경계도·펠카·우호도 등 기록 라벨 */
+  .rec-block > .k, /* 체재지의 모습 · 관련된 사람들 · 임의 메모 */
+  .field > label, /* 이름·속성 등 필드 라벨 */
+  .frow > label, /* 다이얼로그 폼 라벨 */
+  .cslot .ttl, /* 바구니·장비·사역마 */
+  .gauge__lbl, /* 건강·포만도 */
+  .attr__name, /* 활발·박식·요령·처세 */
+  .el__name, /* 백·적·청·녹·황·마테리얼 */
+  .id-aff .aff-label, /* 속성 라벨 */
+  .item__loc, /* '가방' 위치 칩 */
+  .fieldset > .legend {
+    font-family: var(--hb-font-label);
+    font-weight: 700; /* 마루부리 Bold — 또렷한 라벨 */
+  }
+  /* 크기 하한 — 을유가 흐려지는 12px 미만 라벨만 한 단계 올림 */
+  .field > label,
+  .id-aff .aff-label {
+    font-size: 12px; /* 11 → 12 */
   }
 }

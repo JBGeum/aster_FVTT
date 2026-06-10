@@ -27,11 +27,12 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["aster", "sheet", "actor"],
-    // 높이 고정 850 — height:"auto"는 탭 전환마다 콘텐츠 높이로 윈도우를 리사이즈해
-    // 화면이 출렁였다(탭 이동 시 높이 일정 유지 요구). 800은 character 콘텐츠가 약간
-    // 넘쳐 기본 스크롤이 생겨 850으로 상향(여유분은 memo·inv·record 카드가 늘어나 채움).
+    // 높이 고정 920 — height:"auto"는 탭 전환마다 콘텐츠 높이로 윈도우를 리사이즈해
+    // 화면이 출렁였다(탭 이동 시 높이 일정 유지 요구). 폰트 교체(마루부리/나눔스퀘어라운드)로
+    // character 콘텐츠가 늘어 900에서도 ~15px 가려져 920으로 상향
+    // (여유분은 memo·inv·record 카드가 늘어나 채움).
     // 넘치는 탭은 .tab.active 내부 스크롤로 흡수하고, 수동 리사이즈 값은 유지된다.
-    position: { width: 920, height: 850 },
+    position: { width: 920, height: 920 },
     window: { resizable: true },
     actions: {
       cellClick: AsterActorSheet.#onCellClick,
