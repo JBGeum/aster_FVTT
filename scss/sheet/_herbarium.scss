@@ -58,14 +58,15 @@
   --hb-hair: 1px solid var(--rule);
   --hb-pad: 12px;
 
-  /* 타이포 (시안 폰트 — aster.scss CDN). change.txt: 본문 serif/num 1순위 Noto Serif KR. */
-  --font-display: "Cinzel", "Gowun Batang", serif;
-  --font-serif: "Noto Serif KR", "Gowun Batang", serif;
-  --font-num: "Noto Serif KR", "EB Garamond", serif;
+  /* 타이포 (aster.scss CDN). 본문=나눔스퀘어라운드 / 수치·라벨·display fallback=을유1945. */
+  --hb-font-display: "Cinzel", "Eulyoo1945", serif; /* 제목 — fallback만 교체 */
+  --hb-font-serif: "NanumSquareRound", "Gowun Dodum", sans-serif; /* 본문 */
+  --hb-font-num: "Eulyoo1945", "Noto Serif KR", serif; /* 수치 */
+  --hb-font-label: "Eulyoo1945", "Noto Serif KR", serif; /* 라벨·칩 — 본문과 분리 */
 
-  /* 본문 가중치 (change.txt — Noto Serif KR 정합) */
-  --weight: 500; /* 본문 기본 */
-  --weight-sm: 600; /* 작은 라벨·보조 텍스트 */
+  /* 본문 가중치 (나눔스퀘어라운드는 400/700/800만 — 600은 700으로 튀므로 400 사용) */
+  --weight: 400; /* 본문 기본 */
+  --weight-sm: 700; /* 작은 라벨·보조 텍스트 */
 
   /* 테마 스왑 값 (라이트 기본 — 다크는 herbarium-night-tokens에서 교체).
      종이 텍스처: 라이트=양피지 결(radial+grain), 다크=별밤 PNG(soft-light). */
@@ -172,10 +173,25 @@
   --tex-2: rgba(120, 90, 50, 0.08);
   --tex-3: rgba(90, 60, 30, 0.1);
   color: var(--ink);
-  font-family: var(--font-serif);
+  font-family: var(--hb-font-serif);
   font-weight: var(--weight);
+  /* 을유1945는 최대 600 — 700 선언 시 브라우저 가짜 볼드 합성 방지(600 페이스 그대로 사용). */
+  font-synthesis: none;
   font-size: 14px;
   line-height: 1.4;
+
+  /* 폼 요소 폰트 상속 강제 — label·button·input 등은 Foundry 코어 폰트
+     (--font-h2: Amiri 등 아랍어 폰트)가 상속을 끊고 직접 걸려 한글이 위로 떴음.
+     herbarium 스코프에서 우리 serif를 명시해 코어 폰트 누수를 차단한다. */
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  .herb-tag,
+  .herb-tag__label {
+    font-family: var(--hb-font-serif);
+  }
   background-color: var(--parchment);
   background-image: none;
 
@@ -205,7 +221,7 @@
 
   /* 숫자 표기 — 올드스타일 figure */
   .num {
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     font-feature-settings:
       "onum" 1,
       "kern" 1;
@@ -321,8 +337,8 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-family: var(--font-serif);
-    font-weight: 700;
+    font-family: var(--hb-font-label);
+    font-weight: 600;
     font-size: 13px;
     letter-spacing: 2px;
     color: var(--ink-soft);
@@ -679,7 +695,7 @@
     letter-spacing: 2px;
   }
   .roll__title {
-    font-family: var(--font-display);
+    font-family: var(--hb-font-display);
     font-size: 13px;
     text-align: center;
     letter-spacing: 2px;
@@ -782,8 +798,8 @@
     padding: 7px 0;
     border-radius: var(--hb-radius);
     cursor: pointer;
-    font-family: var(--font-serif);
-    font-weight: 700;
+    font-family: var(--hb-font-label);
+    font-weight: 600;
     font-size: 15px;
     letter-spacing: 2px;
     color: var(--cream);
@@ -824,7 +840,7 @@
     cursor: pointer;
   }
   .attr__main {
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     font-feature-settings: "lnum" 1;
     font-size: 29px;
     line-height: 0.95;
@@ -843,7 +859,7 @@
     border-radius: var(--hb-radius-sm);
     padding: 5px 0;
     text-align: center;
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     font-size: 14px;
     font-weight: 600;
     color: var(--ink-soft);
@@ -922,7 +938,7 @@
     align-items: center;
     justify-content: center;
     gap: 2px;
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     font-weight: 700;
     font-size: 15px;
     color: var(--ink-strong);
@@ -972,7 +988,7 @@
       white-space: nowrap;
     }
     .v {
-      font-family: var(--font-num);
+      font-family: var(--hb-font-num);
       font-weight: 700;
       font-size: 16px;
       color: var(--ink-strong);
@@ -992,9 +1008,12 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    /* change.txt — 태그 텍스트/글리프 세로 정합. */
-    line-height: 1.1;
-    font-size: 12.5px;
+    line-height: 1;
+    font-family: var(--hb-font-label);
+    font-size: 13px;
+    /* 핵심: 폰트 명시. 미지정 시 Foundry 코어 --font-h2(Amiri, 아랍어 폰트)가 상속을
+       이겨 한글이 위로 뜸. 우리 serif를 직접 박아 Amiri를 차단 → 정렬 자연 정합. */
+    font-family: var(--hb-font-serif);
     padding: 4px 10px;
     border-radius: 20px;
     border: 1px solid var(--gold-soft);
@@ -1004,14 +1023,23 @@
 
     &::before {
       @include fa("\f005"); /* star */
-      font-size: 10px;
+      font-size: 9px;
       color: var(--sage);
-      opacity: 0.7;
-      /* change.txt — FA 글리프 세로 중앙 정렬. */
+      opacity: 0.85;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .herb-tag__label {
       display: inline-flex;
       align-items: center;
       line-height: 1;
+      font-family: var(--hb-font-label);
+      /* font-size 13px 조정으로 메트릭 정합 — 이전 +1px 보정 제거(transform 기본값). */
     }
+
     input[type="checkbox"] {
       position: absolute;
       opacity: 0;
@@ -1079,7 +1107,7 @@
     color: var(--ink-soft);
   }
   .el__val {
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     font-weight: 700;
     font-size: 15px;
     color: var(--ink-strong);
@@ -1112,7 +1140,7 @@
   .el__step span {
     display: grid;
     place-items: center;
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     font-size: 19px;
     font-weight: 700;
     cursor: pointer;
@@ -1174,7 +1202,7 @@
 
     .item {
       flex: 0 0 auto;
-      font-family: var(--font-display);
+      font-family: var(--hb-font-display);
       font-size: 15px;
       letter-spacing: 1px;
       padding: 6px 14px 5px;
@@ -1299,7 +1327,7 @@
       border: 1px solid var(--gold-soft);
       border-radius: var(--hb-radius-sm);
       padding: 5px 14px;
-      font-family: var(--font-num);
+      font-family: var(--hb-font-num);
       font-weight: 700;
       color: var(--ink-strong);
 
@@ -1323,7 +1351,7 @@
     margin-bottom: 8px;
   }
   .bag__cap {
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     font-size: 12px;
     color: var(--ink-soft);
     white-space: nowrap;
@@ -1633,7 +1661,7 @@
     cursor: pointer;
   }
   .spell-card__meta {
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     font-size: 13px;
     color: var(--plum);
     white-space: nowrap;
@@ -1666,8 +1694,8 @@
     margin-bottom: 6px;
 
     .t {
-      font-family: var(--font-serif);
-      font-weight: 700;
+      font-family: var(--hb-font-label);
+      font-weight: 600;
       font-size: 15px;
       letter-spacing: 2px;
       color: var(--ink-strong);
@@ -1677,7 +1705,7 @@
       color: var(--ink-soft);
     }
     .ap-value {
-      font-family: var(--font-num);
+      font-family: var(--hb-font-num);
       font-weight: 700;
       font-size: 18px;
       color: var(--ink-strong);
@@ -1734,7 +1762,7 @@
       white-space: nowrap;
     }
     .cost {
-      font-family: var(--font-num);
+      font-family: var(--hb-font-num);
       font-size: 12px;
       color: var(--ink-faint);
       border: 1px solid var(--rule);
@@ -1749,8 +1777,8 @@
     padding: 12px 0;
     border-radius: var(--hb-radius);
     cursor: pointer;
-    font-family: var(--font-serif);
-    font-weight: 700;
+    font-family: var(--hb-font-label);
+    font-weight: 600;
     font-size: 15px;
     letter-spacing: 3px;
     color: var(--cream);
@@ -1939,7 +1967,7 @@
   .mat-cell {
     padding: 9px 3px;
     text-align: center;
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     font-weight: 600;
     font-size: 15px;
     color: var(--ink-strong);
@@ -2037,7 +2065,7 @@
     gap: 7px;
 
     .lv {
-      font-family: var(--font-num);
+      font-family: var(--hb-font-num);
       font-weight: 600;
       font-size: 11px;
       letter-spacing: 0.5px;
@@ -2051,7 +2079,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     font-size: 13px;
     color: var(--ink-soft);
     white-space: nowrap;
@@ -2124,7 +2152,7 @@
 
       input,
       .val {
-        font-family: var(--font-num);
+        font-family: var(--hb-font-num);
         font-size: 17px;
         font-weight: 600;
         text-align: center;
@@ -2174,7 +2202,7 @@
     box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.12);
 
     .count {
-      font-family: var(--font-num);
+      font-family: var(--hb-font-num);
       font-size: 14px;
       color: var(--ink-strong);
       min-width: 44px;
@@ -2309,7 +2337,7 @@
       white-space: nowrap;
     }
     .v {
-      font-family: var(--font-num);
+      font-family: var(--hb-font-num);
       color: var(--ink-strong);
       font-weight: 600;
       font-size: 15px;
@@ -2346,7 +2374,7 @@
 
     li {
       position: relative;
-      font-family: var(--font-num);
+      font-family: var(--hb-font-num);
       color: var(--ink-strong);
       font-size: 14px;
       padding-left: 18px;
@@ -2364,7 +2392,7 @@
     }
   }
   .rec-people {
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     color: var(--ink-strong);
     font-size: 14px;
     padding-left: 6px;
@@ -2374,7 +2402,7 @@
     border: 1px solid var(--rule);
     border-radius: var(--hb-radius-sm);
     padding: 10px 14px;
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     color: var(--ink-strong);
     font-size: 14px;
     box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.1);
@@ -2402,14 +2430,14 @@
     border-bottom: 1px solid var(--gold);
 
     .t {
-      font-family: var(--font-display);
+      font-family: var(--hb-font-display);
       font-weight: 600;
       font-size: 16px;
       letter-spacing: 1px;
       color: var(--ink-strong);
 
       small {
-        font-family: var(--font-serif);
+        font-family: var(--hb-font-serif);
         font-weight: 400;
         font-size: 12px;
         letter-spacing: 0;
@@ -2461,7 +2489,7 @@
       border: none;
     }
     span {
-      font-family: var(--font-num);
+      font-family: var(--hb-font-num);
       font-size: 10px;
       color: var(--ink-soft);
       background: var(--thumb-ph-bg);
@@ -2551,7 +2579,7 @@
     align-items: center;
     justify-content: space-between;
     box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.16);
-    font-family: var(--font-num);
+    font-family: var(--hb-font-num);
     gap: 8px;
 
     > span {
@@ -2565,7 +2593,7 @@
     &.ph {
       color: var(--ink-faint);
       font-style: italic;
-      font-family: var(--font-serif);
+      font-family: var(--hb-font-serif);
     }
   }
   .f-select select {
@@ -2635,7 +2663,7 @@
       border: 1px solid var(--rule);
       border-radius: var(--hb-radius-sm);
       padding: 5px 0;
-      font-family: var(--font-num);
+      font-family: var(--hb-font-num);
       font-weight: 600;
       color: var(--ink-strong);
       box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.14);
@@ -2662,7 +2690,7 @@
         border: 1px solid var(--rule);
         border-radius: var(--hb-radius-sm);
         padding: 6px 0;
-        font-family: var(--font-num);
+        font-family: var(--hb-font-num);
         font-weight: 600;
         color: var(--ink-strong);
         box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.14);
@@ -2881,7 +2909,7 @@
     }
     .input-line {
       justify-content: center;
-      font-family: var(--font-num);
+      font-family: var(--hb-font-num);
       font-weight: 600;
 
       input {
@@ -3142,7 +3170,7 @@
     min-width: 0;
 
     .pc {
-      font-family: var(--font-display);
+      font-family: var(--hb-font-display);
       font-size: 24px;
       font-weight: 700;
       line-height: 1;
@@ -3171,7 +3199,7 @@
 
   > .item {
     flex: 0 0 auto;
-    font-family: var(--font-display);
+    font-family: var(--hb-font-display);
     font-size: 15px;
     letter-spacing: 1px;
     text-transform: capitalize;
