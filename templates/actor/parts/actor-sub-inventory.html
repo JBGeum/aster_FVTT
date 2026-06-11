@@ -21,7 +21,7 @@
     <div class="bag-items">
       {{#each inv.bag.items as |it|}}
       <div
-        class="bitem {{#if it.large}}lg{{/if}}"
+        class="bitem pixelart {{#if it.large}}lg{{/if}}"
         data-action="itemUnplace"
         data-item-id="{{it.id}}"
         {{tooltipHtml
@@ -123,7 +123,7 @@
 <div class="items">
   {{#each inv.allItems as |it|}}
   <div class="item {{#if it.isMagicToolInactive}}magic-tool-inactive{{/if}}">
-    <span class="item__ico"><img src="{{it.img}}" alt="{{it.name}}" draggable="false" /></span>
+    <span class="item__ico pixelart"><img src="{{it.img}}" alt="{{it.name}}" draggable="false" /></span>
     <span class="item__name" data-action="itemChat" data-item-id="{{it.id}}" {{tooltipHtml it.tooltip}}
       >{{it.name}}</span
     >

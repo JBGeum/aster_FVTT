@@ -8,7 +8,11 @@
 <div class="spells">
   {{#each spells as |s|}}
   <div class="spell-card" data-item-id="{{s.id}}">
-    <div class="spell-card__sigil spell-card__sigil--{{s.color}}" data-action="itemEdit" data-item-id="{{s.id}}">
+    <div
+      class="spell-card__sigil spell-card__sigil--{{s.color}} pixelart"
+      data-action="itemEdit"
+      data-item-id="{{s.id}}"
+    >
       <img src="{{s.img}}" alt="{{s.name}}" draggable="false" />
     </div>
     <div class="spell-card__name" data-action="spellCast" data-item-id="{{s.id}}" {{tooltipHtml s.tooltip}}>

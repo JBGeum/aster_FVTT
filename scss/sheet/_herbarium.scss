@@ -3302,3 +3302,15 @@
     font-size: 12px; /* 11 → 12 */
   }
 }
+
+/* ===== 픽셀아트 렌더링 — 도트 아이콘 전용 (PIXELART_ICON_SPEC ③) =====
+   작은 도트 원본을 큰 칸에 띄울 때 브라우저 기본 보간(bilinear)으로 흐려지는 것을
+   최근접 이웃 스케일링으로 막아 도트를 선명한 픽셀로 확대한다. 향후 이미지 교체만으로
+   바로 선명하게 렌더되도록 사전 정비. 사진·일러스트(초상화)엔 미적용(계단현상 방지) —
+   .pixelart 클래스를 도트 요소에만 선별 부여(옵션 ㄱ). 전역 규칙(시트·아이템 다이얼로그 공통). */
+.pixelart,
+.pixelart img {
+  image-rendering: pixelated; /* 표준 — 최근접 이웃 */
+  image-rendering: -moz-crisp-edges; /* 구 Firefox 폴백 */
+  image-rendering: crisp-edges; /* 폴백 */
+}
