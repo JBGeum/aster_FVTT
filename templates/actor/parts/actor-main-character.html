@@ -119,23 +119,23 @@
 <section class="panel panel--statel" data-corner="❀">
   <div class="panel__head">상태이상</div>
   <div class="status">
-    <label class="herb-tag">
+    <label class="herb-tag" {{tooltipHtml badstatusTips.injury}}>
       <input type="checkbox" name="system.badstatus.injury" {{checked system.badstatus.injury}} />
       {{localize "ASTER.badstatus.injury"}}
     </label>
-    <label class="herb-tag">
+    <label class="herb-tag" {{tooltipHtml badstatusTips.biginj}}>
       <input type="checkbox" name="system.badstatus.bigInj" {{checked system.badstatus.bigInj}} />
       {{localize "ASTER.badstatus.biginj"}}
     </label>
-    <label class="herb-tag">
+    <label class="herb-tag" {{tooltipHtml badstatusTips.sleepy}}>
       <input type="checkbox" name="system.badstatus.sleepy" {{checked system.badstatus.sleepy}} />
       {{localize "ASTER.badstatus.sleepy"}}
     </label>
-    <label class="herb-tag">
+    <label class="herb-tag" {{tooltipHtml badstatusTips.exhaustion}}>
       <input type="checkbox" name="system.badstatus.exhaustion" {{checked system.badstatus.exhaustion}} />
       {{localize "ASTER.badstatus.exhaustion"}}
     </label>
-    <label class="herb-tag">
+    <label class="herb-tag" {{tooltipHtml badstatusTips.hungry}}>
       <input type="checkbox" name="system.badstatus.hungry" {{checked system.badstatus.hungry}} />
       {{localize "ASTER.badstatus.hungry"}}
     </label>

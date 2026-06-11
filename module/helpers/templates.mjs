@@ -50,6 +50,24 @@ export const preloadHandlebarsTemplates = async function () {
   ]);
 };
 
+/**
+ * 구조화 툴팁 HTML을 Foundry 내장 툴팁 속성 문자열로 변환.
+ * 값은 속성 안전용으로 엔티티화 — 브라우저가 디코딩하면 Foundry가 cleanHTML로 정제·렌더한다.
+ * `hb-tip` 클래스로 #tooltip을 시스템 스킨에 한정(코어 전역 툴팁 오염 방지). 다크는 전역 테마
+ * 신호로 CSS가 토큰 스왑하므로 여기선 부착하지 않는다(component/_tooltip.scss).
+ *
+ * @param {string} html  조립된 구조화 HTML
+ * @returns {string}  ` data-tooltip-html="..." data-tooltip-class="hb-tip" data-tooltip-direction="UP"`
+ */
+function tooltipAttr(html) {
+  const esc = html
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  return ` data-tooltip-html="${esc}" data-tooltip-class="hb-tip" data-tooltip-direction="UP"`;
+}
+
 export function registerHandlebarsHelpers() {
   Handlebars.registerHelper("checked", function (condition) {
     return condition ? "checked" : "";
@@ -59,6 +77,16 @@ export function registerHandlebarsHelpers() {
   });
   Handlebars.registerHelper("disabled", function (condition) {
     return condition ? "disabled" : "";
+  });
+  // Foundry 내장 HTML 툴팁 속성을 조건부로 출력. 내용이 있을 때만 `data-tooltip-html`를 붙여
+  // 빈 내용의 빈 툴팁 박스를 막는다. 속성을 통째로 {{#if}}로 감싸면 prettier HTML 파서가
+  // 죽으므로(조건부 속성 블록 함정), {{checked}}·{{disabled}}처럼 단일 인라인 표현으로 처리한다.
+  // content는 actor-sheet.mjs에서 조립한 구조화 HTML(아이템·주문·상태이상 공통) — 헬퍼는
+  // 속성 안전용 엔티티화 + hb-tip 스킨 클래스 부여만 담당한다(tooltipAttr).
+  Handlebars.registerHelper("tooltipHtml", function (content) {
+    const raw = content == null ? "" : String(content).trim();
+    if (!raw) return "";
+    return new Handlebars.SafeString(tooltipAttr(raw));
   });
   Handlebars.registerHelper("add", (a, b) => Number(a) + Number(b));
   Handlebars.registerHelper("multiply", (a, b) => Number(a) * Number(b));

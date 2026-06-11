@@ -24,6 +24,8 @@
         class="bitem {{#if it.large}}lg{{/if}}"
         data-action="itemUnplace"
         data-item-id="{{it.id}}"
+        {{tooltipHtml
+        it.tooltip}}
         style="grid-column: {{add it.x 1}} / span {{it.w}}; grid-row: {{add it.y 1}} / span {{it.h}};"
       >
         <img src="{{it.img}}" alt="{{it.name}}" draggable="false" />
@@ -122,11 +124,7 @@
   {{#each inv.allItems as |it|}}
   <div class="item {{#if it.isMagicToolInactive}}magic-tool-inactive{{/if}}">
     <span class="item__ico"><img src="{{it.img}}" alt="{{it.name}}" draggable="false" /></span>
-    <span
-      class="item__name"
-      data-action="itemChat"
-      data-item-id="{{it.id}}"
-      title="{{localize 'ASTER.inventory.toChat'}}"
+    <span class="item__name" data-action="itemChat" data-item-id="{{it.id}}" {{tooltipHtml it.tooltip}}
       >{{it.name}}</span
     >
     {{#if it.isMagicToolInactive}}

@@ -88,10 +88,15 @@
     },
     "badstatus": {
       "injury": "부상",
+      "injuryDesc": "전투 중 행동을 마칠 때, 탐색 중 장면 이동 시 건강이 2 감소합니다.",
       "biginj": "큰 부상",
+      "biginjDesc": "전투 중 행동을 마칠 때 건강이 5 감소하며, 전투 종료 시 [부상]으로 바뀝니다.",
       "sleepy": "졸림",
+      "sleepyDesc": "모든 판정의 달성치 -2. 판정에 한 번 실패하면 해제됩니다.",
       "exhaustion": "피로",
-      "hungry": "배고픔"
+      "exhaustionDesc": "민첩 -3. 회피 판정의 달성치 -3 (룰북 522).",
+      "hungry": "배고픔",
+      "hungryDesc": "탐색 페이즈에 판정·이동 시 포만이 2 감소합니다 (평소 1)."
     },
     "craft": {
       "openCraftItem": "아이템 만들기",
