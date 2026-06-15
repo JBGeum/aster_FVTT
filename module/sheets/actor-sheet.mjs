@@ -1930,7 +1930,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       meta.push(`<span><i class="fa-solid fa-box-archive"></i>${locationLabel}${sizeText}</span>`);
     }
     if (item.type === "consumable" && item.system.timing) {
-      const timing = game.i18n.localize(`ASTER.item.timing.${item.system.timing}`);
+      // timing 값은 이미 한글 표시 텍스트(데이터 어휘)라 localize 불필요 → escape 후 그대로 출력.
+      const timing = foundry.utils.escapeHTML(item.system.timing);
       meta.push(`<span><i class="fa-solid fa-hourglass-half"></i>${timing}</span>`);
     }
     if (meta.length) parts.push(`<div class="hb-tip__meta">${meta.join("")}</div>`);
