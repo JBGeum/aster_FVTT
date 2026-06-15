@@ -595,11 +595,17 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           `<option value="${i.id}">${i.name} (${i.system.size?.w ?? 1}×${i.system.size?.h ?? 1})</option>`,
       )
       .join("");
-    const content = `<select name="choice" style="width:100%">${options}</select>`;
+    const content = `<label class="form-label">${game.i18n.localize("ASTER.inventory.itemLabel")}</label>
+<select name="choice">${options}</select>`;
     return foundry.applications.api.DialogV2.prompt({
-      window: { title: game.i18n.localize("ASTER.inventory.choose") },
+      classes: ["hb-dialog"], // 약초첩 다이얼로그 스킨(_dialog.scss). 다크는 전역 테마 신호로 자동 스왑.
+      window: {
+        title: game.i18n.localize("ASTER.inventory.choose"),
+        icon: "fa-solid fa-wand-sparkles",
+      },
       content,
       ok: {
+        icon: "fa-solid fa-check",
         label: game.i18n.localize("ASTER.inventory.place"),
         callback: (_event, button) => button.form.elements.choice.value,
       },

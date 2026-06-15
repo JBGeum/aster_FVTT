@@ -1,0 +1,231 @@
+/* ============================================================
+ * Aster 다이얼로그 스킨 — Foundry V13 DialogV2(ApplicationV2)에 hb-dialog 클래스로 입힘.
+ *
+ * 출처: memo/design/마녀 시트 - 아이템배치 다이얼로그.html (라이트/다크 시안).
+ * 헤더(금박 양피지 + 별 아이콘) · select(음각 양피지 + 금빛 화살표) ·
+ * 확인 버튼(정동판정과 같은 머루빛 어휘)로 통일.
+ *
+ * 부착: DialogV2.prompt({ classes: ["hb-dialog"], window: { icon } }) → 루트 <dialog>에 부여.
+ *   V13 실제 마크업은 .application.dialog (구 .app.dialog 아님) + 본문이
+ *   .window-content > form.dialog-form > .dialog-content + footer.form-footer.
+ *   닫기 버튼은 .header-control[data-action="close"](V13) — 하위호환 .close도 함께.
+ * 명시성: 루트 .application.dialog.hb-dialog(0,3,0)로 코어 ApplicationV2 dialog 스타일을 덮는다.
+ * 다크: 시트·툴팁과 동일한 전역 테마 신호(@media / [data-aster-theme="dark"])로 토큰 스왑.
+ *   다이얼로그는 :root(html) 하위라 신호가 닿는다(템플릿 조건부 클래스 불필요).
+ * ============================================================ */
+.application.dialog.hb-dialog {
+  /* 라이트(약초첩 양피지) 토큰 */
+  --d-bg: #efe2c6;
+  --d-soft: #6b5638; // ink-soft(라벨·닫기)
+  --d-sunk: #e7d6b3;
+  --d-deep: #e4d3ad;
+  --d-border: #a8884e;
+  --d-rule: #cdb787;
+  --d-gold: #a8884e;
+  --d-ink: #3a2a17;
+  --d-ink-strong: #281a0c;
+  --d-faint: #978463;
+  --d-inset: #f3e9d2; // 밝은 크림 인셋
+  --d-plum: oklch(0.41 0.115 350);
+  --d-plum-deep: oklch(0.34 0.1 350);
+  --d-cream: #f6efda;
+  --d-shadow: 0 14px 40px rgba(40, 26, 12, 0.4);
+
+  min-width: 320px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--d-border);
+  background: var(--d-bg);
+  box-shadow:
+    var(--d-shadow),
+    inset 0 0 0 3px var(--d-inset),
+    inset 0 0 0 4px var(--d-rule);
+  color: var(--d-ink);
+  font-family: "NanumSquareRound", sans-serif;
+
+  /* 헤더 — 금박 양피지 */
+  .window-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--d-gold);
+    background: linear-gradient(180deg, var(--d-deep), var(--d-sunk));
+  }
+  .window-title {
+    font-family: "Noto Serif KR", "MaruBuri", serif;
+    font-weight: 600;
+    font-size: 14.5px;
+    letter-spacing: 0.5px;
+    color: var(--d-ink-strong);
+
+    i {
+      color: var(--d-gold);
+      font-size: 12px;
+    }
+  }
+  /* 닫기 버튼(V13 .header-control / 하위호환 .close) */
+  .header-control,
+  .window-header .close {
+    color: var(--d-soft);
+    border: none;
+    background: none;
+
+    &:hover {
+      color: var(--d-ink-strong);
+      background: rgba(120, 90, 50, 0.12);
+    }
+  }
+
+  /* 본문 — 양피지 */
+  .window-content {
+    padding: 16px 14px 14px;
+    background: var(--d-bg);
+    color: var(--d-ink);
+  }
+  .dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .form-label {
+    font-family: "Noto Serif KR", serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--d-soft);
+    margin-bottom: -4px;
+  }
+
+  /* select — 음각 양피지 + 금빛 화살표(appearance:none 필수: 코어 화살표 제거) */
+  select {
+    appearance: none;
+    width: 100%;
+    cursor: pointer;
+    // 코어의 고정 height를 해제하고 패딩+글자가 들어갈 최소 높이로(글자 잘림 방지).
+    box-sizing: border-box;
+    height: auto;
+    min-height: 38px;
+    line-height: 1.3;
+    padding: 9px 34px 9px 13px;
+    border-radius: 5px;
+    border: 1px solid var(--d-rule);
+    background-color: var(--d-sunk);
+    color: var(--d-ink-strong);
+    font-family: "NanumSquareRound", sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.16);
+    // 금빛 화살표(stroke %23a8884e). CSS 변수는 데이터 URI에 보간 불가 → 테마별로 통째 재지정.
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23a8884e' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+
+    &:focus {
+      outline: none;
+      border-color: var(--d-gold);
+      box-shadow:
+        inset 0 1px 3px rgba(70, 45, 18, 0.16),
+        0 0 0 2px color-mix(in oklch, var(--d-gold) 28%, transparent);
+    }
+  }
+  option {
+    background: var(--d-bg);
+    color: var(--d-ink-strong);
+  }
+
+  /* 버튼 푸터(V13 .form-footer / 시안 .dialog-buttons) */
+  .form-footer,
+  .dialog-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  /* 확인 버튼 = 정동판정과 동일 머루빛 어휘 */
+  .form-footer button,
+  button[data-action="ok"],
+  .dialog-button {
+    flex: 1;
+    cursor: pointer;
+    padding: 11px 0;
+    border-radius: 6px;
+    border: 1px solid var(--d-plum-deep);
+    background: linear-gradient(180deg, var(--d-plum), var(--d-plum-deep));
+    color: var(--d-cream);
+    font-family: "Noto Serif KR", serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    letter-spacing: 2px;
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklch, var(--d-gold) 60%, transparent),
+      0 3px 8px rgba(50, 20, 45, 0.32);
+    transition:
+      filter 0.12s ease,
+      transform 0.12s ease,
+      box-shadow 0.12s ease;
+
+    i {
+      font-size: 0.9em;
+      color: color-mix(in oklch, var(--d-gold) 70%, white);
+    }
+    &:hover {
+      filter: brightness(1.07);
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 0 0 1px var(--d-gold),
+        0 4px 12px rgba(50, 20, 45, 0.38);
+    }
+  }
+}
+
+/* 다크(달빛 은) 토큰 스왑 — 시안 .theme-night. */
+@mixin hb-dialog-night {
+  --d-bg: #222838;
+  --d-soft: #aaa0c8; // ink-soft
+  --d-sunk: #13161f;
+  --d-deep: #2d3346;
+  --d-border: #6f7a98;
+  --d-rule: #343c52;
+  --d-gold: #d8c48a;
+  --d-ink: #e9e3f6;
+  --d-ink-strong: #f7f3ff;
+  --d-faint: #6f6791;
+  --d-inset: #2d3346; // 인셋(차가운 회청)
+  --d-plum: oklch(0.64 0.085 272);
+  --d-plum-deep: oklch(0.52 0.08 272);
+  --d-cream: #f7f3ff;
+  --d-shadow: 0 16px 46px rgba(0, 0, 0, 0.6);
+
+  select {
+    // 다크 화살표(stroke %23d8c48a) 통째 재지정.
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23d8c48a' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.5);
+  }
+  .form-footer button,
+  button[data-action="ok"],
+  .dialog-button {
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklch, var(--d-gold) 50%, transparent),
+      0 0 16px rgba(174, 192, 236, 0.4),
+      0 3px 8px rgba(0, 0, 0, 0.45);
+
+    &:hover {
+      box-shadow:
+        inset 0 0 0 1px var(--d-gold),
+        0 0 22px rgba(174, 192, 236, 0.5),
+        0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+  }
+  .header-control:hover,
+  .window-header .close:hover {
+    background: rgba(174, 192, 236, 0.12);
+  }
+}
+
+/* auto + OS 다크 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-aster-theme]) .application.dialog.hb-dialog {
+    @include hb-dialog-night;
+  }
+}
+/* 명시 다크 */
+:root[data-aster-theme="dark"] .application.dialog.hb-dialog {
+  @include hb-dialog-night;
+}

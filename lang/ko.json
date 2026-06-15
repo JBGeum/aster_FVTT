@@ -554,6 +554,7 @@
       "noBag": "소지한 가방이 없습니다.",
       "noCandidate": "배치할 아이템이 창고에 없습니다.",
       "choose": "배치할 아이템 선택",
+      "itemLabel": "아이템",
       "place": "배치",
       "food": "휴대 식량",
       "foodEmpty": "(없음)",
