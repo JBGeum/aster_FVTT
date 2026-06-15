@@ -1402,6 +1402,11 @@
     grid-template-columns: repeat(var(--bag-cols, 5), 1fr);
     grid-template-rows: repeat(var(--bag-rows, 3), 1fr);
   }
+  // .bag-items가 격자 전체(inset:0)를 덮어 빈 칸 좌클릭을 가로채는 문제 해소:
+  // 컨테이너(빈 영역)는 클릭 통과시켜 아래 .bag-cells .bcell(cellClick)에 도달하게 한다.
+  .bag-items {
+    pointer-events: none;
+  }
   .bcell {
     background: var(--parchment-sunk);
 
@@ -1426,6 +1431,7 @@
     text-align: center;
     cursor: pointer;
     overflow: hidden;
+    pointer-events: auto; // 실제 아이템만 클릭 수신 (우클릭 itemUnplace 유지)
 
     .g {
       font-size: 19px;
