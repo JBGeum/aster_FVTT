@@ -31,6 +31,7 @@
 @use "component/combat";
 @use "component/components"; // ⭐ H3 신설 — 공통 컴포넌트
 @use "component/tooltip"; // 툴팁 시안 — Foundry #tooltip.hb-tip 스킨(라이트/다크)
+@use "component/token-hud"; // 토큰 HUD — 아스테르 5색 자가 증감(안 B, #token-hud 자식)
 
 // CSS @import — 폰트 영역 (CSS 규칙이므로 @use 뒤에 위치)
 // Pretendard — 한글 + 영문 통합 (CDN dynamic subset)

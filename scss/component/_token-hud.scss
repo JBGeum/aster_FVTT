@@ -1,0 +1,52 @@
+// 토큰 HUD — 아스테르 5색 자가 증감 (안 B, 토큰 하단 가로)
+// #token-hud(시트 밖) 자식이라 .herbarium 스코프 밖 — 독립 스타일.
+
+.aster-hud-panel {
+  position: absolute;
+  // top은 JS(renderTokenHUD)에서 토큰 픽셀 높이 + 하단 HUD 여유 기준으로 px 설정.
+  // top:100%는 HUD 컨테이너 높이 기준이라 하단 기본 컨트롤과 겹침 → CSS에서 제거.
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  background: rgba(20, 16, 31, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12); // 가독 경계
+  border-radius: 10px;
+  padding: 7px 10px;
+  pointer-events: all;
+  white-space: nowrap;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); // 캔버스 배경과 분리
+}
+
+.aster-hud-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 7px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+}
+
+.aster-hud-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+
+.aster-hud-val {
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  min-width: 22px;
+  text-align: center;
+  line-height: 1;
+}
