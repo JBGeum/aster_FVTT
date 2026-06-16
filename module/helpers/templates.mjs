@@ -47,6 +47,9 @@ export const preloadHandlebarsTemplates = async function () {
     "systems/aster/templates/chat/damage-result.html",
     "systems/aster/templates/chat/unison-attack.html",
     "systems/aster/templates/chat/npc-action-card.html",
+
+    // Chat (item)
+    "systems/aster/templates/chat/item-card.html",
   ]);
 };
 

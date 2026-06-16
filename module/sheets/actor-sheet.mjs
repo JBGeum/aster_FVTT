@@ -10,6 +10,7 @@ import { performUnisonAttack } from "../helpers/unison.mjs";
 import { buildStatusTooltips } from "../helpers/sheet-tooltips.mjs";
 import { useConsumable } from "../helpers/consumable.mjs";
 import { requestRevive } from "../helpers/revive.mjs";
+import { postItemCard } from "../helpers/item-chat.mjs";
 import {
   prepareCharacterData,
   prepareInventory,
@@ -375,10 +376,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async #onItemChat(_event, target) {
     const item = this.actor.items.get(target.dataset.itemId);
     if (!item) return;
-    await ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      content: `<b>${item.name}</b>`,
-    });
+    await postItemCard(this.actor, item);
   }
 
   static async #onItemEdit(_event, target) {

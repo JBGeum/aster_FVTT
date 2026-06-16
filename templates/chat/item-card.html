@@ -1,0 +1,24 @@
+<div class="aster-chat-card item-card">
+  <header class="card-header">
+    <img src="{{itemImg}}" alt="{{itemName}}" />
+    <div class="title">
+      <div class="name">{{itemName}}</div>
+      {{#if typeLabel}}
+      <div class="formula">{{typeLabel}}</div>
+      {{/if}}
+    </div>
+  </header>
+  {{#if description}}
+  <div class="item-body">{{{description}}}</div>
+  {{/if}} {{#if meta.length}}
+  <div class="item-meta">
+    {{#each meta}}
+    <div class="meta-line">
+      <i class="fa-solid {{this.icon}}"></i>
+      <span class="meta-label">{{this.label}}</span>
+      {{#if this.value}}<span class="meta-value">{{this.value}}</span>{{/if}}
+    </div>
+    {{/each}}
+  </div>
+  {{/if}}
+</div>

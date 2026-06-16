@@ -31,6 +31,8 @@ foundry/
 Thumbs.db
 /CLAUDE.md
 /test/*
+!/test/*.test.mjs
+!/test/*.test.ts
 /memo/*
 *.md
 /.claude/*

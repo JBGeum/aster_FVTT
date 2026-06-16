@@ -491,6 +491,60 @@
     }
   }
 
+  // ── 아이템 정보 카드 (이름 클릭) ───────────────────────────
+  &.item-card {
+    .item-body {
+      color: var(--cc-ink);
+      font-family: var(--cc-font);
+      font-size: 13px;
+      line-height: 1.6;
+
+      p {
+        margin: 0 0 0.5em;
+      }
+      p:last-child {
+        margin-bottom: 0;
+      }
+      ul,
+      ol {
+        margin: 0.3em 0;
+        padding-left: 1.4em;
+      }
+    }
+
+    .item-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--cc-rule);
+    }
+
+    .meta-line {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: 12.5px;
+
+      i {
+        width: 14px;
+        color: var(--cc-gold);
+        font-size: 0.9em;
+        text-align: center;
+      }
+      .meta-label {
+        color: var(--cc-ink-soft);
+        font-weight: var(--cc-weight-sm);
+      }
+      .meta-value {
+        margin-left: auto;
+        color: var(--cc-ink);
+        text-align: right;
+      }
+    }
+  }
+
   // ── 협력 회복 카드 ──
   &.revive-card {
     .fallen-line {

@@ -446,6 +446,9 @@
       "bag": "가방",
       "food": "요리"
     },
+    "itemcard": {
+      "capacity": "용량"
+    },
     "npc": {
       "itemsSection": "소지 아이템",
       "noItems": "아이템이 없습니다."
