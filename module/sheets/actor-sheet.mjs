@@ -18,7 +18,7 @@ import {
   applyCureAllStatus,
   applyDamageAndStatus,
   applyHealHealth,
-} from "../aster.mjs";
+} from "../helpers/health-status.mjs";
 import { lookupUnisonEffect, getUnisonDescription } from "../helpers/unison-table.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;

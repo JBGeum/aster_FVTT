@@ -1,4 +1,4 @@
-import { DAMAGE_STATUSES } from "../aster.mjs";
+import { DAMAGE_STATUSES } from "../helpers/health-status.mjs";
 import { AsterActorSheet } from "./actor-sheet.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
