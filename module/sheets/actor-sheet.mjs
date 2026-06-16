@@ -2,7 +2,7 @@ import { prepareActiveEffectCategories } from "../helpers/effects.mjs";
 import { checkBagCapacity, checkStorageAdd } from "../helpers/inventory-capacity.mjs";
 import { equipItem, unequipItem } from "../helpers/equipment.mjs";
 import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
-import { sumCost, canAcquire, canRelease } from "../helpers/craft-cost.mjs";
+import { acquireSkill, resetCraft } from "../helpers/craft-actions.mjs";
 import { validateCraft, craftItem, getCraftRequiresBaseList } from "../helpers/craft-item.mjs";
 import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell-roll.mjs";
 import { detectCritFumble, computePenalties } from "../helpers/roll-result.mjs";
@@ -151,27 +151,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
 
     return context;
-  }
-
-  #craftWarn(reasons, dependents) {
-    const map = {
-      PREREQ: "ASTER.craft.warn.PREREQ",
-      MATERIAL_SHORT: "ASTER.craft.warn.MATERIAL_SHORT",
-      ASTER_TOTAL_SHORT: "ASTER.craft.warn.ASTER_SHORT",
-      ASTER_RED_SHORT: "ASTER.craft.warn.ASTER_SHORT",
-      ASTER_BLUE_SHORT: "ASTER.craft.warn.ASTER_SHORT",
-      ASTER_GREEN_SHORT: "ASTER.craft.warn.ASTER_SHORT",
-      ASTER_YELLOW_SHORT: "ASTER.craft.warn.ASTER_SHORT",
-      HAS_DEPENDENTS: "ASTER.craft.warn.HAS_DEPENDENTS",
-      ALREADY: "ASTER.craft.warn.ALREADY",
-      FAMILIAR_ONE: "ASTER.craft.warn.FAMILIAR_ONE",
-    };
-    const key = map[reasons[0]] ?? "ASTER.craft.warn.GENERIC";
-    let msg = game.i18n.localize(key);
-    if (reasons[0] === "HAS_DEPENDENTS" && dependents?.length) {
-      msg += " (" + dependents.join(", ") + ")";
-    }
-    ui.notifications.warn(msg);
   }
 
   _onRender(context, options) {
@@ -1525,119 +1504,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async #onToggleSkill(_event, target) {
-    const skillId = target.dataset.skillId;
-    const acquired = foundry.utils.deepClone(this.actor.system.craft?.acquired ?? {});
-    const isAcquired = acquired[skillId] === true;
-
-    if (!isAcquired) {
-      const node = CRAFT_TREE.nodes.find((n) => n.id === skillId);
-      if (!node) return;
-
-      // 사역마 카테고리 배타 취득 검사
-      if (node.category === "familiar") {
-        const hasOther = CRAFT_TREE.nodes.some(
-          (n) => n.category === "familiar" && n.id !== skillId && acquired[n.id],
-        );
-        if (hasOther) {
-          target.checked = false;
-          this.#craftWarn(["FAMILIAR_ONE"]);
-          return;
-        }
-      }
-
-      const r = canAcquire(skillId, acquired);
-      if (!r.ok) {
-        target.checked = false;
-        this.#craftWarn(r.reasons);
-        return;
-      }
-
-      // 취득 + 비용 차감: 고정색 + 마테리얼만 자동 차감(음수 허용). 임의색(anyAster)은 수동 조정.
-      const update = { [`system.craft.acquired.${skillId}`]: true };
-      const shortList = [];
-      for (const c of ["red", "blue", "green", "yellow"]) {
-        const amount = node.cost.aster[c];
-        if (amount > 0) {
-          const newVal = (this.actor.system.aster?.[c]?.value ?? 0) - amount;
-          update[`system.aster.${c}.value`] = newVal;
-          if (newVal < 0) {
-            shortList.push(
-              game.i18n.format("ASTER.craft.warn.NEGATIVE", {
-                resource: game.i18n.localize(`ASTER.aster.${c}`),
-                value: newVal,
-              }),
-            );
-          }
-        }
-      }
-      if (node.cost.material > 0) {
-        const newMat = (this.actor.system.material ?? 0) - node.cost.material;
-        update["system.material"] = newMat;
-        if (newMat < 0) {
-          shortList.push(
-            game.i18n.format("ASTER.craft.warn.NEGATIVE", {
-              resource: game.i18n.localize("ASTER.label.material"),
-              value: newMat,
-            }),
-          );
-        }
-      }
-      await this.actor.update(update);
-      // 음수가 된 자원은 차단하지 않고 알림으로 수정 유도(음수 허용 정책).
-      if (shortList.length) ui.notifications.warn(shortList.join(" / "));
-    } else {
-      const r = canRelease(skillId, acquired);
-      if (!r.ok) {
-        target.checked = true;
-        this.#craftWarn(r.reasons, r.dependents);
-        return;
-      }
-      // 환불: 차감의 거울 동작(anyAster 제외). ObjectField는 update 시 병합이라 키 삭제(-=)나
-      // 빈/부분 객체 덮어쓰기가 동작하지 않는다. 해제는 해당 키를 false로 덮어쓴다(취득 패턴의 거울).
-      // 모든 craft 헬퍼·표시가 `=== true`/truthy로 읽고 sumCost는 `if (!val) continue`라 false는 미취득과 동일.
-      const node = CRAFT_TREE.nodes.find((n) => n.id === skillId);
-      const update = { [`system.craft.acquired.${skillId}`]: false };
-      if (node) {
-        for (const c of ["red", "blue", "green", "yellow"]) {
-          const amount = node.cost.aster[c];
-          if (amount > 0) {
-            update[`system.aster.${c}.value`] = (this.actor.system.aster?.[c]?.value ?? 0) + amount;
-          }
-        }
-        if (node.cost.material > 0) {
-          update["system.material"] = (this.actor.system.material ?? 0) + node.cost.material;
-        }
-      }
-      await this.actor.update(update);
-    }
+    return acquireSkill({ actor: this.actor, skillId: target.dataset.skillId, target });
   }
 
   static async #onCraftReset(_event, _target) {
-    const ok = await foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.localize("ASTER.craft.reset") },
-      content: game.i18n.localize("ASTER.craft.resetConfirm"),
-    }).catch(() => false);
-    if (!ok) return;
-
-    const acquired = this.actor.system.craft?.acquired ?? {};
-    if (Object.keys(acquired).length === 0) return;
-
-    // 취득 노드 비용 합계로 일괄 환불(anyAster는 차감 대상이 아니었으므로 환불도 제외).
-    // ObjectField는 update 시 병합이라 빈 객체 덮어쓰기·키 삭제(-=)가 동작하지 않는다.
-    // 취득 키를 각각 false로 덮어쓴다(sumCost는 false를 건너뛰고 표시·헬퍼는 `=== true`로 읽음).
-    const cost = sumCost(acquired);
-    const update = {};
-    for (const k of Object.keys(acquired)) update[`system.craft.acquired.${k}`] = false;
-    for (const c of ["red", "blue", "green", "yellow"]) {
-      if (cost.aster[c] > 0) {
-        update[`system.aster.${c}.value`] =
-          (this.actor.system.aster?.[c]?.value ?? 0) + cost.aster[c];
-      }
-    }
-    if (cost.material > 0) {
-      update["system.material"] = (this.actor.system.material ?? 0) + cost.material;
-    }
-    await this.actor.update(update);
+    return resetCraft({ actor: this.actor });
   }
 
   static async #onCraftLockToggle(_event, _target) {
