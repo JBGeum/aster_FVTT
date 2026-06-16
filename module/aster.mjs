@@ -32,6 +32,7 @@ import { applyAsterTheme } from "./helpers/theme.mjs";
 import "./hooks/item-hooks.mjs";
 import "./hooks/chat-hooks.mjs";
 import "./hooks/combat-hooks.mjs";
+import { rollItemMacro } from "./hooks/ui-hooks.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -150,40 +151,10 @@ Handlebars.registerHelper("toLowerCase", function (str) {
 });
 
 /* -------------------------------------------- */
-/*  GM Panel — Scene Control 버튼               */
-/* -------------------------------------------- */
-
-// V13: controls는 name으로 키된 객체, 각 control의 tools도 name 키 객체.
-Hooks.on("getSceneControlButtons", (controls) => {
-  const tokens = controls.tokens;
-  if (!tokens?.tools) return;
-  tokens.tools["aster-gm-panel"] = {
-    name: "aster-gm-panel",
-    title: "ASTER.world.panelTitle",
-    icon: "fa-solid fa-sliders",
-    order: Object.keys(tokens.tools).length,
-    button: true,
-    visible: game.user.isGM,
-    onChange: () => AsterGMPanel.show(),
-  };
-});
-
-/* -------------------------------------------- */
 /*  Ready Hook                                  */
 /* -------------------------------------------- */
 
 Hooks.once("ready", async function () {
-  Hooks.on("hotbarDrop", (bar, data, slot) => createItemMacro(data, slot));
-
-  // world 값 변경 시 열려있는 GM 패널을 동기화 (다른 클라이언트 포함)
-  const worldKeys = new Set(WORLD_VALUES.map((v) => `aster.${v.key}`));
-  Hooks.on("updateSetting", (setting) => {
-    if (!worldKeys.has(setting.key)) return;
-    for (const app of foundry.applications.instances.values()) {
-      if (app instanceof AsterGMPanel) app.render();
-    }
-  });
-
   // H1 — 초기 theme 영역 적용 (body data-attribute 토글)
   applyAsterTheme(game.settings.get("aster", "theme"));
 
@@ -222,39 +193,6 @@ async function ensureUnisonTables() {
 }
 
 /* -------------------------------------------- */
-/*  Hotbar Macros                               */
-/* -------------------------------------------- */
-
-/**
- * Create a Macro from an Item drop.
- * @param {object} data
- * @param {number} slot
- * @returns {Promise<boolean>}
- */
-async function createItemMacro(data, slot) {
-  if (data.type !== "Item") return false;
-  if (!data.uuid.includes("Actor.") && !data.uuid.includes("Token.")) {
-    ui.notifications.warn("You can only create macro buttons for owned Items");
-    return false;
-  }
-  const item = await Item.fromDropData(data);
-  const command = `game.aster.rollItemMacro("${data.uuid}");`;
-
-  let macro = game.macros.find((m) => m.name === item.name && m.command === command);
-  if (!macro) {
-    macro = await Macro.create({
-      name: item.name,
-      type: "script",
-      img: item.img,
-      command,
-      flags: { "aster.itemMacro": true },
-    });
-  }
-  game.user.assignHotbarMacro(macro, slot);
-  return false;
-}
-
-/* -------------------------------------------- */
 /*  Data Migration                              */
 /* -------------------------------------------- */
 
@@ -289,89 +227,3 @@ async function migrateSpellTarget() {
     }
   }
 }
-
-/**
- * @param {string} itemUuid
- */
-function rollItemMacro(itemUuid) {
-  const dropData = { type: "Item", uuid: itemUuid };
-  Item.fromDropData(dropData).then((item) => {
-    if (!item || !item.parent) {
-      const itemName = item?.name ?? itemUuid;
-      ui.notifications.warn(
-        `Could not find item ${itemName}. You may need to delete and recreate this macro.`,
-      );
-      return;
-    }
-    item.roll();
-  });
-}
-
-/* -------------------------------------------- */
-/*  토큰 HUD — 아스테르 5색 자가 증감 (안 B)      */
-/* -------------------------------------------- */
-
-// 마테리얼 제외 5색. 백색은 어두운 배경에 묻히므로 테두리 필요.
-const ASTER_HUD_FIELDS = [
-  { key: "red", color: "#d2776b" },
-  { key: "blue", color: "#6f9ad8" },
-  { key: "green", color: "#7ab06a" },
-  { key: "yellow", color: "#e0c04a" },
-  { key: "white", color: "#e8e4d8" },
-];
-
-// 토큰 하단에 점+값 패널 마크업 생성. 색은 인라인 지정(시트 스코프 밖이라 --el-* 미사용).
-function buildAsterHudPanel(actor) {
-  const cells = ASTER_HUD_FIELDS.map((f) => {
-    const val = foundry.utils.getProperty(actor, `system.aster.${f.key}.value`) ?? 0;
-    const label = game.i18n.localize(ASTER.aster[f.key] ?? `ASTER.aster.${f.key}`);
-    const ring = f.key === "white" ? "border:1px solid #999;" : "";
-    return `
-      <div class="aster-hud-cell" data-aster-hud data-key="${f.key}"
-           data-tooltip="${label} (좌클릭 +1 / 우클릭 −1)">
-        <span class="aster-hud-dot" style="background:${f.color};${ring}"></span>
-        <span class="aster-hud-val">${val}</span>
-      </div>`;
-  }).join("");
-  return `<div class="aster-hud-panel">${cells}</div>`;
-}
-
-// 좌클릭 +1 / 우클릭 −1. actor.update()로 서버 경유 동기화, HUD 값은 수동 갱신.
-async function onAsterHudAdjust(event, actor, delta) {
-  event.preventDefault();
-  event.stopPropagation(); // HUD 닫힘·토큰 선택·컨텍스트메뉴 방지
-  if (!actor.isOwner) return; // 방어적 이중 체크
-
-  const cell = event.currentTarget;
-  const path = `system.aster.${cell.dataset.key}.value`;
-  const cur = foundry.utils.getProperty(actor, path) ?? 0;
-  const next = cur + delta;
-  await actor.update({ [path]: next });
-
-  const valEl = cell.querySelector(".aster-hud-val");
-  if (valEl) valEl.textContent = String(next); // HUD 수동 갱신
-}
-
-Hooks.on("renderTokenHUD", (hud, html) => {
-  const actor = hud.object?.actor;
-  if (!actor || actor.type !== "character") return; // PC만 — NPC 미표시
-  if (!actor.isOwner) return; // 본인(또는 GM)만 — 타인 차단
-
-  // V13 TokenHUD는 AppV2 — html은 HUD 루트(#token-hud) HTMLElement.
-  // 루트에 append하면 panel의 top:100% 절대배치가 토큰 하단 기준이 됨.
-  html.insertAdjacentHTML("beforeend", buildAsterHudPanel(actor));
-
-  // 위치: 토큰 아래 + 하단 기본 HUD(톱니·elevation) 영역을 넘어가게.
-  // top:100%는 HUD 컨테이너 높이 기준이라 하단 컨트롤을 못 넘음 → 토큰 픽셀 높이 기준으로 직접 배치.
-  const panel = html.querySelector(".aster-hud-panel");
-  if (panel) {
-    const tokenH = hud.object?.h ?? 100; // 토큰 픽셀 높이 (그리드 1칸 ≈ 100, 2×2 ≈ 200 → 자동 대응)
-    const bottomClearance = 50; // 하단 기본 HUD 여유
-    panel.style.top = `${tokenH + bottomClearance}px`; // 컨테이너 상단(0) 기준 절대 위치
-  }
-
-  html.querySelectorAll("[data-aster-hud]").forEach((el) => {
-    el.addEventListener("click", (ev) => onAsterHudAdjust(ev, actor, +1));
-    el.addEventListener("contextmenu", (ev) => onAsterHudAdjust(ev, actor, -1));
-  });
-});
