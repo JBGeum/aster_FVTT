@@ -2,7 +2,7 @@
 
 - **작성일**: 2026-06-15
 - **대상 프로젝트**: Aster FVTT (`2.0.0-dev.0`)
-- **상태**: 승인됨, 구현 계획 작성 대기
+- **상태**: 구현 완료 (`refactor/decompose-giant-files`, 2026-06-16) — 계획: [`../plans/2026-06-16-giant-file-decomposition.md`](../plans/2026-06-16-giant-file-decomposition.md)
 
 ## 1. 배경과 목표
 
