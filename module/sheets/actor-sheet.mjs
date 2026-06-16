@@ -1,12 +1,8 @@
 import { prepareActiveEffectCategories } from "../helpers/effects.mjs";
-import {
-  checkBagCapacity,
-  checkStorageAdd,
-  EQUIP_SLOT_CONTAINERS,
-} from "../helpers/inventory-capacity.mjs";
+import { checkBagCapacity, checkStorageAdd } from "../helpers/inventory-capacity.mjs";
 import { equipItem, unequipItem } from "../helpers/equipment.mjs";
 import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
-import { prereqMet, sumCost, canAcquire, canRelease } from "../helpers/craft-cost.mjs";
+import { sumCost, canAcquire, canRelease } from "../helpers/craft-cost.mjs";
 import { validateCraft, craftItem, getCraftRequiresBaseList } from "../helpers/craft-item.mjs";
 import { computeSpellRoll, getAbilityTotal, isSpecialty } from "../helpers/spell-roll.mjs";
 import { detectCritFumble, computePenalties } from "../helpers/roll-result.mjs";
@@ -20,16 +16,19 @@ import {
   applyHealHealth,
 } from "../helpers/health-status.mjs";
 import { lookupUnisonEffect, getUnisonDescription } from "../helpers/unison-table.mjs";
-import {
-  formatFormula,
-  inventorySummary,
-  isMagicToolInactive,
-  buildStatusTooltips,
-  buildItemTooltip,
-  buildSpellTooltip,
-} from "../helpers/sheet-tooltips.mjs";
-import { useConsumable, consumableHasHeal } from "../helpers/consumable.mjs";
+import { formatFormula, buildStatusTooltips } from "../helpers/sheet-tooltips.mjs";
+import { useConsumable } from "../helpers/consumable.mjs";
 import { requestRevive } from "../helpers/revive.mjs";
+import {
+  prepareCharacterData,
+  prepareInventory,
+  prepareCraft,
+  prepareItems,
+  prepareSpellList,
+  prepareRecord,
+  buildCombatContext,
+  buildReviveContext,
+} from "./sheet-context.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -124,20 +123,20 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.badstatusTips = buildStatusTooltips();
 
     if (this.actor.type === "character") {
-      this._prepareCharacterData(context);
-      this._prepareItems(context);
-      this._prepareInventory(context);
-      this._prepareCraft(context);
-      this._prepareSpellList(context);
-      this._prepareRecord(context);
-      context.combatContext = this.#buildCombatContext();
-      context.reviveContext = this.#buildReviveContext();
+      prepareCharacterData(this, context);
+      prepareItems(this, context);
+      prepareInventory(this, context);
+      prepareCraft(this, context);
+      prepareSpellList(this, context);
+      prepareRecord(this, context);
+      context.combatContext = buildCombatContext(this);
+      context.reviveContext = buildReviveContext(this);
     } else if (this.actor.type === "npc") {
-      this._prepareItems(context);
-      // N3 — combat 영역 활성 (PC 패턴 정합). #buildCombatContext는 actor 무관 동작:
+      prepareItems(this, context);
+      // N3 — combat 영역 활성 (PC 패턴 정합). buildCombatContext는 actor 무관 동작:
       // AP 표시·공통 액션 disabled 상태를 PC와 동일하게 노출한다. unisonReady는 NPC에
       // 설정되지 않으므로 합체기 관련 필드는 자연히 false(발동 후보에서도 제외).
-      context.combatContext = this.#buildCombatContext();
+      context.combatContext = buildCombatContext(this);
       // N2 — npcAction(스킬 표)과 일반 items 분리. 대상 라벨은 미리 지역화.
       // combatDisabled는 시전 버튼 disabled용 — 각 행에서 부모 combatContext를 `../`로 참조하면
       // prettier HTML 파서가 실패하므로 행 컨텍스트에 미리 평면화한다.
@@ -152,316 +151,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
 
     return context;
-  }
-
-  /**
-   * 전투 탭 컨텍스트. 활성 Combat에서 이 액터의 Combatant를 찾아 AP·라운드 사용 상태를 노출.
-   * @returns {{inCombat:boolean, disabled:boolean, ap:number, combatantId?:string, defendUsed?:boolean, chargeUsed?:boolean}}
-   */
-  #buildCombatContext() {
-    const combat = game.combat;
-    if (!combat?.started) return { inCombat: false, disabled: true, ap: 0 };
-
-    const combatant = combat.combatants.find((c) => c.actor?.id === this.actor.id);
-    if (!combatant) return { inCombat: false, disabled: true, ap: 0 };
-
-    const usage = combatant.getFlag("aster", "actionsThisRound") ?? {};
-    // 합체기 발동 조건: 본인 unisonReady && 다른 unisonReady PC 1명 이상.
-    const unisonReady = combatant.getFlag("aster", "unisonReady") === true;
-    const otherUnisonReady = combat.combatants.some(
-      (c) =>
-        c.id !== combatant.id &&
-        c.actor?.type === "character" &&
-        c.getFlag("aster", "unisonReady") === true,
-    );
-    return {
-      inCombat: true,
-      disabled: false,
-      ap: combatant.getFlag("aster", "actionPoint") ?? 0,
-      combatantId: combatant.id,
-      defendUsed: (usage.defend ?? 0) >= 1,
-      chargeUsed: (usage.charge ?? 0) >= 1,
-      focusActive: combatant.getFlag("aster", "focusActive") === true,
-      unisonReady,
-      canUnison: unisonReady && otherUnisonReady,
-      // 템플릿 `{{disabled}}` 헬퍼가 truthy를 disabled로 변환하므로 부정값을 컨텍스트에서 미리 계산.
-      disableUnison: !(unisonReady && otherUnisonReady),
-    };
-  }
-
-  /**
-   * 협력 회복 컨텍스트 (R2, 룰북 535~537). 건강 0 = 행동불능.
-   * 탐색 페이즈에서만 협력 회복 가능 — 피크닉(D20)·포만 감소와 동일하게 currentPhase로 판정.
-   * 클라이막스(전투) 페이즈는 회복 불가 안내만 (룰북 537, 전투 종료 자동 회복은 별도 STEP).
-   * @returns {{isFallen:boolean, canRevive:boolean, inCombatBlocked:boolean}}
-   */
-  #buildReviveContext() {
-    const isFallen = (this.actor.system.health?.value ?? 0) === 0;
-    const phase = game.settings.get("aster", "currentPhase");
-    return {
-      isFallen,
-      canRevive: isFallen && phase === "exploration",
-      inCombatBlocked: isFallen && phase === "climax",
-    };
-  }
-
-  _prepareCharacterData(context) {
-    for (const [k, v] of Object.entries(context.system.ability)) {
-      v.label = game.i18n.localize(CONFIG.ASTER.ability[k]) ?? k;
-    }
-    for (const [k, v] of Object.entries(context.system.aster)) {
-      v.label = game.i18n.localize(CONFIG.ASTER.aster[k]) ?? k;
-    }
-    context.rollModeNormal = context.system.rollMode === "normal";
-    context.rollModeVs = context.system.rollMode === "vs";
-
-    // H8 약초첩 게이지 — fill은 right:emptyPct%로 비워지므로 (1 - value/max) 비율.
-    const emptyPct = (v, m) => (m > 0 ? Math.max(0, Math.min(100, (1 - (v ?? 0) / m) * 100)) : 100);
-    const hp = context.system.health ?? {};
-    const sat = context.system.satiety ?? {};
-    context.healthEmptyPct = emptyPct(hp.value, hp.max);
-    context.satietyEmptyPct = emptyPct(sat.value, sat.max);
-  }
-
-  _prepareInventory(context) {
-    const bag = this.actor.items.find((i) => i.type === "bag") ?? null;
-    const food = this.actor.items.find((i) => i.type === "food") ?? null;
-
-    const inBag = bag
-      ? this.actor.items.filter(
-          (i) => ["consumable", "equipment"].includes(i.type) && i.system.container === bag.id,
-        )
-      : [];
-
-    const inStorage = this.actor.items.filter(
-      (i) => ["consumable", "equipment"].includes(i.type) && !i.system.container,
-    );
-
-    const storageLimit = this.actor.system.storage?.limit ?? 0;
-
-    const bagGrid = bag?.system.grid ?? { cols: 6, rows: 4 };
-    const cells = bag
-      ? Array.from({ length: bagGrid.cols * bagGrid.rows }, (_, i) => ({
-          index: i,
-          x: i % bagGrid.cols,
-          y: Math.floor(i / bagGrid.cols),
-          light: (Math.floor(i / bagGrid.cols) + (i % bagGrid.cols)) % 2 === 0,
-        }))
-      : [];
-
-    const inBagLabel = game.i18n.localize("ASTER.inventory.inBag");
-    const inStorageLabel = game.i18n.localize("ASTER.inventory.inStorage");
-
-    // 장비 슬롯 — container 예약값(equip-1/equip-2)에 해당 equipment 매핑 (I1c, 룰북 269 2칸).
-    const equipSlots = EQUIP_SLOT_CONTAINERS.map((slotId) => {
-      const it = this.actor.items.find(
-        (i) => i.type === "equipment" && i.system.container === slotId,
-      );
-      return {
-        slotId,
-        item: it ? { id: it.id, name: it.name, img: it.img } : null,
-      };
-    });
-
-    context.inv = {
-      equipSlots,
-      bag: bag
-        ? {
-            id: bag.id,
-            name: bag.name,
-            grid: bagGrid,
-            cells,
-            items: inBag.map((i) => {
-              const w = i.system.size?.w ?? 1;
-              const h = i.system.size?.h ?? 1;
-              return {
-                id: i.id,
-                name: i.name,
-                img: i.img,
-                // 호버 툴팁 — 가방 안 아이템(위치 = 가방).
-                tooltip: buildItemTooltip(i, inBagLabel),
-                w,
-                h,
-                x: i.system.grid?.x ?? 0,
-                y: i.system.grid?.y ?? 0,
-                // H8 약초첩 .bitem.lg — 2칸 이상 점유 시 아이콘 확대.
-                large: w > 1 || h > 1,
-              };
-            }),
-          }
-        : null,
-      food: food ? { id: food.id, name: food.name, img: food.img } : null,
-      storage: {
-        count: inStorage.length,
-        limit: storageLimit,
-        over: inStorage.length > storageLimit,
-      },
-      allItems: [
-        ...inBag.map((i) => ({
-          id: i.id,
-          name: i.name,
-          img: i.img,
-          tooltip: buildItemTooltip(i, inBagLabel),
-          location: "bag",
-          locationLabel: inBagLabel,
-          canUse: consumableHasHeal(i),
-          summary: inventorySummary(i),
-          isEquipment: i.type === "equipment",
-          isMagicToolInactive: isMagicToolInactive(i),
-        })),
-        ...inStorage.map((i) => ({
-          id: i.id,
-          name: i.name,
-          img: i.img,
-          tooltip: buildItemTooltip(i, inStorageLabel),
-          location: "storage",
-          locationLabel: inStorageLabel,
-          canUse: consumableHasHeal(i),
-          summary: inventorySummary(i),
-          isEquipment: i.type === "equipment",
-          isMagicToolInactive: isMagicToolInactive(i),
-        })),
-      ],
-    };
-  }
-
-  _prepareCraft(context) {
-    const acquired = this.actor.system.craft?.acquired ?? {};
-    const craftLocked = this.actor.system.craft?.locked ?? false;
-    const resources = {
-      material: this.actor.system.material ?? 0,
-      aster: {
-        red: this.actor.system.aster?.red?.value ?? 0,
-        blue: this.actor.system.aster?.blue?.value ?? 0,
-        green: this.actor.system.aster?.green?.value ?? 0,
-        yellow: this.actor.system.aster?.yellow?.value ?? 0,
-        white: this.actor.system.aster?.white?.value ?? 0,
-      },
-    };
-
-    // 선행 깊이 계산 (depth 0 = 선행 없음, col = depth + 1)
-    const nodeMap = Object.fromEntries(CRAFT_TREE.nodes.map((n) => [n.id, n]));
-    const depthCache = {};
-    const nodeDepth = (id) => {
-      if (depthCache[id] !== undefined) return depthCache[id];
-      const n = nodeMap[id];
-      if (!n || n.requires.length === 0) return (depthCache[id] = 0);
-      return (depthCache[id] = Math.max(...n.requires.map(nodeDepth)) + 1);
-    };
-
-    // 카테고리별로 label 기준 체인 그룹화 + col 계산
-    const byCat = {};
-    const chainMap = {};
-    const chainOrder = {};
-    for (const cat of CRAFT_TREE.categories) {
-      byCat[cat.id] = {
-        ...cat,
-        chains: [],
-        nodes: [],
-        colCount: 1,
-        isFamiliar: cat.id === "familiar",
-      };
-      chainMap[cat.id] = {};
-      chainOrder[cat.id] = [];
-    }
-
-    for (const node of CRAFT_TREE.nodes) {
-      const isAcquired = acquired[node.id] === true;
-      const unlocked = prereqMet(node.id, acquired);
-      const isLocked = !unlocked && !isAcquired;
-      const col = nodeDepth(node.id) + 1;
-      const displayNode = {
-        ...node,
-        acquired: isAcquired,
-        unlocked,
-        locked: isLocked,
-        // 선행 미충족(isLocked)이거나 탭이 잠긴 경우 체크박스를 비활성화한다.
-        disabledAttr: isLocked || craftLocked ? "disabled" : "",
-        costLabel: _formatCraftCost(node.cost),
-        col,
-      };
-      if (col > byCat[node.category].colCount) byCat[node.category].colCount = col;
-      byCat[node.category].nodes.push(displayNode);
-      if (!chainMap[node.category][node.label]) {
-        chainMap[node.category][node.label] = [];
-        chainOrder[node.category].push(node.label);
-      }
-      chainMap[node.category][node.label].push(displayNode);
-    }
-
-    for (const cat of CRAFT_TREE.categories) {
-      byCat[cat.id].chains = chainOrder[cat.id].map((lbl) => chainMap[cat.id][lbl]);
-    }
-
-    const cost = sumCost(acquired);
-
-    const asterColors = ["red", "blue", "green", "yellow", "white"];
-    const asterHaveTotal = asterColors.reduce((s, c) => s + (resources.aster[c] ?? 0), 0);
-    const asterUsedTotal =
-      cost.aster.red + cost.aster.blue + cost.aster.green + cost.aster.yellow + cost.anyAster;
-
-    const summaryColumns = [
-      ...asterColors.map((c) => ({
-        key: c,
-        labelKey: `ASTER.aster.${c}`,
-        dotKey: c,
-        have: resources.aster[c] ?? 0,
-        used: cost.aster[c],
-        haveEmpty: false,
-        usedEmpty: false,
-        editable: true,
-        inputName: `system.aster.${c}.value`,
-      })),
-      {
-        key: "material",
-        label: "마테리얼",
-        dotKey: "mat",
-        have: resources.material ?? 0,
-        used: cost.material,
-        haveEmpty: false,
-        usedEmpty: false,
-        editable: true,
-        inputName: "system.material",
-      },
-      {
-        key: "any",
-        label: "임의",
-        have: null,
-        used: cost.anyAster,
-        haveEmpty: true,
-        usedEmpty: false,
-        editable: false,
-      },
-      {
-        key: "self",
-        label: "자속성",
-        have: null,
-        used: null,
-        haveEmpty: true,
-        usedEmpty: true,
-        editable: false,
-      },
-      {
-        key: "total",
-        label: "총합",
-        total: true,
-        have: asterHaveTotal,
-        used: asterUsedTotal,
-        haveEmpty: false,
-        usedEmpty: false,
-        editable: false,
-      },
-    ];
-
-    context.craft = {
-      categories: CRAFT_TREE.categories.map((c) => byCat[c.id]),
-      cost,
-      resources,
-      summaryColumns,
-      locked: craftLocked,
-      lockIcon: craftLocked ? "fa-lock" : "fa-lock-open",
-      lockTitle: craftLocked ? "ASTER.craft.unlock" : "ASTER.craft.lock",
-    };
   }
 
   #craftWarn(reasons, dependents) {
@@ -483,62 +172,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       msg += " (" + dependents.join(", ") + ")";
     }
     ui.notifications.warn(msg);
-  }
-
-  _prepareItems(context) {
-    const features = [];
-    for (const i of context.items) {
-      i.img = i.img || CONST.DEFAULT_TOKEN;
-      if (i.type === "feature") features.push(i);
-    }
-    context.features = features;
-  }
-
-  _prepareSpellList(context) {
-    const spells = this.actor.items.filter((i) => i.type === "spell");
-    context.spells = spells.map((s) => {
-      const formula = formatFormula(s); // "녹+박식(12)"
-      return {
-        id: s.id,
-        name: s.name,
-        img: s.img,
-        color: s.system.color,
-        ability: s.system.ability,
-        target: s.system.target,
-        // 호버 툴팁 — 헤더·본문·메타(판정식). tooltipHtml 헬퍼가 빈 값을 걸러낸다.
-        tooltip: buildSpellTooltip(s, formula),
-        formula,
-      };
-    });
-  }
-
-  _prepareRecord(context) {
-    // 상단 고정 배경 (born/past/purpose)
-    context.features = this.actor.system.features;
-
-    // 세션 기록 카드 (record 아이템) — 책 넘기기
-    const records = this.actor.items.filter((i) => i.type === "record");
-    context.records = records.map((r) => ({
-      id: r.id,
-      name: r.name,
-      city: r.system.city,
-      alert: r.system.alert,
-      felka: r.system.felka,
-      scenarioCount: r.system.scenarioCount,
-      favor: r.system.favor,
-      scenes: r.system.scenes,
-      people: r.system.people,
-      memo: r.system.memo,
-      updatedAt: r.system.updatedAt,
-    }));
-    context.recordCount = records.length;
-    // _recordIndex는 현재 페이지(비영속 인스턴스 상태)
-    context.currentIndex = Math.min(this._recordIndex ?? 0, Math.max(0, records.length - 1));
-    context.currentRecord = context.records[context.currentIndex] ?? null;
-    context.currentPage = records.length ? context.currentIndex + 1 : 0;
-    // disabled 속성은 미리 계산(템플릿 태그 속성에 블록 헬퍼 사용 불가)
-    context.recordPrevDisabled = context.currentIndex <= 0 ? "disabled" : "";
-    context.recordNextDisabled = context.currentIndex >= records.length - 1 ? "disabled" : "";
   }
 
   _onRender(context, options) {
@@ -2335,16 +1968,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       }
     }
   }
-}
-
-function _formatCraftCost(cost) {
-  const parts = [];
-  if (cost.material) parts.push(`◆${cost.material}`);
-  const a = cost.aster;
-  if (a.red || a.blue || a.green || a.yellow)
-    parts.push(`◇${a.red}/${a.blue}/${a.green}/${a.yellow}`);
-  if (cost.anyAster) parts.push(`◇임의 ${cost.anyAster}`);
-  return parts.join(" ");
 }
 
 /* -------------------------------------------- */
