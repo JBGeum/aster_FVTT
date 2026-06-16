@@ -1,5 +1,5 @@
 import { DAMAGE_STATUSES } from "../helpers/health-status.mjs";
-import { AsterActorSheet } from "./actor-sheet.mjs";
+import { useConsumable } from "../helpers/consumable.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
@@ -203,7 +203,7 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       return;
     }
     // 효과 적용 + 아이템 삭제는 actor 시트와 공용 로직. 삭제되면 시트는 자동으로 닫힌다.
-    await AsterActorSheet.useConsumable(actor, this.item);
+    await useConsumable(actor, this.item);
   }
 
   static async #onSubmit(_event, _form, formData) {
