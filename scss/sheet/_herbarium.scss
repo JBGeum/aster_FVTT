@@ -1376,35 +1376,41 @@
       font-weight: 600;
     }
   }
-  /* STEP 2 — 프레임(.bag-frame) + 정사각 셀.
-     그리드 전체를 cols:rows 비율(aspect-ratio)로 잡고 열·행을 1fr 균등 분배 → 셀이 정사각.
-     높이는 행 수에 비례(적응형) — 고정 px·container-query보다 견고하고 작은 가방에서 여백 안 생김. */
+  /* STEP 2 — 프레임(.bag-frame) + 고정 크기 정사각 셀.
+     셀을 고정 px(--bag-cell)로 잡아 가방 크기(cols·rows)와 무관하게 항상 동일 크기 → 도트 선명도 유지.
+     크기 결정자 .bag-cells는 일반 흐름(width:max-content)으로 트랙 합만큼만 차지하고,
+     .bag-items는 그 위에 inset:0으로 겹쳐 동일 트랙에 정렬한다(box-sizing 의존 calc 불필요). */
   .bag-grid {
+    --bag-cell: 35px; /* 한 격자 = 32px 도트 이미지 + 여백 ≈ 35px (가방 크기 무관 고정) */
+    --bag-gap: 3px;
     position: relative;
+    width: fit-content; /* 고정 셀 합만큼만 — 작은 가방은 외곽 골드 보더가 빈칸까지 감싸지 않음 */
+    align-self: center; /* 세로 flex 패널의 교차축(가로) 중앙 정렬 */
     padding: 3px;
     margin-bottom: 11px;
-    aspect-ratio: var(--bag-cols, 5) / var(--bag-rows, 3);
     background: var(--rule);
     border: 1px solid var(--gold);
     border-radius: var(--hb-radius-sm);
     box-shadow: inset 0 1px 4px rgba(70, 45, 18, 0.18);
   }
   .bag-frame {
-    position: absolute;
-    inset: 3px;
+    position: relative; /* .bag-items(absolute inset:0)의 기준 */
   }
   .bag-cells,
   .bag-items {
-    position: absolute;
-    inset: 0;
     display: grid;
-    gap: 3px;
-    grid-template-columns: repeat(var(--bag-cols, 5), 1fr);
-    grid-template-rows: repeat(var(--bag-rows, 3), 1fr);
+    gap: var(--bag-gap);
+    grid-template-columns: repeat(var(--bag-cols, 5), var(--bag-cell));
+    grid-template-rows: repeat(var(--bag-rows, 3), var(--bag-cell));
+  }
+  .bag-cells {
+    width: max-content; /* 프레임·그리드 크기 결정자 */
   }
   // .bag-items가 격자 전체(inset:0)를 덮어 빈 칸 좌클릭을 가로채는 문제 해소:
   // 컨테이너(빈 영역)는 클릭 통과시켜 아래 .bag-cells .bcell(cellClick)에 도달하게 한다.
   .bag-items {
+    position: absolute;
+    inset: 0;
     pointer-events: none;
   }
   .bcell {
@@ -1415,7 +1421,8 @@
     }
   }
   .bitem {
-    margin: 2px;
+    margin: 0; // 셀(35px)을 꽉 채움 — 여백은 셀 내부에서 처리(아래 img 32px + border)
+    box-sizing: border-box;
     border-radius: 3px;
     background: var(--parchment-soft);
     border: 1px solid var(--gold);
@@ -1427,7 +1434,7 @@
     align-items: center;
     justify-content: center;
     gap: 3px;
-    padding: 4px;
+    padding: 0;
     text-align: center;
     cursor: pointer;
     overflow: hidden;
@@ -1442,14 +1449,17 @@
       font-size: 30px;
     }
     img {
-      width: 30px;
-      height: 30px;
+      // 1칸 아이템: 35px 셀 안에 32px 도트 이미지 중앙 정렬(border 2px + 여백 1px ≈ 3px)
+      width: 32px;
+      height: 32px;
       object-fit: contain;
       border: none;
     }
     &.lg img {
-      width: 46px;
-      height: 46px;
+      // 다칸 아이템: 차지한 칸 수에 비례(여백 3px 유지)
+      width: 100%;
+      height: 100%;
+      padding: 3px;
     }
     .n {
       /* change.txt — 가방 격자 칸 이름 숨김(그림만 표시). */
@@ -3314,9 +3324,10 @@
    최근접 이웃 스케일링으로 막아 도트를 선명한 픽셀로 확대한다. 향후 이미지 교체만으로
    바로 선명하게 렌더되도록 사전 정비. 사진·일러스트(초상화)엔 미적용(계단현상 방지) —
    .pixelart 클래스를 도트 요소에만 선별 부여(옵션 ㄱ). 전역 규칙(시트·아이템 다이얼로그 공통). */
-.pixelart,
-.pixelart img {
-  image-rendering: pixelated; /* 표준 — 최근접 이웃 */
-  image-rendering: -moz-crisp-edges; /* 구 Firefox 폴백 */
-  image-rendering: crisp-edges; /* 폴백 */
-}
+// 일시 비활성화 — 도트 또렷함(최근접 이웃 스케일링) 규칙. 되살리려면 주석 해제.
+// .pixelart,
+// .pixelart img {
+//   image-rendering: pixelated; /* 표준 — 최근접 이웃 */
+//   image-rendering: -moz-crisp-edges; /* 구 Firefox 폴백 */
+//   image-rendering: crisp-edges; /* 폴백 */
+// }
