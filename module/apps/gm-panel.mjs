@@ -146,7 +146,9 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
         </div>
         <label class="wv-add">
           <input type="checkbox" name="add" checked />
-          ${game.i18n.localize("ASTER.world.addToCurrent")}
+          ${game.i18n.format("ASTER.world.addToCurrent", {
+            label: game.i18n.localize(WORLD_VALUES.find((v) => v.key === target.dataset.key).label),
+          })}
         </label>
       `,
       ok: {
@@ -167,16 +169,22 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const roll = new Roll(rangeFormula(r.min, r.max));
     await roll.evaluate();
 
+    const label = game.i18n.localize(WORLD_VALUES.find((v) => v.key === key).label);
     if (r.add) {
       const cur = Number(game.settings.get("aster", key)) || 0;
       const next = AsterGMPanel.#clampMin(key, cur + roll.total);
       await roll.toMessage({
-        flavor: game.i18n.format("ASTER.world.rangeFlavorAdd", { delta: roll.total, total: next }),
+        flavor: game.i18n.format("ASTER.world.rangeFlavorAdd", {
+          label,
+          delta: roll.total,
+          total: next,
+        }),
       });
       await game.settings.set("aster", key, next);
     } else {
       await roll.toMessage({
         flavor: game.i18n.format("ASTER.world.rangeFlavor", {
+          label,
           min: r.min,
           max: r.max,
           result: roll.total,
