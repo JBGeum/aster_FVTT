@@ -41,5 +41,6 @@ Thumbs.db
 # C2 시드 아이템 자료 — 저작권 보호. 평면/하위 디렉토리 두 배치 모두 격리.
 packs/_source/items-*.json
 packs/_source/items/
+packs/_source/*-tables/
 packs/items-*/
 tools/data/*.xlsx

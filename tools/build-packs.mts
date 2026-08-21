@@ -30,7 +30,8 @@ for (const pack of PACKS) {
   await rm(staging, { recursive: true, force: true });
   await mkdir(staging, { recursive: true });
 
-  const files = (await readdir(src)).filter((f) => f.endsWith(".json"));
+  // 시드는 저작권 격리로 repo에 없을 수 있다 — 아이템 pack과 같이 빈 compendium으로 빌드한다.
+  const files = existsSync(src) ? (await readdir(src)).filter((f) => f.endsWith(".json")) : [];
   for (const file of files) {
     const doc = JSON.parse(await readFile(path.join(src, file), "utf8"));
     doc._key = `!tables!${doc._id}`;
@@ -42,6 +43,11 @@ for (const pack of PACKS) {
 
   await compilePack(staging, dest, { log: true });
   await rm(staging, { recursive: true, force: true });
+  console.log(
+    files.length > 0
+      ? `[build] ${pack}: ${files.length}개 표 → LevelDB`
+      : `[build] ${pack}: _source 없음 — 빈 compendium (저작권 보호)`,
+  );
 }
 
 /**
