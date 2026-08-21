@@ -176,6 +176,26 @@
       "modifier": "달성치 보정",
       "roll": "굴리기"
     },
+    "bulk": {
+      "action": "일괄 조정",
+      "title": "선택 PC 일괄 조정",
+      "targets": "대상",
+      "resources": "자원",
+      "badstatus": "상태이상",
+      "apply": "부여",
+      "cure": "해제",
+      "keep": "유지",
+      "confirm": "적용",
+      "noCharacters": "캐릭터 액터가 없습니다.",
+      "noSelection": "한 명 이상 선택해야 합니다.",
+      "noInput": "적용할 변경이 없습니다.",
+      "cardTitle": "일괄 조정",
+      "resourceLine": "{label} {before} → {after} ({delta})",
+      "appliedLine": "부여: {list}",
+      "curedLine": "해제: {list}",
+      "healthZero": "⚠ 건강 0 — 행동불능",
+      "noChange": "변화 없음"
+    },
     "world": {
       "panelTitle": "GM 패널",
       "alert": "경계도",
