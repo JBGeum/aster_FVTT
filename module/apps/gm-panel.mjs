@@ -1,6 +1,7 @@
 import { WORLD_VALUES } from "../helpers/world-values.mjs";
 import { runBulkAdjust } from "../helpers/bulk-adjust.mjs";
 import { applyDelta, applySet } from "../helpers/tracker-ops.mjs";
+import { rangeFormula } from "../helpers/range-roll.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -163,9 +164,7 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       return;
     }
 
-    const n = r.max - r.min + 1;
-    const formula = n === 1 ? String(r.min) : `1d${n}${r.min > 1 ? `+${r.min - 1}` : ""}`;
-    const roll = new Roll(formula);
+    const roll = new Roll(rangeFormula(r.min, r.max));
     await roll.evaluate();
 
     if (r.add) {
