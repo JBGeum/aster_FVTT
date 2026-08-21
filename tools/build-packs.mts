@@ -18,7 +18,7 @@ import path from "node:path";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Pack source dir name → output dir name (must match the `path` in system.json). */
-const PACKS = ["unison-tables"];
+const PACKS = ["unison-tables", "talk-tables"];
 
 for (const pack of PACKS) {
   const src = path.join(ROOT, "packs", "_source", pack);

@@ -25,6 +25,16 @@
       "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
     },
     {
+      "name": "talk-tables",
+      "label": "환담표",
+      "path": "packs/talk-tables",
+      "type": "RollTable",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
       "name": "items-food",
       "label": "Aster — 요리 (Food)",
       "path": "packs/items-food",
