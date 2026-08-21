@@ -36,6 +36,13 @@ export const WORLD_VALUES = [
     default: 0,
   },
   {
+    key: "friendship",
+    label: "ASTER.world.friendship",
+    type: "number",
+    rollable: true,
+    default: 0,
+  },
+  {
     key: "currentPhase",
     label: "ASTER.world.phase",
     type: "select",
