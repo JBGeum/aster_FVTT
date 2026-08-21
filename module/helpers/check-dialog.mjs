@@ -1,7 +1,5 @@
 /**
- * 능력 판정 목표치·보정 입력 다이얼로그.
- *
- * Foundry UI(DialogV2) 오케스트레이션 헬퍼라 @ts-check 비대상 — dice-select.mjs와 같은 이유.
+ * 능력 판정 목표치·보정 입력 다이얼로그. UI 오케스트레이션이라 타입 검사 대상이 아니다.
  *
  * @param {object} opts
  * @param {string} opts.label           능력치 라벨(다이얼로그 제목에 사용).

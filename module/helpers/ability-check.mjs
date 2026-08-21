@@ -21,7 +21,6 @@ export function computeAbilityCheck({
 }) {
   const penaltyTotal = penalties.total ?? 0;
   const achievement = rawTotal + modifier + penaltyTotal;
-  // 룰: 대성공은 자동 성공, 대실패는 자동 실패 — 달성치를 덮어쓴다.
   const success = target == null ? null : critical || (!fumble && achievement >= target);
   return {
     achievement,
