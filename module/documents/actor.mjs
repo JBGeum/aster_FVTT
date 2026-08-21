@@ -223,6 +223,7 @@ export class AsterActor extends Actor {
         penalties,
         modifierText,
         isSuccess,
+        trackable: true,
         isCritical: cf.critical,
         isFumble: cf.fumble,
         focusApplied,

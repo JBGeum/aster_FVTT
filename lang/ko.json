@@ -207,6 +207,12 @@
       "set": "설정",
       "done": "달성",
       "nameRequired": "이름을 입력해야 합니다.",
+      "sumButton": "트래커에 합산",
+      "sumTitle": "트래커에 합산",
+      "sumHint": "달성치 {total}을 더할 트래커를 고르세요.",
+      "sumConfirm": "합산",
+      "toGoal": "달성치 대신 목표값으로 설정",
+      "noTrackers": "트래커가 없습니다. GM 패널에서 먼저 만드세요.",
       "reachedTitle": "목표 도달",
       "reachedLine": "{name} — {value} / {goal}"
     },

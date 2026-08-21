@@ -4,6 +4,8 @@
  */
 import { DAMAGE_STATUSES, applyDamageAndStatus } from "../helpers/health-status.mjs";
 import { resolveOpposed } from "../helpers/roll-result.mjs";
+import { applyDelta, applySet } from "../helpers/tracker-ops.mjs";
+import { commitTrackers } from "../helpers/tracker-commit.mjs";
 
 /* -------------------------------------------- */
 /*  대성공/대실패 후속 버튼                      */
@@ -12,15 +14,17 @@ import { resolveOpposed } from "../helpers/roll-result.mjs";
 const CRIT_COLORS = ["red", "blue", "white", "yellow", "green"];
 
 Hooks.on("renderChatMessageHTML", (_message, html) => {
-  // 대실패 경계도 버튼은 GM 전용 — 비-GM 뷰어에게는 버튼을 제거한다.
+  // 경계도·트래커 버튼은 GM 전용 — 비-GM 뷰어에게는 제거한다.
   // (crit-aster-gain은 owner/PL용이므로 이 훅 자체를 early-return하지 않는다.)
   if (!game.user.isGM) {
-    html.querySelectorAll("[data-action='fumble-alert']").forEach((btn) => {
-      const footer = btn.closest("footer");
-      btn.remove();
-      // 단독 footer는 비워졌으니 정리, 다른 버튼이 남은 footer는 보존
-      if (footer && !footer.querySelector("button")) footer.remove();
-    });
+    html
+      .querySelectorAll("[data-action='fumble-alert'], [data-action='tracker-sum']")
+      .forEach((btn) => {
+        const footer = btn.closest("footer");
+        btn.remove();
+        // 단독 footer는 비워졌으니 정리, 다른 버튼이 남은 footer는 보존
+        if (footer && !footer.querySelector("button")) footer.remove();
+      });
   }
 
   // ----- 대성공: PL이 색 선택해 아스테르 2개 획득 -----
@@ -124,6 +128,60 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
           alias: game.i18n.localize("ASTER.world.panelTitle"),
         }),
       });
+    });
+  });
+
+  // ----- 판정 달성치를 트래커에 합산 (GM 전용) -----
+  html.querySelectorAll("[data-action='tracker-sum']").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!game.user.isGM) {
+        ui.notifications.warn(game.i18n.localize("ASTER.world.gmOnly"));
+        return;
+      }
+      const trackers = game.settings.get("aster", "trackers");
+      if (trackers.length === 0) {
+        ui.notifications.warn(game.i18n.localize("ASTER.tracker.noTrackers"));
+        return;
+      }
+
+      const rows = trackers
+        .map(
+          (t, i) => `
+          <label class="tracker-pick">
+            <input type="radio" name="tracker" value="${t.id}" ${i === 0 ? "checked" : ""} />
+            ${t.name} — ${t.value}${t.goal != null ? ` / ${t.goal}` : ""}
+          </label>`,
+        )
+        .join("");
+
+      const total = Number(btn.dataset.total) || 0;
+      const r = await foundry.applications.api.DialogV2.prompt({
+        window: { title: game.i18n.localize("ASTER.tracker.sumTitle") },
+        content: `
+          <p class="tracker-sum-hint">${game.i18n.format("ASTER.tracker.sumHint", { total })}</p>
+          <div class="tracker-pick-list">${rows}</div>
+          <label class="tracker-to-goal">
+            <input type="checkbox" name="toGoal" />
+            ${game.i18n.localize("ASTER.tracker.toGoal")}
+          </label>
+        `,
+        ok: {
+          label: game.i18n.localize("ASTER.tracker.sumConfirm"),
+          callback: (_e, b) => ({
+            id: b.form.elements.tracker.value,
+            toGoal: b.form.elements.toGoal.checked,
+          }),
+        },
+      }).catch(() => null);
+      if (!r) return;
+
+      // 목표가 없는 트래커에는 "목표값으로 설정"이 성립하지 않으므로 달성치를 가산한다.
+      const picked = trackers.find((t) => t.id === r.id);
+      const result =
+        r.toGoal && picked.goal != null
+          ? applySet(trackers, r.id, picked.goal)
+          : applyDelta(trackers, r.id, total);
+      await commitTrackers(r.id, result);
     });
   });
 });

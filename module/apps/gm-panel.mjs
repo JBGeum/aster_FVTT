@@ -1,6 +1,7 @@
 import { WORLD_VALUES } from "../helpers/world-values.mjs";
 import { runBulkAdjust } from "../helpers/bulk-adjust.mjs";
 import { applyDelta, applySet } from "../helpers/tracker-ops.mjs";
+import { commitTrackers } from "../helpers/tracker-commit.mjs";
 import { rangeFormula } from "../helpers/range-roll.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -77,35 +78,6 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   static #clampMin(key, value) {
     const def = WORLD_VALUES.find((v) => v.key === key);
     return def?.min != null ? Math.max(def.min, value) : value;
-  }
-
-  /**
-   * 트래커 갱신 결과를 저장하고, 목표에 처음 도달했으면 채팅으로 알린다.
-   * @param {AsterGMPanel} panel
-   */
-  static async #commitTracker(panel, id, result) {
-    await game.settings.set("aster", "trackers", result.trackers);
-    if (result.reached) {
-      const t = result.trackers.find((x) => x.id === id);
-      await ChatMessage.create({
-        content: `<div class="aster-chat-card tracker-reached-card">
-          <header class="card-header"><div class="title"><div class="name">
-            ${game.i18n.localize("ASTER.tracker.reachedTitle")}
-          </div></div></header>
-          <div class="tracker-reached-body">
-            ${game.i18n.format("ASTER.tracker.reachedLine", {
-              name: t.name,
-              value: t.value,
-              goal: t.goal,
-            })}
-          </div>
-        </div>`,
-        speaker: ChatMessage.getSpeaker({
-          alias: game.i18n.localize("ASTER.world.panelTitle"),
-        }),
-      });
-    }
-    panel.render();
   }
 
   #trackerInput(id) {
@@ -333,13 +305,15 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onTrackerDelta(_event, target) {
     const id = target.dataset.id;
     const trackers = game.settings.get("aster", "trackers");
-    await AsterGMPanel.#commitTracker(this, id, applyDelta(trackers, id, this.#trackerInput(id)));
+    await commitTrackers(id, applyDelta(trackers, id, this.#trackerInput(id)));
+    this.render();
   }
 
   static async #onTrackerSet(_event, target) {
     const id = target.dataset.id;
     const trackers = game.settings.get("aster", "trackers");
-    await AsterGMPanel.#commitTracker(this, id, applySet(trackers, id, this.#trackerInput(id)));
+    await commitTrackers(id, applySet(trackers, id, this.#trackerInput(id)));
+    this.render();
   }
 
   static async #onTrackerDelete(_event, target) {

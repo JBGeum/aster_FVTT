@@ -153,7 +153,7 @@ Hooks.on("renderTokenHUD", (hud, html) => {
 Hooks.on("hotbarDrop", (bar, data, slot) => createItemMacro(data, slot));
 
 // world 값 변경 시 열려있는 GM 패널을 동기화 (다른 클라이언트 포함)
-const worldKeys = new Set(WORLD_VALUES.map((v) => `aster.${v.key}`));
+const worldKeys = new Set([...WORLD_VALUES.map((v) => `aster.${v.key}`), "aster.trackers"]);
 Hooks.on("updateSetting", (setting) => {
   if (!worldKeys.has(setting.key)) return;
   for (const app of foundry.applications.instances.values()) {
