@@ -40,7 +40,13 @@ actorId 선택 입력: rollDC(일반판정) · formula(NPC 식) · opposed(대�
   <footer class="card-actions">
     <button type="button" data-action="fumble-alert">{{localize "ASTER.roll.fumbleAlert"}}</button>
   </footer>
-  {{/if}} {{/if}} {{!-- 대결판정(회피·명중·VS) — opposed 결합 푸터 보존(GM 권한 체크는 핸들러에서) --}} {{#if opposed}}
+  {{/if}} {{/if}} {{#if trackable}}
+  <footer class="card-actions">
+    <button type="button" data-action="tracker-sum" data-total="{{total}}">
+      {{localize "ASTER.tracker.sumButton"}}
+    </button>
+  </footer>
+  {{/if}} {{!-- 대결판정(회피·명중·VS) — opposed 결합 푸터 보존(GM 권한 체크는 핸들러에서) --}} {{#if opposed}}
   <footer class="card-actions opposed-actions">
     <button type="button" data-action="opposed-set-active">{{localize "ASTER.opposed.setActive"}}</button>
     <button type="button" data-action="opposed-set-passive">{{localize "ASTER.opposed.setPassive"}}</button>
