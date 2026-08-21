@@ -1,5 +1,6 @@
 import { WORLD_VALUES } from "../helpers/world-values.mjs";
 import { runBulkAdjust } from "../helpers/bulk-adjust.mjs";
+import { applyDelta, applySet } from "../helpers/tracker-ops.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -21,6 +22,10 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       emoGenerate: AsterGMPanel.#onEmoGenerate,
       sceneTransition: AsterGMPanel.#onSceneTransition,
       bulkAdjust: AsterGMPanel.#onBulkAdjust,
+      trackerAdd: AsterGMPanel.#onTrackerAdd,
+      trackerDelta: AsterGMPanel.#onTrackerDelta,
+      trackerSet: AsterGMPanel.#onTrackerSet,
+      trackerDelete: AsterGMPanel.#onTrackerDelete,
     },
   };
 
@@ -42,6 +47,11 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
             : undefined,
         };
       }),
+      trackers: game.settings.get("aster", "trackers").map((t) => ({
+        ...t,
+        hasGoal: t.goal != null,
+        reached: t.goal != null && t.value >= t.goal,
+      })),
     };
   }
 
@@ -66,6 +76,39 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   static #clampMin(key, value) {
     const def = WORLD_VALUES.find((v) => v.key === key);
     return def?.min != null ? Math.max(def.min, value) : value;
+  }
+
+  /**
+   * 트래커 갱신 결과를 저장하고, 목표에 처음 도달했으면 채팅으로 알린다.
+   * @param {AsterGMPanel} panel
+   */
+  static async #commitTracker(panel, id, result) {
+    await game.settings.set("aster", "trackers", result.trackers);
+    if (result.reached) {
+      const t = result.trackers.find((x) => x.id === id);
+      await ChatMessage.create({
+        content: `<div class="aster-chat-card tracker-reached-card">
+          <header class="card-header"><div class="title"><div class="name">
+            ${game.i18n.localize("ASTER.tracker.reachedTitle")}
+          </div></div></header>
+          <div class="tracker-reached-body">
+            ${game.i18n.format("ASTER.tracker.reachedLine", {
+              name: t.name,
+              value: t.value,
+              goal: t.goal,
+            })}
+          </div>
+        </div>`,
+        speaker: ChatMessage.getSpeaker({
+          alias: game.i18n.localize("ASTER.world.panelTitle"),
+        }),
+      });
+    }
+    panel.render();
+  }
+
+  #trackerInput(id) {
+    return Number(this.element.querySelector(`input[name="tracker-${id}"]`).value) || 0;
   }
 
   /* ---- actions ---- */
@@ -236,6 +279,69 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     // updateSetting hook이 패널 재렌더링 처리 (aster.mjs)
   }
 
+  static async #onBulkAdjust(_event, _target) {
+    await runBulkAdjust();
+  }
+
+  static async #onTrackerAdd(_event, _target) {
+    const r = await foundry.applications.api.DialogV2.prompt({
+      window: { title: game.i18n.localize("ASTER.tracker.createTitle") },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.localize("ASTER.tracker.name")}</label>
+          <input type="text" name="name" />
+        </div>
+        <div class="form-group">
+          <label>${game.i18n.localize("ASTER.tracker.goal")}</label>
+          <input type="number" name="goal" placeholder="${game.i18n.localize("ASTER.tracker.goalHint")}" />
+        </div>
+      `,
+      ok: {
+        label: game.i18n.localize("ASTER.tracker.create"),
+        callback: (_e, b) => ({
+          name: b.form.elements.name.value.trim(),
+          goal: b.form.elements.goal.value.trim(),
+        }),
+      },
+    }).catch(() => null);
+    if (!r) return;
+    if (!r.name) {
+      ui.notifications.warn(game.i18n.localize("ASTER.tracker.nameRequired"));
+      return;
+    }
+
+    const trackers = [
+      ...game.settings.get("aster", "trackers"),
+      {
+        id: foundry.utils.randomID(),
+        name: r.name,
+        value: 0,
+        goal: r.goal === "" ? null : Number(r.goal),
+      },
+    ];
+    await game.settings.set("aster", "trackers", trackers);
+    this.render();
+  }
+
+  static async #onTrackerDelta(_event, target) {
+    const id = target.dataset.id;
+    const trackers = game.settings.get("aster", "trackers");
+    await AsterGMPanel.#commitTracker(this, id, applyDelta(trackers, id, this.#trackerInput(id)));
+  }
+
+  static async #onTrackerSet(_event, target) {
+    const id = target.dataset.id;
+    const trackers = game.settings.get("aster", "trackers");
+    await AsterGMPanel.#commitTracker(this, id, applySet(trackers, id, this.#trackerInput(id)));
+  }
+
+  static async #onTrackerDelete(_event, target) {
+    const id = target.dataset.id;
+    const trackers = game.settings.get("aster", "trackers").filter((t) => t.id !== id);
+    await game.settings.set("aster", "trackers", trackers);
+    this.render();
+  }
+
   /**
    * 장면 이동 처리.
    * 룰북 488: 탐색 페이즈에서 이동 시 포만 -1 (배고픔이면 -2).
@@ -244,10 +350,6 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
    * 장면 이동 자체는 모든 페이즈에서 일어날 수 있는 개념적 이벤트지만,
    * 포만 감소는 탐색 페이즈에서만 적용 (페이즈 무관 버튼 + 페이즈별 효과 분기).
    */
-  static async #onBulkAdjust(_event, _target) {
-    await runBulkAdjust();
-  }
-
   static async #onSceneTransition(_event, _target) {
     // 1. character 액터 목록 (NPC 제외)
     const characters = game.actors.filter((a) => a.type === "character");

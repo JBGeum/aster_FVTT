@@ -29,6 +29,30 @@
   </div>
   {{/each}}
 
+  <div class="tracker-section">
+    <div class="tracker-legend">{{localize "ASTER.tracker.section"}}</div>
+    {{#each trackers as |t|}}
+    <div class="tracker" data-id="{{t.id}}">
+      <div class="tracker-head">
+        <span class="tracker-name">{{t.name}}</span>
+        <span class="tracker-value">{{t.value}}{{#if t.hasGoal}} / {{t.goal}}{{/if}}</span>
+        {{#if t.reached}}<span class="tracker-done">{{localize "ASTER.tracker.done"}}</span>{{/if}}
+      </div>
+      <div class="tracker-controls">
+        <input type="number" name="tracker-{{t.id}}" value="0" />
+        <button type="button" class="tracker-btn" data-action="trackerDelta" data-id="{{t.id}}">
+          {{localize "ASTER.tracker.add"}}
+        </button>
+        <button type="button" class="tracker-btn" data-action="trackerSet" data-id="{{t.id}}">
+          {{localize "ASTER.tracker.set"}}
+        </button>
+        <button type="button" class="tracker-del" data-action="trackerDelete" data-id="{{t.id}}">&times;</button>
+      </div>
+    </div>
+    {{/each}}
+    <button type="button" class="tracker-create" data-action="trackerAdd">{{localize "ASTER.tracker.create"}}</button>
+  </div>
+
   <div class="gm-panel-actions">
     <button type="button" class="wv-emo" data-action="emoGenerate">{{localize "ASTER.emo.generate"}}</button>
     <button type="button" class="wv-scene" data-action="sceneTransition">{{localize "ASTER.scene.transition"}}</button>
