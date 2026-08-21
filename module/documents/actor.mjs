@@ -1,6 +1,8 @@
 import { asterRoll } from "./roll.mjs";
 import { detectCritFumble, computePenalties, critFumbleCardPath } from "../helpers/roll-result.mjs";
 import { syncBadstatusEffect } from "../helpers/badstatus-effects.mjs";
+import { computeAbilityCheck } from "../helpers/ability-check.mjs";
+import { promptAbilityCheck } from "../helpers/check-dialog.mjs";
 
 /**
  * Combatant의 `focusActive` flag 확인 — 활성 시 다이스 1개 추가 + 적용 대상 Combatant 반환.
@@ -111,12 +113,28 @@ export class AsterActor extends Actor {
     // Process additional NPC data here.
   }
 
-  async rollAbility(ability, label, _options = {}) {
+  async rollAbility(ability, label, options = {}) {
     // NPC는 능력치 시스템 없음(식 기반 hitFormula·dodgeFormula). system.ability 접근 전에 가드.
     if (this.type !== "character") {
       ui.notifications.warn(game.i18n.localize("ASTER.ability.pcOnly"));
       return;
     }
+
+    const isVs = this.system.rollMode === "vs";
+    let target = this.system.dc;
+    let modifier = 0;
+    if (!options.skipDialog) {
+      const input = await promptAbilityCheck({
+        label,
+        defaultTarget: this.system.dc,
+        showTarget: !isVs,
+      });
+      if (!input) return;
+      target = input.target;
+      modifier = input.modifier;
+    }
+    // 0이면 카드에서 보정 줄을 생략한다.
+    const modifierText = modifier === 0 ? null : modifier > 0 ? `+${modifier}` : String(modifier);
 
     const renderTemplate = foundry.applications.handlebars.renderTemplate;
     const ablValue = this.system.ability[ability].total;
@@ -137,11 +155,19 @@ export class AsterActor extends Actor {
 
     // 보정 통합: 졸림 + 포만 (페이즈 무관, 모든 판정에 적용. 정동판정만 별도).
     const penalties = computePenalties(this);
-    const adjustedTotal = roll.total + penalties.total;
+    const check = computeAbilityCheck({
+      rawTotal: roll.total,
+      modifier,
+      penalties,
+      target: isVs ? null : target,
+      critical: cf.critical,
+      fumble: cf.fumble,
+    });
+    const adjustedTotal = check.achievement;
 
     const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
 
-    if (this.system.rollMode === "vs") {
+    if (isVs) {
       // 대결판정 — 자동 패배 분기(능동측 대실패) 외에는 상대측 굴림이 필요하므로,
       // 현 단계에서는 본 액터의 대성공/대실패 정보만 카드에 노출한다.
       // resolveOpposed는 GM이 양측 결과를 모은 뒤 별도로 호출(향후 작업).
@@ -152,6 +178,7 @@ export class AsterActor extends Actor {
         total: adjustedTotal,
         rawTotal: roll.total,
         penalties,
+        modifierText,
         resultDiceset,
         diceText,
         isCritical: cf.critical,
@@ -186,16 +213,15 @@ export class AsterActor extends Actor {
         },
       });
     } else {
-      // 일반 판정 — 대성공/대실패가 달성치를 덮어쓴다.
-      const dcOk = adjustedTotal >= this.system.dc;
-      const isSuccess = cf.critical || (!cf.fumble && dcOk);
+      const isSuccess = check.success;
       const templateData = {
         label,
         ablValue,
-        rollDC: this.system.dc,
+        rollDC: target,
         total: adjustedTotal,
         rawTotal: roll.total,
         penalties,
+        modifierText,
         isSuccess,
         isCritical: cf.critical,
         isFumble: cf.fumble,
