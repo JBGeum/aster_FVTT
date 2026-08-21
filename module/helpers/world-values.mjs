@@ -31,7 +31,6 @@ export const WORLD_VALUES = [
     key: "alertLevel",
     label: "ASTER.world.alert",
     type: "number",
-    min: 0,
     rollable: true,
     witchHunt: true,
     default: 0,

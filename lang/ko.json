@@ -170,6 +170,12 @@
         "NEGATIVE": "{resource} 부족 (현재 {value})"
       }
     },
+    "check": {
+      "dialogTitle": "{label} 판정",
+      "target": "목표치",
+      "modifier": "달성치 보정",
+      "roll": "굴리기"
+    },
     "world": {
       "panelTitle": "GM 패널",
       "alert": "경계도",

@@ -524,9 +524,9 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     return Item.create(itemData, { parent: this.actor });
   }
 
-  static #onAblRoll(_event, target) {
+  static #onAblRoll(event, target) {
     const { ability, label } = target.dataset;
-    this.actor.rollAbility(ability, label, {});
+    this.actor.rollAbility(ability, label, { skipDialog: event.shiftKey });
   }
 
   static #onEmoRoll(_event, target) {
