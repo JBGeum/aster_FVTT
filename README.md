@@ -68,6 +68,46 @@ GitHub에서 clone하면 compendium 메뉴에 4개 pack이 **빈 상태**로 노
 3. Foundry 재시작 — compendium 메뉴에 아이템 노출
 4. PL이 compendium을 열어 craft 다이얼로그로 드래그 → 제작
 
+### RollTable 시드 (환담표·합체기 표)
+
+RollTable pack(`talk-tables`, `unison-tables`)도 같은 방침으로 격리합니다. 아이템 pack과 달리 **표 하나당 JSON 파일 하나**를 디렉토리에 둡니다.
+
+1. `packs/_source/talk-tables/` (또는 `unison-tables/`)에 표별 JSON 파일 배치
+2. `npm run build:packs` 실행 — JSON → `dist/packs/` LevelDB compendium
+3. Foundry 재시작
+
+시드 스키마 (Foundry V13). `_key`는 빌드가 주입하므로 시드에 쓰지 않습니다:
+
+```json
+{
+  "_id": "0123456789abcdef",
+  "name": "표 이름",
+  "description": "",
+  "formula": "1d6",
+  "replacement": true,
+  "results": [
+    {
+      "_id": "fedcba9876543210",
+      "type": "text",
+      "name": "결과 제목",
+      "description": "결과 본문",
+      "weight": 1,
+      "range": [1, 3]
+    },
+    {
+      "_id": "aaaa1111bbbb2222",
+      "type": "text",
+      "name": "다른 결과",
+      "description": "결과 본문",
+      "weight": 1,
+      "range": [4, 6]
+    }
+  ]
+}
+```
+
+`_id`는 16자 영숫자입니다. `range`는 `[시작, 끝]` 오름차순 2요소 배열이고, 결과 본문은 V13에서 `text`가 아니라 `description` 필드입니다.
+
 ### 자료 없이 사용
 
 craft 다이얼로그에서 **직접 입력**으로 아이템을 제작할 수 있습니다. 자세한 참조 정보는 룰북 공식 자료를 구입해 활용해 주세요.
