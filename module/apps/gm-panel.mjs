@@ -1,4 +1,5 @@
 import { WORLD_VALUES } from "../helpers/world-values.mjs";
+import { runBulkAdjust } from "../helpers/bulk-adjust.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -19,6 +20,7 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       witchHunt: AsterGMPanel.#onWitchHunt,
       emoGenerate: AsterGMPanel.#onEmoGenerate,
       sceneTransition: AsterGMPanel.#onSceneTransition,
+      bulkAdjust: AsterGMPanel.#onBulkAdjust,
     },
   };
 
@@ -242,6 +244,10 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
    * 장면 이동 자체는 모든 페이즈에서 일어날 수 있는 개념적 이벤트지만,
    * 포만 감소는 탐색 페이즈에서만 적용 (페이즈 무관 버튼 + 페이즈별 효과 분기).
    */
+  static async #onBulkAdjust(_event, _target) {
+    await runBulkAdjust();
+  }
+
   static async #onSceneTransition(_event, _target) {
     // 1. character 액터 목록 (NPC 제외)
     const characters = game.actors.filter((a) => a.type === "character");
