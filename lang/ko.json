@@ -196,6 +196,20 @@
       "healthZero": "⚠ 건강 0 — 행동불능",
       "noChange": "변화 없음"
     },
+    "tracker": {
+      "section": "트래커",
+      "create": "+ 트래커 추가",
+      "createTitle": "트래커 추가",
+      "name": "이름",
+      "goal": "목표값",
+      "goalHint": "비우면 목표 없는 카운터",
+      "add": "더하기",
+      "set": "설정",
+      "done": "달성",
+      "nameRequired": "이름을 입력해야 합니다.",
+      "reachedTitle": "목표 도달",
+      "reachedLine": "{name} — {value} / {goal}"
+    },
     "world": {
       "panelTitle": "GM 패널",
       "alert": "경계도",

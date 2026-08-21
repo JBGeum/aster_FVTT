@@ -107,6 +107,14 @@ Hooks.once("init", async function () {
     });
   }
 
+  // 트래커는 항목 수가 가변이라 WORLD_VALUES 루프(스칼라 전용)와 별도로 등록한다.
+  game.settings.register("aster", "trackers", {
+    scope: "world",
+    config: false,
+    type: Array,
+    default: [],
+  });
+
   // ============================
   // H1 — Aster 시스템 자체 theme 설정 영역 (3 영역)
   // ============================
