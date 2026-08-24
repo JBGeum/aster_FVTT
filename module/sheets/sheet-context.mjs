@@ -362,6 +362,11 @@ export function buildCombatContext(sheet) {
     inCombat: true,
     disabled: false,
     ap: combatant.getFlag("aster", "actionPoint") ?? 0,
+    // 이미 시작된 전투에는 max flag가 없다 — 다음 라운드부터 채워진다.
+    apMax:
+      combatant.getFlag("aster", "actionPointMax") ??
+      combatant.getFlag("aster", "actionPoint") ??
+      0,
     combatantId: combatant.id,
     defendUsed: (usage.defend ?? 0) >= 1,
     chargeUsed: (usage.charge ?? 0) >= 1,

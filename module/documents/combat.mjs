@@ -110,6 +110,7 @@ export class AsterCombat extends Combat {
       }
 
       await c.setFlag("aster", "actionPoint", ap);
+      await c.setFlag("aster", "actionPointMax", ap);
       // setFlag(키, {})는 flag 객체를 병합해 기존 키가 남는다 — unset으로 지운다.
       await c.unsetFlag("aster", "actionsThisRound");
 
@@ -119,11 +120,6 @@ export class AsterCombat extends Combat {
       }
       if (c.getFlag("aster", "damageBlocked") === true) {
         await c.setFlag("aster", "damageBlocked", false);
-      }
-
-      // system.ap은 시트 표시용 사본 — 진리 원천은 Combatant flag다.
-      if (isNpc) {
-        await c.actor.update({ "system.ap.value": ap, "system.ap.max": ap });
       }
 
       apResults.push({ name: c.actor.name, ap, base: baseRoll.total, chargeBonus, isNpc });

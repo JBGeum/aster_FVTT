@@ -37,18 +37,6 @@
             </div>
           </div>
           <div class="stat">
-            <label>액션 포인트</label>
-            <div class="pair2">
-              <div class="input-line">
-                <input type="number" name="system.ap.value" value="{{system.ap.value}}" min="0" />
-              </div>
-              <span class="sep">/</span>
-              <div class="input-line">
-                <input type="number" name="system.ap.max" value="{{system.ap.max}}" min="0" />
-              </div>
-            </div>
-          </div>
-          <div class="stat">
             <label>민첩</label>
             <div class="input-line"><input type="number" name="system.speed" value="{{system.speed}}" /></div>
           </div>
@@ -116,8 +104,10 @@
       <div class="ap-head">
         <span class="t">{{localize "ASTER.combat.actionPoints"}}</span>
         <span class="ap-value num">
-          {{#if combatContext.inCombat}}{{combatContext.ap}}{{else}}—{{/if}} {{#if combatContext.focusActive}}<span
-            class="focus-indicator"
+          {{#if combatContext.inCombat}}
+          <input type="number" class="ap-input" data-ap-input value="{{combatContext.ap}}" />
+          <span class="ap-max">/ {{combatContext.apMax}}</span>
+          {{else}}—{{/if}} {{#if combatContext.focusActive}}<span class="focus-indicator"
             >{{localize "ASTER.combat.focusActiveIndicator"}}</span
           >{{/if}}
         </span>

@@ -173,6 +173,16 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       });
     }
 
+    // 폼 제출은 system.*만 다뤄 flag는 저장되지 않는다.
+    for (const input of this.element.querySelectorAll("[data-ap-input]")) {
+      input.addEventListener("change", async (ev) => {
+        const combatant = game.combat?.combatants.find((c) => c.actor?.id === this.actor.id);
+        if (!combatant) return;
+        const value = Number(ev.currentTarget.value);
+        await combatant.setFlag("aster", "actionPoint", Number.isFinite(value) ? value : 0);
+      });
+    }
+
     // 이미지 편집 — data-edit 클릭 시 FilePicker. V2(DocumentSheetV2)는 V1과 달리
     // data-edit 자동 바인딩이 없어 직접 건다(re-render마다 DOM 교체라 리스너 누적 없음).
     // dataset.edit를 update 키로 일반화 — 초상(img) 외 다른 이미지 필드도 커버.
@@ -533,16 +543,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async #onSubmit(_event, _form, formData) {
     await this.actor.update(formData.object);
-
-    // NPC AP를 시트에서 수정하면 Combatant flag(actionPoint)도 동기화한다.
-    // AP 진리 원천은 flag라, 동기 없으면 시트 표시·액션 실행이 수정값을 반영하지 못한다.
-    if (this.actor.type === "npc" && game.combat?.started) {
-      const combatant = game.combat.combatants.find((c) => c.actor?.id === this.actor.id);
-      const apValue = foundry.utils.getProperty(formData.object, "system.ap.value");
-      if (combatant && apValue != null) {
-        await combatant.setFlag("aster", "actionPoint", Number(apValue) || 0);
-      }
-    }
   }
 }
 

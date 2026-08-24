@@ -12,7 +12,12 @@
 
 <div class="ap-head">
   <span class="t">{{localize "ASTER.combat.actionPoints"}}</span>
-  <span class="ap-value num">{{#if combatContext.inCombat}}{{combatContext.ap}}{{else}}—{{/if}}</span>
+  <span class="ap-value num">
+    {{#if combatContext.inCombat}}
+    <input type="number" class="ap-input" data-ap-input value="{{combatContext.ap}}" />
+    <span class="ap-max">/ {{combatContext.apMax}}</span>
+    {{else}}—{{/if}}
+  </span>
 </div>
 {{#if combatContext.focusActive}}
 <div style="text-align: center; margin-bottom: 10px">
