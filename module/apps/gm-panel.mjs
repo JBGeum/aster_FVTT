@@ -110,11 +110,11 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       content: `
         <div class="form-group">
           <label>${game.i18n.localize("ASTER.world.min")}</label>
-          <input type="number" name="min" value="1" min="0" />
+          <input type="number" name="min" value="1" />
         </div>
         <div class="form-group">
           <label>${game.i18n.localize("ASTER.world.max")}</label>
-          <input type="number" name="max" value="5" min="0" />
+          <input type="number" name="max" value="5" />
         </div>
         <label class="wv-add">
           <input type="checkbox" name="add" checked />
