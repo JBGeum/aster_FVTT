@@ -1,9 +1,7 @@
 /**
- * html 요소 data-aster-theme 속성으로 라이트/다크/자동 테마를 토글한다.
  */
 
 /**
- * Aster theme 적용 영역.
  * - auto: data-aster-theme 영역 제거 → @media 영역 자동 정합 (OS 영역)
  * - dark: [data-aster-theme="dark"] 명시 → OS 영역 무시
  * - light: [data-aster-theme="light"] 명시 → OS 영역 무시

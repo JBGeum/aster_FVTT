@@ -1,6 +1,3 @@
-/**
- * 공방 스킬 취득/해제·초기화 — 비용 차감 포함.
- */
 import { CRAFT_TREE } from "./craft-tree.mjs";
 import { canAcquire, canRelease, sumCost } from "./craft-cost.mjs";
 
@@ -30,7 +27,6 @@ function craftWarn(reasons, dependents) {
 }
 
 /**
- * 공방 스킬 취득 또는 해제. 체크박스 toggle 액션 핸들러 본체.
  * @param {{ actor: AsterActor, skillId: string, target: HTMLInputElement }} opts
  */
 export async function acquireSkill({ actor, skillId, target }) {
@@ -118,7 +114,6 @@ export async function acquireSkill({ actor, skillId, target }) {
 }
 
 /**
- * 공방 스킬 전체 초기화(환불 포함). craftReset 액션 핸들러 본체.
  * @param {{ actor: AsterActor }} opts
  */
 export async function resetCraft({ actor }) {

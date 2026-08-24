@@ -1,18 +1,13 @@
 /**
- * 아이템 제작 — 순수 검증 + 자원 차감/생성.
- *
  * 비용 모델: 아이템의 material[6] 배열이 *제작 비용*.
  *   [0]=마테리얼, [1]=적, [2]=청, [3]=녹, [4]=황, [5]=백.
- * 액터 자원 경로: system.material(스칼라) + system.aster.{color}.value (SchemaField).
  */
 
 import { CRAFT_TREE } from "./craft-tree.mjs";
 
-/** material[1..5]에 대응하는 색 키. */
 const COST_COLORS = ["red", "blue", "green", "yellow", "white"];
 
 /**
- * craft 노드 id를 base + level로 분해 (예: "pot_cauldron_1" → {base:"pot_cauldron", level:1}).
  * CRAFT_TREE 명명 규약(`{base}_{level}`) 의존.
  * @param {string} nodeId
  * @returns {{base: string, level: number} | null}
@@ -23,7 +18,6 @@ function parseNodeId(nodeId) {
 }
 
 /**
- * 같은 base의 취득된 노드 중 최대 레벨 (없으면 0).
  * @param {string} baseSkillId
  * @param {Object<string, boolean>} acquired
  * @returns {number}
@@ -39,7 +33,7 @@ function findMaxAcquiredLevel(baseSkillId, acquired) {
 }
 
 /**
- * craft 전제 충족 여부 — craftRequires의 각 설비 base를 *해당 레벨 이상* 취득했는지.
+ * 각 설비 base를 *해당 레벨 이상* 취득했는지 본다.
  * @param {Object<string, number>} craftRequires  { [base id]: 최소 레벨 }
  * @param {Object<string, boolean>} acquired  actor.system.craft.acquired
  * @returns {{ok: boolean, missing: Array<{base: string, requiredLevel: number, have: number}>}}
@@ -55,7 +49,6 @@ export function checkCraftRequires(craftRequires, acquired) {
 }
 
 /**
- * craftRequires UI 드롭다운용 설비 base 목록.
  * 같은 base의 여러 레벨 노드는 하나로 합침(pot_cauldron_1·_2·_3 → "pot_cauldron").
  * 레벨이 없는 노드(사역마 fam_*)는 parseNodeId가 null이라 자동 제외 — 아이템 제작 전제 아님.
  * label은 노드의 i18n 키(예: "ASTER.craft.carve") 그대로 — craft 탭 라벨 재사용.
@@ -71,7 +64,6 @@ export function getCraftRequiresBaseList() {
   return Array.from(seen.entries()).map(([base, info]) => ({ base, ...info }));
 }
 
-/** material 배열 → 비용 객체. */
 function costFromMaterial(material) {
   const m = material ?? [];
   return {
@@ -86,7 +78,6 @@ function costFromMaterial(material) {
   };
 }
 
-/** actor 보유 자원 추출. */
 function resourcesOf(actor) {
   const aster = actor.system.aster ?? {};
   return {
@@ -96,7 +87,7 @@ function resourcesOf(actor) {
 }
 
 /**
- * 제작 검증 — 차단하지 않고 부족 사유만 반환한다(자원 음수 허용).
+ * 차단하지 않고 부족 사유만 반환한다 — 자원이 음수가 되어도 허용한다.
  * @param {{type: string, system: object}} draft
  * @param {Actor} actor
  * @returns {{ok: boolean, reasons: string[], missing: Array}}
@@ -117,7 +108,7 @@ export function validateCraft(draft, actor) {
 }
 
 /**
- * 제작 실행 — 자원 차감(음수 허용) + 신규 아이템 생성(창고 위치).
+ * 자원은 음수까지 차감하고, 만든 아이템은 창고에 놓는다.
  * @param {Actor} actor
  * @param {{name: string, type: string, system: object}} draftData
  * @returns {Promise<Item|null>}

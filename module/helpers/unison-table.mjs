@@ -1,11 +1,6 @@
 // @ts-check
 /**
- * 합체기 주속성 표 (룰북 부록).
- * 합산값(5~11)의 표준 효과 + 특수 케이스(2 자해, 12+)를 정의.
  * 합산 3·4는 정의 없음 → lookup null (실패 텍스트는 RollTable에서 처리).
- *
- * - 합산 2: 효과는 정상 적용 + `selfTurnEnd: true` (시전자 2인 다음 라운드 행동완료 안내).
- * - 합산 12+: lookup 함수가 12로 정규화. 적 10/녹 6 단순 대미지, 청 회복+상태이상 전부 치료, 황 무효.
  */
 export const UNISON_TABLES = Object.freeze({
   red: {
@@ -55,7 +50,6 @@ export const UNISON_TABLES = Object.freeze({
 });
 
 /**
- * 주속성 표에서 효과 조회.
  * - 합산 2는 selfTurnEnd 메타 포함 (효과는 정상, 자해 안내만 추가).
  * - 합산 3, 4는 정의 없음 → null (호출자가 GM 수동 분기).
  * - 합산 12+는 lookup 내부에서 12로 정규화 (호출자는 합산값 그대로 전달).
@@ -67,7 +61,6 @@ export const UNISON_TABLES = Object.freeze({
 export function lookupUnisonEffect(color, total) {
   const table = UNISON_TABLES[color];
   if (!table) return null;
-  // 12+ 정규화 — 합산값이 12 이상이면 12로 처리.
   const lookupKey = total >= 12 ? 12 : total;
   return table[lookupKey] ?? null;
 }
@@ -81,7 +74,7 @@ const UNISON_TABLE_LABEL = Object.freeze({
 });
 
 /**
- * 색에 대응하는 world RollTable 조회 (초기화 시 compendium에서 자동 import된 것).
+ * RollTable은 초기화 시 compendium에서 world로 import된다.
  *
  * @param {string} color
  * @returns {RollTable | null}
@@ -93,7 +86,6 @@ export function getUnisonTable(color) {
 }
 
 /**
- * 합산값에 대응하는 플레이버 텍스트 조회.
  * RollTable 없거나 매칭 결과 없으면 빈 문자열 (fallback) — 효과 적용과 무관.
  * 12+는 RollTable의 range [12, 99]가 처리하므로 정규화 없이 실제 합산값 전달.
  *

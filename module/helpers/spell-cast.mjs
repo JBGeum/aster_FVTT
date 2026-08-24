@@ -1,6 +1,3 @@
-/**
- * 주문 시전 흐름 — 다이스 선택·굴림·결과 카드. 계산은 spell-roll.mjs에 위임.
- */
 import { computeSpellRoll, getAbilityTotal, isSpecialty } from "./spell-roll.mjs";
 import { detectCritFumble, computePenalties } from "./roll-result.mjs";
 import { pickDiceDialog } from "./dice-select.mjs";
@@ -9,7 +6,6 @@ import { formatFormula } from "./sheet-tooltips.mjs";
 import { checkFocusEffect } from "./focus-effect.mjs";
 
 /**
- * 마법명 클릭 — 추가 다이스 0, 2d6 즉시 판정 (기존 동작 유지).
  * @param {{actor: Actor, spell: Item}} params
  */
 export async function castSpell({ actor, spell }) {
@@ -20,7 +16,6 @@ export async function castSpell({ actor, spell }) {
     ? { name: targets[0].name, id: targets[0].id, actorId: targets[0].actor?.id ?? null }
     : null;
 
-  // 마법명 클릭 — 추가 다이스 0, 2d6 즉시 판정.
   const roll = new Roll("2d6");
   await roll.evaluate();
   const dice = roll.dice[0].results.map((r) => r.result);
@@ -33,7 +28,6 @@ export async function castSpell({ actor, spell }) {
 }
 
 /**
- * 아스테르 소비 추가 다이스 마법 시전.
  * @param {{actor: Actor, spell: Item}} params
  */
 export async function castSpellWithExtra({ actor, spell }) {
@@ -84,7 +78,7 @@ export async function castSpellWithExtra({ actor, spell }) {
     return;
   }
 
-  // 자원 차감 (n=0이면 차감 없음). 룰: 판정 전 소비.
+  // 룰: 자원은 판정 전에 소비한다.
   if (n > 0) {
     await actor.update({ [`system.aster.${color}.value`]: haveAster - n });
   }
@@ -94,7 +88,6 @@ export async function castSpellWithExtra({ actor, spell }) {
   await roll.evaluate();
   const allDice = roll.dice[0].results.map((r) => r.result);
 
-  // 다이스 선택 — 3개+면 다이얼로그(2개 선택), 2개면 그대로 통과 (룰: "2개를 고른 후 판단").
   let pick = await pickDiceDialog({
     dice: allDice,
     count: 2,
@@ -102,7 +95,6 @@ export async function castSpellWithExtra({ actor, spell }) {
     hint: game.i18n.localize("ASTER.spell.pickHint"),
   });
 
-  // 잘못된 선택(2개 아님) 시 1회 재시도
   if (!pick) {
     pick = await pickDiceDialog({ dice: allDice, count: 2 });
     if (!pick) {
@@ -125,7 +117,6 @@ export async function castSpellWithExtra({ actor, spell }) {
 }
 
 /**
- * 마법판정 공통 처리 — 선택된 2개로 달성치/대성공·대실패 산출, 카드 생성, 졸림 자동 해제.
  * @param {Actor} actor
  * @param {Item} spell
  * @param {Roll} roll                 평가 완료된 Roll (채팅 첨부용)
@@ -148,7 +139,6 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
     damageApplied: false,
   };
 
-  // 보정 통합: 졸림 + 포만 (페이즈 무관, 모든 판정에 적용).
   const penalties = computePenalties(actor);
 
   // extraDice는 합산하지 않고 카드에서 별도 표시 — diceTotal은 고른 2개의 합만 넘긴다.
@@ -216,11 +206,10 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
   });
 
   // 졸림 자동 해제: 룰 "한 번 판정에 실패하면 해제" — 일반 마법판정 실패에만 적용.
-  // AE는 actor의 _onUpdate hook에서 자동 삭제됨 (C-1 동기화).
+  // AE는 actor의 _onUpdate hook이 지운다.
   if (penalties.sleepy < 0 && !finalSuccess) {
     await actor.update({ "system.badstatus.sleepy": false });
   }
 
-  // 포만 자동 감소: 탐색 페이즈만, 판정 시 -1 (배고픔이면 -2). PC만.
   await actor._decreaseSatietyIfExploration();
 }

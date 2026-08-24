@@ -1740,6 +1740,26 @@
       font-weight: 700;
       font-size: 18px;
       color: var(--ink-strong);
+      display: inline-flex;
+      align-items: baseline;
+      gap: 3px;
+
+      .ap-input {
+        // 숫자 폭에 맞춘 고정 크기 — 표시용 span 자리를 그대로 대체한다.
+        width: 3ch;
+        padding: 0 2px;
+        font: inherit;
+        color: inherit;
+        text-align: right;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid var(--ink-faint);
+      }
+
+      .ap-max {
+        font-size: 15px;
+        color: var(--ink-soft);
+      }
     }
   }
   .ap-note {

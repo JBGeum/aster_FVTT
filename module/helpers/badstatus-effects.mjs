@@ -1,6 +1,5 @@
 // @ts-check
 /**
- * 상태이상별 Active Effect 템플릿.
  * key는 badstatus 필드명과 일치 (자동 동기화 키).
  *
  * statuses 배열은 Foundry의 statusEffect 시스템과 통합되어
@@ -56,7 +55,6 @@ export const BADSTATUS_EFFECTS = {
 };
 
 /**
- * badstatus 필드 변경에 따라 AE를 생성/삭제하는 동기화 헬퍼.
  *
  * @param {Actor} actor
  * @param {string} key  badstatus 필드 키 (예: "exhaustion")

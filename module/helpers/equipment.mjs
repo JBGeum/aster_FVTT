@@ -1,10 +1,6 @@
-/**
- * 장비 착용/해제.
- */
 import { EQUIP_SLOT_CONTAINERS, isEquipSlotContainer } from "./inventory-capacity.mjs";
 
 /**
- * 장비 — 비어있는 장비 슬롯으로 이동(container를 equip-N으로). 슬롯이 모두 차면 안내 후 차단.
  * 빈 슬롯 자동 선택 — PL은 슬롯 번호를 고르지 않는다.
  * @param {Actor} actor
  * @param {Item} item

@@ -3,7 +3,6 @@ import { CRAFT_TREE } from "./craft-tree.mjs";
 
 const NODE_MAP = Object.fromEntries(CRAFT_TREE.nodes.map((n) => [n.id, n]));
 
-/** 선행 충족 여부 */
 export function prereqMet(skillId, acquired) {
   const node = NODE_MAP[skillId];
   if (!node) return false;
@@ -17,7 +16,6 @@ export function acquiredDependents(skillId, acquired) {
     .map((n) => n.id);
 }
 
-/** 취득 집합의 비용 합산 */
 export function sumCost(acquired) {
   const sum = { material: 0, aster: { red: 0, blue: 0, green: 0, yellow: 0 }, anyAster: 0 };
   for (const [id, val] of Object.entries(acquired)) {
@@ -32,7 +30,6 @@ export function sumCost(acquired) {
 }
 
 /**
- * 비용 합계가 보유 자원 내인지 검사.
  * @param {object} acquired  취득 맵(예정 포함 가능)
  * @param {{ material: number, aster: {red,blue,green,yellow,white} }} resources
  * @returns {{ ok: boolean, reasons: string[] }}
@@ -77,7 +74,6 @@ export function canAcquire(skillId, acquired) {
 }
 
 /**
- * 해제 시도 판정.
  * @returns {{ ok: boolean, reasons: string[], dependents?: string[] }}
  */
 export function canRelease(skillId, acquired) {

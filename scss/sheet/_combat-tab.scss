@@ -20,6 +20,15 @@
     .ap-value {
       font-size: 1.2em;
       font-weight: bold;
+
+      .ap-input {
+        width: 3ch;
+        font: inherit;
+        text-align: right;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid currentcolor;
+      }
     }
 
     .focus-indicator {

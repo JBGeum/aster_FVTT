@@ -1,10 +1,8 @@
 /**
  * 데미지·회복·상태이상 적용 로직.
- * 건강 차감·회복, 상태이상 부여·해제, 방어/황표 감소를 일관된 인터페이스로 제공한다.
  */
 
-// 대미지 다이얼로그의 상태이상 목록 — { key: badstatus 필드, i18n: ASTER.badstatus.* 키 }.
-// 필드명과 i18n 키가 다른 항목(bigInj→biginj) 때문에 매핑을 명시한다.
+// 필드명과 i18n 키가 다른 항목(bigInj→biginj)이 있어 매핑을 명시한다.
 // 합체기 부속성 처리도 같은 목록을 참조하므로 export.
 export const DAMAGE_STATUSES = [
   { key: "injury", i18n: "injury" },
@@ -15,7 +13,6 @@ export const DAMAGE_STATUSES = [
 ];
 
 /**
- * 상태이상 회복 — 지정 키를 false로 갱신.
  * AE 동기 hook이 false → AE 자동 제거를 처리한다.
  *
  * @param {Actor[]} actors  대상 액터 배열
@@ -38,7 +35,6 @@ export async function applyCureStatus(actors, statusKey) {
 }
 
 /**
- * 5가지 상태이상 모두 회복 — 청표 12+의 일괄 처리.
  * applyCureStatus를 각 상태이상 키로 호출하지 않고 *단일 update*로 일괄 처리 (성능 + 단일 트랜잭션).
  * false→true 변화 없는 키는 update 객체에 포함 안 됨 (변화 없으면 무 hook).
  *
@@ -66,8 +62,6 @@ export async function applyCureAllStatus(actors) {
 }
 
 /**
- * 건강 회복 — actor 배열의 system.health.value를 amount만큼 증가 (max 클램프).
- *
  * 전투(climax 페이즈) 중 건강 0 PC는 건강 회복 효과를 받지 못한다.
  * 차단된 actor는 결과에 blocked: true로 표시 — 호출자가 카드에 안내. 상태이상 회복은 차단 대상이 아님.
  *
@@ -78,7 +72,6 @@ export async function applyCureAllStatus(actors) {
 export async function applyHealHealth(actors, amount) {
   if (amount <= 0) return [];
 
-  // 전투 중(climax) 건강 0 차단.
   const inClimax = game.settings.get("aster", "currentPhase") === "climax";
 
   const results = [];
@@ -106,8 +99,6 @@ export async function applyHealHealth(actors, amount) {
 }
 
 /**
- * 방어 차감 처리. 대상의 Combatant에 defendActive flag가 있으면 1d6 굴려 amount 차감 후 flag 해제.
- *
  * @param {Actor} targetActor
  * @param {number} amount
  * @returns {Promise<{roll: number, original: number, adjusted: number} | null>}
@@ -131,8 +122,6 @@ async function applyDefendReduction(targetActor, amount) {
 }
 
 /**
- * 황표 수신 감소·무효 처리.
- * Combatant flag damageReduction(N) 또는 damageBlocked(true) 확인.
  * 방어(`defendActive`, 한 번 소비)와 달리 *1라운드 동안 모든 대미지에 적용* — flag 유지.
  * `_startRound`에서 라운드 시작 시 일괄 해제.
  * - damageBlocked(12+): amount = 0 (완전 무효, 무효 우선).
@@ -148,12 +137,10 @@ async function applyYellowReduction(targetActor, amount) {
   const combatant = combat.combatants.find((c) => c.actor?.id === targetActor.id);
   if (!combatant) return null;
 
-  // 무효(12+) 우선 — boolean flag
   if (combatant.getFlag("aster", "damageBlocked") === true) {
     return { type: "block", original: amount, adjusted: 0 };
   }
 
-  // 감소(5~11) — number flag
   const reduction = combatant.getFlag("aster", "damageReduction") ?? 0;
   if (reduction > 0) {
     const adjusted = Math.max(0, amount - reduction);
@@ -164,7 +151,6 @@ async function applyYellowReduction(targetActor, amount) {
 }
 
 /**
- * 건강 차감 + 상태이상 부여. 상태이상은 false→true만 (AE 자동 동기).
  * amount > 0이면 방어 차감(`defendActive`) 자동 적용 — 상태이상만 부여 시 방어 미소비(룰 정합).
  *
  * @param {Actor} targetActor

@@ -160,7 +160,6 @@ Hooks.once("ready", async function () {
 });
 
 /**
- * 합체기 4색 RollTable이 world에 없으면 compendium pack에서 import (GM 전용).
  * 효과는 UNISON_TABLES 코드가 통제 — RollTable은 플레이버 텍스트만 담당.
  * 이미 있으면 덮어쓰지 않아 GM의 텍스트 수정이 보존된다.
  */

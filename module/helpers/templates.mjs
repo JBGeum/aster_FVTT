@@ -43,7 +43,6 @@ export const preloadHandlebarsTemplates = async function () {
 };
 
 /**
- * 구조화 툴팁 HTML을 Foundry 내장 툴팁 속성 문자열로 변환.
  * 값은 속성 안전용으로 엔티티화 — 브라우저가 디코딩하면 Foundry가 cleanHTML로 정제·렌더한다.
  * `hb-tip` 클래스로 #tooltip을 시스템 스킨에 한정(코어 전역 툴팁 오염 방지). 다크는 전역 테마
  * 신호로 CSS가 토큰 스왑하므로 여기선 부착하지 않는다(component/_tooltip.scss).

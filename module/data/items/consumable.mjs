@@ -18,7 +18,6 @@ export class ConsumableDataModel extends BaseItemModel {
       timing: new fields.StringField({ initial: "" }),
       mod: new fields.NumberField({ initial: 0, integer: true }),
 
-      // 회복 효과.
       // choices의 5개 키는 aster.mjs DAMAGE_STATUSES와 동기 — 향후 키 추가 시 두 곳 갱신.
       healHealth: new fields.NumberField({
         required: true,

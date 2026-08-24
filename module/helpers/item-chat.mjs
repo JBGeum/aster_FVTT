@@ -1,5 +1,4 @@
 /**
- * 아이템 채팅 카드 — 표시 데이터 조립(순수) + 렌더·전송.
  */
 import { DAMAGE_STATUSES } from "./health-status.mjs";
 import { isMagicToolInactive } from "./sheet-tooltips.mjs";
@@ -8,7 +7,6 @@ import { isMagicToolInactive } from "./sheet-tooltips.mjs";
 const ITEM_TYPE_KEYS = new Set(["consumable", "equipment", "food", "bag"]);
 
 /**
- * 아이템을 채팅 카드 표시 데이터로 변환 — 순수 함수.
  * localize를 주입받아 game 전역에 의존하지 않는다(Vitest 테스트 가능).
  *
  * @param {Item} item
@@ -109,7 +107,6 @@ export function buildItemCardData(item, localize) {
 }
 
 /**
- * 아이템 카드를 렌더해 채팅에 전송.
  * @param {Actor} actor
  * @param {Item} item
  */

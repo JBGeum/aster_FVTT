@@ -23,7 +23,6 @@ ASTER.aster = {
   white: "ASTER.aster.white",
 };
 
-// 장비 카테고리 — equipment 시트 드롭다운.
 ASTER.equipmentType = {
   magicTool: "ASTER.equipment.type.magicTool",
 };

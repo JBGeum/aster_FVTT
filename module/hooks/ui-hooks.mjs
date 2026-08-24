@@ -1,5 +1,4 @@
 /**
- * UI 훅 — 씬 컨트롤 버튼, 토큰 HUD(Aster 패널), 핫바 매크로, 설정 동기화.
  * import 시 top-level에서 Hooks.on(...)을 등록한다(부수효과).
  * rollItemMacro는 game.aster API 노출용으로 export.
  */
@@ -31,7 +30,6 @@ Hooks.on("getSceneControlButtons", (controls) => {
 /* -------------------------------------------- */
 
 /**
- * Create a Macro from an Item drop.
  * @param {object} data
  * @param {number} slot
  * @returns {Promise<boolean>}
@@ -105,7 +103,7 @@ function buildAsterHudPanel(actor) {
   return `<div class="aster-hud-panel">${cells}</div>`;
 }
 
-// 좌클릭 +1 / 우클릭 −1. actor.update()로 서버 경유 동기화, HUD 값은 수동 갱신.
+// actor.update()는 서버를 경유하므로 HUD 값은 수동으로 갱신한다.
 async function onAsterHudAdjust(event, actor, delta) {
   event.preventDefault();
   event.stopPropagation(); // HUD 닫힘·토큰 선택·컨텍스트메뉴 방지
@@ -152,7 +150,6 @@ Hooks.on("renderTokenHUD", (hud, html) => {
 // 핫바 드롭 — ready 훅 외부에서 등록해도 runtime에 firing됨.
 Hooks.on("hotbarDrop", (bar, data, slot) => createItemMacro(data, slot));
 
-// world 값 변경 시 열려있는 GM 패널을 동기화 (다른 클라이언트 포함)
 const worldKeys = new Set([...WORLD_VALUES.map((v) => `aster.${v.key}`), "aster.trackers"]);
 Hooks.on("updateSetting", (setting) => {
   if (!worldKeys.has(setting.key)) return;

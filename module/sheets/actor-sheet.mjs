@@ -108,7 +108,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.cssClass = this.isEditable ? "editable" : "locked";
     context.editable = this.isEditable;
     context.owner = this.actor.isOwner;
-    // 상태이상 칩 호버 툴팁 — PC·NPC 시트 공통(정적 lang 기반).
     context.badstatusTips = buildStatusTooltips();
 
     if (this.actor.type === "character") {
@@ -122,7 +121,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       context.reviveContext = buildReviveContext(this);
     } else if (this.actor.type === "npc") {
       prepareItems(this, context);
-      // unisonReady는 NPC에 설정되지 않으므로 합체기 필드는 자연히 false가 된다.
       context.combatContext = buildCombatContext(this);
       // 각 행에서 부모 combatContext를 `../`로 참조하면 prettier HTML 파서가 실패하므로
       // 행 컨텍스트에 미리 평면화한다.
@@ -170,6 +168,16 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         if (!field) return;
         const value = Number(ev.currentTarget.value);
         this.actor.update({ [field]: Number.isFinite(value) ? value : 0 });
+      });
+    }
+
+    // 폼 제출은 system.*만 다뤄 flag는 저장되지 않는다.
+    for (const input of this.element.querySelectorAll("[data-ap-input]")) {
+      input.addEventListener("change", async (ev) => {
+        const combatant = game.combat?.combatants.find((c) => c.actor?.id === this.actor.id);
+        if (!combatant) return;
+        const value = Number(ev.currentTarget.value);
+        await combatant.setFlag("aster", "actionPoint", Number.isFinite(value) ? value : 0);
       });
     }
 
@@ -281,22 +289,18 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async #onFoodSelect(_event, _target) {}
 
   /**
-   * 피크닉. 탐색 페이즈에서만 가능.
-   * GM 수락 단계 없이 본인 포만을 즉시 회복하고, PC 화자로 결과 카드를 출력한다.
    */
   static async #onPicnicDeclare(_event, target) {
     const itemId = target.dataset.itemId;
     const item = this.actor.items.get(itemId);
     if (!item || item.type !== "food") return;
 
-    // 페이즈 체크 — 탐색 페이즈에서만 가능
     const phase = game.settings.get("aster", "currentPhase");
     if (phase !== "exploration") {
       ui.notifications.warn(game.i18n.localize("ASTER.food.warn.notExploration"));
       return;
     }
 
-    // 포만 회복 (현재값 + restore, max 클램프) — 자동 적용
     const restore = item.system.restore ?? 0;
     const cur = this.actor.system.satiety?.value ?? 0;
     const max = this.actor.system.satiety?.max ?? 20;
@@ -325,13 +329,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /**
-   * 단순 액션은 즉시 AP 차감 + 채팅, 입력 필요 액션은 다이얼로그.
    */
   static async #onRollDodge(_event, _target) {
     await this.actor.rollDodge();
   }
 
-  /** 명중 굴림 (NPC 전용). */
   static async #onRollHit(_event, _target) {
     await this.actor.rollHit();
   }
@@ -341,9 +343,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /**
-   * NPC 스킬(npcAction) 시전.
-   * AP 진리 원천은 Combatant flag — `system.ap`은 시트 표시·시드 참고용이다.
-   *
    * @param {PointerEvent} _event
    * @param {HTMLElement} target  `data-item-id`를 가진 시전 버튼
    */
@@ -352,9 +351,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /**
-   * 합체기 발동. PL이 자기 시트에서 시작 → 페어 → 주속성 → 다이스 → 부속성 자동.
-   * 주속성 효과 표는 GM 수동(시스템은 합산값만 안내). 같은 색 페어는 부속성 결정 불가로 차단.
-   * 흐름 중 취소 시 flag 변화 없음. 부속성 다이얼로그 취소 시 효과만 미적용(합체기 자체는 완료).
    */
   static async #onUnisonAttack(_event, _target) {
     return performUnisonAttack({ actor: this.actor });
@@ -421,8 +417,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /**
-   * 아이템 제작 다이얼로그. 기존 아이템 드래그 시 빈 칸 자동 채움 + 실시간 비용 표시.
-   * 확정 시 검증 → 부족하면 확인(음수 허용) → 자원 차감 + 창고에 신규 아이템 생성.
    * @param {Actor} actor
    */
   static async openCraftDialog(actor) {
@@ -485,7 +479,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       { name: game.i18n.localize("ASTER.record.newName"), type: "record" },
       { parent: this.actor },
     );
-    // 새로 추가된 마지막 카드로 이동
     this._recordIndex = this.actor.items.filter((i) => i.type === "record").length - 1;
     this.render();
   }
@@ -521,7 +514,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     this.actor.rollEmotion(label, {});
   }
 
-  /** 원소 친화 증감(±1). 마테리얼은 버튼이 없다(템플릿 제외). */
   static async #onAsterStep(_event, target) {
     const key = target.dataset.aster;
     const dir = Number(target.dataset.dir) || 0;
@@ -533,16 +525,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async #onSubmit(_event, _form, formData) {
     await this.actor.update(formData.object);
-
-    // NPC AP를 시트에서 수정하면 Combatant flag(actionPoint)도 동기화한다.
-    // AP 진리 원천은 flag라, 동기 없으면 시트 표시·액션 실행이 수정값을 반영하지 못한다.
-    if (this.actor.type === "npc" && game.combat?.started) {
-      const combatant = game.combat.combatants.find((c) => c.actor?.id === this.actor.id);
-      const apValue = foundry.utils.getProperty(formData.object, "system.ap.value");
-      if (combatant && apValue != null) {
-        await combatant.setFlag("aster", "actionPoint", Number(apValue) || 0);
-      }
-    }
   }
 }
 
@@ -551,7 +533,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 /* -------------------------------------------- */
 
 const CRAFT_ITEM_TYPES = ["consumable", "equipment", "bag", "food"];
-// material[1..5] 색 키 — 비용/보유 표시용.
+// 인덱스 0은 마테리얼이라 색은 1부터.
 const CRAFT_COST_COLORS = ["red", "blue", "green", "yellow", "white"];
 
 /**
@@ -625,7 +607,6 @@ function _renderCraftDialogContent() {
   </div>`;
 }
 
-/** 다이얼로그 렌더 후 드롭 영역 + 실시간 비용 리스너 부착. */
 function _wireCraftDialog(dialog, actor) {
   // V13 DialogV2 render 콜백 인자가 (event, dialog) 또는 (event, element)로 전달될 수 있어 둘 다 수용.
   const el = dialog?.element ?? dialog;
@@ -685,7 +666,6 @@ function _wireCraftDialog(dialog, actor) {
   );
 }
 
-/** 드래그된 아이템 정보로 입력 칸 자동 채움 (원본은 변경 안 됨 — 참조만). */
 function _fillCraftDraftFromItem(el, source) {
   const sys = source.system ?? {};
   el.querySelector('select[name="itemType"]').value = source.type;
@@ -697,8 +677,6 @@ function _fillCraftDraftFromItem(el, source) {
   const effectInput = el.querySelector('input[name="effect"]');
   if (effectInput) effectInput.value = sys.effect ?? "";
 
-  // craftRequires — 기존 행 모두 제거 후 source의 각 전제마다 행 생성.
-  // base가 CRAFT_TREE에 없으면 드롭다운은 미선택(빈 값)으로 남고 레벨만 채워진다(PL이 보정).
   const rowsContainer = el.querySelector(".craft-requires-rows");
   if (rowsContainer) {
     rowsContainer.innerHTML = "";
@@ -713,7 +691,6 @@ function _fillCraftDraftFromItem(el, source) {
   }
 }
 
-/** material 입력 6칸을 정수 배열로 읽기. */
 function _readMaterialInputs(el) {
   const material = [];
   for (let i = 0; i < 6; i++) {
@@ -723,7 +700,6 @@ function _readMaterialInputs(el) {
   return material;
 }
 
-/** 실시간 비용 표시 갱신 — 보유보다 큰 항목은 *부족* 표시. */
 function _updateCraftCostPreview(el, actor) {
   const preview = el.querySelector(".craft-cost-preview");
   if (!preview) return;
@@ -751,7 +727,6 @@ function _updateCraftCostPreview(el, actor) {
     : `<span class="cost-line none">${L("ASTER.craft.noCost")}</span>`;
 }
 
-/** 입력값 수집 → draft 객체. 이름 누락·JSON 오류면 알림 후 null. */
 function _collectCraftDraft(el) {
   const type = el.querySelector('select[name="itemType"]').value;
   const name = el.querySelector('input[name="name"]').value.trim();
@@ -761,7 +736,6 @@ function _collectCraftDraft(el) {
   }
   const material = _readMaterialInputs(el);
 
-  // craftRequires — 모든 행 순회. 미선택·레벨 0 행은 제외. 같은 base 중복 시 마지막 값.
   const craftRequires = {};
   for (const row of el.querySelectorAll(".craft-requires-row")) {
     const base = row.querySelector('select[name="requires-base"]')?.value;
@@ -774,7 +748,6 @@ function _collectCraftDraft(el) {
   return { name, type, system: { material, craftRequires, effect } };
 }
 
-/** 자원·전제 부족 시 그래도 진행할지 확인(음수 허용). */
 function _confirmCraftShortage(validation) {
   const L = (k) => game.i18n.localize(k);
   const lines = [];

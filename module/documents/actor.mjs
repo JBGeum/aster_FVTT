@@ -118,7 +118,6 @@ export class AsterActor extends Actor {
     const cf = detectCritFumble(resultDiceset);
     const focusApplied = !!focus.combatant;
 
-    // 보정 통합: 졸림 + 포만 (페이즈 무관, 모든 판정에 적용. 정동판정만 별도).
     const penalties = computePenalties(this);
     const check = computeAbilityCheck({
       rawTotal: pick.rawTotal,
@@ -203,19 +202,16 @@ export class AsterActor extends Actor {
       await ChatMessage.create({ content, speaker, rolls: [roll] });
 
       // 졸림 자동 해제: 룰 "한 번 판정에 실패하면 해제" — 일반판정 실패에만 적용.
-      // AE는 _onUpdate hook에서 자동 삭제됨 (C-1 동기화).
+      // AE는 _onUpdate hook이 지운다.
       if (penalties.sleepy < 0 && !isSuccess) {
         await this.update({ "system.badstatus.sleepy": false });
       }
     }
 
-    // 포만 자동 감소: 탐색 페이즈만, 판정 시 -1 (배고픔이면 -2). PC만.
     await this._decreaseSatietyIfExploration();
   }
 
   /**
-   * 탐색 페이즈에 판정/이동 시 포만 -1, 배고픔이면 -2. 전투 중에는 무시한다.
-   *
    * `_` prefix는 "내부용/비공식 API" 컨벤션. JS private(`#`)은 외부 호출 불가라
    * 시트에서 호출하기 위해 일반 메서드로 노출한다.
    *
@@ -235,8 +231,7 @@ export class AsterActor extends Actor {
   }
 
   /**
-   * 부상 PC에 건강 -2 (트리거 무관, 호출자가 트리거 책임).
-   * 건강 0 도달 시 행동불능 — 시스템은 수치만 갱신하고 후속 처리는 GM이 한다.
+   * 트리거는 호출자 책임. 건강 0 도달 후 행동불능 처리는 GM 몫이라 수치만 갱신한다.
    *
    * @returns {Promise<{before:number, after:number, delta:number, applied:boolean}>}
    *   applied=false면 조건 미충족(부상 아님·이미 0·NPC). 호출자가 채팅 표시 결정.
@@ -255,8 +250,6 @@ export class AsterActor extends Actor {
   }
 
   /**
-   * 큰부상 PC에 건강 -5 (전투 중 행동완료 트리거).
-   *
    * @returns {Promise<{before:number, after:number, delta:number, applied:boolean}>}
    */
   async _applyBigInjuryHealthLoss() {
@@ -283,8 +276,6 @@ export class AsterActor extends Actor {
   }
 
   /**
-   * 큰부상 → 부상 전이 (전투 종료 시).
-   *
    * @returns {Promise<boolean>}  전이가 일어났으면 true.
    */
   async _transitionBigInjuryToInjury() {
@@ -338,9 +329,6 @@ export class AsterActor extends Actor {
   }
 
   /**
-   * 회피 판정 — 대결판정의 한 종류.
-   * PC는 system.dodge 합산식, NPC는 system.dodgeFormula 직접 평가(예: "2D6+3").
-   * 집중(+1d6)·회피 한정 피로 -3 보정은 PC·NPC 공통.
    * system.rollMode와 무관하게 대결(vs) 카드를 출력한다.
    *
    * 졸림 자동 해제·포만 자동 감소는 호출하지 않음:
@@ -353,20 +341,19 @@ export class AsterActor extends Actor {
     const renderTemplate = foundry.applications.handlebars.renderTemplate;
     const label = game.i18n.localize("ASTER.dodge.label");
 
-    // 회피도 대결판정의 한 종류이며 룰북상 일반 판정에 포함되므로 집중 효과 적용 (PC·NPC 공통).
+    // 회피도 일반 판정에 포함되므로 집중이 적용된다.
     const focus = checkFocusEffect(this);
 
     let roll;
     let dodgeValue;
     let npcFormula = null; // NPC 식 — 카드 표시용(PC는 null이라 기존 능력치 합산 표시 유지)
     if (this.type === "npc") {
-      // 빈 식·평가 실패는 경고 후 종료한다.
       const formula = this.system.dodgeFormula?.trim();
       if (!formula) {
         ui.notifications.warn(game.i18n.localize("ASTER.dodge.npcNoFormula"));
         return;
       }
-      // 집중 효과 — 식 끝에 다이스 추가(focus.extraDice는 1d6 단위). `new Roll`이 복합식을 자동 평가.
+      // `new Roll`이 복합식을 자동 평가하므로 식 끝에 붙이면 된다.
       npcFormula = focus.extraDice > 0 ? `${formula} + ${focus.extraDice}d6` : formula;
       try {
         roll = new Roll(npcFormula);
@@ -384,7 +371,7 @@ export class AsterActor extends Actor {
       });
     }
 
-    // 다이스 평탄화 — PC 단일 그룹·NPC 다중 그룹(식 + 집중 다이스) 모두 처리.
+    // NPC 식은 다이스 그룹이 여럿이라 평탄화가 필요하다.
     const pick = await pickTwoIfNeeded({ roll, dice: roll.dice.flatMap((d) => d.values) });
     if (!pick) return;
 
@@ -396,7 +383,6 @@ export class AsterActor extends Actor {
     const diceText = resultDiceset.join(", ");
     const cf = detectCritFumble(resultDiceset);
 
-    // 회피 컨텍스트로 보정 계산 (피로 -3 포함).
     const penalties = computePenalties(this, { isDodge: true });
     const adjustedTotal = pick.rawTotal + penalties.total;
 
@@ -449,7 +435,6 @@ export class AsterActor extends Actor {
   /**
    * 명중 굴림 (공격 판정 — AP 소비 없는 별도 굴림). NPC 전용 — PC는 spell·consumable 등 시전 시
    * 능력치 합산식으로 자연 굴림하므로 별도 메서드가 필요 없다. NPC는 system.hitFormula 식.
-   * 집중(+1d6)·피로 보정은 dodge와 동일 흐름. resolveOpposed 대결 인프라 연계(ability: "hit").
    *
    * @returns {Promise<void>}
    */
@@ -467,7 +452,6 @@ export class AsterActor extends Actor {
       return;
     }
 
-    // 집중 효과 — 식 끝에 다이스를 붙인다.
     const focus = checkFocusEffect(this);
     const fullFormula = focus.extraDice > 0 ? `${formula} + ${focus.extraDice}d6` : formula;
 
@@ -492,7 +476,6 @@ export class AsterActor extends Actor {
     const diceText = resultDiceset.join(", ");
     const cf = detectCritFumble(resultDiceset);
 
-    // 피로 등 보정 — 명중 컨텍스트(isDodge: false).
     const penalties = computePenalties(this, { isDodge: false });
     const adjustedTotal = pick.rawTotal + penalties.total;
 

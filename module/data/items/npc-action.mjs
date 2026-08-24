@@ -5,12 +5,10 @@ const STATUS_CHOICES = ["injury", "bigInj", "sleepy", "exhaustion", "hungry"];
 
 /**
  * NPC 스킬(액션) Item 타입. BaseItemModel 비상속 — material·requirement는 무의미.
- * 기계 검증 가능한 효과(대미지·상태이상)는 필드, 자유 표현은 effect/description.
  */
 export class NpcActionDataModel extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
-      // 자유 텍스트
       description: new fields.HTMLField({ initial: "" }),
       effect: new fields.StringField({ initial: "" }),
 
@@ -39,7 +37,6 @@ export class NpcActionDataModel extends foundry.abstract.TypeDataModel {
       }),
       cureAllStatus: new fields.BooleanField({ initial: false }),
 
-      // true면 시전 시 Combatant flag를 검사·설정한다.
       oncePerRound: new fields.BooleanField({ initial: false }),
     };
   }
