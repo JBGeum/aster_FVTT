@@ -411,6 +411,8 @@
       "success": "성공",
       "fail": "실패",
       "alert": "경계도",
+      "alertApply": "경계도 적용",
+      "alertRiseFrom": "{name} — {min} ~ {max}",
       "castLabel": "판정",
       "castWithExtra": "추가 다이스 사용",
       "extraTitle": "마법판정 — 추가 다이스",

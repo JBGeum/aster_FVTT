@@ -57,6 +57,16 @@
     </button>
     {{/if}} {{#if isFumble}}
     <button type="button" data-action="fumble-alert">{{localize "ASTER.roll.fumbleAlert"}}</button>
+    {{/if}} {{#if hasAlert}}
+    <button
+      type="button"
+      data-action="spell-alert"
+      data-alert-min="{{alert.min}}"
+      data-alert-max="{{alert.max}}"
+      data-spell-name="{{name}}"
+    >
+      {{localize "ASTER.spell.alertApply"}}
+    </button>
     {{/if}} {{/if}}
   </footer>
 
