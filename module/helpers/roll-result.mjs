@@ -25,7 +25,6 @@ export function detectCritFumble(twoDice) {
 
 /**
  * 대성공/대실패면 전용 카드 경로, 아니면 평소 카드 경로를 반환.
- * 각 판정 경로가 renderTemplate 호출 시 이 함수로 템플릿을 분기한다(전용 카드로 교체).
  *
  * @param {{critical:boolean, fumble:boolean}} cf  detectCritFumble 결과
  * @param {string} fallbackTemplate  crit/fumble이 아닐 때 쓸 평소 카드 경로
@@ -45,10 +44,9 @@ export function critFumbleCardPath(cf, fallbackTemplate) {
  * 반환 객체의 키는 보정 종류, 값은 음수(또는 0). 향후 보정 추가 시 키 추가.
  * total은 합산값 — 카드 표시와 별도로 호출자가 빠르게 사용.
  *
- * context.isDodge=true일 때 피로(exhaustion) -3 추가 (룰북 522: 회피 판정에만 적용).
+ * context.isDodge=true일 때 피로(exhaustion) -3 추가 — 회피 판정에만 적용.
  *
- * (actor는 의도적으로 무타입 — spell-roll.mjs의 getAbilityTotal과 동일 컨벤션.
- *  fvtt-types의 Actor.system은 커스텀 DataModel 필드를 알지 못해 strict 오류가 남.)
+ * fvtt-types의 Actor.system은 커스텀 DataModel 필드를 알지 못해 actor를 구조 타입으로 받는다.
  *
  * @param {{ system: { badstatus?: { sleepy?: boolean, exhaustion?: boolean }, satiety?: { value?: number } } }} actor
  * @param {object} [context]
@@ -65,7 +63,7 @@ export function computePenalties(actor, context = {}) {
   else if (satietyValue <= 10) satiety = -1;
   // 11 이상은 0
 
-  // 회피 판정 한정: 피로(exhaustion) -3 (룰북 522). 일반/마법/정동 판정에는 적용 안 됨.
+  // 피로 -3은 회피 판정에만 적용된다.
   const exhaustion = context.isDodge && actor.system.badstatus?.exhaustion ? -3 : 0;
 
   return {

@@ -4,15 +4,8 @@ import { useConsumable } from "../helpers/consumable.mjs";
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
 
-// H8 약초첩 다이얼로그 시안(memo/design/마녀 시트 - 다이얼로그.html) 정합.
-// 시안은 모든 다이얼로그를 .dialog-wrap{flex:0 0 360px} 고정폭으로 렌더한다.
-// .dialog__body 패딩 14px을 빼면 내부 콘텐츠 ≈ 330px이고, 재료 6열 그리드가 그 폭에
-// 정확히 수용된다(시안이 그 폭에서 렌더되는 것이 근거). 윈도우 테두리(~2px)를 감안해
-// position.width=360이면 콘텐츠 영역이 시안과 일치한다. 460+는 frow(88px 1fr)·1fr이
-// 가로로 늘어나 "넓적"하게 보였던 원인이라 360 고정으로 환원.
-// 높이는 height:"auto"로 콘텐츠에 맞춤(잘림·여백 동시 해소).
 const ASTER_ITEM_WIDTHS = {
-  // new 시안 — 모든 다이얼로그 .dialog-wrap 폭 430(그림 100px hero + compact 필드 + 상태 5개 한 줄).
+  // 430은 그림 100px hero + compact 필드 + 상태 5개가 한 줄에 들어가는 폭.
   spell: 430,
   consumable: 430,
   equipment: 430,
@@ -35,7 +28,7 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   };
 
   /**
-   * H4-b — type별 윈도우 크기 적용.
+   * type별 윈도우 크기 적용.
    * 너비는 type별 권장값(미정의 type은 DEFAULT 460 fallback), 높이는 콘텐츠 자동.
    * 사용자 리사이즈 후 위치 기억은 ApplicationV2 기본 동작이 보존(강제 고정 안 함).
    */
@@ -111,7 +104,7 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.config = CONFIG.ASTER;
 
     // material[6] 인덱스별 라벨 — 코드에 인덱스 의미가 없어 UI에서 명시(마테리얼 + 적·청·녹·황·백).
-    // dotKey: H8 약초첩 .mat-in 점 색 (index 0=마테리얼 … 5=백).
+    // dotKey: .mat-in 점 색 (index 0=마테리얼 … 5=백).
     const MAT_DOT = ["mat", "red", "blue", "green", "yellow", "white"];
     context.materialFields = (this.item.system.material ?? []).map((value, i) => ({
       value,
@@ -151,7 +144,7 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     super._onRender(_context, _options);
 
     // cureStatus 다중 체크박스: 같은 name으로 폼 제출 시 FormData가 단일/배열을 일관 처리하지 않아,
-    // 체크 상태를 직접 읽어 배열로 update한다 (.craft-res-input 커스텀 리스너 패턴과 동일).
+    // 체크 상태를 직접 읽어 배열로 update한다.
     if (this.item.type === "consumable") {
       const boxes = this.element.querySelectorAll(".cure-status-check");
       for (const box of boxes) {

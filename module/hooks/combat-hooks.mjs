@@ -30,12 +30,9 @@ Hooks.on("deleteCombatant", (combatant) => {
   refreshActorSheet(combatant.actor);
 });
 
-// 라운드 시작 처리(이니셔티브 갱신 + 액션 포인트 굴림 + 채팅 카드)는
-// AsterCombat._onStartRound 오버라이드가 담당한다 — `combatRound`/`combatStart` 훅은
-// nextRound의 turn=0 커밋 "이전"에 발화해, 그 안에서 combatant를 수정하면 turn 포인터가
-// 직전 라운드 마지막 전투원에 고정되는 버그가 있었다(C>C>C). 라이프사이클 메서드는
-// turn 확정 이후 발화하므로 안전하다.
-// combatStart 훅은 전투원 시트 재렌더("전투 중" 상태 즉시 반영, 모든 클라이언트)만 담당.
+// 라운드 시작 처리는 AsterCombat._onStartRound가 담당한다 — `combatRound`/`combatStart` 훅은
+// nextRound의 turn=0 커밋 이전에 발화해, 그 안에서 combatant를 수정하면 turn 포인터가 흔들린다.
+// 여기서는 전투원 시트 재렌더만 담당한다.
 Hooks.on("combatStart", (combat) => {
   if (combat instanceof AsterCombat) refreshCombatSheets(combat);
 });

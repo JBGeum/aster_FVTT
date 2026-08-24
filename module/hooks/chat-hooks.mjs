@@ -25,7 +25,6 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
       .forEach((btn) => {
         const footer = btn.closest("footer");
         btn.remove();
-        // 단독 footer는 비워졌으니 정리, 다른 버튼이 남은 footer는 보존
         if (footer && !footer.querySelector("button")) footer.remove();
       });
   }
@@ -65,7 +64,6 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
         return;
       }
 
-      // 액터 시트에 직접 가산
       const update = {};
       for (const k of CRIT_COLORS) {
         if (result[k] > 0) {
@@ -75,7 +73,6 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
       }
       await actor.update(update);
 
-      // 후속 카드 — 아스테르 획득(.aster-gain-card): 색별 칩으로 표시
       const chips = CRIT_COLORS.filter((k) => result[k] > 0)
         .map(
           (k) =>
@@ -108,7 +105,7 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
       const cur = Number(game.settings.get("aster", "alertLevel")) || 0;
       const next = cur + roll.total;
       await game.settings.set("aster", "alertLevel", next);
-      // 후속 카드 — 경계도 상승(.alert-rise-card). rolls 배열로 다이스 애니메이션 트리거.
+      // rolls 배열이 있어야 다이스 애니메이션이 트리거된다.
       await ChatMessage.create({
         content: `<div class="aster-chat-card alert-rise-card">
           <header class="card-header"><div class="title">
@@ -247,7 +244,6 @@ let pendingOpposed = null;
 
 /**
  * 대미지 다이얼로그 — 대미지 수치 + 상태이상 체크박스. 취소 시 null 반환.
- * applyDamageFromCard / applyDamageFromOpposed 공통 사용.
  *
  * @param {Actor} targetActor
  * @param {number} defaultDamage
@@ -284,7 +280,7 @@ async function promptDamageDialog(targetActor, defaultDamage) {
 }
 
 /**
- * 대미지 적용 결과 카드 렌더링. applyDamageFromCard / applyDamageFromOpposed 공통 사용.
+ * 대미지 적용 결과 카드 렌더링.
  *
  * @param {Actor} targetActor
  * @param {{amount: number, hBefore: number, hAfter: number, statusApplied: string[], defendReduced: {roll:number,original:number,adjusted:number}|null, yellowReduction?: {type:"block"|"reduction",original:number,reduction?:number,adjusted:number}|null}} info
@@ -467,17 +463,14 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
     return;
   }
 
-  // 대미지 적용 (돌던지기·마법 카드)
   html.querySelectorAll("[data-action='apply-damage']").forEach((btn) => {
     btn.addEventListener("click", () => applyDamageFromCard(message));
   });
 
-  // 대미지 적용 (대결판정 결과 카드 — 회피 패배 측)
   html.querySelectorAll("[data-action='apply-damage-opposed']").forEach((btn) => {
     btn.addEventListener("click", () => applyDamageFromOpposed(message));
   });
 
-  // 능동측 지정
   html.querySelectorAll("[data-action='opposed-set-active']").forEach((btn) => {
     btn.addEventListener("click", () => {
       if (!game.user.isGM) {
@@ -500,7 +493,6 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
     });
   });
 
-  // 수동측 지정 → 결과 카드 생성
   html.querySelectorAll("[data-action='opposed-set-passive']").forEach((btn) => {
     btn.addEventListener("click", async () => {
       if (!game.user.isGM) {

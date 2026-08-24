@@ -6,7 +6,7 @@ import { getTargetedTokens } from "./target-select.mjs";
 import { applyDamageAndStatus, applyCureAllStatus, applyCureStatus } from "./health-status.mjs";
 
 /**
- * 전투 행동 실행 (PC/NPC 공통 G3). 액션 키에 따라 AP 검사·차감·후속 flag·AE 생성·채팅 카드.
+ * 전투 행동 실행 (PC/NPC 공통).
  *
  * @param {{ actor: Actor, actionKey: string }} params
  */
@@ -22,7 +22,7 @@ export async function resolveCombatAction({ actor, actionKey }) {
     return;
   }
 
-  // 라운드 사용 카운터 — defend/charge는 룰북 1라운드 1회 제한.
+  // defend/charge는 1라운드 1회만 쓸 수 있다.
   // AP 검사·다이얼로그보다 앞서 차단해야 자원·UX 낭비가 없다.
   const usage = combatant.getFlag("aster", "actionsThisRound") ?? {};
   if ((actionKey === "defend" || actionKey === "charge") && (usage[actionKey] ?? 0) >= 1) {
@@ -38,12 +38,12 @@ export async function resolveCombatAction({ actor, actionKey }) {
   let cost;
   let chatExtra;
   let throwTarget = null; // 돌던지기 대상 토큰 (대미지 적용 flag용)
-  let chargeChoice = null; // 차지 선택("ap" | "unison") — G3-γ 회수 대상
+  let chargeChoice = null; // 차지 선택("ap" | "unison")
   let dashX = 0; // 대쉬 입력값 — AE duration.rounds: 1로 다음 라운드 끝까지 system.speed +X
 
   switch (actionKey) {
     case "throw": {
-      // 캔버스 사전 타게팅 — 적 1체만 허용. 시전자가 PC면 적은 NPC, NPC면 적은 PC(N3).
+      // 캔버스 사전 타게팅 — 적 1체만 허용. 시전자가 PC면 적은 NPC, NPC면 적은 PC다.
       // 검증 실패 시 자원 소비 없이 종료.
       const enemyType = actor.type === "npc" ? "character" : "npc";
       const targets = getTargetedTokens({ required: true, max: 1, allowedTypes: enemyType });
@@ -114,12 +114,6 @@ export async function resolveCombatAction({ actor, actionKey }) {
 
   await combatant.setFlag("aster", "actionPoint", currentAP - cost);
 
-  // 액션별 후속 flag·효과.
-  // - defend: 라운드 카운터 +1, defendActive 켜 다음 대미지 적용 시 자동 차감.
-  // - charge: 라운드 카운터 +1, 선택 보존(G3-γ가 다음 라운드 시작 시 회수).
-  // - focus: focusActive 켜 다음 한 번의 판정에 다이스 +1 (적용 후 자동 해제).
-  // - dash: 1라운드 만료 AE로 system.speed +X — Foundry duration이 자동 만료 처리.
-  // - unisonPrepare: 합체기 준비(G4에서 활용).
   if (actionKey === "defend") {
     await combatant.setFlag("aster", "actionsThisRound", {
       ...usage,
@@ -158,7 +152,6 @@ export async function resolveCombatAction({ actor, actionKey }) {
 
   const actionName = game.i18n.localize(`ASTER.combat.action.${actionKey}`);
 
-  // 액션별 flag — 돌던지기는 대미지 적용 정보 포함 (1대미지 자동 추출).
   const actionFlag = { type: actionKey };
   if (actionKey === "throw" && throwTarget) {
     // orphan 토큰이면 targetActorId가 null — 버튼 미노출(대미지 적용 불가).
@@ -187,10 +180,8 @@ export async function resolveCombatAction({ actor, actionKey }) {
 }
 
 /**
- * NPC 스킬(npcAction) 시전 (N3).
- * 흐름: oncePerRound 검사 → 타게팅·X 입력(하이브리드 다이얼로그) → AP 검사 → AP 차감 →
- *       oncePerRound flag 설정 → 효과 적용(damageFormula·addStatus·cureStatus·cureAllStatus) → 시전 카드.
- * AP 진리 원천은 Combatant flag(옵션 A — PC `#onCombatAction`과 통일). `system.ap`은 시트 표시·시드 참고용.
+ * NPC 스킬(npcAction) 시전.
+ * AP 진리 원천은 Combatant flag — `system.ap`은 시트 표시·시드 참고용이다.
  *
  * @param {{ actor: Actor, itemId: string }} params
  */
@@ -210,7 +201,7 @@ export async function resolveNpcActionUse({ actor, itemId }) {
     return;
   }
 
-  // oncePerRound 검사 — 같은 액션을 이 라운드에 이미 썼는지. AP·다이얼로그보다 앞서 차단(자원·UX 보호).
+  // AP·다이얼로그보다 앞서 차단해야 자원·UX 낭비가 없다.
   const usage = combatant.getFlag("aster", "actionsThisRound") ?? {};
   const usageKey = `npcAction-${itemId}`;
   if (sys.oncePerRound && usage[usageKey]) {
@@ -220,13 +211,11 @@ export async function resolveNpcActionUse({ actor, itemId }) {
     return;
   }
 
-  // 1. 하이브리드 다이얼로그 — costVariable 또는 self 이외 대상일 때만.
   let cost = sys.cost;
-  let targets = [actor]; // self 기본
+  let targets = [actor];
   const needsDialog = sys.costVariable || sys.targetType !== "self";
 
   if (needsDialog) {
-    // costVariable=true면 X(AP) 입력.
     if (sys.costVariable) {
       const x = await foundry.applications.api.DialogV2.prompt({
         window: {
@@ -242,7 +231,7 @@ export async function resolveNpcActionUse({ actor, itemId }) {
       cost = x;
     }
 
-    // 대상 — NPC가 시전하므로 적은 PC(character). all은 PC 전체.
+    // NPC가 시전하므로 적은 PC(character)다.
     if (sys.targetType === "one") {
       const t = getTargetedTokens({ required: true, max: 1, allowedTypes: "character" });
       if (!t) return;
@@ -256,7 +245,7 @@ export async function resolveNpcActionUse({ actor, itemId }) {
     }
   }
 
-  // 2. AP 검사 (다이얼로그 입력 후 — costVariable의 X가 보유 AP를 넘을 수 있음).
+  // 다이얼로그 뒤에 검사한다 — costVariable의 X가 보유 AP를 넘을 수 있다.
   const currentAP = combatant.getFlag("aster", "actionPoint") ?? 0;
   if (currentAP < cost) {
     ui.notifications.warn(
@@ -265,21 +254,19 @@ export async function resolveNpcActionUse({ actor, itemId }) {
     return;
   }
 
-  // 3. AP 차감
   await combatant.setFlag("aster", "actionPoint", currentAP - cost);
 
-  // 4. oncePerRound flag — `npcAction-{itemId}` 키. PC defend·charge 키와 충돌 없음.
+  // `npcAction-{itemId}` 키 — PC defend·charge 키와 충돌하지 않는다.
   if (sys.oncePerRound) {
     await combatant.setFlag("aster", "actionsThisRound", { ...usage, [usageKey]: true });
   }
 
-  // N6 — 공격 액션(damageFormula 있음 + targetType !== "self") 시 hit 굴림 통합.
-  // hit vs dodge 자동 대결 비교는 영역 외 — GM이 시전 카드의 hit 결과를 PC dodge와 수동 비교.
+  // hit vs dodge 자동 비교는 하지 않는다 — GM이 카드의 hit 결과를 PC dodge와 수동 비교한다.
   let hitResult = null;
   if (sys.damageFormula && sys.targetType !== "self") {
     const hitFormula = actor.system.hitFormula?.trim();
     if (hitFormula) {
-      // 집중 효과 — combatant의 focusActive flag(checkFocusEffect와 동일 의미). 사용 시 만료.
+      // 집중은 1회용 — 사용 시 만료시킨다.
       const focusActive = combatant.getFlag("aster", "focusActive") === true;
       const fullHitFormula = focusActive ? `${hitFormula} + 1d6` : hitFormula;
       try {
@@ -305,10 +292,9 @@ export async function resolveNpcActionUse({ actor, itemId }) {
     }
   }
 
-  // 5. 효과 적용
   const effectResults = [];
 
-  // 5-a. damageFormula 또는 addStatus — damageFormula 없고 addStatus만 있으면 amount=0(상태이상만).
+  // damageFormula 없이 addStatus만 있으면 amount=0 — 상태이상만 적용된다.
   let damageTotal = 0;
   if (sys.damageFormula || sys.addStatus.length > 0) {
     if (sys.damageFormula) {
@@ -322,7 +308,6 @@ export async function resolveNpcActionUse({ actor, itemId }) {
     }
   }
 
-  // 5-b. cureAllStatus 우선, 없으면 cureStatus 배열 루프.
   if (sys.cureAllStatus) {
     const cured = await applyCureAllStatus(targets);
     for (const r of cured) {
@@ -337,7 +322,6 @@ export async function resolveNpcActionUse({ actor, itemId }) {
     }
   }
 
-  // 6. 시전 카드 (hitResult 포함 — 공격 액션이면 hit 굴림 결과 표시)
   await renderNpcActionCard(actor, action, cost, damageTotal, effectResults, hitResult);
 }
 

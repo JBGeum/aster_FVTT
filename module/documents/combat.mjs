@@ -1,6 +1,6 @@
 /**
  * Aster 전투 문서.
- * 룰북 574~583: 이니셔티브 = 민첩(`system.speed`) 비교, 다이스 굴림 없음.
+ * 이니셔티브 = 민첩(`system.speed`) 비교, 다이스 굴림 없음.
  * 동률 시 PC 우선만 자동 처리하고, PC끼리·NPC끼리는 GM이 수동 조정(룰: 의논·자유 결정).
  * @extends {Combat}
  */
@@ -18,7 +18,7 @@ export class AsterCombat extends Combat {
     const ib = Number(b.initiative ?? -Infinity);
     if (ia !== ib) return ib - ia;
 
-    // 동률: PC 우선 (룰북 583)
+    // 동률이면 PC 우선.
     const aIsPC = a.actor?.type === "character";
     const bIsPC = b.actor?.type === "character";
     if (aIsPC && !bIsPC) return -1;
@@ -30,7 +30,7 @@ export class AsterCombat extends Combat {
   }
 
   /**
-   * 액터 추가 시 자동으로 이니셔티브 결정 (룰북 574: 민첩 비교, 굴림 없음).
+   * 액터 추가 시 자동으로 이니셔티브 결정 — 민첩 비교, 굴림 없음.
    *
    * `rollInitiative`를 거치지 않고 `system.speed`를 직접 초깃값으로 설정한다:
    * (1) 다이스 없는 결정론적 값이라 굴림 메시지가 무의미하고,
@@ -45,29 +45,20 @@ export class AsterCombat extends Combat {
     const updates = [];
     for (const id of targets) {
       const c = this.combatants.get(id);
-      if (!c || c.initiative != null) continue; // 이미 값이 있으면 건너뜀
+      if (!c || c.initiative != null) continue;
       updates.push({ _id: id, initiative: Number(c.actor?.system?.speed ?? 0) });
     }
     if (updates.length) await this.updateEmbeddedDocuments("Combatant", updates);
   }
 
   /**
-   * 라운드 시작 처리 (룰북 568 셋업/이니셔티브 단계).
-   * 1. 모든 Combatant의 이니셔티브를 현재 민첩값으로 갱신 (룰 575 — AE 변화 반영).
-   * 2. PC의 액션 포인트를 1d6 굴려 Combatant flag(`aster.actionPoint`)에 저장 (룰 590).
-   * 3. 라운드 시작 채팅 카드 (PC별 액션 포인트 통합 표시).
-   *
    * `_onStartRound` 라이프사이클에서 호출 — turn 포인터가 0으로 확정된 "이후"에 실행되므로,
    * 여기서 combatant flag를 수정해도 현재 전투원(turn) 위치가 흔들리지 않는다.
-   * (과거 `combatRound`/`combatStart` 훅은 `nextRound`의 turn=0 커밋 "이전"에 발화해,
-   *  combatant 수정이 setupTurns를 트리거하며 직전 라운드 마지막 전투원에 turn을 고정시켰다.)
-   *
    * @returns {Promise<void>}
    */
   async _startRound() {
     if (!game.user.isGM) return;
 
-    // 1. 이니셔티브 갱신 (모든 Combatant — 현재 system.speed 기준)
     const initiativeUpdates = [];
     for (const c of this.combatants) {
       const speed = Number(c.actor?.system?.speed ?? 0);
@@ -77,11 +68,7 @@ export class AsterCombat extends Combat {
       await this.updateEmbeddedDocuments("Combatant", initiativeUpdates);
     }
 
-    // 2. 액션 포인트 굴림 + 라운드 사용 카운터 초기화.
-    //    PC: 1d6 + chargeNextRound 보너스 (룰 590).
-    //    NPC: apFormula 평가 (룰북 NPC 표의 액션 식, 예: "1D6+6"). 빈 식이면 skip (대화 NPC·시드 미입력 정합).
-    //    기타 액터 타입: skip (사역마 등 향후 확장 영역).
-    // defendActive는 대미지 적용 시 자동 해제. chargeNextRound는 이번 라운드 시작에서 회수("ap"는 적용·해제, "unison"은 G4까지 유지).
+    // PC는 1d6, NPC는 표의 액션 식으로 AP를 굴린다.
     const apResults = []; // { name, ap, base, chargeBonus, isNpc } — 채팅 카드용
     for (const c of this.combatants) {
       if (!c.actor) continue;
@@ -97,7 +84,7 @@ export class AsterCombat extends Combat {
         ap = baseRoll.total;
 
         // 차지 AP 보너스 — 이전 라운드에 charge="ap"를 사용했다면 1d6 추가 후 flag 해제.
-        // "unison"은 G4 합체기 사용 시 회수되어야 하므로 여기선 손대지 않음.
+        // "unison"은 합체기 사용 시 회수되므로 여기서 손대지 않는다.
         if (c.getFlag("aster", "chargeNextRound") === "ap") {
           const bonusRoll = new Roll("1d6");
           await bonusRoll.evaluate();
@@ -122,13 +109,11 @@ export class AsterCombat extends Combat {
         continue;
       }
 
-      // 공통: Combatant flag 갱신.
       await c.setFlag("aster", "actionPoint", ap);
-      // actionsThisRound는 unset으로 확실히 클리어 — setFlag(키, {})는 flag 객체 병합이라
-      // 기존 키(defend·charge 등)가 지워지지 않아 라운드 사용 제한이 리셋되지 않았다.
+      // setFlag(키, {})는 flag 객체를 병합해 기존 키가 남는다 — unset으로 지운다.
       await c.unsetFlag("aster", "actionsThisRound");
 
-      // 황표 flag 해제 (G4-β) — 1라운드 동안 적용 후 라운드 시작 시 만료. NPC 영역 결정은 N5.
+      // 황표는 1라운드 적용 후 라운드 시작 시 만료된다.
       if (c.getFlag("aster", "damageReduction") > 0) {
         await c.setFlag("aster", "damageReduction", 0);
       }
@@ -136,7 +121,7 @@ export class AsterCombat extends Combat {
         await c.setFlag("aster", "damageBlocked", false);
       }
 
-      // NPC만: system.ap 동기 (시트 표시·참고용). 진리 원천은 Combatant flag(N3 옵션 A 정합).
+      // system.ap은 시트 표시용 사본 — 진리 원천은 Combatant flag다.
       if (isNpc) {
         await c.actor.update({ "system.ap.value": ap, "system.ap.max": ap });
       }
@@ -144,9 +129,8 @@ export class AsterCombat extends Combat {
       apResults.push({ name: c.actor.name, ap, base: baseRoll.total, chargeBonus, isNpc });
     }
 
-    // 2-b. 만료 AE 정리 — 우리가 만든 라운드 효과(dash·unisonGreen)를 startRound + rounds 경과 시 삭제.
-    //      `duration.combat`은 ForeignDocumentField라 문자열 비교가 불안정해, 식별은 우리 flag로 한다.
-    //      (Foundry 기본 라운드 만료가 동작하지 않는 케이스의 보조.)
+    // Foundry 기본 라운드 만료가 동작하지 않는 케이스의 보조.
+    // `duration.combat`은 ForeignDocumentField라 문자열 비교가 불안정해, 식별은 우리 flag로 한다.
     for (const c of this.combatants) {
       if (!c.actor) continue;
       const expired = c.actor.effects.filter((eff) => {
@@ -163,8 +147,6 @@ export class AsterCombat extends Combat {
       }
     }
 
-    // 3. 라운드 시작 채팅 카드 — PC·NPC 모두 표시(이니셔티브 순). 차지 보너스 받은 PC는 (base+bonus 차지) 표기.
-    //    NPC는 class="npc"로 시각 구분(스타일은 H 트랙 정리 영역).
     if (apResults.length) {
       const chargeBonusLabel = game.i18n.localize("ASTER.combat.chargeBonus");
       const list = apResults
@@ -190,9 +172,8 @@ export class AsterCombat extends Combat {
       });
     }
 
-    // 4. 시트 재렌더 — flag 리셋 후 combat 탭 표시 동기화(defendUsed·chargeUsed·AP 등).
-    //    flag 변경은 updateCombatant 훅이 각 클라이언트에서 처리하지만, 여기선 GM 클라이언트의
-    //    열린 시트를 즉시 갱신해 라운드 경계 표시 stale을 방지한다.
+    // updateCombatant 훅이 각 클라이언트를 갱신하지만, GM의 열린 시트는 여기서 즉시 갱신해
+    // 라운드 경계 표시가 stale해지는 것을 막는다.
     for (const c of this.combatants) {
       if (c.actor?.sheet?.rendered) c.actor.sheet.render(false);
     }
@@ -213,9 +194,9 @@ export class AsterCombat extends Combat {
   }
 
   /**
-   * 행동완료(턴 종료) 시 부상/큰부상 건강 감소 (룰 518/520).
+   * 행동완료(턴 종료) 시 부상·큰부상 건강 감소.
    * V13 표준 오버라이드 포인트 — 턴이 끝난 Combatant를 직접 받고, 단일 GM에서만 실행되며,
-   * 라운드 경계의 마지막 Combatant도 누락 없이 발화한다(combatTurn hook 우회보다 견고).
+   * 라운드 경계의 마지막 Combatant도 누락 없이 발화한다.
    * 부상·큰부상 동시 체크 시 둘 다 누적 적용(룰북 미명시 → 보수적 해석, 사용자 확정).
    *
    * @param {Combatant} combatant  턴이 끝난 Combatant
@@ -270,7 +251,7 @@ export class AsterCombat extends Combat {
   }
 
   /**
-   * 전투 종료 시 큰부상 → 부상 전이 (룰 520). `deleteCombat` hook에서 호출.
+   * 전투 종료 시 큰부상 → 부상 전이. `deleteCombat` hook에서 호출.
    * hook은 모든 클라이언트에서 발화하므로 GM 가드 필수.
    *
    * @returns {Promise<void>}
@@ -284,7 +265,7 @@ export class AsterCombat extends Combat {
       if (c.actor?.type !== "character") continue;
       const did = await c.actor._transitionBigInjuryToInjury();
       if (did) transitioned.push(c.actor.name);
-      // F1(룰북 537): 전투 종료 시 행동불능(건강 0) PC는 건강 1로 자동 회복.
+      // 전투 종료 시 행동불능(건강 0) PC는 건강 1로 자동 회복한다.
       if ((c.actor.system.health?.value ?? 0) === 0) {
         await c.actor.update({ "system.health.value": 1 });
         revived.push(c.actor.name);

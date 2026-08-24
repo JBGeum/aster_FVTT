@@ -10,7 +10,7 @@
  *
  * 속성은 html(documentElement)에 토글한다. _tokens.scss의 @media·명시 selector가
  * 모두 :root(html) 기준이라, body에 붙이면 :not([data-aster-theme]) 가드가 깨져
- * OS 라이트 환경에서 명시 다크가 무력화된다(H1-fix).
+ * OS 라이트 환경에서 명시 다크가 무력화된다.
  *
  * @param {string} theme  "auto" / "dark" / "light"
  */

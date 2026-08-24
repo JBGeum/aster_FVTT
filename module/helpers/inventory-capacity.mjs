@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * I1c: 장비 슬롯 container 예약 값 — 룰북 269 "장비품 2개까지".
+ * 장비 슬롯 container 예약 값 — 장비품 2개까지.
  * item.system.container가 이 값이면 *장비란*에 위치 (창고 "" / 가방 bag.id와 구분).
  * @type {string[]}
  */

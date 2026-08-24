@@ -6,7 +6,7 @@ import { isEquipSlotContainer } from "./inventory-capacity.mjs";
 // 상태이상 칩 툴팁 키 (lang 키 — bigInj 필드는 lang에서 biginj).
 const BADSTATUS_KEYS = ["injury", "biginj", "sleepy", "exhaustion", "hungry"];
 
-// 구조화 툴팁 헤더 아이콘 — 아이템 타입별 (memo/design 툴팁 시안 정합).
+// 구조화 툴팁 헤더 아이콘 — 아이템 타입별.
 const TOOLTIP_ICON = {
   consumable: "fa-flask",
   equipment: "fa-wand-magic-sparkles",
@@ -46,7 +46,7 @@ export function inventorySummary(item) {
 }
 
 /**
- * 마법구인데 장비란에 없어 효과가 비활성인지 (I1c, 룰북 807).
+ * 마법구인데 장비란에 없어 효과가 비활성인지.
  * 인벤토리 리스트에 "효과 비활성" 안내를 표시할 조건.
  */
 export function isMagicToolInactive(item) {
@@ -75,7 +75,7 @@ export function buildStatusTooltips() {
 }
 
 /**
- * 아이템 호버 툴팁 HTML(헤더·본문·메타 3단) 조립 — 툴팁 시안 정합.
+ * 아이템 호버 툴팁 HTML(헤더·본문·메타 3단) 조립.
  * 본문(description)이 비면 null 반환 → tooltipHtml 헬퍼가 툴팁을 생략(빈 툴팁 박스 방지).
  * 반환 HTML은 템플릿 헬퍼가 속성 안전용으로 엔티티화하므로 여기선 평범한 HTML로 둔다.
  * (단, name은 사용자 입력이라 escapeHTML — 본문 description은 리치텍스트라 그대로.)

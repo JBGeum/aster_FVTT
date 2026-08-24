@@ -21,25 +21,15 @@ function checkFocusEffect(actor) {
   return { extraDice: active ? 1 : 0, combatant: active ? combatant : null };
 }
 
-/**
- * Extend the base Actor document by defining a custom roll data structure which is ideal for the Simple system.
- * @extends {Actor}
- */
+/** @extends {Actor} */
 export class AsterActor extends Actor {
   /** @override */
   prepareData() {
-    // Prepare data for the actor. Calling the super version of this executes
-    // the following, in order: data reset (to clear active effects),
-    // prepareBaseData(), prepareEmbeddedDocuments() (including active effects),
-    // prepareDerivedData().
     super.prepareData();
   }
 
   /** @override */
-  prepareBaseData() {
-    // Data modifications in this step occur before processing embedded
-    // documents or derived data.
-  }
+  prepareBaseData() {}
 
   /** @override */
   prepareDerivedData() {
@@ -50,7 +40,7 @@ export class AsterActor extends Actor {
   async _preUpdate(changes, options, user) {
     await super._preUpdate(changes, options, user);
 
-    // badstatus 변경 감지 후 AE 동기화 예약 (실제 동기화는 _onUpdate에서)
+    // 실제 동기화는 _onUpdate에서 — 여기서는 변경 키만 기록한다.
     const bs = changes?.system?.badstatus;
     if (!bs) return;
     options.aster ??= {};
@@ -71,46 +61,32 @@ export class AsterActor extends Actor {
     }
   }
 
-  /**
-   * Override getRollData() that's supplied to rolls.
-   */
   getRollData() {
     const data = super.getRollData();
 
-    // Prepare character roll data.
     this._getCharacterRollData(data);
     this._getNpcRollData(data);
 
     return data;
   }
 
-  /**
-   * Prepare character roll data.
-   */
   _getCharacterRollData(data) {
     if (this.type !== "character") return;
 
-    // Copy the ability scores to the top level, so that rolls can use
-    // formulas like `@str.mod + 4`.
+    // 굴림 식에서 `@active` 처럼 참조할 수 있도록 최상위로 복사한다.
     if (data.abilities) {
       for (const [k, v] of Object.entries(data.abilities)) {
         data[k] = foundry.utils.deepClone(v);
       }
     }
 
-    // Add level for easier access, or fall back to 0.
     if (data.attributes.level) {
       data.lvl = data.attributes.level.value ?? 0;
     }
   }
 
-  /**
-   * Prepare NPC roll data.
-   */
   _getNpcRollData(_data) {
     if (this.type !== "npc") return;
-
-    // Process additional NPC data here.
   }
 
   async rollAbility(ability, label, options = {}) {
@@ -168,9 +144,7 @@ export class AsterActor extends Actor {
     const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
 
     if (isVs) {
-      // 대결판정 — 자동 패배 분기(능동측 대실패) 외에는 상대측 굴림이 필요하므로,
-      // 현 단계에서는 본 액터의 대성공/대실패 정보만 카드에 노출한다.
-      // resolveOpposed는 GM이 양측 결과를 모은 뒤 별도로 호출(향후 작업).
+      // 상대측 굴림이 있어야 승패가 정해지므로 카드에는 본 액터 정보만 싣는다.
       const templateData = {
         label,
         ablValue,
@@ -236,7 +210,7 @@ export class AsterActor extends Actor {
         critFumbleCardPath(cf, "systems/aster/templates/chatcard/roll-asterabl.html"),
         templateData,
       );
-      // rolls 배열을 넣어야 Dice So Nice 등 다이스 애니메이션·소리가 트리거된다(대결 판정과 정합).
+      // rolls 배열이 있어야 다이스 애니메이션·소리가 트리거된다.
       await ChatMessage.create({ content, speaker, rolls: [roll] });
 
       // 졸림 자동 해제: 룰 "한 번 판정에 실패하면 해제" — 일반판정 실패에만 적용.
@@ -251,10 +225,7 @@ export class AsterActor extends Actor {
   }
 
   /**
-   * 탐색 페이즈일 때만 포만 자동 감소. ActorSheet에서도 호출 가능하도록 공개 메서드.
-   * 룰 488: 탐색 페이즈에 판정/이동 시 포만 -1, 배고픔이면 -2.
-   * 룰 498: 포만은 0 미만이 되지 않음 (DataModel min:0가 보장).
-   * 룰 531: 전투 중(클라이막스 페이즈)에는 무시 — currentPhase로 분기됨.
+   * 탐색 페이즈에 판정/이동 시 포만 -1, 배고픔이면 -2. 전투 중에는 무시한다.
    *
    * `_` prefix는 "내부용/비공식 API" 컨벤션. JS private(`#`)은 외부 호출 불가라
    * 시트에서 호출하기 위해 일반 메서드로 노출한다.
@@ -276,8 +247,7 @@ export class AsterActor extends Actor {
 
   /**
    * 부상 PC에 건강 -2 (트리거 무관, 호출자가 트리거 책임).
-   * 룰 518: 부상 = 전투중 행동완료 또는 탐색 페이즈 이동 타이밍.
-   * 룰 536: 건강 0 도달 시 행동불능 — 시스템은 수치만 갱신, 후속 처리는 GM(D12).
+   * 건강 0 도달 시 행동불능 — 시스템은 수치만 갱신하고 후속 처리는 GM이 한다.
    *
    * @returns {Promise<{before:number, after:number, delta:number, applied:boolean}>}
    *   applied=false면 조건 미충족(부상 아님·이미 0·NPC). 호출자가 채팅 표시 결정.
@@ -297,7 +267,6 @@ export class AsterActor extends Actor {
 
   /**
    * 큰부상 PC에 건강 -5 (전투 중 행동완료 트리거).
-   * 룰 520: 큰 부상 = 전투중 행동완료 시 건강 -5.
    *
    * @returns {Promise<{before:number, after:number, delta:number, applied:boolean}>}
    */
@@ -315,9 +284,6 @@ export class AsterActor extends Actor {
   }
 
   /**
-   * 탐색 페이즈 이동 시 부상 적용 (D19 흐름).
-   * 페이즈 체크만 담당하고 본 로직은 _applyInjuryHealthLoss에 위임.
-   *
    * @returns {Promise<{before:number, after:number, delta:number, applied:boolean}>}
    */
   async _applyInjuryHealthLossIfExploration() {
@@ -329,7 +295,6 @@ export class AsterActor extends Actor {
 
   /**
    * 큰부상 → 부상 전이 (전투 종료 시).
-   * 룰 520: 전투 종료시에 [부상]으로 변경된다.
    *
    * @returns {Promise<boolean>}  전이가 일어났으면 true.
    */
@@ -375,7 +340,7 @@ export class AsterActor extends Actor {
       critFumbleCardPath(cf, "systems/aster/templates/chatcard/roll-asterabl-emo.html"),
       templateData,
     );
-    // rolls 배열을 넣어야 다이스 애니메이션·소리가 트리거된다(일반 판정과 정합).
+    // rolls 배열이 있어야 다이스 애니메이션·소리가 트리거된다.
     await ChatMessage.create({
       content,
       speaker: ChatMessage.getSpeaker({ alias: game.user.name }),
@@ -384,14 +349,14 @@ export class AsterActor extends Actor {
   }
 
   /**
-   * 회피 판정 (룰북 558~560: 대결판정의 한 종류).
-   * PC: 능력치 = system.dodge(D15 파생) 합산식. NPC: system.dodgeFormula 직접 평가(예: "2D6+3").
-   * 집중(+1d6)·회피 한정 피로 -3 보정(룰북 522)은 PC·NPC 공통.
+   * 회피 판정 — 대결판정의 한 종류.
+   * PC는 system.dodge 합산식, NPC는 system.dodgeFormula 직접 평가(예: "2D6+3").
+   * 집중(+1d6)·회피 한정 피로 -3 보정은 PC·NPC 공통.
    * system.rollMode와 무관하게 대결(vs) 카드를 출력한다.
    *
    * 졸림 자동 해제·포만 자동 감소는 호출하지 않음:
    *  - 회피의 성공/실패는 대결 결과(resolveOpposed)로 결정되어 이 시점엔 미정 → 졸림 해제 보류.
-   *  - 룰북 531: 전투 중에는 포만 감소 무시 → 포만 감소 미호출.
+   *  - 전투 중에는 포만 감소를 무시하므로 호출하지 않는다.
    *
    * @returns {Promise<void>}
    */
@@ -406,7 +371,7 @@ export class AsterActor extends Actor {
     let dodgeValue;
     let npcFormula = null; // NPC 식 — 카드 표시용(PC는 null이라 기존 능력치 합산 표시 유지)
     if (this.type === "npc") {
-      // NPC: dodgeFormula 직접 평가(예: "2D6+3"). 빈 식·평가 실패는 경고 후 종료(N4 apFormula 패턴 정합).
+      // 빈 식·평가 실패는 경고 후 종료한다.
       const formula = this.system.dodgeFormula?.trim();
       if (!formula) {
         ui.notifications.warn(game.i18n.localize("ASTER.dodge.npcNoFormula"));
@@ -424,7 +389,6 @@ export class AsterActor extends Actor {
       }
       dodgeValue = 0; // 식 자체가 굴림 — 별도 능력치 합산값 없음
     } else {
-      // PC: 능력치 합산식 (asterRoll: dodgeValue + 2d6, focus면 3d6).
       dodgeValue = this.system.dodge ?? 0;
       roll = await asterRoll(dodgeValue, this.getRollData(), {
         baseDice: 2 + focus.extraDice,
@@ -511,7 +475,7 @@ export class AsterActor extends Actor {
       return;
     }
 
-    // 집중 효과 — 식 끝에 다이스 추가(dodge NPC 패턴 정합).
+    // 집중 효과 — 식 끝에 다이스를 붙인다.
     const focus = checkFocusEffect(this);
     const fullFormula = focus.extraDice > 0 ? `${formula} + ${focus.extraDice}d6` : formula;
 
@@ -533,14 +497,14 @@ export class AsterActor extends Actor {
     const diceText = resultDiceset.join(", ");
     const cf = detectCritFumble(resultDiceset);
 
-    // 피로 등 보정 — 명중 컨텍스트(isDodge: false). 회피와 동일하게 적용(룰 영역은 추후 확인).
+    // 피로 등 보정 — 명중 컨텍스트(isDodge: false).
     const penalties = computePenalties(this, { isDodge: false });
     const adjustedTotal = roll.total + penalties.total;
 
     const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
     const templateData = {
       label,
-      ablValue: 0, // 식 자체가 굴림 — 별도 능력치 합산값 없음(dodge NPC 패턴 정합)
+      ablValue: 0, // 식 자체가 굴림 — 별도 능력치 합산값 없음
       formula: fullFormula, // NPC 전용 메서드라 항상 식 전달(카드 표시용)
       result: roll.result,
       total: adjustedTotal,
@@ -552,8 +516,8 @@ export class AsterActor extends Actor {
       isFumble: cf.fumble,
       focusApplied: !!focus.combatant,
       actorId: this.id,
-      isPC: false, // NPC 전용
-      isDodge: false, // 명중 영역
+      isPC: false,
+      isDodge: false,
       opposed: true, // 전용 카드(roll-critfumble)에서 대결 결합 푸터 유지용
     };
     const content = await renderTemplate(

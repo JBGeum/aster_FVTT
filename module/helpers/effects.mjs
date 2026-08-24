@@ -1,5 +1,4 @@
 /**
- * Manage Active Effect instances through the Actor Sheet via effect control buttons.
  * @param {MouseEvent} event      The left-click event on the effect control
  * @param {Actor|Item} owner      The owning document which manages this effect
  */
@@ -29,12 +28,10 @@ export function onManageActiveEffect(event, owner) {
 }
 
 /**
- * Prepare the data structure for Active Effects which are currently applied to an Actor or Item.
  * @param {ActiveEffect[]} effects    The array of Active Effect instances to prepare sheet data for
  * @return {object}                   Data for rendering
  */
 export function prepareActiveEffectCategories(effects) {
-  // Define effect header categories
   const categories = {
     temporary: {
       type: "temporary",
@@ -53,7 +50,6 @@ export function prepareActiveEffectCategories(effects) {
     },
   };
 
-  // Iterate over active effects, classifying them into categories
   for (const e of effects) {
     e._getSourceName?.(); // Trigger a lookup for the source name
     if (e.disabled) categories.inactive.effects.push(e);
