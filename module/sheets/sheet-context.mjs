@@ -60,7 +60,6 @@ export function prepareInventory(sheet, context) {
   const inBagLabel = game.i18n.localize("ASTER.inventory.inBag");
   const inStorageLabel = game.i18n.localize("ASTER.inventory.inStorage");
 
-  // 장비 슬롯 — container 예약값(equip-1/equip-2)에 해당 equipment 매핑.
   const equipSlots = EQUIP_SLOT_CONTAINERS.map((slotId) => {
     const it = sheet.actor.items.find(
       (i) => i.type === "equipment" && i.system.container === slotId,
@@ -86,7 +85,6 @@ export function prepareInventory(sheet, context) {
               id: i.id,
               name: i.name,
               img: i.img,
-              // 호버 툴팁 — 가방 안 아이템(위치 = 가방).
               tooltip: buildItemTooltip(i, inBagLabel),
               w,
               h,
@@ -157,7 +155,6 @@ export function prepareCraft(sheet, context) {
     return (depthCache[id] = Math.max(...n.requires.map(nodeDepth)) + 1);
   };
 
-  // 카테고리별로 label 기준 체인 그룹화 + col 계산
   const byCat = {};
   const chainMap = {};
   const chainOrder = {};
@@ -183,7 +180,6 @@ export function prepareCraft(sheet, context) {
       acquired: isAcquired,
       unlocked,
       locked: isLocked,
-      // 선행 미충족(isLocked)이거나 탭이 잠긴 경우 체크박스를 비활성화한다.
       disabledAttr: isLocked || craftLocked ? "disabled" : "",
       costLabel: _formatCraftCost(node.cost),
       col,
@@ -302,7 +298,7 @@ export function prepareSpellList(sheet, context) {
       color: s.system.color,
       ability: s.system.ability,
       target: s.system.target,
-      // 호버 툴팁 — 헤더·본문·메타(판정식). tooltipHtml 헬퍼가 빈 값을 걸러낸다.
+      // tooltipHtml 헬퍼가 빈 값을 걸러낸다.
       tooltip: buildSpellTooltip(s, formula),
       formula,
     };
@@ -310,10 +306,8 @@ export function prepareSpellList(sheet, context) {
 }
 
 export function prepareRecord(sheet, context) {
-  // 상단 고정 배경 (born/past/purpose)
   context.features = sheet.actor.system.features;
 
-  // 세션 기록 카드 (record 아이템) — 책 넘기기
   const records = sheet.actor.items.filter((i) => i.type === "record");
   context.records = records.map((r) => ({
     id: r.id,
@@ -339,7 +333,6 @@ export function prepareRecord(sheet, context) {
 }
 
 /**
- * 전투 탭 컨텍스트. 활성 Combat에서 이 액터의 Combatant를 찾아 AP·라운드 사용 상태를 노출.
  * @returns {{inCombat:boolean, disabled:boolean, ap:number, combatantId?:string, defendUsed?:boolean, chargeUsed?:boolean}}
  */
 export function buildCombatContext(sheet) {
@@ -350,7 +343,6 @@ export function buildCombatContext(sheet) {
   if (!combatant) return { inCombat: false, disabled: true, ap: 0 };
 
   const usage = combatant.getFlag("aster", "actionsThisRound") ?? {};
-  // 합체기 발동 조건: 본인 unisonReady && 다른 unisonReady PC 1명 이상.
   const unisonReady = combatant.getFlag("aster", "unisonReady") === true;
   const otherUnisonReady = combat.combatants.some(
     (c) =>
@@ -380,7 +372,6 @@ export function buildCombatContext(sheet) {
 
 /**
  * 협력 회복 컨텍스트. 건강 0 = 행동불능.
- * 탐색 페이즈에서만 가능하고, 클라이막스(전투) 페이즈는 회복 불가 안내만 낸다.
  * @returns {{isFallen:boolean, canRevive:boolean, inCombatBlocked:boolean}}
  */
 export function buildReviveContext(sheet) {

@@ -1,6 +1,3 @@
-/**
- * 소비품 사용 — 효과 적용 + 결과 카드.
- */
 import {
   DAMAGE_STATUSES,
   applyCureStatus,
@@ -18,7 +15,6 @@ export function consumableHasHeal(item) {
 }
 
 /**
- * consumable 사용 — 회복 효과 적용 후 아이템 삭제.
  * 인벤토리 리스트의 "사용" 버튼과 아이템 시트의 "사용" 버튼에서 공용 호출.
  * 대상은 자기 자신(self)만.
  * @param {Actor} actor

@@ -8,7 +8,6 @@
 export const EQUIP_SLOT_CONTAINERS = ["equip-1", "equip-2"];
 
 /**
- * container 값이 장비 슬롯인지 검사.
  * @param {string} container
  * @returns {boolean}
  */

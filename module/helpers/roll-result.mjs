@@ -1,11 +1,9 @@
 // @ts-check
 /**
- * 판정 결과 헬퍼. Foundry Roll 객체와 분리된 순수 함수.
- * 모든 함수는 외부에서 굴린 다이스 결과(number[])를 입력받아 판단만 수행한다.
+ * 외부에서 굴린 다이스 결과(number[])를 받아 판단만 하는 순수 함수 모음.
  */
 
 /**
- * 대성공/대실패 감지.
  * 룰: 두 눈 모두 6 → 대성공, 두 눈 모두 1 → 대실패.
  * 3개 이상 굴렸을 경우 호출자가 미리 "고른 2개"를 전달한다.
  *
@@ -24,8 +22,6 @@ export function detectCritFumble(twoDice) {
 }
 
 /**
- * 대성공/대실패면 전용 카드 경로, 아니면 평소 카드 경로를 반환.
- *
  * @param {{critical:boolean, fumble:boolean}} cf  detectCritFumble 결과
  * @param {string} fallbackTemplate  crit/fumble이 아닐 때 쓸 평소 카드 경로
  * @returns {string} 렌더할 Handlebars 템플릿 경로
@@ -38,11 +34,7 @@ export function critFumbleCardPath(cf, fallbackTemplate) {
 }
 
 /**
- * 액터 상태에서 판정 달성치 보정을 계산.
  * 룰: 정동판정은 보정 대상 아님 (호출자가 정동판정에서 호출하지 않도록 책임).
- *
- * 반환 객체의 키는 보정 종류, 값은 음수(또는 0). 향후 보정 추가 시 키 추가.
- * total은 합산값 — 카드 표시와 별도로 호출자가 빠르게 사용.
  *
  * context.isDodge=true일 때 피로(exhaustion) -3 추가 — 회피 판정에만 적용.
  *
@@ -63,7 +55,6 @@ export function computePenalties(actor, context = {}) {
   else if (satietyValue <= 10) satiety = -1;
   // 11 이상은 0
 
-  // 피로 -3은 회피 판정에만 적용된다.
   const exhaustion = context.isDodge && actor.system.badstatus?.exhaustion ? -3 : 0;
 
   return {
@@ -75,9 +66,6 @@ export function computePenalties(actor, context = {}) {
 }
 
 /**
- * 대결판정 승부 결정.
- * 룰 분기를 사유와 함께 반환한다. 결과 카드에 사유 표시 가능.
- *
  * reason 값:
  *  - "activeFumble"       — 능동 대실패 → 수동 자동 승
  *  - "bothCritical"       — 양측 대성공 → 수동 승

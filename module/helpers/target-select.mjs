@@ -2,11 +2,6 @@
  * Foundry 캔버스에서 사용자가 사전 타겟팅(Shift+클릭 등)한 토큰을 가져온다.
  * 검증 실패 시 경고 토스트 + null 반환 → 호출자가 종료 결정.
  *
- * 사용 패턴:
- *   const targets = getTargetedTokens({ required: true, max: 1 });
- *   if (!targets) return;  // 검증 실패 (경고 이미 출력됨)
- *   const enemy = targets[0];
- *
  * @param {object} [opts]
  * @param {boolean} [opts.required=true]  타겟 필수 여부 (false면 빈 배열도 허용)
  * @param {number} [opts.max=1]           최대 타겟 수. 초과 시 검증 실패.
@@ -55,7 +50,6 @@ export function getTargetedTokens({
 }
 
 /**
- * 타겟 토큰들의 표시용 정보 추출 (채팅 카드 작성 시 사용).
  *
  * @param {Token[]} tokens
  * @returns {Array<{id:string, name:string, actorId:string|null}>}

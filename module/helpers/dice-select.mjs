@@ -1,7 +1,6 @@
 import { rebaseTotal } from "./dice-pick.mjs";
 
 /**
- * "굴린 N개 다이스 중 K개 선택" 다이얼로그.
  * 3개 이상 굴렸을 때 2개를 골라 달성치를 산출한다. 고르지 않은 다이스는 계산에서 제외된다.
  *
  * Foundry UI(DialogV2/form/notifications) 오케스트레이션 헬퍼라 @ts-check 비대상.
@@ -58,7 +57,6 @@ export async function pickDiceDialog({ dice, count = 2, title, hint }) {
 }
 
 /**
- * 3개 이상 굴렸으면 2개를 고르게 하고 달성치를 다시 계산한다.
  * 대성공·대실패는 고른 2개로 판단하므로 호출자는 반환된 selected를 판정에 넘긴다.
  * 잘못 고르면 한 번 더 묻고, 그래도 확정하지 않으면 null.
  *

@@ -1,12 +1,10 @@
 /**
- * 시트 툴팁·수식 포맷팅 — 순수 함수.
  */
 import { isEquipSlotContainer } from "./inventory-capacity.mjs";
 
 // 상태이상 칩 툴팁 키 (lang 키 — bigInj 필드는 lang에서 biginj).
 const BADSTATUS_KEYS = ["injury", "biginj", "sleepy", "exhaustion", "hungry"];
 
-// 구조화 툴팁 헤더 아이콘 — 아이템 타입별.
 const TOOLTIP_ICON = {
   consumable: "fa-flask",
   equipment: "fa-wand-magic-sparkles",
@@ -29,8 +27,6 @@ export function formatFormula(spell) {
 }
 
 /**
- * 인벤토리 리스트 행에 표시할 타입별 핵심 요약 한 줄.
- * consumable: 회복 효과 요약 / equipment: 효과(보정) 텍스트.
  */
 export function inventorySummary(item) {
   if (item.type === "consumable") {
@@ -46,8 +42,7 @@ export function inventorySummary(item) {
 }
 
 /**
- * 마법구인데 장비란에 없어 효과가 비활성인지.
- * 인벤토리 리스트에 "효과 비활성" 안내를 표시할 조건.
+ * 인벤토리 리스트의 "효과 비활성" 안내 조건.
  */
 export function isMagicToolInactive(item) {
   return (
@@ -58,8 +53,6 @@ export function isMagicToolInactive(item) {
 }
 
 /**
- * 상태이상 칩 호버 툴팁(헤더 + 본문) HTML 5종. lang의 이름·*Desc로 조립.
- * 순수 정적(lang 의존) — PC·NPC 시트 공통. 키는 lang 키(템플릿 localize와 일치).
  * @returns {Record<string, string>}
  */
 export function buildStatusTooltips() {
@@ -75,7 +68,6 @@ export function buildStatusTooltips() {
 }
 
 /**
- * 아이템 호버 툴팁 HTML(헤더·본문·메타 3단) 조립.
  * 본문(description)이 비면 null 반환 → tooltipHtml 헬퍼가 툴팁을 생략(빈 툴팁 박스 방지).
  * 반환 HTML은 템플릿 헬퍼가 속성 안전용으로 엔티티화하므로 여기선 평범한 HTML로 둔다.
  * (단, name은 사용자 입력이라 escapeHTML — 본문 description은 리치텍스트라 그대로.)
@@ -109,9 +101,6 @@ export function buildItemTooltip(item, locationLabel) {
 }
 
 /**
- * 주문 호버 툴팁 HTML(헤더·본문·메타). 메타는 판정식(색+능력(목표)).
- * 본문이 비면 null(툴팁 생략).
- *
  * @param {Item} spell
  * @param {string} formula  formatFormula 결과
  * @returns {string|null}

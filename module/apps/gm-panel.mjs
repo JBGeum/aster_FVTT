@@ -8,7 +8,6 @@ import { rangeFormula } from "../helpers/range-roll.mjs";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 /**
- * 파티 공유(world) 값을 GM이 편집·관리하는 전용 패널.
  * WORLD_VALUES 정의를 읽어 UI를 자동 생성합니다.
  */
 export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -67,7 +66,6 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     }
   }
 
-  /** GM만 패널을 열 수 있습니다. */
   static show() {
     if (!game.user.isGM) {
       ui.notifications.warn(game.i18n.localize("ASTER.world.gmOnly"));
@@ -246,7 +244,6 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /**
-   * 세션 페이즈 select 변경 핸들러. _onRender에서 change 이벤트에 수동 등록된다.
    * @param {Event} event  change 이벤트 (currentTarget = <select>)
    */
   static async #onSetPhase(event) {

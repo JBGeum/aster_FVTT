@@ -1,37 +1,29 @@
 /**
- * Aster 전투 문서.
- * 이니셔티브 = 민첩(`system.speed`) 비교, 다이스 굴림 없음.
- * 동률 시 PC 우선만 자동 처리하고, PC끼리·NPC끼리는 GM이 수동 조정(룰: 의논·자유 결정).
+ * 동률 시 PC 우선만 자동 처리한다 — PC끼리·NPC끼리는 GM이 수동 조정한다.
  * @extends {Combat}
  */
 export class AsterCombat extends Combat {
   /**
-   * 전투원 정렬. 이니셔티브(=민첩) 높은 순, 동률이면 PC 우선.
    * @param {Combatant} a
    * @param {Combatant} b
    * @returns {number}
    * @override
    */
   _sortCombatants(a, b) {
-    // 이니셔티브 높은 순. 미굴림(null)은 -Infinity로 최하위.
     const ia = Number(a.initiative ?? -Infinity);
     const ib = Number(b.initiative ?? -Infinity);
     if (ia !== ib) return ib - ia;
 
-    // 동률이면 PC 우선.
     const aIsPC = a.actor?.type === "character";
     const bIsPC = b.actor?.type === "character";
     if (aIsPC && !bIsPC) return -1;
     if (!aIsPC && bIsPC) return 1;
 
-    // PC끼리 또는 NPC끼리 동률은 시스템 미개입 (GM 의논/자유 결정).
-    // Array.sort는 안정 정렬이므로 0 반환 시 기존(삽입) 순서가 보존된다.
+    // Array.sort는 안정 정렬이라 0을 반환하면 기존 순서가 보존된다.
     return 0;
   }
 
   /**
-   * 액터 추가 시 자동으로 이니셔티브 결정 — 민첩 비교, 굴림 없음.
-   *
    * `rollInitiative`를 거치지 않고 `system.speed`를 직접 초깃값으로 설정한다:
    * (1) 다이스 없는 결정론적 값이라 굴림 메시지가 무의미하고,
    * (2) V13 `rollInitiative`에는 채팅 억제 옵션이 없어(messageOptions만 존재)
@@ -68,7 +60,6 @@ export class AsterCombat extends Combat {
       await this.updateEmbeddedDocuments("Combatant", initiativeUpdates);
     }
 
-    // PC는 1d6, NPC는 표의 액션 식으로 AP를 굴린다.
     const apResults = []; // { name, ap, base, chargeBonus, isNpc } — 채팅 카드용
     for (const c of this.combatants) {
       if (!c.actor) continue;
@@ -83,7 +74,6 @@ export class AsterCombat extends Combat {
         await baseRoll.evaluate();
         ap = baseRoll.total;
 
-        // 차지 AP 보너스 — 이전 라운드에 charge="ap"를 사용했다면 1d6 추가 후 flag 해제.
         // "unison"은 합체기 사용 시 회수되므로 여기서 손대지 않는다.
         if (c.getFlag("aster", "chargeNextRound") === "ap") {
           const bonusRoll = new Roll("1d6");
@@ -93,7 +83,6 @@ export class AsterCombat extends Combat {
           await c.setFlag("aster", "chargeNextRound", null);
         }
       } else if (c.actor.type === "npc") {
-        // NPC: apFormula 평가. 빈 식이면 skip. 평가 실패(잘못된 식)도 skip + console.warn(GM 수동 정정 영역).
         const formula = c.actor.system.apFormula?.trim();
         if (!formula) continue;
         try {
@@ -114,7 +103,6 @@ export class AsterCombat extends Combat {
       // setFlag(키, {})는 flag 객체를 병합해 기존 키가 남는다 — unset으로 지운다.
       await c.unsetFlag("aster", "actionsThisRound");
 
-      // 황표는 1라운드 적용 후 라운드 시작 시 만료된다.
       if (c.getFlag("aster", "damageReduction") > 0) {
         await c.setFlag("aster", "damageReduction", 0);
       }
@@ -190,7 +178,6 @@ export class AsterCombat extends Combat {
   }
 
   /**
-   * 행동완료(턴 종료) 시 부상·큰부상 건강 감소.
    * V13 표준 오버라이드 포인트 — 턴이 끝난 Combatant를 직접 받고, 단일 GM에서만 실행되며,
    * 라운드 경계의 마지막 Combatant도 누락 없이 발화한다.
    * 부상·큰부상 동시 체크 시 둘 다 누적 적용(룰북 미명시 → 보수적 해석, 사용자 확정).
@@ -247,8 +234,7 @@ export class AsterCombat extends Combat {
   }
 
   /**
-   * 전투 종료 시 큰부상 → 부상 전이. `deleteCombat` hook에서 호출.
-   * hook은 모든 클라이언트에서 발화하므로 GM 가드 필수.
+   * `deleteCombat` hook은 모든 클라이언트에서 발화하므로 GM 가드가 필수다.
    *
    * @returns {Promise<void>}
    */
@@ -261,7 +247,6 @@ export class AsterCombat extends Combat {
       if (c.actor?.type !== "character") continue;
       const did = await c.actor._transitionBigInjuryToInjury();
       if (did) transitioned.push(c.actor.name);
-      // 전투 종료 시 행동불능(건강 0) PC는 건강 1로 자동 회복한다.
       if ((c.actor.system.health?.value ?? 0) === 0) {
         await c.actor.update({ "system.health.value": 1 });
         revived.push(c.actor.name);

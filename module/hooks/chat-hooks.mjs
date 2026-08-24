@@ -1,5 +1,4 @@
 /**
- * 채팅 카드 훅 — 크리티컬 결과 편집 + 데미지 적용 카드.
  * import 시 top-level에서 Hooks.on("renderChatMessageHTML", ...) 2건을 등록한다(부수효과).
  */
 import { DAMAGE_STATUSES, applyDamageAndStatus } from "../helpers/health-status.mjs";
@@ -243,8 +242,6 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
 let pendingOpposed = null;
 
 /**
- * 대미지 다이얼로그 — 대미지 수치 + 상태이상 체크박스. 취소 시 null 반환.
- *
  * @param {Actor} targetActor
  * @param {number} defaultDamage
  * @returns {Promise<{amount: number, status: string[]}|null>}
@@ -280,8 +277,6 @@ async function promptDamageDialog(targetActor, defaultDamage) {
 }
 
 /**
- * 대미지 적용 결과 카드 렌더링.
- *
  * @param {Actor} targetActor
  * @param {{amount: number, hBefore: number, hAfter: number, statusApplied: string[], defendReduced: {roll:number,original:number,adjusted:number}|null, yellowReduction?: {type:"block"|"reduction",original:number,reduction?:number,adjusted:number}|null}} info
  */
@@ -354,9 +349,6 @@ async function renderDamageResultCard(
 }
 
 /**
- * 채팅 카드의 "대미지 적용" 버튼 처리 (GM 전용).
- * combatAction(돌던지기) 또는 spellCast(마법) flag에서 대상을 식별하고,
- * 다이얼로그로 대미지 수치 + 상태이상을 받아 대상 액터에 적용한다.
  * 회피는 GM 판단(회피 성공 시 버튼 안 누름) — 시스템 미개입.
  *
  * @param {ChatMessage} message
@@ -409,8 +401,6 @@ async function applyDamageFromCard(message) {
 }
 
 /**
- * resolveOpposed 결과 카드의 "대미지 적용" 처리 (GM 전용).
- * 회피 패배 측(opposedDamage flag의 targetActorId)을 대상으로 GM이 수치·상태이상을 입력.
  * 자동 추출 없음 (기본 수치 0). 회피 승리·미포함 카드는 opposedDamage flag가 없어 진입 불가.
  *
  * @param {ChatMessage} message
@@ -523,7 +513,6 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
         passiveCF: { critical: passive.isCritical, fumble: passive.isFumble },
       });
 
-      // 회피 측 식별 — 회피 카드(isDodge)만 대미지 분기 대상. 둘 다 일반이면 hasDodge=false.
       const dodgeSide = active.isDodge ? "active" : passive.isDodge ? "passive" : null;
       const hasDodge = dodgeSide !== null;
       const dodger = dodgeSide === "active" ? active : dodgeSide === "passive" ? passive : null;

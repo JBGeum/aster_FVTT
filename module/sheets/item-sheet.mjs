@@ -28,7 +28,6 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   };
 
   /**
-   * type별 윈도우 크기 적용.
    * 너비는 type별 권장값(미정의 type은 DEFAULT 460 fallback), 높이는 콘텐츠 자동.
    * 사용자 리사이즈 후 위치 기억은 ApplicationV2 기본 동작이 보존(강제 고정 안 함).
    */
@@ -120,7 +119,6 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         label: game.i18n.localize(`ASTER.badstatus.${s.i18n}`),
         checked: current.includes(s.key),
       }));
-      // 회복 효과가 하나라도 있을 때만 "사용" 버튼 노출.
       context.showUseButton =
         (sys.healHealth ?? 0) > 0 || current.length > 0 || sys.cureAllStatus === true;
     }
@@ -195,7 +193,6 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       ui.notifications.warn(game.i18n.localize("ASTER.consumable.noActor"));
       return;
     }
-    // 효과 적용 + 아이템 삭제는 actor 시트와 공용 로직. 삭제되면 시트는 자동으로 닫힌다.
     await useConsumable(actor, this.item);
   }
 

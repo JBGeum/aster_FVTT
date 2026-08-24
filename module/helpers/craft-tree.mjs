@@ -1,5 +1,4 @@
 /**
- * 공방(Craft) 스킬 트리 — 정적 정의.
  *
  * cost.material : 마테리얼 (소비 아님, 합계 비교만)
  * cost.aster    : 색별 아스테르 { red, blue, green, yellow }
@@ -452,7 +451,6 @@ export const CRAFT_TREE = {
   ],
 };
 
-/** 노드 객체 생성 헬퍼 */
 function n(id, category, label, level, cost, requires) {
   return { id, category, label, level, cost: normalizeCost(cost), requires };
 }

@@ -1,6 +1,4 @@
 /**
- * 합주(Unison) 공격 흐름 — 4색 다이스 진행, 메인/서브 효과, 결과 카드.
- * unison-table.mjs(효과 조회)와 협력.
  */
 import { lookupUnisonEffect, getUnisonDescription } from "./unison-table.mjs";
 import {
@@ -92,8 +90,6 @@ export async function performUnisonAttack({ actor }) {
 }
 
 /**
- * 합체기 다이스 굴림 + 차지(unison) 처리. 각 PC가 1d6, 차지 보유 PC는 추가 1d6 후 1개 선택.
- * pickDiceDialog 취소 시 흐름 종료(unisonReady 유지). 완료 시 양쪽 unisonReady → false.
  */
 async function proceedUnisonDice({
   selfCombatant,
@@ -169,13 +165,11 @@ async function proceedUnisonDice({
     mainResult,
   });
 
-  // 양쪽 unisonReady 해제 — 부속성 다이얼로그 취소와 무관하게 합체기 사용은 완료.
   await selfCombatant.setFlag("aster", "unisonReady", false);
   await pairCombatant.setFlag("aster", "unisonReady", false);
 }
 
 /**
- * 주속성 표 효과 자동 적용.
  * lookup 결과 null이면 자동 적용 안 함 (GM 수동 처리 — 카드에 안내).
  *
  * @returns {Promise<object|null>}  적용 결과 (mainResult) 또는 null (자동 처리 안 함)
@@ -186,7 +180,6 @@ async function applyUnisonMainEffect({ mainColor, total }) {
   const description = getUnisonDescription(mainColor, total);
 
   if (!effect) {
-    // 효과 자동 적용은 없지만 플레이버 텍스트만 있는 경우 (실패 등).
     return description ? { type: "description-only", description } : null;
   }
 
@@ -327,7 +320,7 @@ async function applyUnisonMainEffect({ mainColor, total }) {
 }
 
 /**
- * 부속성 효과 디스패처. white(아군 색이지만 합체기 부속성에 표 없음)는 default로 빠져 subResult=null.
+ * white는 부속성 표가 없어 default로 빠지고 subResult가 null이 된다.
  */
 async function applyUnisonSubEffect({
   selfActor,
@@ -494,7 +487,6 @@ async function unisonSubYellow() {
   return { type: "yellow", actorName: targetActor.name, statusKey, applied: !current };
 }
 
-/** 합체기 결과 카드 — 주속성 색 분기(spell-color-*), 페어·다이스·합산값·부속성 결과·안내문 표시. */
 async function renderUnisonCard({
   selfActor,
   pairActor,
@@ -512,7 +504,6 @@ async function renderUnisonCard({
     const def = DAMAGE_STATUSES.find((s) => s.key === key);
     return game.i18n.localize(`ASTER.badstatus.${def?.i18n ?? key}`);
   };
-  // 청표 회복 한 줄 — 차단 / 만건강 / 회복 분기.
   const healLineFor = (t) =>
     t.blocked === true
       ? game.i18n.format("ASTER.combat.unisonHealBlockedLine", { name: t.name })
@@ -561,7 +552,7 @@ async function renderUnisonCard({
     }
   }
 
-  // 주속성 결과 텍스트 생성 — mainResult null이면 GM 안내(mainTableHint)로 양자택일.
+  // mainResult가 null이면 GM 안내(mainTableHint)와 양자택일이다.
   let mainResultText = "";
   let hasMainResult = false;
   if (mainResult) {
@@ -644,7 +635,6 @@ async function renderUnisonCard({
     mainResultText = `<em class="unison-flavor">${mainResult.description}</em><br>${mainResultText}`;
   }
 
-  // 자해 안내 (합산 2) — 효과는 적용, 행동완료는 GM 수동.
   // RollTable description에 "행동완료" 텍스트가 이미 포함되면 시스템 라인 중복 출력 방지.
   const hasSelfTurnEnd = mainResult?.selfTurnEnd === true;
   const descIncludesSelfWarn = mainResult?.description?.includes("행동완료") === true;

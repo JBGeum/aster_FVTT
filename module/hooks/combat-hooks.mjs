@@ -1,5 +1,4 @@
 /**
- * 전투 훅 — 전투원 추가/제거·라운드 시작/종료 시 시트 동기화, Combat Tracker AP 표시.
  * import 시 top-level에서 Hooks.on(...)을 등록한다(부수효과).
  */
 import { AsterCombat } from "../documents/combat.mjs";
@@ -25,7 +24,6 @@ Hooks.on("createCombatant", async (combatant) => {
   await combat._autoRollInitiative(combatant.id);
 });
 
-// 전투원 제거 시 해당 액터 시트 재렌더 (전투 중 표시 해제).
 Hooks.on("deleteCombatant", (combatant) => {
   refreshActorSheet(combatant.actor);
 });
@@ -37,8 +35,6 @@ Hooks.on("combatStart", (combat) => {
   if (combat instanceof AsterCombat) refreshCombatSheets(combat);
 });
 
-// 전투 종료 시 큰부상 → 부상 전이 (행동완료 시 부상 감소는 AsterCombat._onEndTurn 오버라이드가 처리).
-// 전투원 시트를 재렌더해 "전투 중" 상태 해제를 즉시 반영 (모든 클라이언트).
 Hooks.on("deleteCombat", async (combat) => {
   if (!(combat instanceof AsterCombat)) return;
   refreshCombatSheets(combat);
@@ -52,7 +48,6 @@ Hooks.on("updateCombatant", (combatant, changes) => {
   refreshActorSheet(combatant.actor);
 });
 
-// Combat Tracker 각 PC 행에 액션 포인트 표시 (flag 변경 시 자동 재렌더로 갱신).
 Hooks.on("renderCombatTracker", (_app, element) => {
   const combat = game.combat;
   if (!combat) return;

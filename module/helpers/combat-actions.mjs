@@ -1,13 +1,10 @@
 /**
- * 전투 행동 / NPC 행동 사용 — 굴림·데미지·결과 카드.
  */
 import { detectCritFumble } from "./roll-result.mjs";
 import { getTargetedTokens } from "./target-select.mjs";
 import { applyDamageAndStatus, applyCureAllStatus, applyCureStatus } from "./health-status.mjs";
 
 /**
- * 전투 행동 실행 (PC/NPC 공통).
- *
  * @param {{ actor: Actor, actionKey: string }} params
  */
 export async function resolveCombatAction({ actor, actionKey }) {
@@ -180,9 +177,6 @@ export async function resolveCombatAction({ actor, actionKey }) {
 }
 
 /**
- * NPC 스킬(npcAction) 시전.
- * AP 진리 원천은 Combatant flag — `system.ap`은 시트 표시·시드 참고용이다.
- *
  * @param {{ actor: Actor, itemId: string }} params
  */
 export async function resolveNpcActionUse({ actor, itemId }) {
@@ -326,7 +320,6 @@ export async function resolveNpcActionUse({ actor, itemId }) {
 }
 
 /**
- * NPC 시전 채팅 카드 렌더. npcAction의 부분 구조화 효과(대미지·상태이상·회복)를 대상별로 표시.
  * 상태이상 키는 badstatus i18n 매핑(bigInj→biginj)으로 지역화해 전달한다.
  *
  * @param {Actor} actor

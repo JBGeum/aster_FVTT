@@ -1,5 +1,4 @@
 /**
- * 아이템 생명주기 훅 — 가방/음식 단일 슬롯 제약 등.
  * import 시 top-level에서 Hooks.on(...)을 등록한다(부수효과).
  */
 
@@ -55,7 +54,6 @@ Hooks.on("preCreateItem", (item, _data, _options, _userId) => {
 });
 
 /**
- * food 교체 확인 흐름. preCreateItem이 동기로 차단한 뒤 fire-and-forget로 호출.
  * 확인 시 기존 food 삭제 → 신규 food 재생성. 삭제→생성 순서라 잠시도 2개 상태가 없다(1→0→1).
  * 재생성 시 preCreateItem이 다시 발화하지만 기존 food가 이미 삭제돼 정상 통과한다.
  *

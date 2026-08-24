@@ -1,7 +1,6 @@
 // @ts-check
 /**
  * 마법 판정 계산. Foundry Roll 객체와 분리된 순수 함수.
- * 실제 굴림은 Foundry Roll로 따로 하고, 합·보너스·성공 판정을 여기서 계산한다.
  * @param {object} p
  * @param {number} p.diceTotal       2d6 합(외부에서 굴려 전달)
  * @param {number} p.abilityValue    선택 능력치 total
@@ -40,12 +39,10 @@ export function computeSpellRoll({
   };
 }
 
-/** spell에서 능력치 값을 안전하게 꺼냄 */
 export function getAbilityTotal(actor, abilityKey) {
   return actor.system.ability?.[abilityKey]?.total ?? 0;
 }
 
-/** 액터의 특기색(system.color)과 spell 색 일치 여부 */
 export function isSpecialty(actor, spellColor) {
   const actorColor = actor.system.color ?? "";
   return !!actorColor && actorColor === spellColor;
