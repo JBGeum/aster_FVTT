@@ -12,7 +12,7 @@ const RESOURCES = [
 
 /**
  * 선택 PC의 건강·포만 증감과 상태이상 부여·해제를 한 번에 적용한다.
- * 전투 룰(방어 차감·황표 감소·F1 회복 차단)은 거치지 않는다 — GM이 지정한 수치를 그대로 반영한다.
+ * 전투 룰(방어 차감·황표 감소·회복 차단)은 거치지 않는다 — GM이 지정한 수치를 그대로 반영한다.
  */
 export async function runBulkAdjust() {
   const characters = game.actors.filter((a) => a.type === "character");

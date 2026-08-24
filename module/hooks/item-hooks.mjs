@@ -38,14 +38,14 @@ Hooks.on("preCreateItem", (item, _data, _options, _userId) => {
   const existing = actor.items.find((i) => i.type === item.type);
   if (!existing) return true;
 
-  // food(I1b): 하드 차단 대신 교체 다이얼로그. preCreateItem 반환값은 *동기*로 검사되어
+  // food는 하드 차단 대신 교체 다이얼로그. preCreateItem 반환값은 *동기*로 검사되어
   // Promise를 반환해도 취소되지 않으므로, 여기서 차단(false)하고 비동기 교체 흐름을 띄운다.
   if (item.type === "food") {
     void promptFoodReplace(actor, existing, item.toObject());
     return false;
   }
 
-  // 그 외 싱글톤(bag): 기존대로 하드 차단.
+  // 그 외 싱글톤(bag)은 하드 차단.
   ui.notifications.warn(
     game.i18n.format("ASTER.inventory.warn.singleton", {
       type: game.i18n.localize(`TYPES.Item.${item.type}`),
@@ -55,7 +55,7 @@ Hooks.on("preCreateItem", (item, _data, _options, _userId) => {
 });
 
 /**
- * I1b: food 교체 확인 흐름. preCreateItem이 동기로 차단한 뒤 fire-and-forget로 호출.
+ * food 교체 확인 흐름. preCreateItem이 동기로 차단한 뒤 fire-and-forget로 호출.
  * 확인 시 기존 food 삭제 → 신규 food 재생성. 삭제→생성 순서라 잠시도 2개 상태가 없다(1→0→1).
  * 재생성 시 preCreateItem이 다시 발화하지만 기존 food가 이미 삭제돼 정상 통과한다.
  *

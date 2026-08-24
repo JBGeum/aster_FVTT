@@ -246,7 +246,6 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const newPhase = sel.value;
     await game.settings.set("aster", key, newPhase);
 
-    // 페이즈 변경 채팅 안내
     const label = game.i18n.localize(`ASTER.phase.${newPhase}`);
     await ChatMessage.create({
       content: `<div class="aster-chat-card phase-change-card">

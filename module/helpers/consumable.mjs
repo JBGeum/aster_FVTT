@@ -18,9 +18,9 @@ export function consumableHasHeal(item) {
 }
 
 /**
- * consumable 사용 — 회복 효과 적용 후 아이템 삭제 (R1).
+ * consumable 사용 — 회복 효과 적용 후 아이템 삭제.
  * 인벤토리 리스트의 "사용" 버튼과 아이템 시트의 "사용" 버튼에서 공용 호출.
- * 효과는 합체기 회복 헬퍼 3종 재사용. 대상은 자기 자신(self)만.
+ * 대상은 자기 자신(self)만.
  * @param {Actor} actor
  * @param {Item} item
  */
@@ -37,13 +37,12 @@ export async function useConsumable(actor, item) {
     curedKeys: [],
   };
 
-  // 1. 건강 회복 (max 클램프는 applyHealHealth 내부 처리)
+  // max 클램프는 applyHealHealth 내부에서 처리한다.
   if ((sys.healHealth ?? 0) > 0) {
     const healResults = await applyHealHealth([actor], sys.healHealth);
     results.healed = healResults[0] ?? null;
   }
 
-  // 2. 상태이상 회복 — cureAllStatus 우선, 없으면 cureStatus 개별 처리
   if (sys.cureAllStatus === true) {
     const cureResults = await applyCureAllStatus([actor]);
     results.allCured = true;
@@ -55,7 +54,6 @@ export async function useConsumable(actor, item) {
     }
   }
 
-  // 3. 결과 카드 → 4. 아이템 삭제 (소비)
   await renderConsumableCard(actor, results);
   await item.delete();
 }
@@ -69,7 +67,7 @@ async function renderConsumableCard(actor, results) {
   let healLine = null;
   if (results.healed) {
     if (results.healed.blocked === true) {
-      // F1: 전투 중 행동불능 PC는 건강 회복 차단 (아이템은 소비됨)
+      // 전투 중 행동불능 PC는 건강 회복이 차단된다(아이템은 소비됨).
       healLine = game.i18n.localize("ASTER.consumable.healBlockedLine");
     } else if (results.healed.delta > 0) {
       healLine = game.i18n.format("ASTER.consumable.healLine", {

@@ -14,7 +14,7 @@
  * @property {number|string} [default]   기본값
  */
 
-/** 세션 페이즈 (룰북 393행) — 진행 순서대로 */
+/** 세션 페이즈 — 진행 순서대로 */
 export const PHASES = [
   { key: "prep", label: "ASTER.phase.prep" }, // 준비
   { key: "opening", label: "ASTER.phase.opening" }, // 오프닝

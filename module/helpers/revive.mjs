@@ -3,15 +3,13 @@
  */
 
 /**
- * 협력 회복 흐름 (R2, 룰북 535) — 탐색 중 PC 전원(행동불능 PC 본인 포함) 포만 -2 후 본인 건강 1로 회복.
+ * 협력 회복 — 탐색 중 PC 전원(행동불능 PC 본인 포함) 포만 -2 후 본인 건강 1로 회복.
  * 모든 검증(페이즈·행동불능·포만)을 다이얼로그 *전*에 끝내 진행 후 실패가 없도록 한다.
- * R1 useConsumable과 같은 공용 static 함수 패턴.
  * @param {Actor} fallenActor  행동불능 상태인 PC
  */
 export async function requestRevive(fallenActor) {
   if (!fallenActor) return;
 
-  // 1. 페이즈 — 탐색 중만. 클라이막스(전투)는 룰북 537 차단 안내, 그 외 페이즈는 탐색 전용 안내.
   const phase = game.settings.get("aster", "currentPhase");
   if (phase !== "exploration") {
     const key =
@@ -20,20 +18,18 @@ export async function requestRevive(fallenActor) {
     return;
   }
 
-  // 2. 행동불능(건강 0) 확인
   if ((fallenActor.system.health?.value ?? 0) !== 0) {
     ui.notifications.warn(game.i18n.localize("ASTER.revive.notFallen"));
     return;
   }
 
-  // 3. 대상 PC 전체 — 룰북 "전원"(행동불능 PC 본인 포함)
+  // 룰북 "전원" — 행동불능 PC 본인도 포만을 낸다.
   const allPCs = game.actors.filter((a) => a.type === "character");
   if (allPCs.length === 0) {
     ui.notifications.warn(game.i18n.localize("ASTER.revive.noActors"));
     return;
   }
 
-  // 4. 포만 부족 검사 — 한 명이라도 < 2면 차단 (본인이 원인일 수도 있음)
   const insufficient = allPCs.filter((a) => (a.system.satiety?.value ?? 0) < 2);
   if (insufficient.length > 0) {
     ui.notifications.warn(
@@ -44,7 +40,6 @@ export async function requestRevive(fallenActor) {
     return;
   }
 
-  // 5. 확인 다이얼로그 — content는 인라인(코드베이스 다이얼로그 관례)
   const rows = allPCs
     .map((a) => {
       const before = a.system.satiety?.value ?? 0;
@@ -63,7 +58,6 @@ export async function requestRevive(fallenActor) {
   }).catch(() => false);
   if (!confirmed) return;
 
-  // 6. 포만 -2 일괄 + 건강 1 갱신
   const satietyResults = [];
   for (const pc of allPCs) {
     const before = pc.system.satiety?.value ?? 0;
@@ -73,7 +67,6 @@ export async function requestRevive(fallenActor) {
   }
   await fallenActor.update({ "system.health.value": 1 });
 
-  // 7. 결과 카드
   await renderReviveCard(fallenActor, satietyResults);
 }
 

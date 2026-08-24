@@ -5,7 +5,6 @@
 export const preloadHandlebarsTemplates = async function () {
   const { loadTemplates } = foundry.applications.handlebars;
   return loadTemplates([
-    // Actor partials
     "systems/aster/templates/actor/parts/actor-main-character.html",
     "systems/aster/templates/actor/parts/actor-main-craft.html",
     "systems/aster/templates/actor/parts/actor-main-record.html",
@@ -14,41 +13,31 @@ export const preloadHandlebarsTemplates = async function () {
     "systems/aster/templates/actor/parts/actor-sub-spell.html",
     "systems/aster/templates/actor/parts/actor-sub-combat.html",
 
-    // Item partials
     "systems/aster/templates/item/parts/material-fields.html",
     "systems/aster/templates/item/parts/material-mats.html",
 
-    // Chat cards
     "systems/aster/templates/chatcard/roll-asterabl.html",
     "systems/aster/templates/chatcard/roll-asterabl-emo.html",
     "systems/aster/templates/chatcard/roll-asterabl-vs.html",
     "systems/aster/templates/chatcard/opposed-result.html",
-    // 대성공/대실패 전용 카드 + 공통 배너(기본 template — partial)
     "systems/aster/templates/chatcard/critfumble-banner.html",
     "systems/aster/templates/chatcard/roll-critfumble.html",
 
-    // Apps
     "systems/aster/templates/apps/gm-panel.html",
 
-    // Chat (spell)
     "systems/aster/templates/chat/spell-card.html",
 
-    // Chat (picnic)
     "systems/aster/templates/chat/picnic-card.html",
 
-    // Chat (consumable)
     "systems/aster/templates/chat/consumable-card.html",
 
-    // Chat (revive)
     "systems/aster/templates/chat/revive-card.html",
 
-    // Chat (combat)
     "systems/aster/templates/chat/combat-action.html",
     "systems/aster/templates/chat/damage-result.html",
     "systems/aster/templates/chat/unison-attack.html",
     "systems/aster/templates/chat/npc-action-card.html",
 
-    // Chat (item)
     "systems/aster/templates/chat/item-card.html",
   ]);
 };
@@ -81,11 +70,8 @@ export function registerHandlebarsHelpers() {
   Handlebars.registerHelper("disabled", function (condition) {
     return condition ? "disabled" : "";
   });
-  // Foundry 내장 HTML 툴팁 속성을 조건부로 출력. 내용이 있을 때만 `data-tooltip-html`를 붙여
-  // 빈 내용의 빈 툴팁 박스를 막는다. 속성을 통째로 {{#if}}로 감싸면 prettier HTML 파서가
-  // 죽으므로(조건부 속성 블록 함정), {{checked}}·{{disabled}}처럼 단일 인라인 표현으로 처리한다.
-  // content는 actor-sheet.mjs에서 조립한 구조화 HTML(아이템·주문·상태이상 공통) — 헬퍼는
-  // 속성 안전용 엔티티화 + hb-tip 스킨 클래스 부여만 담당한다(tooltipAttr).
+  // 속성을 통째로 {{#if}}로 감싸면 prettier HTML 파서가 죽으므로 단일 인라인 표현으로 처리한다.
+  // 내용이 있을 때만 속성을 붙여 빈 툴팁 박스를 막는다.
   Handlebars.registerHelper("tooltipHtml", function (content) {
     const raw = content == null ? "" : String(content).trim();
     if (!raw) return "";

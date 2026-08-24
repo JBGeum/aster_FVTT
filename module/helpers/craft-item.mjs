@@ -1,8 +1,8 @@
 /**
- * C1 아이템 제작 — 순수 검증 + 자원 차감/생성.
+ * 아이템 제작 — 순수 검증 + 자원 차감/생성.
  *
  * 비용 모델: 아이템의 material[6] 배열이 *제작 비용*.
- *   [0]=마테리얼, [1]=적, [2]=청, [3]=녹, [4]=황, [5]=백 (I1a material 라벨 정합).
+ *   [0]=마테리얼, [1]=적, [2]=청, [3]=녹, [4]=황, [5]=백.
  * 액터 자원 경로: system.material(스칼라) + system.aster.{color}.value (SchemaField).
  */
 
@@ -55,7 +55,7 @@ export function checkCraftRequires(craftRequires, acquired) {
 }
 
 /**
- * craftRequires UI 드롭다운용 설비 base 목록 (C3).
+ * craftRequires UI 드롭다운용 설비 base 목록.
  * 같은 base의 여러 레벨 노드는 하나로 합침(pot_cauldron_1·_2·_3 → "pot_cauldron").
  * 레벨이 없는 노드(사역마 fam_*)는 parseNodeId가 null이라 자동 제외 — 아이템 제작 전제 아님.
  * label은 노드의 i18n 키(예: "ASTER.craft.carve") 그대로 — craft 탭 라벨 재사용.
@@ -96,7 +96,7 @@ function resourcesOf(actor) {
 }
 
 /**
- * 제작 검증 — craft 전제 + 자원 부족 사유 수집 (차단하지 않고 사유만 반환; D14 음수 허용 정책).
+ * 제작 검증 — 차단하지 않고 부족 사유만 반환한다(자원 음수 허용).
  * @param {{type: string, system: object}} draft
  * @param {Actor} actor
  * @returns {{ok: boolean, reasons: string[], missing: Array}}
@@ -117,7 +117,7 @@ export function validateCraft(draft, actor) {
 }
 
 /**
- * 제작 실행 — 자원 차감(D14 정합: 음수 허용) + 신규 아이템 생성(창고 위치).
+ * 제작 실행 — 자원 차감(음수 허용) + 신규 아이템 생성(창고 위치).
  * @param {Actor} actor
  * @param {{name: string, type: string, system: object}} draftData
  * @returns {Promise<Item|null>}

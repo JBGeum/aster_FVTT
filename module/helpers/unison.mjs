@@ -246,7 +246,7 @@ async function applyUnisonMainEffect({ mainColor, total }) {
           type: "heal",
           targetType: "ally-all",
           // applyHealHealth는 actorName 반환 — 카드 렌더링(t.name)과 데미지 결과 형식에 맞춰 정규화.
-          // F1: blocked(전투 중 건강 0 차단) 플래그 보존 — 카드에서 해당 PC만 차단 안내.
+          // blocked(전투 중 건강 0 차단) 플래그 보존 — 카드에서 해당 PC만 차단 안내.
           targets: results.map((r) => ({
             name: r.actorName,
             before: r.before,
@@ -262,7 +262,7 @@ async function applyUnisonMainEffect({ mainColor, total }) {
       return null;
     }
 
-    // 황표 5~11 — Combat 참가 PC 전체에 1라운드 수신 대미지 감소 (G4-β)
+    // 황표 5~11 — Combat 참가 PC 전체에 1라운드 수신 대미지 감소
     case "damage-reduction": {
       const partyCombatants =
         game.combat?.combatants.filter((c) => c.actor?.type === "character") ?? [];
@@ -281,7 +281,7 @@ async function applyUnisonMainEffect({ mainColor, total }) {
       };
     }
 
-    // 황표 12+ — Combat 참가 PC 전체에 1라운드 대미지 무효 (G4-β)
+    // 황표 12+ — Combat 참가 PC 전체에 1라운드 대미지 무효
     case "damage-block": {
       const partyCombatants =
         game.combat?.combatants.filter((c) => c.actor?.type === "character") ?? [];
@@ -299,7 +299,7 @@ async function applyUnisonMainEffect({ mainColor, total }) {
       };
     }
 
-    // 청표 12+ — 게임 PC 전체 회복 + 상태이상 전부 치료 (G4-β)
+    // 청표 12+ — 게임 PC 전체 회복 + 상태이상 전부 치료
     case "heal-and-cure-all": {
       const allyPCs = game.actors.filter((a) => a.type === "character");
       const healResults = await applyHealHealth(allyPCs, effect.amount);
@@ -392,7 +392,7 @@ async function unisonSubRed() {
   return { type: "red", statusKey, results };
 }
 
-/** 청 부속성: 전투 참가 아군 1인 다음 판정 +1d6 — G3-γ focusActive 재사용. */
+/** 청 부속성: 전투 참가 아군 1인 다음 판정 +1d6. */
 async function unisonSubBlue() {
   const combat = game.combat;
   const partyCombatants = combat.combatants.filter((c) => c.actor?.type === "character");
@@ -415,7 +415,7 @@ async function unisonSubBlue() {
   return { type: "blue", actorName: target.actor.name };
 }
 
-/** 녹 부속성: 전투 참가 아군 1인 민첩 ±20 1라운드 AE — G3-γ 대쉬 AE 패턴 재사용. */
+/** 녹 부속성: 전투 참가 아군 1인 민첩 ±20 1라운드 AE. */
 async function unisonSubGreen() {
   const combat = game.combat;
   const partyCombatants = combat.combatants.filter((c) => c.actor?.type === "character");
@@ -455,7 +455,7 @@ async function unisonSubGreen() {
           priority: 20,
         },
       ],
-      // combat 매개는 Foundry 라운드 기반 만료 흐름에 필요(dash AE와 동일).
+      // combat 매개는 Foundry 라운드 기반 만료 흐름에 필요하다.
       duration: { rounds: 1, startRound: combat.round, combat: combat.id },
       flags: { aster: { sourceAction: "unisonGreen" } },
     },
@@ -512,7 +512,7 @@ async function renderUnisonCard({
     const def = DAMAGE_STATUSES.find((s) => s.key === key);
     return game.i18n.localize(`ASTER.badstatus.${def?.i18n ?? key}`);
   };
-  // 청표 회복 한 줄 — F1 차단(전투 중 건강 0) / 만건강 / 회복 분기. heal·heal-and-cure-all 공용.
+  // 청표 회복 한 줄 — 차단 / 만건강 / 회복 분기.
   const healLineFor = (t) =>
     t.blocked === true
       ? game.i18n.format("ASTER.combat.unisonHealBlockedLine", { name: t.name })
@@ -635,7 +635,6 @@ async function renderUnisonCard({
     }
   }
 
-  // RollTable 플레이버 텍스트 통합 (G4-γ).
   if (mainResult?.type === "description-only") {
     // 효과 없이 텍스트만 (합산 3·4 실패 등) — hasMainResult를 켜서 GM 힌트 대신 텍스트 표시.
     hasMainResult = true;

@@ -41,7 +41,6 @@ export async function acquireSkill({ actor, skillId, target }) {
     const node = CRAFT_TREE.nodes.find((n) => n.id === skillId);
     if (!node) return;
 
-    // 사역마 카테고리 배타 취득 검사
     if (node.category === "familiar") {
       const hasOther = CRAFT_TREE.nodes.some(
         (n) => n.category === "familiar" && n.id !== skillId && acquired[n.id],
@@ -100,9 +99,7 @@ export async function acquireSkill({ actor, skillId, target }) {
       craftWarn(r.reasons, r.dependents);
       return;
     }
-    // 환불: 차감의 거울 동작(anyAster 제외). ObjectField는 update 시 병합이라 키 삭제(-=)나
-    // 빈/부분 객체 덮어쓰기가 동작하지 않는다. 해제는 해당 키를 false로 덮어쓴다(취득 패턴의 거울).
-    // 모든 craft 헬퍼·표시가 `=== true`/truthy로 읽고 sumCost는 `if (!val) continue`라 false는 미취득과 동일.
+    // ObjectField는 update 시 병합이라 키 삭제(-=)나 빈 객체 덮어쓰기가 동작하지 않는다 — false로 덮어쓴다.
     const node = CRAFT_TREE.nodes.find((n) => n.id === skillId);
     const update = { [`system.craft.acquired.${skillId}`]: false };
     if (node) {
@@ -134,9 +131,8 @@ export async function resetCraft({ actor }) {
   const acquired = actor.system.craft?.acquired ?? {};
   if (Object.keys(acquired).length === 0) return;
 
-  // 취득 노드 비용 합계로 일괄 환불(anyAster는 차감 대상이 아니었으므로 환불도 제외).
-  // ObjectField는 update 시 병합이라 빈 객체 덮어쓰기·키 삭제(-=)가 동작하지 않는다.
-  // 취득 키를 각각 false로 덮어쓴다(sumCost는 false를 건너뛰고 표시·헬퍼는 `=== true`로 읽음).
+  // anyAster는 차감 대상이 아니었으므로 환불에서도 제외한다.
+  // ObjectField는 update 시 병합이라 키 삭제(-=)나 빈 객체 덮어쓰기가 동작하지 않는다 — false로 덮어쓴다.
   const cost = sumCost(acquired);
   const update = {};
   for (const k of Object.keys(acquired)) update[`system.craft.acquired.${k}`] = false;

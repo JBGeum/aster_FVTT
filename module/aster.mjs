@@ -1,16 +1,12 @@
 // SCSS는 Vite가 번들 시 CSS로 추출합니다.
 import "../scss/aster.scss";
 
-// Documents
 import { AsterActor } from "./documents/actor.mjs";
 import { AsterItem } from "./documents/item.mjs";
 import { AsterCombat } from "./documents/combat.mjs";
-// Sheets
 import { AsterActorSheet } from "./sheets/actor-sheet.mjs";
 import { AsterItemSheet } from "./sheets/item-sheet.mjs";
-// Apps
 import { AsterGMPanel } from "./apps/gm-panel.mjs";
-// DataModels
 import { CharacterDataModel } from "./data/actors/character.mjs";
 import { NpcDataModel } from "./data/actors/npc.mjs";
 import { BagDataModel } from "./data/items/bag.mjs";
@@ -21,7 +17,6 @@ import { SpellDataModel } from "./data/items/spell.mjs";
 import { FeatureDataModel } from "./data/items/feature.mjs";
 import { RecordDataModel } from "./data/items/record.mjs";
 import { NpcActionDataModel } from "./data/items/npc-action.mjs";
-// Helpers
 import { preloadHandlebarsTemplates, registerHandlebarsHelpers } from "./helpers/templates.mjs";
 import { BADSTATUS_EFFECTS } from "./helpers/badstatus-effects.mjs";
 import { ASTER } from "./helpers/config.mjs";
@@ -48,8 +43,6 @@ Hooks.once("init", async function () {
 
   CONFIG.ASTER = ASTER;
 
-  // 룰북 574: 이니셔티브 = 민첩 비교 (다이스 굴림 없음).
-  // system.speed는 D15 derived + D16 Active Effect 가산 후 최종값.
   // getRollData()가 system 키를 최상위로 펼쳐 반환하므로 `@speed`로 참조 (not `@system.speed`).
   CONFIG.Combat.initiative = {
     formula: "@speed",
@@ -86,7 +79,6 @@ Hooks.once("init", async function () {
     npcAction: NpcActionDataModel,
   };
 
-  // V13: 시트 컬렉션은 foundry.documents.collections 네임스페이스 사용
   const ActorsCls = foundry.documents.collections.Actors;
   const ItemsCls = foundry.documents.collections.Items;
 
@@ -115,21 +107,18 @@ Hooks.once("init", async function () {
     default: [],
   });
 
-  // ============================
-  // H1 — Aster 시스템 자체 theme 설정 영역 (3 영역)
-  // ============================
   game.settings.register("aster", "theme", {
     name: "ASTER.settings.theme.name",
     hint: "ASTER.settings.theme.hint",
-    scope: "client", // 사용자별 영역
-    config: true, // Foundry 설정 메뉴 노출
+    scope: "client",
+    config: true,
     type: String,
     choices: {
       auto: "ASTER.settings.theme.auto",
       dark: "ASTER.settings.theme.dark",
       light: "ASTER.settings.theme.light",
     },
-    default: "auto", // V13 OS 자동 영역 정합 기본
+    default: "auto",
     onChange: (value) => applyAsterTheme(value),
   });
 
@@ -163,7 +152,6 @@ Handlebars.registerHelper("toLowerCase", function (str) {
 /* -------------------------------------------- */
 
 Hooks.once("ready", async function () {
-  // H1 — 초기 theme 영역 적용 (body data-attribute 토글)
   applyAsterTheme(game.settings.get("aster", "theme"));
 
   await migrateInventoryFields();

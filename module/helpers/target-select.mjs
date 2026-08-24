@@ -22,26 +22,22 @@ export function getTargetedTokens({
 } = {}) {
   const targets = Array.from(game.user?.targets ?? []);
 
-  // 필수 체크 — 빈 타겟
   if (targets.length === 0) {
     if (!required) return []; // 선택적이면 빈 배열 반환
     ui.notifications.warn(game.i18n.localize("ASTER.target.noTarget"));
     return null;
   }
 
-  // 개수 상한
   if (targets.length > max) {
     ui.notifications.warn(game.i18n.format("ASTER.target.tooMany", { max, n: targets.length }));
     return null;
   }
 
-  // 개수 하한 (required 시)
   if (required && targets.length < min) {
     ui.notifications.warn(game.i18n.format("ASTER.target.tooFew", { min, n: targets.length }));
     return null;
   }
 
-  // 타입 제한
   if (allowedTypes !== "any") {
     const invalid = targets.filter((t) => t.actor?.type !== allowedTypes);
     if (invalid.length > 0) {

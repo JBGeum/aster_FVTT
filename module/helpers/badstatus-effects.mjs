@@ -10,7 +10,7 @@ export const BADSTATUS_EFFECTS = {
   exhaustion: {
     key: "exhaustion",
     name: "ASTER.badstatus.exhaustion",
-    img: "icons/svg/skull.svg", // 피로 — 임시 아이콘. 후속 작업에서 전용 아이콘으로.
+    img: "icons/svg/skull.svg", // 피로
     changes: [
       {
         key: "system.speed",
@@ -31,7 +31,7 @@ export const BADSTATUS_EFFECTS = {
     statuses: ["sleepy"],
   },
   // 부상·큰부상·배고픔 — 자동 효과(changes) 없음(건강 감소는 _onEndTurn, 포만은 별도 영역).
-  // AE 존재 자체가 토큰 status 아이콘 표시 + 자동 동기화 트리거. 아이콘은 임시(H 트랙 정리).
+  // AE 존재 자체가 토큰 status 아이콘 표시 + 자동 동기화 트리거다.
   injury: {
     key: "injury",
     name: "ASTER.badstatus.injury",

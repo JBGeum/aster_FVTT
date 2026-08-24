@@ -23,7 +23,7 @@ export function prepareCharacterData(sheet, context) {
   context.rollModeNormal = context.system.rollMode === "normal";
   context.rollModeVs = context.system.rollMode === "vs";
 
-  // H8 약초첩 게이지 — fill은 right:emptyPct%로 비워지므로 (1 - value/max) 비율.
+  // 게이지 fill은 right:emptyPct%로 비워지므로 (1 - value/max) 비율이다.
   const emptyPct = (v, m) => (m > 0 ? Math.max(0, Math.min(100, (1 - (v ?? 0) / m) * 100)) : 100);
   const hp = context.system.health ?? {};
   const sat = context.system.satiety ?? {};
@@ -60,7 +60,7 @@ export function prepareInventory(sheet, context) {
   const inBagLabel = game.i18n.localize("ASTER.inventory.inBag");
   const inStorageLabel = game.i18n.localize("ASTER.inventory.inStorage");
 
-  // 장비 슬롯 — container 예약값(equip-1/equip-2)에 해당 equipment 매핑 (I1c, 룰북 269 2칸).
+  // 장비 슬롯 — container 예약값(equip-1/equip-2)에 해당 equipment 매핑.
   const equipSlots = EQUIP_SLOT_CONTAINERS.map((slotId) => {
     const it = sheet.actor.items.find(
       (i) => i.type === "equipment" && i.system.container === slotId,
@@ -92,7 +92,7 @@ export function prepareInventory(sheet, context) {
               h,
               x: i.system.grid?.x ?? 0,
               y: i.system.grid?.y ?? 0,
-              // H8 약초첩 .bitem.lg — 2칸 이상 점유 시 아이콘 확대.
+              // .bitem.lg — 2칸 이상 점유 시 아이콘 확대.
               large: w > 1 || h > 1,
             };
           }),
@@ -374,9 +374,8 @@ export function buildCombatContext(sheet) {
 }
 
 /**
- * 협력 회복 컨텍스트 (R2, 룰북 535~537). 건강 0 = 행동불능.
- * 탐색 페이즈에서만 협력 회복 가능 — 피크닉(D20)·포만 감소와 동일하게 currentPhase로 판정.
- * 클라이막스(전투) 페이즈는 회복 불가 안내만 (룰북 537, 전투 종료 자동 회복은 별도 STEP).
+ * 협력 회복 컨텍스트. 건강 0 = 행동불능.
+ * 탐색 페이즈에서만 가능하고, 클라이막스(전투) 페이즈는 회복 불가 안내만 낸다.
  * @returns {{isFallen:boolean, canRevive:boolean, inCombatBlocked:boolean}}
  */
 export function buildReviveContext(sheet) {

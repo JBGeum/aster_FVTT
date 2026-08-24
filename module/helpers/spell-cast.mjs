@@ -19,7 +19,7 @@ export async function castSpell({ actor, spell }) {
     ? { name: targets[0].name, id: targets[0].id, actorId: targets[0].actor?.id ?? null }
     : null;
 
-  // 마법명 클릭 — 추가 다이스 0, 2d6 즉시 판정 (기존 동작 유지).
+  // 마법명 클릭 — 추가 다이스 0, 2d6 즉시 판정.
   const roll = new Roll("2d6");
   await roll.evaluate();
   const dice = roll.dice[0].results.map((r) => r.result);
@@ -88,7 +88,6 @@ export async function castSpellWithExtra({ actor, spell }) {
     await actor.update({ [`system.aster.${color}.value`]: haveAster - n });
   }
 
-  // 굴림: (2+n)d6 한 번에
   const roll = new Roll(`${2 + n}d6`);
   await roll.evaluate();
   const allDice = roll.dice[0].results.map((r) => r.result);
@@ -105,7 +104,7 @@ export async function castSpellWithExtra({ actor, spell }) {
   if (!pick) {
     pick = await pickDiceDialog({ dice: allDice, count: 2 });
     if (!pick) {
-      // 취소 — 자원은 이미 차감됨(정책 A: 환불 안 함).
+      // 이 시점에 취소해도 차감한 자원은 환불하지 않는다.
       ui.notifications.info(game.i18n.localize("ASTER.spell.cancelled"));
       return;
     }
@@ -145,8 +144,7 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
   // 보정 통합: 졸림 + 포만 (페이즈 무관, 모든 판정에 적용).
   const penalties = computePenalties(actor);
 
-  // 선택 A: extraDice는 합산하지 않고(빈 배열 전달) 카드에서 별도 표시.
-  // 선택된 2개의 합만 diceTotal로 넘긴다.
+  // extraDice는 합산하지 않고 카드에서 별도 표시 — diceTotal은 고른 2개의 합만 넘긴다.
   const diceTotal = selectedDice.reduce((a, b) => a + b, 0);
   const result = computeSpellRoll({
     diceTotal,

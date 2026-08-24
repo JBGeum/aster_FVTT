@@ -5,7 +5,7 @@
 
 // 대미지 다이얼로그의 상태이상 목록 — { key: badstatus 필드, i18n: ASTER.badstatus.* 키 }.
 // 필드명과 i18n 키가 다른 항목(bigInj→biginj) 때문에 매핑을 명시한다.
-// G4 합체기(부속성 적/황)도 같은 목록을 참조하므로 export.
+// 합체기 부속성 처리도 같은 목록을 참조하므로 export.
 export const DAMAGE_STATUSES = [
   { key: "injury", i18n: "injury" },
   { key: "bigInj", i18n: "biginj" },
@@ -15,9 +15,8 @@ export const DAMAGE_STATUSES = [
 ];
 
 /**
- * 상태이상 회복 — 지정 키를 false로 갱신. applyDamageAndStatus와 대칭.
- * D16 AE 동기 hook이 false → AE 자동 제거를 처리한다.
- * D30 정책 3단계(회복 효과 확장)의 사전 회수 — 합체기 적 부속성에서 첫 사용.
+ * 상태이상 회복 — 지정 키를 false로 갱신.
+ * AE 동기 hook이 false → AE 자동 제거를 처리한다.
  *
  * @param {Actor[]} actors  대상 액터 배열
  * @param {string} statusKey  상태이상 키 (injury, sleepy 등)
@@ -68,9 +67,8 @@ export async function applyCureAllStatus(actors) {
 
 /**
  * 건강 회복 — actor 배열의 system.health.value를 amount만큼 증가 (max 클램프).
- * applyDamageAndStatus와 대칭. D30 3단계 회복 효과.
  *
- * F1(룰북 537): 전투(climax 페이즈) 중 건강 0 PC는 건강 회복 효과를 받지 못한다.
+ * 전투(climax 페이즈) 중 건강 0 PC는 건강 회복 효과를 받지 못한다.
  * 차단된 actor는 결과에 blocked: true로 표시 — 호출자가 카드에 안내. 상태이상 회복은 차단 대상이 아님.
  *
  * @param {Actor[]} actors  대상 액터 배열
@@ -80,7 +78,7 @@ export async function applyCureAllStatus(actors) {
 export async function applyHealHealth(actors, amount) {
   if (amount <= 0) return [];
 
-  // 전투 중(climax) 건강 0 차단 — 페이즈는 R2 협력 회복과 동일 신호.
+  // 전투 중(climax) 건강 0 차단.
   const inClimax = game.settings.get("aster", "currentPhase") === "climax";
 
   const results = [];
@@ -127,14 +125,13 @@ async function applyDefendReduction(targetActor, amount) {
   const reduction = roll.total;
   const adjusted = Math.max(0, amount - reduction);
 
-  // 한 번 적용 — 즉시 해제
   await combatant.setFlag("aster", "defendActive", false);
 
   return { roll: reduction, original: amount, adjusted };
 }
 
 /**
- * 황표 수신 감소·무효 처리 (합체기 황표 G4-β).
+ * 황표 수신 감소·무효 처리.
  * Combatant flag damageReduction(N) 또는 damageBlocked(true) 확인.
  * 방어(`defendActive`, 한 번 소비)와 달리 *1라운드 동안 모든 대미지에 적용* — flag 유지.
  * `_startRound`에서 라운드 시작 시 일괄 해제.
@@ -167,7 +164,7 @@ async function applyYellowReduction(targetActor, amount) {
 }
 
 /**
- * 건강 차감 + 상태이상 부여. 상태이상은 false→true만 (D16 AE 자동 동기).
+ * 건강 차감 + 상태이상 부여. 상태이상은 false→true만 (AE 자동 동기).
  * amount > 0이면 방어 차감(`defendActive`) 자동 적용 — 상태이상만 부여 시 방어 미소비(룰 정합).
  *
  * @param {Actor} targetActor
@@ -185,7 +182,7 @@ export async function applyDamageAndStatus(targetActor, amount, statusList) {
     if (defendReduced) amount = defendReduced.adjusted;
   }
 
-  // 황표 수신 감소·무효 (G4-β) — 방어 차감 *후* 적용.
+  // 황표 수신 감소·무효는 방어 차감 *후* 적용한다.
   let yellowReduction = null;
   if (amount > 0) {
     yellowReduction = await applyYellowReduction(targetActor, amount);

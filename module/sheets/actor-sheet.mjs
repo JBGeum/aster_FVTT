@@ -28,10 +28,7 @@ const { ActorSheetV2 } = foundry.applications.sheets;
 export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["aster", "sheet", "actor"],
-    // 높이 고정 920 — height:"auto"는 탭 전환마다 콘텐츠 높이로 윈도우를 리사이즈해
-    // 화면이 출렁였다(탭 이동 시 높이 일정 유지 요구). 폰트 교체(마루부리/나눔스퀘어라운드)로
-    // character 콘텐츠가 늘어 900에서도 ~15px 가려져 920으로 상향
-    // (여유분은 memo·inv·record 카드가 늘어나 채움).
+    // 높이 고정 — height:"auto"는 탭 전환마다 윈도우를 리사이즈해 화면이 출렁인다.
     // 넘치는 탭은 .tab.active 내부 스크롤로 흡수하고, 수동 리사이즈 값은 유지된다.
     position: { width: 920, height: 920 },
     window: { resizable: true },
@@ -125,13 +122,10 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       context.reviveContext = buildReviveContext(this);
     } else if (this.actor.type === "npc") {
       prepareItems(this, context);
-      // N3 — combat 영역 활성 (PC 패턴 정합). buildCombatContext는 actor 무관 동작:
-      // AP 표시·공통 액션 disabled 상태를 PC와 동일하게 노출한다. unisonReady는 NPC에
-      // 설정되지 않으므로 합체기 관련 필드는 자연히 false(발동 후보에서도 제외).
+      // unisonReady는 NPC에 설정되지 않으므로 합체기 필드는 자연히 false가 된다.
       context.combatContext = buildCombatContext(this);
-      // N2 — npcAction(스킬 표)과 일반 items 분리. 대상 라벨은 미리 지역화.
-      // combatDisabled는 시전 버튼 disabled용 — 각 행에서 부모 combatContext를 `../`로 참조하면
-      // prettier HTML 파서가 실패하므로 행 컨텍스트에 미리 평면화한다.
+      // 각 행에서 부모 combatContext를 `../`로 참조하면 prettier HTML 파서가 실패하므로
+      // 행 컨텍스트에 미리 평면화한다.
       context.npcActions = context.items
         .filter((i) => i.type === "npcAction")
         .map((i) => ({
@@ -148,7 +142,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _onRender(context, options) {
     super._onRender(context, options);
 
-    // 탭 초기 상태 적용.
     // NPC 시트는 탭 없는 flat 폼이라 매칭 요소가 없다 — changeTab은 요소 부재 시 throw하므로
     // 해당 탭 네비가 실제로 렌더된 경우에만 호출한다.
     for (const [group, tab] of Object.entries(this.tabGroups)) {
@@ -285,12 +278,10 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await item.update({ "system.container": "", "system.grid": { x: 0, y: 0 } });
   }
 
-  static async #onFoodSelect(_event, _target) {
-    // food 선택 로직: STEP5에서 확장
-  }
+  static async #onFoodSelect(_event, _target) {}
 
   /**
-   * 피크닉. 탐색 페이즈에서만 가능 (룰북 502).
+   * 피크닉. 탐색 페이즈에서만 가능.
    * GM 수락 단계 없이 본인 포만을 즉시 회복하고, PC 화자로 결과 카드를 출력한다.
    */
   static async #onPicnicDeclare(_event, target) {
@@ -334,15 +325,13 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /**
-   * 전투 액션 클릭 처리 (G3-α).
    * 단순 액션은 즉시 AP 차감 + 채팅, 입력 필요 액션은 다이얼로그.
-   * 이번 STEP은 AP 차감 + 채팅 안내만 — 다음 라운드 효과·대미지는 텍스트로 수동 추적.
    */
   static async #onRollDodge(_event, _target) {
     await this.actor.rollDodge();
   }
 
-  /** 명중 굴림 (N6, NPC 전용). Actor.rollHit이 PC 호출 시 경고 처리. */
+  /** 명중 굴림 (NPC 전용). */
   static async #onRollHit(_event, _target) {
     await this.actor.rollHit();
   }
@@ -352,10 +341,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /**
-   * NPC 스킬(npcAction) 시전 (N3).
-   * 흐름: oncePerRound 검사 → 타게팅·X 입력(하이브리드 다이얼로그) → AP 검사 → AP 차감 →
-   *       oncePerRound flag 설정 → 효과 적용(damageFormula·addStatus·cureStatus·cureAllStatus) → 시전 카드.
-   * AP 진리 원천은 Combatant flag(옵션 A — PC `#onCombatAction`과 통일). `system.ap`은 시트 표시·시드 참고용.
+   * NPC 스킬(npcAction) 시전.
+   * AP 진리 원천은 Combatant flag — `system.ap`은 시트 표시·시드 참고용이다.
    *
    * @param {PointerEvent} _event
    * @param {HTMLElement} target  `data-item-id`를 가진 시전 버튼
@@ -365,7 +352,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /**
-   * 합체기 발동(G4, 룰북 615~630). PL이 자기 시트에서 시작 → 페어 → 주속성 → 다이스 → 부속성 자동.
+   * 합체기 발동. PL이 자기 시트에서 시작 → 페어 → 주속성 → 다이스 → 부속성 자동.
    * 주속성 효과 표는 GM 수동(시스템은 합산값만 안내). 같은 색 페어는 부속성 결정 불가로 차단.
    * 흐름 중 취소 시 flag 변화 없음. 부속성 다이얼로그 취소 시 효과만 미적용(합체기 자체는 완료).
    */
@@ -434,8 +421,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   /**
-   * C1 아이템 제작 다이얼로그 (PL 주도). 기존 아이템 드래그 시 빈 칸 자동 채움 + 실시간 비용 표시.
-   * 확정 시 검증 → 부족하면 확인(D14 음수 허용) → 자원 차감 + 창고에 신규 아이템 생성.
+   * 아이템 제작 다이얼로그. 기존 아이템 드래그 시 빈 칸 자동 채움 + 실시간 비용 표시.
+   * 확정 시 검증 → 부족하면 확인(음수 허용) → 자원 차감 + 창고에 신규 아이템 생성.
    * @param {Actor} actor
    */
   static async openCraftDialog(actor) {
@@ -534,7 +521,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     this.actor.rollEmotion(label, {});
   }
 
-  /** STEP 3(FIX) — 원소 친화 증감(±1). 헤더 −/+ 버튼. 마테리얼은 버튼 없음(템플릿 제외). */
+  /** 원소 친화 증감(±1). 마테리얼은 버튼이 없다(템플릿 제외). */
   static async #onAsterStep(_event, target) {
     const key = target.dataset.aster;
     const dir = Number(target.dataset.dir) || 0;
@@ -548,7 +535,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await this.actor.update(formData.object);
 
     // NPC AP를 시트에서 수정하면 Combatant flag(actionPoint)도 동기화한다.
-    // AP 진리 원천은 flag(N4 옵션 A)라, 동기 없으면 시트 표시·액션 실행이 수정값을 반영하지 못한다.
+    // AP 진리 원천은 flag라, 동기 없으면 시트 표시·액션 실행이 수정값을 반영하지 못한다.
     if (this.actor.type === "npc" && game.combat?.started) {
       const combatant = game.combat.combatants.find((c) => c.actor?.id === this.actor.id);
       const apValue = foundry.utils.getProperty(formData.object, "system.ap.value");
@@ -560,14 +547,13 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 }
 
 /* -------------------------------------------- */
-/*  C1 아이템 제작 다이얼로그 헬퍼              */
+/*  아이템 제작 다이얼로그 헬퍼                 */
 /* -------------------------------------------- */
 
 const CRAFT_ITEM_TYPES = ["consumable", "equipment", "bag", "food"];
 // material[1..5] 색 키 — 비용/보유 표시용.
 const CRAFT_COST_COLORS = ["red", "blue", "green", "yellow", "white"];
 
-/** 제작 다이얼로그 content(HTML 문자열). 종류·드롭영역·이름·material[6]·효과·전제·비용 미리보기. */
 /**
  * craftRequires 행 1개의 HTML 문자열. DialogV2가 content의 `<template>`를 새니타이즈로 제거하므로
  * 템플릿 복제 대신 이 함수로 매번 생성한다(추가 버튼·드래그 자동 채움 공용).
@@ -788,7 +774,7 @@ function _collectCraftDraft(el) {
   return { name, type, system: { material, craftRequires, effect } };
 }
 
-/** 자원·전제 부족 시 그래도 진행할지 확인 (D14 음수 허용 정책). */
+/** 자원·전제 부족 시 그래도 진행할지 확인(음수 허용). */
 function _confirmCraftShortage(validation) {
   const L = (k) => game.i18n.localize(k);
   const lines = [];

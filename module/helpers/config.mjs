@@ -1,9 +1,6 @@
 export const ASTER = {};
 
-/**
- * The set of Ability Scores used within the system.
- * @type {Object}
- */
+/** @type {Object} */
 ASTER.ability = {
   active: "ASTER.ability.active",
   knowledge: "ASTER.ability.knowledge",
@@ -26,12 +23,11 @@ ASTER.aster = {
   white: "ASTER.aster.white",
 };
 
-// 장비 카테고리 — 룰북 805 (마법구). xlsx "아이템마법구" 자료 정합. equipment 시트 드롭다운.
+// 장비 카테고리 — equipment 시트 드롭다운.
 ASTER.equipmentType = {
   magicTool: "ASTER.equipment.type.magicTool",
 };
 
-// npcAction 대상 타입 (N2) — 룰북 【自分】/【1人】/【N人】/【전원】 정합.
 ASTER.npcTargetType = {
   self: "ASTER.npcAction.target.self",
   one: "ASTER.npcAction.target.one",

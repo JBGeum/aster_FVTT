@@ -20,7 +20,6 @@ export function buildItemCardData(item, localize) {
   const sys = item.system ?? {};
   const meta = [];
 
-  // 공통 메타
   if (sys.effect?.trim()) {
     meta.push({ icon: "fa-bolt", label: localize("ASTER.item.effect"), value: sys.effect });
   }
@@ -32,7 +31,6 @@ export function buildItemCardData(item, localize) {
     });
   }
 
-  // 타입별 메타
   if (item.type === "consumable") {
     if ((sys.healHealth ?? 0) > 0) {
       meta.push({
