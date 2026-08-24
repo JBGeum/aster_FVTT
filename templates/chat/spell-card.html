@@ -2,6 +2,9 @@
   <header class="card-header">
     <img src="{{img}}" alt="{{name}}" />
     <div class="title">
+      {{#if ruby}}
+      <div class="ruby">{{ruby}}</div>
+      {{/if}}
       <div class="name">{{name}}</div>
       <div class="formula">{{formula}}</div>
     </div>
@@ -20,8 +23,8 @@
       <span class="selected-dice">[{{diceText}}]</span> · 2d({{breakdown.base}}) + {{breakdown.ability}} {{#if
       breakdown.specialty}}+ {{localize "ASTER.spell.specialty"}}({{breakdown.specialty}}){{/if}} {{#if
       breakdown.penalties.sleepy}}{{breakdown.penalties.sleepy}} ({{localize "ASTER.badstatus.sleepy"}}){{/if}} {{#if
-      breakdown.penalties.satiety}}{{breakdown.penalties.satiety}} ({{localize "ASTER.label.satiety"}}){{/if}} {{#if
-      discardedDiceText}}
+      breakdown.penalties.satiety}}{{breakdown.penalties.satiety}} ({{localize "ASTER.check.satietyEffect"}}){{/if}}
+      {{#if discardedDiceText}}
       <div class="discarded-dice">{{localize "ASTER.spell.discarded"}}: ({{discardedDiceText}})</div>
       {{/if}}
     </div>

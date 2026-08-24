@@ -176,6 +176,7 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
     spellId: spell.id,
     actorId: actor.id,
     name: spell.name,
+    ruby: sys.ruby,
     img: spell.img,
     color: sys.color,
     formula: formatFormula(spell),

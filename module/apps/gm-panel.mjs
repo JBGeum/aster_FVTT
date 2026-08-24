@@ -104,6 +104,7 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
 
+  // 경계도·우호도는 파티 공유 값이라 GM의 굴림 모드 설정과 무관하게 공개한다.
   static async #onRangeRoll(_event, target) {
     const key = target.dataset.key;
     const r = await foundry.applications.api.DialogV2.prompt({
@@ -146,23 +147,29 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     if (r.add) {
       const cur = Number(game.settings.get("aster", key)) || 0;
       const next = AsterGMPanel.#clampMin(key, cur + roll.total);
-      await roll.toMessage({
-        flavor: game.i18n.format("ASTER.world.rangeFlavorAdd", {
-          label,
-          delta: roll.total,
-          total: next,
-        }),
-      });
+      await roll.toMessage(
+        {
+          flavor: game.i18n.format("ASTER.world.rangeFlavorAdd", {
+            label,
+            delta: roll.total,
+            total: next,
+          }),
+        },
+        { rollMode: CONST.DICE_ROLL_MODES.PUBLIC },
+      );
       await game.settings.set("aster", key, next);
     } else {
-      await roll.toMessage({
-        flavor: game.i18n.format("ASTER.world.rangeFlavor", {
-          label,
-          min: r.min,
-          max: r.max,
-          result: roll.total,
-        }),
-      });
+      await roll.toMessage(
+        {
+          flavor: game.i18n.format("ASTER.world.rangeFlavor", {
+            label,
+            min: r.min,
+            max: r.max,
+            result: roll.total,
+          }),
+        },
+        { rollMode: CONST.DICE_ROLL_MODES.PUBLIC },
+      );
     }
     this.render();
   }
@@ -174,15 +181,18 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     await roll.evaluate();
     // d100 > 경계도 → 성공, 이하 → 실패
     const success = roll.total > threshold;
-    await roll.toMessage({
-      flavor: game.i18n.format(
-        success ? "ASTER.world.witchHuntSuccess" : "ASTER.world.witchHuntFail",
-        {
-          roll: roll.total,
-          alert: threshold,
-        },
-      ),
-    });
+    await roll.toMessage(
+      {
+        flavor: game.i18n.format(
+          success ? "ASTER.world.witchHuntSuccess" : "ASTER.world.witchHuntFail",
+          {
+            roll: roll.total,
+            alert: threshold,
+          },
+        ),
+      },
+      { rollMode: CONST.DICE_ROLL_MODES.PUBLIC },
+    );
   }
 
   static async #onEmoGenerate(_event, _target) {

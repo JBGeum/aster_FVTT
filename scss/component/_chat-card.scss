@@ -102,6 +102,15 @@
       min-width: 0;
       flex: 1 1 auto;
 
+      // 읽는 법 — 후리가나처럼 술식명 위에 작게.
+      .ruby {
+        font-size: 0.66rem;
+        line-height: 1.15;
+        color: var(--cc-ink-soft);
+        opacity: 0.85;
+        letter-spacing: 0.3px;
+      }
+
       .name {
         font-weight: 700;
         color: var(--cc-ink);
