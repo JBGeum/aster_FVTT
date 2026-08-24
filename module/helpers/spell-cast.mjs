@@ -6,6 +6,7 @@ import { detectCritFumble, computePenalties } from "./roll-result.mjs";
 import { pickDiceDialog } from "./dice-select.mjs";
 import { getTargetedTokens } from "./target-select.mjs";
 import { formatFormula } from "./sheet-tooltips.mjs";
+import { checkFocusEffect } from "./focus-effect.mjs";
 
 /**
  * 마법명 클릭 — 추가 다이스 0, 2d6 즉시 판정 (기존 동작 유지).
@@ -88,7 +89,8 @@ export async function castSpellWithExtra({ actor, spell }) {
     await actor.update({ [`system.aster.${color}.value`]: haveAster - n });
   }
 
-  const roll = new Roll(`${2 + n}d6`);
+  const focus = checkFocusEffect(actor);
+  const roll = new Roll(`${2 + n + focus.extraDice}d6`);
   await roll.evaluate();
   const allDice = roll.dice[0].results.map((r) => r.result);
 
@@ -108,6 +110,11 @@ export async function castSpellWithExtra({ actor, spell }) {
       ui.notifications.info(game.i18n.localize("ASTER.spell.cancelled"));
       return;
     }
+  }
+
+  // 선택을 마쳐야 집중을 소비한다.
+  if (focus.combatant) {
+    await focus.combatant.setFlag("aster", "focusActive", false);
   }
 
   await processSpellRoll(actor, spell, roll, pick.selected, pick.discarded, {
@@ -169,6 +176,7 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
     spellId: spell.id,
     actorId: actor.id,
     name: spell.name,
+    ruby: sys.ruby,
     img: spell.img,
     color: sys.color,
     formula: formatFormula(spell),

@@ -2,10 +2,8 @@
   <div class="herbarium">
     <div class="dialog__body">
       <div class="frow dlg-name">
-        <label>술식명</label>
-        <div class="f-input">
-          <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'ASTER.spell.name'}}" />
-        </div>
+        <label>{{localize "ASTER.spell.name"}}</label>
+        <div class="f-input"><input type="text" name="name" value="{{item.name}}" /></div>
       </div>
       <div class="dialog__hero">
         <div class="thumb pixelart"><img src="{{item.img}}" data-edit="img" title="{{item.name}}" /></div>
@@ -22,14 +20,14 @@
             </div>
           </div>
           <div class="frow">
-            <label>경계도</label>
+            <label>{{localize "ASTER.spell.alert"}}</label>
             <div class="size-row">
               <div class="pair">
-                <span class="k">최소</span
+                <span class="k">{{localize "ASTER.spell.alertMin"}}</span
                 ><input class="box" type="number" name="system.alert.min" value="{{system.alert.min}}" />
               </div>
               <div class="pair">
-                <span class="k">최대</span
+                <span class="k">{{localize "ASTER.spell.alertMax"}}</span
                 ><input class="box" type="number" name="system.alert.max" value="{{system.alert.max}}" />
               </div>
             </div>

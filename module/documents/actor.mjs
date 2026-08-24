@@ -3,23 +3,8 @@ import { detectCritFumble, computePenalties, critFumbleCardPath } from "../helpe
 import { syncBadstatusEffect } from "../helpers/badstatus-effects.mjs";
 import { computeAbilityCheck } from "../helpers/ability-check.mjs";
 import { promptAbilityCheck } from "../helpers/check-dialog.mjs";
-
-/**
- * Combatant의 `focusActive` flag 확인 — 활성 시 다이스 1개 추가 + 적용 대상 Combatant 반환.
- * 호출자는 flag 해제를 위해 반환된 combatant를 사용한다(굴림 성공 여부 무관, 사용=만료).
- * 정동판정(rollEmotion)은 룰북상 어떤 효과로도 증감되지 않으므로 호출하지 않는다.
- *
- * @param {Actor} actor
- * @returns {{extraDice: 0 | 1, combatant: Combatant | null}}
- */
-function checkFocusEffect(actor) {
-  const combat = game.combat;
-  if (!combat) return { extraDice: 0, combatant: null };
-  const combatant = combat.combatants.find((c) => c.actor?.id === actor.id);
-  if (!combatant) return { extraDice: 0, combatant: null };
-  const active = combatant.getFlag("aster", "focusActive") === true;
-  return { extraDice: active ? 1 : 0, combatant: active ? combatant : null };
-}
+import { checkFocusEffect } from "../helpers/focus-effect.mjs";
+import { pickTwoIfNeeded } from "../helpers/dice-select.mjs";
 
 /** @extends {Actor} */
 export class AsterActor extends Actor {
@@ -115,16 +100,20 @@ export class AsterActor extends Actor {
     const renderTemplate = foundry.applications.handlebars.renderTemplate;
     const ablValue = this.system.ability[ability].total;
 
-    // 집중 효과 — 활성 시 baseDice = 3 (단순 합산), 굴림 후 flag 해제.
     const focus = checkFocusEffect(this);
     const roll = await asterRoll(ablValue, this.getRollData(), {
       baseDice: 2 + focus.extraDice,
     });
+
+    const pick = await pickTwoIfNeeded({ roll, dice: roll.dice[0].values });
+    if (!pick) return;
+
+    // 선택을 마쳐야 집중을 소비한다 — 취소하면 다시 쓸 수 있어야 한다.
     if (focus.combatant) {
       await focus.combatant.setFlag("aster", "focusActive", false);
     }
 
-    const resultDiceset = roll.dice[0].values;
+    const resultDiceset = pick.selected;
     const diceText = resultDiceset.join(", ");
     const cf = detectCritFumble(resultDiceset);
     const focusApplied = !!focus.combatant;
@@ -132,7 +121,7 @@ export class AsterActor extends Actor {
     // 보정 통합: 졸림 + 포만 (페이즈 무관, 모든 판정에 적용. 정동판정만 별도).
     const penalties = computePenalties(this);
     const check = computeAbilityCheck({
-      rawTotal: roll.total,
+      rawTotal: pick.rawTotal,
       modifier,
       penalties,
       target: isVs ? null : target,
@@ -150,7 +139,7 @@ export class AsterActor extends Actor {
         ablValue,
         result: roll.result,
         total: adjustedTotal,
-        rawTotal: roll.total,
+        rawTotal: pick.rawTotal,
         penalties,
         modifierText,
         resultDiceset,
@@ -193,7 +182,7 @@ export class AsterActor extends Actor {
         ablValue,
         rollDC: target,
         total: adjustedTotal,
-        rawTotal: roll.total,
+        rawTotal: pick.rawTotal,
         penalties,
         modifierText,
         isSuccess,
@@ -395,18 +384,21 @@ export class AsterActor extends Actor {
       });
     }
 
+    // 다이스 평탄화 — PC 단일 그룹·NPC 다중 그룹(식 + 집중 다이스) 모두 처리.
+    const pick = await pickTwoIfNeeded({ roll, dice: roll.dice.flatMap((d) => d.values) });
+    if (!pick) return;
+
     if (focus.combatant) {
       await focus.combatant.setFlag("aster", "focusActive", false);
     }
 
-    // 다이스 평탄화 — PC 단일 그룹·NPC 다중 그룹(식 + 집중 다이스) 모두 처리.
-    const resultDiceset = roll.dice.flatMap((d) => d.values);
+    const resultDiceset = pick.selected;
     const diceText = resultDiceset.join(", ");
     const cf = detectCritFumble(resultDiceset);
 
     // 회피 컨텍스트로 보정 계산 (피로 -3 포함).
     const penalties = computePenalties(this, { isDodge: true });
-    const adjustedTotal = roll.total + penalties.total;
+    const adjustedTotal = pick.rawTotal + penalties.total;
 
     const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
     const templateData = {
@@ -415,7 +407,7 @@ export class AsterActor extends Actor {
       formula: npcFormula, // NPC면 식, PC면 null(템플릿이 능력치 합산 표시로 분기)
       result: roll.result,
       total: adjustedTotal,
-      rawTotal: roll.total,
+      rawTotal: pick.rawTotal,
       penalties,
       resultDiceset,
       diceText,
@@ -489,17 +481,20 @@ export class AsterActor extends Actor {
       return;
     }
 
+    const pick = await pickTwoIfNeeded({ roll, dice: roll.dice.flatMap((d) => d.values) });
+    if (!pick) return;
+
     if (focus.combatant) {
       await focus.combatant.setFlag("aster", "focusActive", false);
     }
 
-    const resultDiceset = roll.dice.flatMap((d) => d.values);
+    const resultDiceset = pick.selected;
     const diceText = resultDiceset.join(", ");
     const cf = detectCritFumble(resultDiceset);
 
     // 피로 등 보정 — 명중 컨텍스트(isDodge: false).
     const penalties = computePenalties(this, { isDodge: false });
-    const adjustedTotal = roll.total + penalties.total;
+    const adjustedTotal = pick.rawTotal + penalties.total;
 
     const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
     const templateData = {
@@ -508,7 +503,7 @@ export class AsterActor extends Actor {
       formula: fullFormula, // NPC 전용 메서드라 항상 식 전달(카드 표시용)
       result: roll.result,
       total: adjustedTotal,
-      rawTotal: roll.total,
+      rawTotal: pick.rawTotal,
       penalties,
       resultDiceset,
       diceText,
