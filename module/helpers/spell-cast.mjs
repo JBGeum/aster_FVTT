@@ -192,6 +192,8 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
     effect: sys.effect,
     effectEnriched,
     alert: sys.alert,
+    // 음수 범위(-3~0)를 템플릿 {{#if}}의 0 falsy 판정이 숨기지 않도록 별도 boolean.
+    hasAlert: sys.alert.min !== 0 || sys.alert.max !== 0,
   };
 
   const content = await foundry.applications.handlebars.renderTemplate(

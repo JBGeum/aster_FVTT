@@ -6,6 +6,7 @@ import { DAMAGE_STATUSES, applyDamageAndStatus } from "../helpers/health-status.
 import { resolveOpposed } from "../helpers/roll-result.mjs";
 import { applyDelta, applySet } from "../helpers/tracker-ops.mjs";
 import { commitTrackers } from "../helpers/tracker-commit.mjs";
+import { rangeFormula } from "../helpers/range-roll.mjs";
 
 /* -------------------------------------------- */
 /*  대성공/대실패 후속 버튼                      */
@@ -18,7 +19,9 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
   // (crit-aster-gain은 owner/PL용이므로 이 훅 자체를 early-return하지 않는다.)
   if (!game.user.isGM) {
     html
-      .querySelectorAll("[data-action='fumble-alert'], [data-action='tracker-sum']")
+      .querySelectorAll(
+        "[data-action='fumble-alert'], [data-action='tracker-sum'], [data-action='spell-alert']",
+      )
       .forEach((btn) => {
         const footer = btn.closest("footer");
         btn.remove();
@@ -116,6 +119,54 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
             <div class="alert-roll">
               <span class="die">[${roll.total}]</span>
               <span class="delta">${game.i18n.localize("ASTER.world.alert")} +${roll.total}</span>
+            </div>
+            <div class="alert-total">
+              <span class="label">${game.i18n.localize("ASTER.roll.alertCumulative")}</span>
+              <span class="value">${next}</span>
+            </div>
+          </div>
+        </div>`,
+        rolls: [roll],
+        speaker: ChatMessage.getSpeaker({
+          alias: game.i18n.localize("ASTER.world.panelTitle"),
+        }),
+      });
+    });
+  });
+
+  // ----- 마법: 경계도 범위를 굴려 가산 (GM 전용) -----
+  html.querySelectorAll("[data-action='spell-alert']").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!game.user.isGM) {
+        ui.notifications.warn(game.i18n.localize("ASTER.world.gmOnly"));
+        return;
+      }
+      const min = Number(btn.dataset.alertMin) || 0;
+      const max = Number(btn.dataset.alertMax) || 0;
+      if (min > max) {
+        ui.notifications.warn(game.i18n.localize("ASTER.world.invalidRange"));
+        return;
+      }
+      const roll = new Roll(rangeFormula(min, max));
+      await roll.evaluate();
+      const cur = Number(game.settings.get("aster", "alertLevel")) || 0;
+      const next = cur + roll.total;
+      await game.settings.set("aster", "alertLevel", next);
+      const sign = roll.total < 0 ? "" : "+";
+      await ChatMessage.create({
+        content: `<div class="aster-chat-card alert-rise-card">
+          <header class="card-header"><div class="title">
+            <div class="name">${game.i18n.localize("ASTER.roll.alertRiseTitle")}</div>
+            <div class="formula">${game.i18n.format("ASTER.spell.alertRiseFrom", {
+              name: btn.dataset.spellName,
+              min,
+              max,
+            })}</div>
+          </div></header>
+          <div class="alert-body">
+            <div class="alert-roll">
+              <span class="die">[${roll.total}]</span>
+              <span class="delta">${game.i18n.localize("ASTER.world.alert")} ${sign}${roll.total}</span>
             </div>
             <div class="alert-total">
               <span class="label">${game.i18n.localize("ASTER.roll.alertCumulative")}</span>
