@@ -27,7 +27,7 @@ export async function runSceneTransition() {
     window: { title: game.i18n.localize("ASTER.scene.transitionTitle") },
     content: `
       <p class="scene-hint">${game.i18n.localize("ASTER.scene.transitionHint")}</p>
-      ${rows}
+      <div class="scene-target-picker">${rows}</div>
     `,
     ok: {
       label: game.i18n.localize("ASTER.scene.confirm"),

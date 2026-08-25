@@ -201,7 +201,7 @@
       "section": "트래커",
       "create": "+ 트래커 추가",
       "createTitle": "트래커 추가",
-      "name": "술식명",
+      "name": "이름",
       "goal": "목표값",
       "goalHint": "비우면 목표 없는 카운터",
       "add": "더하기",
@@ -215,7 +215,11 @@
       "toGoal": "달성치 대신 목표값으로 설정",
       "noTrackers": "트래커가 없습니다. GM 패널에서 먼저 만드세요.",
       "reachedTitle": "목표 도달",
-      "reachedLine": "{name} — {value} / {goal}"
+      "reachedLine": "{name} — {value} / {goal}",
+      "post": "채팅에 표시",
+      "statusTitle": "트래커 현황",
+      "statusLine": "{name} — {value}",
+      "statusLineGoal": "{name} — {value} / {goal}"
     },
     "world": {
       "panelTitle": "GM 패널",
