@@ -1,5 +1,7 @@
 import { rebaseTotal } from "./dice-pick.mjs";
 
+const DICE_WORDS = ["one", "two", "three", "four", "five", "six"];
+
 /** 개수를 잘못 골랐을 때. 취소(null)와 구별해야 호출자가 재시도 여부를 가릴 수 있다. */
 export const PICK_RETRY = Symbol("dice-pick-retry");
 
@@ -24,22 +26,30 @@ export async function pickDiceDialog({ dice, count = 2, title, hint }) {
   }
 
   const checkboxes = dice
-    .map(
-      (d, i) => `
+    .map((d, i) => {
+      // 눈 아이콘은 1~6에만 있다 — 벗어나면 숫자만 남긴다.
+      const word = DICE_WORDS[Number(d) - 1];
+      const pip = word ? `<i class="fa-solid fa-dice-${word}"></i>` : "";
+      return `
       <label class="dice-pick-label">
         <input type="checkbox" name="dice" value="${i}" />
-        <span class="dice-pick-face">${d}</span>
-      </label>`,
-    )
+        <span class="dice-pick-face">${pip}<span class="dice-pick-num">${d}</span></span>
+      </label>`;
+    })
     .join("");
 
   const result = await foundry.applications.api.DialogV2.prompt({
-    window: { title: title ?? game.i18n.localize("ASTER.dice.pickTitle") },
+    classes: ["hb-dialog"],
+    window: {
+      title: title ?? game.i18n.localize("ASTER.dice.pickTitle"),
+      icon: "fa-solid fa-dice-d6",
+    },
     content: `
       <p class="dice-pick-hint">${hint ?? game.i18n.format("ASTER.dice.pickHint", { count })}</p>
       <div class="dice-pick-grid">${checkboxes}</div>
     `,
     ok: {
+      icon: "fa-solid fa-check",
       label: game.i18n.localize("ASTER.dice.pickConfirm"),
       callback: (_e, b) => {
         const checked = Array.from(b.form.elements.dice).filter((el) => el.checked);

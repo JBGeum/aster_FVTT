@@ -24,7 +24,6 @@ async function rollSpellDice(actor, spell, extraAster) {
     dice: allDice,
     count: 2,
     title: game.i18n.format("ASTER.spell.pickTitle", { name: spell.name }),
-    hint: game.i18n.localize("ASTER.spell.pickHint"),
   };
   let pick = await pickDiceDialog(opts);
   if (pick === PICK_RETRY) pick = await pickDiceDialog(opts);

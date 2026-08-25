@@ -118,6 +118,7 @@ async function proceedUnisonDice({
       dice: [selfRoll.total, extraRoll.total],
       count: 1,
       title: game.i18n.format("ASTER.combat.unisonChargePickTitle", { actor: selfActor.name }),
+      hint: game.i18n.format("ASTER.combat.unisonChargePickHint", { count: 1 }),
     });
     if (!picked || picked === PICK_RETRY) return;
     selfFinal = picked.selected[0];
@@ -136,6 +137,7 @@ async function proceedUnisonDice({
       dice: [pairRoll.total, extraRoll.total],
       count: 1,
       title: game.i18n.format("ASTER.combat.unisonChargePickTitle", { actor: pairActor.name }),
+      hint: game.i18n.format("ASTER.combat.unisonChargePickHint", { count: 1 }),
     });
     if (!picked || picked === PICK_RETRY) return;
     pairFinal = picked.selected[0];
