@@ -237,8 +237,8 @@
       "invalidRange": "최소치는 최대치보다 작거나 같아야 합니다.",
       "gmOnly": "GM만 사용할 수 있습니다.",
       "witchHunt": "마녀사냥",
-      "witchHuntSuccess": "마녀사냥 판정: d100={roll} vs 경계도 {alert} → 성공",
-      "witchHuntFail": "마녀사냥 판정: d100={roll} vs 경계도 {alert} → 실패",
+      "witchHuntTitle": "마녀사냥 판정",
+      "witchHuntVs": "> 경계도 {alert}",
       "phase": "세션 페이즈"
     },
     "scene": {

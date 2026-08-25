@@ -185,18 +185,26 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     await roll.evaluate();
     // d100 > 경계도 → 성공, 이하 → 실패
     const success = roll.total > threshold;
-    await roll.toMessage(
-      {
-        flavor: game.i18n.format(
-          success ? "ASTER.world.witchHuntSuccess" : "ASTER.world.witchHuntFail",
-          {
-            roll: roll.total,
-            alert: threshold,
-          },
-        ),
-      },
-      { rollMode: CONST.DICE_ROLL_MODES.PUBLIC },
-    );
+    // rolls 배열이 있어야 다이스 애니메이션이 트리거된다.
+    await ChatMessage.create({
+      content: `<div class="aster-chat-card">
+        <header class="card-header"><div class="title">
+          <div class="name">${game.i18n.localize("ASTER.world.witchHuntTitle")}</div>
+          <div class="formula">1d100</div>
+        </div></header>
+        <div class="roll-block">
+          <div class="roll-total">
+            <strong>${roll.total}</strong>
+            <span class="vs">${game.i18n.format("ASTER.world.witchHuntVs", { alert: threshold })}</span>
+          </div>
+          <div class="verdict ${success ? "success" : "fail"}">
+            ${game.i18n.localize(success ? "ASTER.roll.success" : "ASTER.roll.fail")}
+          </div>
+        </div>
+      </div>`,
+      rolls: [roll],
+      speaker: ChatMessage.getSpeaker({ alias: game.i18n.localize("ASTER.world.panelTitle") }),
+    });
   }
 
   static async #onEmoGenerate(_event, _target) {
