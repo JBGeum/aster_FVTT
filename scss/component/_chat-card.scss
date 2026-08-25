@@ -1411,6 +1411,63 @@
   text-shadow: 0 1px 3px rgba(10, 4, 20, 0.5);
 }
 
+.aster-chat-card.world-roll-card {
+  border-color: var(--cc-gold);
+}
+.world-roll-card .card-header .name::before {
+  @include fa("\f6d1"); // dice
+  color: var(--cc-gold);
+  margin-right: 7px;
+  font-size: 0.82em;
+  vertical-align: 1px;
+}
+.world-roll-card .world-roll-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0 2px;
+}
+.world-roll-card .world-roll-line {
+  display: flex;
+  align-items: baseline;
+  gap: 11px;
+  font-family: var(--cc-font-num);
+  white-space: nowrap;
+}
+.world-roll-card .world-roll-line .die {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--cc-ink);
+}
+.world-roll-card .world-roll-line .delta {
+  font-weight: 700;
+  font-size: 1.04rem;
+  color: var(--cc-gold);
+  letter-spacing: 1px;
+}
+.world-roll-card .world-roll-total {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  padding: 6px 18px;
+  border-radius: 8px;
+  background: var(--cc-sunk);
+  border: 1px solid var(--cc-rule);
+  color: var(--cc-ink);
+}
+.world-roll-card .world-roll-total .label {
+  font-size: 0.76rem;
+  letter-spacing: 2px;
+  color: var(--cc-ink-soft);
+}
+.world-roll-card .world-roll-total .value {
+  font-family: var(--cc-font-num);
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
 // ============================================================
 //  다크(별밤) — Aster 테마 신호(data-aster-theme)에 연결.
 //  시트(herbarium)와 동일 정책: 명시 [data-aster-theme="dark"] + auto는 @media.
