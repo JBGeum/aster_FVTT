@@ -2,7 +2,7 @@ import { WORLD_VALUES } from "../helpers/world-values.mjs";
 import { runSceneTransition } from "../helpers/scene-transition.mjs";
 import { runBulkAdjust } from "../helpers/bulk-adjust.mjs";
 import { applyDelta, applySet } from "../helpers/tracker-ops.mjs";
-import { commitTrackers } from "../helpers/tracker-commit.mjs";
+import { commitTrackers, postTrackerStatus } from "../helpers/tracker-commit.mjs";
 import { rangeFormula } from "../helpers/range-roll.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -28,6 +28,7 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
       trackerDelta: AsterGMPanel.#onTrackerDelta,
       trackerSet: AsterGMPanel.#onTrackerSet,
       trackerDelete: AsterGMPanel.#onTrackerDelete,
+      trackerPost: AsterGMPanel.#onTrackerPost,
     },
   };
 
@@ -328,6 +329,11 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     const trackers = game.settings.get("aster", "trackers").filter((t) => t.id !== id);
     await game.settings.set("aster", "trackers", trackers);
     this.render();
+  }
+
+  static async #onTrackerPost(_event, target) {
+    const tracker = game.settings.get("aster", "trackers").find((t) => t.id === target.dataset.id);
+    await postTrackerStatus(tracker);
   }
 
   static async #onSceneTransition(_event, _target) {

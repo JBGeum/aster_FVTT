@@ -70,6 +70,14 @@
     color: rgba(126, 199, 126, 0.95);
   }
 
+  .tracker-post {
+    width: 24px;
+    flex-shrink: 0;
+    align-self: center;
+    line-height: 1;
+    font-size: 0.72rem;
+  }
+
   .tracker-controls {
     display: flex;
     align-items: center;

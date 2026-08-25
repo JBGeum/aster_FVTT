@@ -37,6 +37,15 @@
         <span class="tracker-name">{{t.name}}</span>
         <span class="tracker-value">{{t.value}}{{#if t.hasGoal}} / {{t.goal}}{{/if}}</span>
         {{#if t.reached}}<span class="tracker-done">{{localize "ASTER.tracker.done"}}</span>{{/if}}
+        <button
+          type="button"
+          class="tracker-post"
+          data-action="trackerPost"
+          data-id="{{t.id}}"
+          title="{{localize 'ASTER.tracker.post'}}"
+        >
+          <i class="fas fa-comment"></i>
+        </button>
       </div>
       <div class="tracker-controls">
         <input type="number" name="tracker-{{t.id}}" value="0" />
