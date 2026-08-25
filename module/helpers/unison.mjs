@@ -9,7 +9,7 @@ import {
   applyHealHealth,
 } from "./health-status.mjs";
 import { getTargetedTokens } from "./target-select.mjs";
-import { pickDiceDialog } from "./dice-select.mjs";
+import { pickDiceDialog, PICK_RETRY } from "./dice-select.mjs";
 
 export async function performUnisonAttack({ actor }) {
   const combat = game.combat;
@@ -119,7 +119,7 @@ async function proceedUnisonDice({
       count: 1,
       title: game.i18n.format("ASTER.combat.unisonChargePickTitle", { actor: selfActor.name }),
     });
-    if (!picked) return;
+    if (!picked || picked === PICK_RETRY) return;
     selfFinal = picked.selected[0];
     extraInfo.push({
       actor: selfActor.name,
@@ -137,7 +137,7 @@ async function proceedUnisonDice({
       count: 1,
       title: game.i18n.format("ASTER.combat.unisonChargePickTitle", { actor: pairActor.name }),
     });
-    if (!picked) return;
+    if (!picked || picked === PICK_RETRY) return;
     pairFinal = picked.selected[0];
     extraInfo.push({
       actor: pairActor.name,
