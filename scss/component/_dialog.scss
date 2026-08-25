@@ -229,3 +229,9 @@
 :root[data-aster-theme="dark"] .application.dialog.hb-dialog {
   @include hb-dialog-night;
 }
+
+.scene-target-picker,
+.bulk-target-grid {
+  max-height: 30vh;
+  overflow-y: auto;
+}
