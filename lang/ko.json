@@ -285,7 +285,7 @@
       "throwEffect": "{target}에게 2D6 명중 판정 → 명중 시 1대미지 (수동 처리)",
       "defendEffect": "다음 받을 대미지 -1D6 (자동 차감)",
       "focusEffect": "다음 판정 다이스 +1D6 (판정 시 자동 적용)",
-      "dashEffect": "다음 라운드 민첩 +{x} (수동 적용)",
+      "dashEffect": "다음 라운드 민첩 +{x} (자동 적용)",
       "chargeChooseLabel": "추가할 효과",
       "chargeSubAP": "다음 라운드 AP +1D6",
       "chargeSubUnison": "합체기 다이스 +1D6",
