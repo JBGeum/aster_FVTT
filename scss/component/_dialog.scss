@@ -277,7 +277,8 @@
   overflow-y: auto;
 }
 
-.hb-dialog .dice-pick-hint {
+.hb-dialog .dice-pick-hint,
+.hb-dialog .crit-gain-hint {
   margin: 0 0 10px;
   text-align: center;
   line-height: 1.55;
