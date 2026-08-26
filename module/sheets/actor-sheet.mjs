@@ -35,7 +35,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     actions: {
       cellClick: AsterActorSheet.#onCellClick,
       itemUnplace: AsterActorSheet.#onItemUnplace,
-      foodSelect: AsterActorSheet.#onFoodSelect,
       picnicDeclare: AsterActorSheet.#onPicnicDeclare,
       combatAction: AsterActorSheet.#onCombatAction,
       npcActionUse: AsterActorSheet.#onNpcActionUse,
@@ -285,8 +284,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
     await item.update({ "system.container": "", "system.grid": { x: 0, y: 0 } });
   }
-
-  static async #onFoodSelect(_event, _target) {}
 
   /**
    */
