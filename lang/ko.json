@@ -228,8 +228,8 @@
       "set": "적용",
       "rangeRoll": "범위 굴림",
       "rangeTitle": "범위 굴림",
-      "rangeFlavor": "{label} 굴림 {min}~{max}: {result}",
-      "rangeFlavorAdd": "{label} +{delta} (누적 {total})",
+      "rangeCardTitle": "{label} 굴림",
+      "rangeCardCumulative": "{label} 누적",
       "min": "최소치",
       "max": "최대치",
       "addToCurrent": "현재 {label}에 더하기",
@@ -237,8 +237,8 @@
       "invalidRange": "최소치는 최대치보다 작거나 같아야 합니다.",
       "gmOnly": "GM만 사용할 수 있습니다.",
       "witchHunt": "마녀사냥",
-      "witchHuntSuccess": "마녀사냥 판정: d100={roll} vs 경계도 {alert} → 성공",
-      "witchHuntFail": "마녀사냥 판정: d100={roll} vs 경계도 {alert} → 실패",
+      "witchHuntTitle": "마녀사냥 판정",
+      "witchHuntVs": "> 경계도 {alert}",
       "phase": "세션 페이즈"
     },
     "scene": {
@@ -309,6 +309,7 @@
       "unisonMainLabel": "주속성",
       "unisonSubLabel": "부속성",
       "unisonChargePickTitle": "{actor} — 차지 효과: 2개 중 1개 선택",
+      "unisonChargePickHint": "합체기에 쓸 값 {count}개를 선택하세요.",
       "unisonTotalLabel": "합산값",
       "unisonMainTableHint": "주속성 {color} 표에서 합산값 {total}에 해당하는 효과 적용 — GM 진행",
       "unisonMainEffectLabel": "주속성 {color} 효과",
@@ -427,7 +428,6 @@
       "extraUsed": "추가 사용",
       "discarded": "제외됨",
       "pickTitle": "{name} — 다이스 선택",
-      "pickHint": "달성치에 합산할 2개를 선택하세요. 선택하지 않은 다이스는 계산에서 제외됩니다.",
       "cancelled": "마법 판정이 취소되었습니다.",
       "warn": {
         "noColor": "이 마법은 속성 색이 지정되지 않았습니다.",
@@ -436,7 +436,7 @@
     },
     "dice": {
       "pickTitle": "다이스 선택",
-      "pickHint": "{count}개를 선택하세요.",
+      "pickHint": "달성치에 합산할 {count}개를 선택하세요.<br />선택하지 않은 다이스는 계산에서 제외됩니다.",
       "pickConfirm": "확정",
       "pickWrongCount": "정확히 {count}개를 선택해야 합니다."
     },

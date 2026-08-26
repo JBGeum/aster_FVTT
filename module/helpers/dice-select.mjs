@@ -1,5 +1,10 @@
 import { rebaseTotal } from "./dice-pick.mjs";
 
+const DICE_WORDS = ["one", "two", "three", "four", "five", "six"];
+
+/** 개수를 잘못 골랐을 때. 취소(null)와 구별해야 호출자가 재시도 여부를 가릴 수 있다. */
+export const PICK_RETRY = Symbol("dice-pick-retry");
+
 /**
  * 3개 이상 굴렸을 때 2개를 골라 달성치를 산출한다. 고르지 않은 다이스는 계산에서 제외된다.
  *
@@ -11,8 +16,8 @@ import { rebaseTotal } from "./dice-pick.mjs";
  * @param {number} [opts.count=2]      선택 개수 (기본 2)
  * @param {string} [opts.title]        다이얼로그 제목
  * @param {string} [opts.hint]         설명 텍스트
- * @returns {Promise<{ selected: number[], discarded: number[] } | null>}
- *   취소 또는 잘못된 선택 시 null. 선택은 인덱스 기반으로 처리하되 "값"을 반환.
+ * @returns {Promise<{ selected: number[], discarded: number[] } | null | symbol>}
+ *   취소 시 null, 개수를 잘못 고르면 PICK_RETRY. 선택은 인덱스 기반으로 처리하되 "값"을 반환.
  */
 export async function pickDiceDialog({ dice, count = 2, title, hint }) {
   if (dice.length <= count) {
@@ -21,22 +26,30 @@ export async function pickDiceDialog({ dice, count = 2, title, hint }) {
   }
 
   const checkboxes = dice
-    .map(
-      (d, i) => `
+    .map((d, i) => {
+      // 눈 아이콘은 1~6에만 있다 — 벗어나면 숫자만 남긴다.
+      const word = DICE_WORDS[Number(d) - 1];
+      const pip = word ? `<i class="fa-solid fa-dice-${word}"></i>` : "";
+      return `
       <label class="dice-pick-label">
         <input type="checkbox" name="dice" value="${i}" />
-        <span class="dice-pick-face">${d}</span>
-      </label>`,
-    )
+        <span class="dice-pick-face">${pip}<span class="dice-pick-num">${d}</span></span>
+      </label>`;
+    })
     .join("");
 
   const result = await foundry.applications.api.DialogV2.prompt({
-    window: { title: title ?? game.i18n.localize("ASTER.dice.pickTitle") },
+    classes: ["hb-dialog"],
+    window: {
+      title: title ?? game.i18n.localize("ASTER.dice.pickTitle"),
+      icon: "fa-solid fa-dice-d6",
+    },
     content: `
       <p class="dice-pick-hint">${hint ?? game.i18n.format("ASTER.dice.pickHint", { count })}</p>
       <div class="dice-pick-grid">${checkboxes}</div>
     `,
     ok: {
+      icon: "fa-solid fa-check",
       label: game.i18n.localize("ASTER.dice.pickConfirm"),
       callback: (_e, b) => {
         const checked = Array.from(b.form.elements.dice).filter((el) => el.checked);
@@ -48,7 +61,7 @@ export async function pickDiceDialog({ dice, count = 2, title, hint }) {
   if (!result) return null;
   if (result.length !== count) {
     ui.notifications.warn(game.i18n.format("ASTER.dice.pickWrongCount", { count }));
-    return null; // 호출자가 재시도 또는 취소 결정
+    return PICK_RETRY;
   }
 
   const selected = result.map((i) => dice[i]);
@@ -74,8 +87,9 @@ export async function pickTwoIfNeeded({ roll, dice }) {
     title: game.i18n.localize("ASTER.dice.pickTitle"),
     hint: game.i18n.format("ASTER.dice.pickHint", { count: 2 }),
   };
-  const pick = (await pickDiceDialog(opts)) ?? (await pickDiceDialog(opts));
-  if (!pick) return null;
+  let pick = await pickDiceDialog(opts);
+  if (pick === PICK_RETRY) pick = await pickDiceDialog(opts);
+  if (!pick || pick === PICK_RETRY) return null;
 
   return { ...pick, rawTotal: rebaseTotal(roll.total, dice, pick.selected) };
 }

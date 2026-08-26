@@ -1,4 +1,22 @@
 .aster.gm-panel {
+  // 라이트는 배경보다 가라앉은 면, 다크는 띄운 면 — 한 토큰으로 덮이지 않아 테마별로 가른다.
+  --gm-btn-surface: var(--aster-color-surface);
+  color: var(--aster-color-text);
+
+  // 코어 버튼은 다크 UI 전제라 라이트 배경에서 대비가 무너진다 — .aster-btn과 같은 토큰으로 덮는다.
+  button {
+    background: var(--gm-btn-surface);
+    border: var(--aster-border-width-base) solid var(--aster-color-border);
+    border-radius: var(--aster-radius-md);
+    color: var(--aster-color-text);
+    transition: var(--aster-transition-fast);
+
+    &:hover:not(:disabled) {
+      background: var(--aster-color-hover-bg);
+      border-color: var(--aster-color-hover-border);
+    }
+  }
+
   .gm-panel-body {
     display: flex;
     flex-direction: column;
@@ -11,7 +29,7 @@
     display: flex;
     gap: 6px;
     padding-top: 6px;
-    border-top: 1px solid rgba(128, 128, 128, 0.25);
+    border-top: 1px solid var(--aster-color-border);
 
     .wv-emo {
       flex: 1;
@@ -30,13 +48,12 @@
     flex-direction: column;
     gap: 8px;
     padding-top: 6px;
-    border-top: 1px solid rgba(128, 128, 128, 0.25);
+    border-top: 1px solid var(--aster-color-border);
   }
 
   .tracker-legend {
     font-size: 0.85rem;
     font-weight: bold;
-    color: rgba(220, 220, 220, 0.9);
   }
 
   .tracker {
@@ -67,7 +84,7 @@
 
   .tracker-done {
     font-size: 0.72rem;
-    color: rgba(126, 199, 126, 0.95);
+    color: var(--aster-color-success);
   }
 
   .tracker-post {
@@ -110,7 +127,6 @@
   .wv-label {
     font-size: 0.85rem;
     font-weight: bold;
-    color: rgba(220, 220, 220, 0.9);
   }
 
   .wv-controls {
@@ -140,9 +156,16 @@
       white-space: nowrap;
       font-size: 0.78rem;
     }
-
-    .wv-hunt {
-      border-color: rgba(192, 57, 43, 0.5);
-    }
   }
+}
+
+/* auto + OS 다크 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-aster-theme]) .aster.gm-panel {
+    --gm-btn-surface: var(--aster-color-surface-alt);
+  }
+}
+/* 명시 다크 */
+:root[data-aster-theme="dark"] .aster.gm-panel {
+  --gm-btn-surface: var(--aster-color-surface-alt);
 }

@@ -47,9 +47,14 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
       }).join("");
 
       const result = await foundry.applications.api.DialogV2.prompt({
-        window: { title: game.i18n.localize("ASTER.roll.critGainTitle") },
-        content: `<p>${game.i18n.localize("ASTER.roll.critGainHint")}</p>${rows}`,
+        classes: ["hb-dialog"],
+        window: {
+          title: game.i18n.localize("ASTER.roll.critGainTitle"),
+          icon: "fa-solid fa-star",
+        },
+        content: `<p class="crit-gain-hint">${game.i18n.localize("ASTER.roll.critGainHint")}</p>${rows}`,
         ok: {
+          icon: "fa-solid fa-check",
           label: game.i18n.localize("ASTER.roll.critGain"),
           callback: (_e, b) =>
             Object.fromEntries(CRIT_COLORS.map((k) => [k, Number(b.form.elements[k].value) || 0])),

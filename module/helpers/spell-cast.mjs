@@ -1,9 +1,39 @@
 import { computeSpellRoll, getAbilityTotal, isSpecialty } from "./spell-roll.mjs";
 import { detectCritFumble, computePenalties } from "./roll-result.mjs";
-import { pickDiceDialog } from "./dice-select.mjs";
+import { pickDiceDialog, PICK_RETRY } from "./dice-select.mjs";
 import { getTargetedTokens } from "./target-select.mjs";
 import { formatFormula } from "./sheet-tooltips.mjs";
 import { checkFocusEffect } from "./focus-effect.mjs";
+
+/**
+ * 집중을 반영해 다이스를 굴리고 2개를 고른다. 고르기를 마쳐야 집중을 소비한다.
+ * 두 시전 경로가 갈라져 한쪽에서 집중이 누락됐던 적이 있어 여기로 모았다.
+ *
+ * @param {Actor} actor
+ * @param {Item} spell
+ * @param {number} extraAster  추가 소비한 아스테르 수(다이스 가산)
+ * @returns {Promise<{roll: Roll, selected: number[], discarded: number[]} | null>} 취소 시 null.
+ */
+async function rollSpellDice(actor, spell, extraAster) {
+  const focus = checkFocusEffect(actor);
+  const roll = new Roll(`${2 + extraAster + focus.extraDice}d6`);
+  await roll.evaluate();
+  const allDice = roll.dice[0].results.map((r) => r.result);
+
+  const opts = {
+    dice: allDice,
+    count: 2,
+    title: game.i18n.format("ASTER.spell.pickTitle", { name: spell.name }),
+  };
+  let pick = await pickDiceDialog(opts);
+  if (pick === PICK_RETRY) pick = await pickDiceDialog(opts);
+  if (!pick || pick === PICK_RETRY) return null;
+
+  if (focus.combatant) {
+    await focus.combatant.setFlag("aster", "focusActive", false);
+  }
+  return { roll, selected: pick.selected, discarded: pick.discarded };
+}
 
 /**
  * @param {{actor: Actor, spell: Item}} params
@@ -16,11 +46,10 @@ export async function castSpell({ actor, spell }) {
     ? { name: targets[0].name, id: targets[0].id, actorId: targets[0].actor?.id ?? null }
     : null;
 
-  const roll = new Roll("2d6");
-  await roll.evaluate();
-  const dice = roll.dice[0].results.map((r) => r.result);
+  const picked = await rollSpellDice(actor, spell, 0);
+  if (!picked) return;
 
-  await processSpellRoll(actor, spell, roll, dice, [], {
+  await processSpellRoll(actor, spell, picked.roll, picked.selected, picked.discarded, {
     color: spell.system.color,
     n: 0,
     targetInfo,
@@ -83,33 +112,14 @@ export async function castSpellWithExtra({ actor, spell }) {
     await actor.update({ [`system.aster.${color}.value`]: haveAster - n });
   }
 
-  const focus = checkFocusEffect(actor);
-  const roll = new Roll(`${2 + n + focus.extraDice}d6`);
-  await roll.evaluate();
-  const allDice = roll.dice[0].results.map((r) => r.result);
-
-  let pick = await pickDiceDialog({
-    dice: allDice,
-    count: 2,
-    title: game.i18n.format("ASTER.spell.pickTitle", { name: spell.name }),
-    hint: game.i18n.localize("ASTER.spell.pickHint"),
-  });
-
-  if (!pick) {
-    pick = await pickDiceDialog({ dice: allDice, count: 2 });
-    if (!pick) {
-      // 이 시점에 취소해도 차감한 자원은 환불하지 않는다.
-      ui.notifications.info(game.i18n.localize("ASTER.spell.cancelled"));
-      return;
-    }
+  const picked = await rollSpellDice(actor, spell, n);
+  if (!picked) {
+    // 이 시점에 취소해도 차감한 자원은 환불하지 않는다.
+    ui.notifications.info(game.i18n.localize("ASTER.spell.cancelled"));
+    return;
   }
 
-  // 선택을 마쳐야 집중을 소비한다.
-  if (focus.combatant) {
-    await focus.combatant.setFlag("aster", "focusActive", false);
-  }
-
-  await processSpellRoll(actor, spell, roll, pick.selected, pick.discarded, {
+  await processSpellRoll(actor, spell, picked.roll, picked.selected, picked.discarded, {
     color,
     n,
     targetInfo,

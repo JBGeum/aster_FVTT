@@ -143,33 +143,38 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     await roll.evaluate();
 
     const label = game.i18n.localize(WORLD_VALUES.find((v) => v.key === key).label);
+    let delta = "";
+    let cumulative = "";
     if (r.add) {
       const cur = Number(game.settings.get("aster", key)) || 0;
       const next = AsterGMPanel.#clampMin(key, cur + roll.total);
-      await roll.toMessage(
-        {
-          flavor: game.i18n.format("ASTER.world.rangeFlavorAdd", {
-            label,
-            delta: roll.total,
-            total: next,
-          }),
-        },
-        { rollMode: CONST.DICE_ROLL_MODES.PUBLIC },
-      );
+      const sign = roll.total < 0 ? "" : "+";
+      delta = `<span class="delta">${label} ${sign}${roll.total}</span>`;
+      cumulative = `<div class="world-roll-total">
+            <span class="label">${game.i18n.format("ASTER.world.rangeCardCumulative", { label })}</span>
+            <span class="value">${next}</span>
+          </div>`;
       await game.settings.set("aster", key, next);
-    } else {
-      await roll.toMessage(
-        {
-          flavor: game.i18n.format("ASTER.world.rangeFlavor", {
-            label,
-            min: r.min,
-            max: r.max,
-            result: roll.total,
-          }),
-        },
-        { rollMode: CONST.DICE_ROLL_MODES.PUBLIC },
-      );
     }
+
+    // rolls 배열이 있어야 다이스 애니메이션이 트리거된다.
+    await ChatMessage.create({
+      content: `<div class="aster-chat-card world-roll-card">
+        <header class="card-header"><div class="title">
+          <div class="name">${game.i18n.format("ASTER.world.rangeCardTitle", { label })}</div>
+          <div class="formula">${r.min} ~ ${r.max}</div>
+        </div></header>
+        <div class="world-roll-body">
+          <div class="world-roll-line">
+            <span class="die">[${roll.total}]</span>
+            ${delta}
+          </div>
+          ${cumulative}
+        </div>
+      </div>`,
+      rolls: [roll],
+      speaker: ChatMessage.getSpeaker({ alias: game.i18n.localize("ASTER.world.panelTitle") }),
+    });
     this.render();
   }
 
@@ -180,18 +185,26 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
     await roll.evaluate();
     // d100 > 경계도 → 성공, 이하 → 실패
     const success = roll.total > threshold;
-    await roll.toMessage(
-      {
-        flavor: game.i18n.format(
-          success ? "ASTER.world.witchHuntSuccess" : "ASTER.world.witchHuntFail",
-          {
-            roll: roll.total,
-            alert: threshold,
-          },
-        ),
-      },
-      { rollMode: CONST.DICE_ROLL_MODES.PUBLIC },
-    );
+    // rolls 배열이 있어야 다이스 애니메이션이 트리거된다.
+    await ChatMessage.create({
+      content: `<div class="aster-chat-card">
+        <header class="card-header"><div class="title">
+          <div class="name">${game.i18n.localize("ASTER.world.witchHuntTitle")}</div>
+          <div class="formula">1d100</div>
+        </div></header>
+        <div class="roll-block">
+          <div class="roll-total">
+            <strong>${roll.total}</strong>
+            <span class="vs">${game.i18n.format("ASTER.world.witchHuntVs", { alert: threshold })}</span>
+          </div>
+          <div class="verdict ${success ? "success" : "fail"}">
+            ${game.i18n.localize(success ? "ASTER.roll.success" : "ASTER.roll.fail")}
+          </div>
+        </div>
+      </div>`,
+      rolls: [roll],
+      speaker: ChatMessage.getSpeaker({ alias: game.i18n.localize("ASTER.world.panelTitle") }),
+    });
   }
 
   static async #onEmoGenerate(_event, _target) {

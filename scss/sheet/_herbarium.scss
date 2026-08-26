@@ -1754,6 +1754,8 @@
         background: transparent;
         border: none;
         border-bottom: 1px solid var(--ink-faint);
+        // 코어 input의 곡률이 남으면 밑줄 양끝이 둥글어진다.
+        border-radius: 0;
       }
 
       .ap-max {

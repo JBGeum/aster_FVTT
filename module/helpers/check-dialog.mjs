@@ -16,7 +16,11 @@ export async function promptAbilityCheck({ label, defaultTarget, showTarget = tr
     : "";
 
   return await foundry.applications.api.DialogV2.prompt({
-    window: { title: game.i18n.format("ASTER.check.dialogTitle", { label }) },
+    classes: ["hb-dialog"],
+    window: {
+      title: game.i18n.format("ASTER.check.dialogTitle", { label }),
+      icon: "fa-solid fa-dice-d6",
+    },
     content: `
       ${targetField}
       <div class="form-group">
@@ -25,6 +29,7 @@ export async function promptAbilityCheck({ label, defaultTarget, showTarget = tr
       </div>
     `,
     ok: {
+      icon: "fa-solid fa-check",
       label: game.i18n.localize("ASTER.check.roll"),
       callback: (_e, b) => {
         const rawTarget = showTarget ? b.form.elements.target.value.trim() : "";
