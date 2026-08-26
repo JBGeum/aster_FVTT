@@ -186,7 +186,7 @@
     margin-top: 4px;
   }
   /* 확인 버튼 = 정동판정과 동일 머루빛 어휘 */
-  .form-footer button,
+  .form-footer button:not([data-action="cancel"]):not([data-action="no"]),
   button[data-action="ok"],
   .dialog-button {
     flex: 1;
@@ -220,6 +220,27 @@
         0 4px 12px rgba(50, 20, 45, 0.38);
     }
   }
+
+  /* 취소·아니오는 보조 — 확인과 같은 무게로 보이면 어느 쪽이 기본인지 흐려진다. */
+  button[data-action="cancel"],
+  button[data-action="no"] {
+    flex: 0 0 auto;
+    cursor: pointer;
+    padding: 11px 20px;
+    border-radius: 6px;
+    border: 1px solid var(--d-rule);
+    background: var(--d-sunk);
+    color: var(--d-soft);
+    font-family: "Noto Serif KR", serif;
+    font-weight: 600;
+    font-size: 13.5px;
+    letter-spacing: 1px;
+
+    &:hover {
+      border-color: var(--d-gold);
+      color: var(--d-ink-strong);
+    }
+  }
 }
 
 /* 다크(달빛 은) 토큰 스왑 — 시안 .theme-night. */
@@ -245,7 +266,7 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23d8c48a' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.5);
   }
-  .form-footer button,
+  .form-footer button:not([data-action="cancel"]):not([data-action="no"]),
   button[data-action="ok"],
   .dialog-button {
     box-shadow:
@@ -402,4 +423,108 @@
   border-color: var(--d-gold);
   color: var(--d-ink-strong);
   font-weight: 700;
+}
+
+/* 아이템 만들기 — 드롭 영역·재료 격자·비용 미리보기는 스킨에 없던 것들이다. */
+.hb-dialog .craft-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hb-dialog .craft-drop-area {
+  padding: 12px 8px;
+  border: 1px dashed var(--d-rule);
+  border-radius: 5px;
+  background: var(--d-sunk);
+  text-align: center;
+  color: var(--d-soft);
+  font-size: 13px;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease;
+}
+.hb-dialog .craft-drop-area p {
+  margin: 0;
+}
+.hb-dialog .craft-drop-area.drag-over {
+  border-style: solid;
+  border-color: var(--d-gold);
+  background: var(--d-deep);
+  color: var(--d-ink-strong);
+}
+.hb-dialog .material-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.hb-dialog .material-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hb-dialog .material-lbl {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: var(--d-soft);
+  white-space: nowrap;
+}
+.hb-dialog .craft-requires-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hb-dialog .craft-requires-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hb-dialog .craft-requires-row input[name="requires-level"] {
+  flex: 0 0 72px;
+  width: auto;
+}
+.hb-dialog .craft-requires-row button,
+.hb-dialog .craft-requires-add {
+  flex: 0 0 auto;
+  cursor: pointer;
+  padding: 6px 11px;
+  border-radius: 5px;
+  border: 1px solid var(--d-rule);
+  background: var(--d-sunk);
+  color: var(--d-soft);
+  font-family: "NanumSquareRound", sans-serif;
+  font-size: 12.5px;
+}
+.hb-dialog .craft-requires-row button:hover,
+.hb-dialog .craft-requires-add:hover {
+  border-color: var(--d-gold);
+  color: var(--d-ink-strong);
+}
+.hb-dialog .craft-requires-add {
+  align-self: flex-start;
+  margin-top: 6px;
+}
+.hb-dialog .craft-cost-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  padding: 9px 11px;
+  border-radius: 5px;
+  border: 1px solid var(--d-rule);
+  background: var(--d-sunk);
+  font-size: 12.5px;
+  color: var(--d-ink);
+}
+.hb-dialog .cost-line.short {
+  color: var(--d-plum-deep);
+  font-weight: 700;
+}
+.hb-dialog .cost-line.none {
+  color: var(--d-faint);
+}
+.hb-dialog .craft-shortage ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.hb-dialog .craft-shortage li {
+  margin-bottom: 4px;
 }

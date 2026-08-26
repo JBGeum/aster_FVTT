@@ -420,13 +420,18 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async openCraftDialog(actor) {
     const DialogV2 = foundry.applications.api.DialogV2;
     const result = await DialogV2.wait({
-      window: { title: game.i18n.localize("ASTER.craft.openCraftItem") },
+      classes: ["hb-dialog"],
+      window: {
+        title: game.i18n.localize("ASTER.craft.openCraftItem"),
+        icon: "fa-solid fa-hammer",
+      },
       position: { width: 540 },
       content: _renderCraftDialogContent(),
       render: (_event, dialog) => _wireCraftDialog(dialog, actor),
       buttons: [
         {
           action: "confirm",
+          icon: "fa-solid fa-check",
           label: game.i18n.localize("ASTER.craft.confirm"),
           default: true,
           callback: (_e, _b, dialog) => _collectCraftDraft(dialog.element),
@@ -557,7 +562,7 @@ function _craftRequiresRowHTML() {
       <option value="">${L("ASTER.craft.requiresSelect")}</option>
       ${baseOptions}
     </select>
-    <input type="number" name="requires-level" value="0" min="0" style="width:60px;" />
+    <input type="number" name="requires-level" value="0" min="0" />
     <button type="button" data-craft-action="removeRequires" title="${L("ASTER.craft.requiresRemove")}">×</button>
   </div>`;
 }
@@ -578,8 +583,7 @@ function _renderCraftDialogContent() {
       <label>${L("ASTER.craft.itemType")}</label>
       <select name="itemType">${typeOptions}</select>
     </div>
-    <div class="craft-drop-area" data-craft-drop="true"
-         style="border:1px dashed #888;border-radius:4px;padding:8px;text-align:center;margin:6px 0;">
+    <div class="craft-drop-area" data-craft-drop="true">
       <p>${L("ASTER.craft.dropHint")}</p>
     </div>
     <div class="form-group">
@@ -609,6 +613,18 @@ function _wireCraftDialog(dialog, actor) {
   // V13 DialogV2 render 콜백 인자가 (event, dialog) 또는 (event, element)로 전달될 수 있어 둘 다 수용.
   const el = dialog?.element ?? dialog;
   if (!el?.querySelector) return;
+
+  // DialogV2는 콜백 결과와 무관하게 창을 닫으므로 확정을 캡처 단계에서 막는다 — 확인은 클릭·Enter 두 경로다.
+  const requireName = (event) => {
+    if (event.type === "click" && !event.target?.closest?.('[data-action="confirm"]')) return;
+    if (el.querySelector('input[name="name"]')?.value.trim()) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    ui.notifications.warn(game.i18n.localize("ASTER.craft.nameRequired"));
+  };
+  el.addEventListener("click", requireName, { capture: true });
+  el.addEventListener("submit", requireName, { capture: true });
+
   const drop = el.querySelector("[data-craft-drop]");
   if (drop) {
     drop.addEventListener("dragover", (event) => {
@@ -762,7 +778,11 @@ function _confirmCraftShortage(validation) {
     }
   }
   return foundry.applications.api.DialogV2.confirm({
-    window: { title: game.i18n.localize("ASTER.craft.openCraftItem") },
+    classes: ["hb-dialog"],
+    window: {
+      title: game.i18n.localize("ASTER.craft.openCraftItem"),
+      icon: "fa-solid fa-triangle-exclamation",
+    },
     content: `<div class="craft-shortage"><p>${L("ASTER.craft.shortage")}</p><ul>${lines
       .map((l) => `<li>${l}</li>`)
       .join("")}</ul></div>`,
