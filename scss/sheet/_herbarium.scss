@@ -2900,6 +2900,8 @@
        .herbarium.npc-sheet(0,2,0)에서 양피지 톤을 직접 강제해 교정. */
     background-color: var(--parchment);
     color: var(--ink);
+    /* 탭이 없어 character 시트의 `.tab.active` 스크롤 규칙을 받지 못한다 — form의 overflow: hidden을 덮는다. */
+    overflow-y: auto;
   }
   .npc-body {
     display: flex;
