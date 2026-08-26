@@ -15,12 +15,6 @@ export class NpcDataModel extends BaseActorModel {
       dodgeFormula: new fields.StringField({ initial: "" }), // 회피 (예: "2D6+3"). PC dodge 수치와 별개
       apFormula: new fields.StringField({ initial: "" }), // 액션 포인트 (예: "1D6+6")
 
-      // 미사용 — 실제 AP는 Combatant flag에 있다.
-      ap: new fields.SchemaField({
-        value: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
-        max: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
-      }),
-
       // 상태이상 (PC와 동일 5종). DAMAGE_STATUSES 키와 일치해야 회복·대미지 헬퍼가 NPC에도 동작한다.
       badstatus: new fields.SchemaField({
         injury: new fields.BooleanField({ initial: false }),
