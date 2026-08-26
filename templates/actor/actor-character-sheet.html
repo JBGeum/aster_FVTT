@@ -1,5 +1,4 @@
 <form class="{{cssClass}} {{actor.type}}" autocomplete="off">
-  {{!-- 상단 — 이름(PC1) + character sheet 라벨 | 메인 탭 (시안 .sheet__top) --}}
   <header class="sheet__top">
     <div class="sheet__name">
       <span class="pc">{{actor.name}}</span>
@@ -14,12 +13,9 @@
 
   <section class="sheet-container">
     <div class="tab character" data-group="main" data-tab="character">
-      {{!-- H8 약초첩 v18 — .sheet__body grid-areas: idn stel inv / abil memo inv --}}
       <div class="herbarium">
         <div class="sheet__body">
-          {{!-- 좌·중 패널 (정체성 / 능력치+활력 / 상태이상+아스테르) --}} {{>
-          "systems/aster/templates/actor/parts/actor-main-character.html"}} {{!-- 우측 (inv): 인벤토리·주문·전투 서브탭
-          --}}
+          {{> "systems/aster/templates/actor/parts/actor-main-character.html"}}
           <section class="panel panel--inv" data-corner="✿">
             {{!-- 서브탭 nav 항목은 class="item"(Foundry 정합). class="tab"이면 코어의 .tab:not(.active){display:none}에
             걸려 비활성 항목(spell·combat)이 숨는다. --}}
@@ -39,7 +35,6 @@
             </div>
           </section>
 
-          {{!-- 중하 (memo) --}}
           <section class="panel panel--memo" data-corner="❧">
             <div class="panel__head">메모</div>
             <div class="memo">

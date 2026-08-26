@@ -8,13 +8,12 @@
 
   <div class="roll-block">
     <div class="dice-pips">{{dicePips resultDiceset}}</div>
-    {{#if formula}} {{!-- NPC 분기 — 식 전체 표시(상수 포함). rawTotal은 식 평가 결과, 최종 보정값은 아래 roll-total.
-    --}}
+    {{#if formula}}
     <div class="dice">
       <span class="formula-text">{{formula}}</span> = <strong>{{rawTotal}}</strong>
       <span class="dice-text">[{{diceText}}]</span>
     </div>
-    {{else}} {{!-- PC 분기 — 능력치 합산 표시(기존 유지) --}}
+    {{else}}
     <div class="dice">[{{diceText}}] + {{ablValue}}</div>
     {{/if}} {{#if focusApplied}}
     <div class="focus-applied-line">{{localize "ASTER.combat.focusApplied"}}</div>
@@ -45,7 +44,7 @@
   <footer class="card-actions">
     <button type="button" data-action="fumble-alert">{{localize "ASTER.roll.fumbleAlert"}}</button>
   </footer>
-  {{/if}} {{/if}} {{!-- 대결판정 결합 (GM 권한 체크는 핸들러에서) --}}
+  {{/if}} {{/if}} {{!-- GM 권한 체크는 핸들러에서. --}}
   <footer class="card-actions opposed-actions">
     <button type="button" data-action="opposed-set-active">{{localize "ASTER.opposed.setActive"}}</button>
     <button type="button" data-action="opposed-set-passive">{{localize "ASTER.opposed.setPassive"}}</button>

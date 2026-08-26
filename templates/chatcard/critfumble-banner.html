@@ -1,6 +1,3 @@
-{{!-- 기본 template — 대성공/대실패 공통 임팩트 배너. 카드 래퍼 없이 .verdict.critical/.fumble만 출력. 스타일(금빛
-sweep·별 / 보라·해골 + :has() 카드 연출)은 _chat-card.scss. 전용 카드·복합 카드 공통 include. 입력: isCritical /
-isFumble (둘 중 하나가 true). --}}
 <div class="verdict {{#if isCritical}}critical{{else if isFumble}}fumble{{/if}}">
   {{#if isCritical}}{{localize "ASTER.roll.critical"}}{{else if isFumble}}{{localize "ASTER.roll.fumble"}}{{/if}}
 </div>

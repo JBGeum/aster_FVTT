@@ -1,8 +1,5 @@
-{{!-- H8 약초첩 v18 — 좌·중 패널 (정체성 / 능력치+활력 / 상태이상+아스테르). .sheet__body grid-area로 배치되므로
-.herbarium 래퍼 없이 section만 출력. 값·동작은 현재 바인딩. --}} {{!-- 정체성 (idn) --}}
 <section class="panel panel--identity" data-corner="✿">
   <div class="identity">
-    {{!-- change.txt — 이름: 초상화 위·우측 상단(.id-row) --}}
     <div class="id-row">
       <div class="field field--name">
         <label>이름</label>
@@ -11,7 +8,7 @@
         </div>
       </div>
     </div>
-    {{!-- change.txt — 좌측 열: 로고 · 디바이더 · 속성 · 임시 엠블럼(.id-left) --}}
+
     <div class="id-left">
       <img class="id-logo" src="systems/aster/assets/aster-logo.png" alt="마녀와 채애의 아스테르" />
       <div class="id-div"></div>
@@ -24,14 +21,14 @@
           </select>
         </div>
       </div>
-      {{!-- 임시 점선 박스. 추후 system.color별 로고 이미지로 교체(.id-emblem--{color} background-image). --}}
+
       <div class="id-emblem id-emblem--{{system.color}}">로고</div>
     </div>
-    {{!-- 초상화 (중앙) --}}
+
     <div class="portrait">
       <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
     </div>
-    {{!-- change.txt — 판정: 세로 스택(.roll__row > 일반·대항 + 목표) + 정동판정(.roll--wide) --}}
+
     <div class="roll roll--wide">
       <div class="roll__row">
         <div class="seg">
@@ -56,9 +53,7 @@
   </div>
 </section>
 
-{{!-- 능력치 + 활력 (abil) --}}
 <section class="panel panel--abil" data-corner="❧">
-  {{!-- STEP 2 — 능력치 | 활력 2열(.abil-grid) --}}
   <div class="abil-grid">
     <div class="abil-col">
       <div class="panel__head">능력치</div>
@@ -117,7 +112,6 @@
   </div>
 </section>
 
-{{!-- 상태이상 + 아스테르(원소 친화) (stel) --}}
 <section class="panel panel--statel" data-corner="❀">
   <div class="panel__head">상태이상</div>
   <div class="status">
@@ -145,8 +139,7 @@
 
   <div class="panel__head panel__head--sub">아스테르</div>
   <div class="elements">
-    {{!-- STEP 3(FIX) — 증감버튼은 .el__head(점+이름)에만, 값은 밖. asterStep으로 ±1. --}} {{#each system.aster as
-    |aster key|}}
+    {{#each system.aster as |aster key|}}
     <div class="el">
       <div class="el__head">
         <div class="el__dot el__dot--{{key}}"></div>
@@ -158,7 +151,7 @@
       </div>
       <div class="el__val num"><input type="number" name="system.aster.{{key}}.value" value="{{aster.value}}" /></div>
     </div>
-    {{/each}} {{!-- 마테리얼은 증감버튼 제외(시안/FIX 정합) --}}
+    {{/each}}
     <div class="el el--mat">
       <div class="el__head">
         <div class="el__dot el__dot--mat"></div>

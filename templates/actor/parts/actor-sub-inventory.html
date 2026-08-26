@@ -1,12 +1,11 @@
-{{!-- H8 약초첩 v18 — 인벤토리 콘텐츠 (부모 .panel--inv 안). 값·동작은 현재 바인딩. --}} {{!-- 가방칸 (충진형 5×3 격자:
-빈 칸 = 양피지 체커, 아이템 = 오버레이) --}} {{#if inv.bag}}
+{{#if inv.bag}}
 <div class="bag__head">
   <div class="panel__head" style="margin: 0; flex: 1">가방칸</div>
   <span class="bag__cap"
     >{{inv.bag.grid.cols}} × {{inv.bag.grid.rows}} · <b>{{inv.bag.items.length}}</b>/{{inv.bag.cells.length}}</span
   >
 </div>
-{{!-- STEP 2 — .bag-frame 래퍼 + --bag-cols/--bag-rows로 정사각 셀(행·열 비율 무관) --}}
+
 <div class="bag-grid" style="--bag-cols: {{inv.bag.grid.cols}}; --bag-rows: {{inv.bag.grid.rows}}">
   <div class="bag-frame">
     <div class="bag-cells">
@@ -37,7 +36,7 @@
 </div>
 {{else}}
 <p class="ap-note">{{localize "ASTER.inventory.noBag"}}</p>
-{{/if}} {{!-- 착용 · 휴대 (바구니 + 장비 + 사역마) --}}
+{{/if}}
 <div class="panel__head">착용 · 휴대</div>
 <div class="carry">
   <div class="cslot basket">
@@ -118,7 +117,6 @@
   </div>
 </div>
 
-{{!-- 소지품 (가방 안 + 창고) --}}
 <div class="panel__head">소지품</div>
 <div class="items">
   {{#each inv.allItems as |it|}}
@@ -178,7 +176,6 @@
   {{/each}}
 </div>
 
-{{!-- 창고 --}}
 <div class="storage {{#if inv.storage.over}}over{{/if}}">
   <span class="k">{{localize "ASTER.inventory.storage"}}</span>
   <span class="box num">

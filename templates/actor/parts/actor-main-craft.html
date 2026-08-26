@@ -1,7 +1,5 @@
-{{!-- H8 약초첩 v18 — Craft 탭 (재료 합계표 + 레시피 그룹). 클래스는 시안, 값·동작은 현재 바인딩. --}}
 <div class="herbarium">
   <div class="craft{{#if craft.locked}} locked{{/if}}">
-    {{!-- 상단 바: 아이템 만들기 + 초기화 + 잠금 토글 --}}
     <div class="craft-bar">
       <button
         type="button"
@@ -24,7 +22,6 @@
       </div>
     </div>
 
-    {{!-- 재료 합계표 (사용/보유 9열) --}}
     <div class="mat-table">
       {{#each craft.summaryColumns as |col|}}
       <div class="mat-col{{#if col.total}} mat-col--total{{/if}}">
@@ -32,11 +29,11 @@
           {{#if col.dotKey}}<span class="dot dot--{{col.dotKey}}"></span>{{/if}} {{#if col.labelKey}}{{localize
           col.labelKey}}{{else}}{{col.label}}{{/if}}
         </div>
-        {{!-- 사용량 --}}
+
         <div class="mat-cell {{#if col.usedEmpty}}muted{{else}}{{#if col.used}}neg{{/if}}{{/if}}">
           {{#if col.usedEmpty}}–{{else}}{{col.used}}{{/if}}
         </div>
-        {{!-- 보유량 (아스테르·마테리얼은 편집) --}}
+
         <div class="mat-cell {{#if col.haveEmpty}}muted{{/if}}">
           {{#if col.editable}}
           <input type="number" class="craft-res-input" data-field="{{col.inputName}}" value="{{col.have}}" />
@@ -46,7 +43,7 @@
       {{/each}}
     </div>
 
-    {{!-- 레시피 그룹 (제조 · 점술 · 요리 · 사역마) --}} {{#each craft.categories as |cat|}}
+    {{#each craft.categories as |cat|}}
     <div class="recipe-group" data-category="{{cat.id}}">
       <div class="panel__head">{{localize cat.label}}</div>
       <div class="recipe-grid">
