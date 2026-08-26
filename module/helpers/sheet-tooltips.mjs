@@ -1,6 +1,7 @@
 /**
  */
 import { isEquipSlotContainer } from "./inventory-capacity.mjs";
+import { formatSpeedSources } from "./speed-sources.mjs";
 
 // 상태이상 칩 툴팁 키 (lang 키 — bigInj 필드는 lang에서 biginj).
 const BADSTATUS_KEYS = ["injury", "biginj", "sleepy", "exhaustion", "hungry"];
@@ -120,4 +121,22 @@ export function buildSpellTooltip(spell, formula) {
     );
   }
   return parts.join("");
+}
+
+/**
+ * 민첩에 더해진 효과 목록. 해당 효과가 없으면 null → tooltipHtml 헬퍼가 속성을 생략한다.
+ *
+ * @param {Array} effects  actor.appliedEffects
+ * @returns {string|null}
+ */
+export function buildSpeedTooltip(effects) {
+  const sources = formatSpeedSources(effects);
+  if (!sources) return null;
+  const label = game.i18n.localize("ASTER.label.speed");
+  // 효과 이름은 사용자가 만든 AE일 수 있어 escape — 조립된 목록에 태그가 섞이지 않게 한다.
+  const body = foundry.utils.escapeHTML(sources);
+  return (
+    `<div class="hb-tip__head"><i class="fa-solid fa-wind"></i>${label}</div>` +
+    `<div class="hb-tip__body">${body}</div>`
+  );
 }

@@ -7,7 +7,7 @@ import { validateCraft, craftItem, getCraftRequiresBaseList } from "../helpers/c
 import { resolveCombatAction, resolveNpcActionUse } from "../helpers/combat-actions.mjs";
 import { castSpell, castSpellWithExtra } from "../helpers/spell-cast.mjs";
 import { performUnisonAttack } from "../helpers/unison.mjs";
-import { buildStatusTooltips } from "../helpers/sheet-tooltips.mjs";
+import { buildStatusTooltips, buildSpeedTooltip } from "../helpers/sheet-tooltips.mjs";
 import { useConsumable } from "../helpers/consumable.mjs";
 import { requestRevive } from "../helpers/revive.mjs";
 import { postItemCard } from "../helpers/item-chat.mjs";
@@ -118,6 +118,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       prepareRecord(this, context);
       context.combatContext = buildCombatContext(this);
       context.reviveContext = buildReviveContext(this);
+      context.speedTooltip = buildSpeedTooltip(this.actor.appliedEffects);
     } else if (this.actor.type === "npc") {
       prepareItems(this, context);
       context.combatContext = buildCombatContext(this);
