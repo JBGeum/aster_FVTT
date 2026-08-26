@@ -107,7 +107,9 @@
           </div>
         </div>
         <div class="minis">
-          <div class="mini"><span class="k">민첩</span><span class="v num">{{system.speed}}</span></div>
+          <div class="mini" {{tooltipHtml speedTooltip}}>
+            <span class="k">민첩</span><span class="v num">{{system.speed}}</span>
+          </div>
           <div class="mini"><span class="k">회피</span><span class="v num">{{system.dodge}}</span></div>
         </div>
       </div>
