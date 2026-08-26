@@ -36,7 +36,7 @@ export async function resolveCombatAction({ actor, actionKey }) {
   let chatExtra;
   let throwTarget = null; // 돌던지기 대상 토큰 (대미지 적용 flag용)
   let chargeChoice = null; // 차지 선택("ap" | "unison")
-  let dashX = 0; // 대쉬 입력값 — AE duration.rounds: 1로 다음 라운드 끝까지 system.speed +X
+  let dashX = 0;
 
   switch (actionKey) {
     case "throw": {
@@ -126,23 +126,7 @@ export async function resolveCombatAction({ actor, actionKey }) {
   } else if (actionKey === "focus") {
     await combatant.setFlag("aster", "focusActive", true);
   } else if (actionKey === "dash") {
-    await actor.createEmbeddedDocuments("ActiveEffect", [
-      {
-        name: game.i18n.localize("ASTER.combat.action.dash"),
-        img: "icons/svg/lightning.svg",
-        changes: [
-          {
-            key: "system.speed",
-            mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-            value: dashX,
-            priority: 20,
-          },
-        ],
-        // combat 매개는 Foundry 라운드 기반 만료 흐름에 필요(없으면 자동 만료 안 됨).
-        duration: { rounds: 1, startRound: combat.round, combat: combat.id },
-        flags: { aster: { sourceAction: "dash" } },
-      },
-    ]);
+    await combatant.setFlag("aster", "dashNextRound", dashX);
   } else if (actionKey === "unisonPrepare") {
     await combatant.setFlag("aster", "unisonReady", true);
   }

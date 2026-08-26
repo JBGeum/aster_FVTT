@@ -51,6 +51,30 @@ export class AsterCombat extends Combat {
   async _startRound() {
     if (!game.user.isGM) return;
 
+    // 대쉬 AE는 initiative 갱신보다 먼저 만들어야 오른 민첩이 이 라운드 순서에 반영된다.
+    for (const c of this.combatants) {
+      const dashX = c.getFlag("aster", "dashNextRound");
+      if (!dashX || !c.actor) continue;
+      await c.actor.createEmbeddedDocuments("ActiveEffect", [
+        {
+          name: game.i18n.localize("ASTER.combat.action.dash"),
+          img: "icons/svg/lightning.svg",
+          changes: [
+            {
+              key: "system.speed",
+              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+              value: dashX,
+              priority: 20,
+            },
+          ],
+          // combat 매개는 Foundry 라운드 기반 만료 흐름에 필요(없으면 자동 만료 안 됨).
+          duration: { rounds: 1, startRound: this.round, combat: this.id },
+          flags: { aster: { sourceAction: "dash" } },
+        },
+      ]);
+      await c.setFlag("aster", "dashNextRound", null);
+    }
+
     const initiativeUpdates = [];
     for (const c of this.combatants) {
       const speed = Number(c.actor?.system?.speed ?? 0);
