@@ -265,6 +265,18 @@ export class AsterCombat extends Combat {
   async _endCombat() {
     if (!game.user.isGM) return;
 
+    // 전투가 끝나면 라운드가 없어 만료를 계산할 수 없다 — 전투에서 생긴 효과를 모두 지운다.
+    for (const c of this.combatants) {
+      if (!c.actor) continue;
+      const combatEffects = c.actor.effects.filter((eff) => eff.flags?.aster?.sourceAction);
+      if (combatEffects.length) {
+        await c.actor.deleteEmbeddedDocuments(
+          "ActiveEffect",
+          combatEffects.map((e) => e.id),
+        );
+      }
+    }
+
     const transitioned = [];
     const revived = [];
     for (const c of this.combatants) {
