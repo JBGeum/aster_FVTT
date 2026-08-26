@@ -424,3 +424,107 @@
   color: var(--d-ink-strong);
   font-weight: 700;
 }
+
+/* 아이템 만들기 — 드롭 영역·재료 격자·비용 미리보기는 스킨에 없던 것들이다. */
+.hb-dialog .craft-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hb-dialog .craft-drop-area {
+  padding: 12px 8px;
+  border: 1px dashed var(--d-rule);
+  border-radius: 5px;
+  background: var(--d-sunk);
+  text-align: center;
+  color: var(--d-soft);
+  font-size: 13px;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease;
+}
+.hb-dialog .craft-drop-area p {
+  margin: 0;
+}
+.hb-dialog .craft-drop-area.drag-over {
+  border-style: solid;
+  border-color: var(--d-gold);
+  background: var(--d-deep);
+  color: var(--d-ink-strong);
+}
+.hb-dialog .material-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.hb-dialog .material-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hb-dialog .material-lbl {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: var(--d-soft);
+  white-space: nowrap;
+}
+.hb-dialog .craft-requires-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hb-dialog .craft-requires-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hb-dialog .craft-requires-row input[name="requires-level"] {
+  flex: 0 0 72px;
+  width: auto;
+}
+.hb-dialog .craft-requires-row button,
+.hb-dialog .craft-requires-add {
+  flex: 0 0 auto;
+  cursor: pointer;
+  padding: 6px 11px;
+  border-radius: 5px;
+  border: 1px solid var(--d-rule);
+  background: var(--d-sunk);
+  color: var(--d-soft);
+  font-family: "NanumSquareRound", sans-serif;
+  font-size: 12.5px;
+}
+.hb-dialog .craft-requires-row button:hover,
+.hb-dialog .craft-requires-add:hover {
+  border-color: var(--d-gold);
+  color: var(--d-ink-strong);
+}
+.hb-dialog .craft-requires-add {
+  align-self: flex-start;
+  margin-top: 6px;
+}
+.hb-dialog .craft-cost-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  padding: 9px 11px;
+  border-radius: 5px;
+  border: 1px solid var(--d-rule);
+  background: var(--d-sunk);
+  font-size: 12.5px;
+  color: var(--d-ink);
+}
+.hb-dialog .cost-line.short {
+  color: var(--d-plum-deep);
+  font-weight: 700;
+}
+.hb-dialog .cost-line.none {
+  color: var(--d-faint);
+}
+.hb-dialog .craft-shortage ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.hb-dialog .craft-shortage li {
+  margin-bottom: 4px;
+}
