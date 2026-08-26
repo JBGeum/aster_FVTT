@@ -172,6 +172,12 @@
     color: var(--d-ink-strong);
   }
 
+  /* 코어 accent는 파랑이라 양피지와 어긋난다. */
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--d-gold);
+  }
+
   /* 버튼 푸터(V13 .form-footer / 시안 .dialog-buttons) */
   .form-footer,
   .dialog-buttons {
@@ -332,4 +338,68 @@
 .hb-dialog .dice-pick-label:has(input:focus-visible) .dice-pick-face {
   outline: 2px solid var(--d-gold);
   outline-offset: 2px;
+}
+
+/* 일괄 조정 — 스킨이 checkbox·radio를 비워 두므로 대상 격자와 상태 세그먼트를 여기서 그린다. */
+.hb-dialog .bulk-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hb-dialog .bulk-target-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
+}
+.hb-dialog .bulk-target {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  border-radius: 5px;
+  border: 1px solid var(--d-rule);
+  background: var(--d-sunk);
+  color: var(--d-ink);
+  font-size: 13px;
+  cursor: pointer;
+}
+.hb-dialog .bulk-target input {
+  flex: 0 0 auto;
+}
+.hb-dialog .bulk-target:has(input:checked) {
+  border-color: var(--d-gold);
+  color: var(--d-ink-strong);
+  font-weight: 700;
+}
+.hb-dialog .bulk-status-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+/* 5행의 옵션 열이 세로로 맞아야 훑어보기 쉽다. */
+.hb-dialog .bulk-status-row .k {
+  flex: 0 0 68px;
+  font-family: "Noto Serif KR", serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--d-soft);
+}
+.hb-dialog .bulk-status-opt {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 0;
+  border-radius: 5px;
+  border: 1px solid var(--d-rule);
+  background: var(--d-sunk);
+  color: var(--d-ink);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.hb-dialog .bulk-status-opt:has(input:checked) {
+  border-color: var(--d-gold);
+  color: var(--d-ink-strong);
+  font-weight: 700;
 }

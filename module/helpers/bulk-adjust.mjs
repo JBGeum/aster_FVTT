@@ -54,22 +54,27 @@ export async function runBulkAdjust() {
   }).join("");
 
   const input = await foundry.applications.api.DialogV2.prompt({
-    window: { title: game.i18n.localize("ASTER.bulk.title") },
+    classes: ["hb-dialog"],
+    window: {
+      title: game.i18n.localize("ASTER.bulk.title"),
+      icon: "fa-solid fa-users-gear",
+    },
     content: `
       <div class="bulk-section">
-        <div class="bulk-legend">${game.i18n.localize("ASTER.bulk.targets")}</div>
+        <div class="form-label">${game.i18n.localize("ASTER.bulk.targets")}</div>
         <div class="bulk-target-grid">${targetRows}</div>
       </div>
       <div class="bulk-section">
-        <div class="bulk-legend">${game.i18n.localize("ASTER.bulk.resources")}</div>
+        <div class="form-label">${game.i18n.localize("ASTER.bulk.resources")}</div>
         ${resourceRows}
       </div>
       <div class="bulk-section">
-        <div class="bulk-legend">${game.i18n.localize("ASTER.bulk.badstatus")}</div>
+        <div class="form-label">${game.i18n.localize("ASTER.bulk.badstatus")}</div>
         ${statusRows}
       </div>
     `,
     ok: {
+      icon: "fa-solid fa-check",
       label: game.i18n.localize("ASTER.bulk.confirm"),
       callback: (_e, b) => ({
         targetIds: Array.from(b.form.querySelectorAll('input[name="target"]:checked')).map(
