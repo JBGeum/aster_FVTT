@@ -210,9 +210,10 @@ export function prepareCraft(sheet, context) {
       labelKey: `ASTER.aster.${c}`,
       dotKey: c,
       have: resources.aster[c] ?? 0,
-      used: cost.aster[c],
+      used: cost.aster[c] ?? null,
       haveEmpty: false,
-      usedEmpty: false,
+      // 백은 고정비용 색이 아니라 sumCost에 키가 없다 — 보유 총합에만 기여한다.
+      usedEmpty: cost.aster[c] === undefined,
       editable: true,
       inputName: `system.aster.${c}.value`,
     })),
