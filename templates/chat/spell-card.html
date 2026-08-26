@@ -31,8 +31,7 @@
     <div class="roll-total">
       <strong>{{achievement}}</strong><span class="vs">/ {{localize "ASTER.spell.target"}} {{target}}</span>
     </div>
-    {{!-- 대성공/대실패는 공통 배너(기본 template)로, 일반 성공/실패는 기존 verdict로 표시 --}} {{#if isCritical}} {{>
-    "systems/aster/templates/chatcard/critfumble-banner.html"}} {{else if isFumble}} {{>
+    {{#if isCritical}} {{> "systems/aster/templates/chatcard/critfumble-banner.html"}} {{else if isFumble}} {{>
     "systems/aster/templates/chatcard/critfumble-banner.html"}} {{else}}
     <div class="verdict {{#if success}}success{{else}}fail{{/if}}">
       {{#if success}}{{localize "ASTER.spell.success"}}{{else}}{{localize "ASTER.spell.fail"}}{{/if}}
@@ -52,7 +51,6 @@
     <div class="value">{{alert.min}} ~ {{alert.max}}</div>
   </div>
 
-  {{!-- 사후 "추가 굴림" 버튼 제거 — 사전 다이얼로그(+다이스 버튼)로 통합 --}}
   <footer class="card-actions">
     {{#if isPC}} {{#if isCritical}}
     <button type="button" data-action="crit-aster-gain" data-actor-id="{{actorId}}">

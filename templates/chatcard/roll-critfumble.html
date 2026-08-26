@@ -1,7 +1,4 @@
-{{!-- 대성공/대실패 전용 카드. detectCritFumble이 crit/fumble일 때 각 판정 경로(능력치·정동·회피·명중)가 평소 카드 대신
-이 카드로 교체 렌더한다(critFumbleCardPath 헬퍼). 공통 입력: label · diceText · total · isCritical · isFumble · isPC ·
-actorId 선택 입력: rollDC(일반판정) · formula(NPC 식) · opposed(대결: 회피/명중/대결판정) · favColorLabel(정동 대성공)
---}}
+{{!-- critFumbleCardPath 헬퍼가 판정 경로마다 평소 카드 대신 이 파일을 고른다 — 호출부가 마크업에 드러나지 않는다. --}}
 <div class="aster-chat-card aster-chat-card--cf {{#if isCritical}}is-crit{{else if isFumble}}is-fumble{{/if}}">
   <header class="card-header">
     <div class="title">
@@ -24,8 +21,8 @@ actorId 선택 입력: rollDC(일반판정) · formula(NPC 식) · opposed(대�
     {{/if}}
   </div>
 
-  {{> "systems/aster/templates/chatcard/critfumble-banner.html"}} {{!-- 정동 대성공 — 특기색 가산 안내(자동 가산 아님,
-  표시만) --}} {{#if isCritical}} {{#if favColorLabel}}
+  {{> "systems/aster/templates/chatcard/critfumble-banner.html"}} {{!-- 특기색 가산은 안내만 — 자동으로 더해지지 않는다.
+  --}} {{#if isCritical}} {{#if favColorLabel}}
   <div class="emo-fav">
     <span class="label">{{localize "ASTER.emo.favLabel"}}</span>
     <span class="value">{{favColorLabel}}</span>
@@ -46,7 +43,7 @@ actorId 선택 입력: rollDC(일반판정) · formula(NPC 식) · opposed(대�
       {{localize "ASTER.tracker.sumButton"}}
     </button>
   </footer>
-  {{/if}} {{!-- 대결판정(회피·명중·VS) — opposed 결합 푸터 보존(GM 권한 체크는 핸들러에서) --}} {{#if opposed}}
+  {{/if}} {{!-- GM 권한 체크는 핸들러에서. --}} {{#if opposed}}
   <footer class="card-actions opposed-actions">
     <button type="button" data-action="opposed-set-active">{{localize "ASTER.opposed.setActive"}}</button>
     <button type="button" data-action="opposed-set-passive">{{localize "ASTER.opposed.setPassive"}}</button>

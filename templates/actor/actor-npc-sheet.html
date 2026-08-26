@@ -1,8 +1,5 @@
 <form class="{{cssClass}} {{actor.type}} herbarium theme-herbarium npc-sheet" autocomplete="off">
-  {{!-- H8 약초첩 NPC — 시안 마녀 시트 NPC.html 구조로 재작성. 값·동작은 D52(N트랙) 바인딩 보존. sheet-header 제거
-  유지(D52): form 직속 .npc-body — Foundry 윈도우 헤더와 겹치지 않아 드래그 충돌 없음. --}}
   <div class="npc-body">
-    {{!-- 헤더 — 초상 + 이름/도전등급 + 능력치 그리드 (시안 .npc-head) --}}
     <div class="npc-head">
       <div class="portrait">
         <img src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
@@ -89,7 +86,6 @@
       </div>
     </section>
 
-    {{!-- 약전 (biography editor) --}}
     <section class="panel" data-corner="✿">
       <div class="panel__head">약전</div>
       <div class="npc-bio">
@@ -98,8 +94,7 @@
       </div>
     </section>
 
-    {{!-- N3 — 전투(AP) 영역: AP 표시 + 회피·명중(반응 판정) + 공통 액션. 시안 .npc-ap. charge·unisonPrepare 제외 — NPC
-    합체기 발동 불가(룰 정합). --}}
+    {{!-- charge·unisonPrepare 제외 — NPC는 합체기를 발동할 수 없다(룰). --}}
     <div class="npc-ap">
       <div class="ap-head">
         <span class="t">{{localize "ASTER.combat.actionPoints"}}</span>
@@ -114,8 +109,7 @@
       </div>
       {{#unless combatContext.inCombat}}
       <div class="ap-note">{{localize "ASTER.combat.notInCombat"}}</div>
-      {{/unless}} {{!-- N5/N6 — 회피·명중. 반응 판정(AP 소비 없음)이라 전투 진행 여부와 무관하게 활성. rollDodge/rollHit
-      핸들러는 Actor 메서드에서 type 분기(NPC는 formula 평가). --}}
+      {{/unless}} {{!-- 반응 판정(AP 소비 없음)이라 전투 진행 여부와 무관하게 활성. --}}
       <div class="npc-ap__row2">
         <button type="button" class="ap-btn" data-action="rollDodge">
           <span>{{localize "ASTER.dodge.label"}}</span>
@@ -174,12 +168,9 @@
           <span>{{localize "ASTER.combat.action.dash"}}</span>
           <span class="cost num">×</span>
         </button>
-        {{!-- charge·unisonPrepare 버튼 없음 — 룰 정합(NPC 합체기 발동 불가) --}}
       </div>
     </div>
 
-    {{!-- N2 — 액션 표 (npcAction). 시안 .act-table(div grid). N6 — 생성 버튼 추가 (itemCreate + data-type=npcAction,
-    #onItemCreate 핸들러 재사용). --}}
     <div class="npc-actions">
       <div class="panel__bar">
         <div class="panel__head" style="margin: 0; flex: 1">{{localize "ASTER.npcAction.sectionTitle"}}</div>
@@ -205,7 +196,6 @@
             {{#if action.system.oncePerRound}}<span class="a-once">1R 1회</span>{{/if}}
           </span>
           <span class="a-tools">
-            {{!-- N3 — 시전 버튼. combat 미진입 시 비활성(combatDisabled는 _prepareContext에서 평면화) --}}
             <button
               type="button"
               data-action="npcActionUse"
@@ -241,7 +231,6 @@
       </div>
     </div>
 
-    {{!-- 소지품 (npcAction 외 아이템) --}}
     <div class="npc-items">
       <div class="panel__bar">
         <div class="panel__head" style="margin: 0; flex: 1">{{localize "ASTER.npc.itemsSection"}}</div>

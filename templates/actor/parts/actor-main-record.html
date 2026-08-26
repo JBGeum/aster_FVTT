@@ -1,7 +1,5 @@
-{{!-- H8 약초첩 v18 — Record 탭 (출생·경험·목적 노트 + 세션 일지 카드). 클래스는 시안, 값·동작은 현재 바인딩. --}}
 <div class="herbarium">
   <div class="record">
-    {{!-- 출생 · 경험 · 목적 (편집 가능) --}}
     <div class="record-top">
       <div class="record-field">
         <div class="panel__head">{{localize "ASTER.features.born"}}</div>
@@ -47,7 +45,6 @@
       </div>
     </div>
 
-    {{!-- 세션 기록 네비게이션 --}}
     <div class="record-nav">
       <div class="pager">
         <button type="button" class="pager-btn" data-action="recordPrev" {{recordPrevDisabled}}>◀</button>
@@ -75,9 +72,8 @@
       </div>
     </div>
 
-    {{!-- 세션 일지 카드 --}} {{#if currentRecord}}
+    {{#if currentRecord}}
     <div class="record-card" data-item-id="{{currentRecord.id}}">
-      {{!-- change.txt — 체재도시 헤더 라인(위치 아이콘 + 강조면) --}}
       <div class="rec-line rec-line--head">
         <div class="pair">
           <span class="k">{{localize "ASTER.record.city"}}</span><span class="v">{{currentRecord.city}}</span>

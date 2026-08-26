@@ -8,7 +8,7 @@
 
   {{#if effect}}
   <div class="action-effect">{{effect}}</div>
-  {{/if}} {{!-- N6 — hit 굴림 결과 (공격 액션 시 통합). 대결 비교는 GM 수동 영역. --}} {{#if hitResult}}
+  {{/if}} {{!-- 대결 비교는 GM 수동 영역. --}} {{#if hitResult}}
   <div class="hit-result">
     <div class="formula-line">
       {{localize "ASTER.hit.label"}}: {{hitResult.formula}} = <strong>{{hitResult.total}}</strong>
@@ -17,7 +17,7 @@
       hitResult.isFumble}}<span class="fumble">{{localize "ASTER.roll.fumble"}}</span>{{/if}}
     </div>
   </div>
-  {{/if}} {{!-- 대미지·상태이상 결과 (대상별) --}} {{#if damageResults.length}}
+  {{/if}} {{#if damageResults.length}}
   <div class="damage-results">
     {{#if damageFormula}}
     <div class="formula-line">{{damageFormula}} = <strong>{{damageTotal}}</strong></div>
@@ -31,7 +31,7 @@
     </div>
     {{/each}}
   </div>
-  {{/if}} {{!-- 회복 결과 (대상별) --}} {{#if cureResults.length}}
+  {{/if}} {{#if cureResults.length}}
   <div class="cure-results">
     {{#each cureResults as |r|}}
     <div class="result-line">
