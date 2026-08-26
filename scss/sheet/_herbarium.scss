@@ -1948,7 +1948,8 @@
   /* 재료 합계표 */
   .mat-table {
     display: grid;
-    grid-template-columns: repeat(9, 1fr);
+    grid-template-columns: auto repeat(9, 1fr);
+    grid-template-rows: auto auto auto;
     margin-bottom: 26px;
     border: 1px solid var(--gold);
     border-radius: var(--hb-radius);
@@ -1957,12 +1958,25 @@
     box-shadow: 0 2px 6px rgba(60, 40, 18, 0.1);
   }
   .mat-col {
-    display: flex;
-    flex-direction: column;
+    /* 세 행을 표 전체 격자에 묶는다 — 총합 열은 글자가 커서 열마다 따로 두면 분할선이 어긋난다. */
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-row: span 3;
     border-right: 1px solid var(--rule);
 
     &:last-child {
       border-right: none;
+    }
+    &--label {
+      background: var(--parchment-deep);
+
+      .mat-cell {
+        padding-inline: 10px;
+        font-family: inherit;
+        font-size: 12px;
+        color: var(--ink-soft);
+        white-space: nowrap;
+      }
     }
     &--total {
       background: var(--parchment-deep);
@@ -2020,6 +2034,8 @@
   .mat-cell {
     padding: 9px 3px;
     text-align: center;
+    /* 행 높이가 subgrid로 통일되므로 남는 세로 공간에서 내용을 가운데로. */
+    align-content: center;
     font-family: var(--hb-font-num);
     font-weight: 600;
     font-size: 15px;

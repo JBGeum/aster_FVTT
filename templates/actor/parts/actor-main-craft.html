@@ -23,6 +23,11 @@
     </div>
 
     <div class="mat-table">
+      <div class="mat-col mat-col--label">
+        <div class="mat-col__head"></div>
+        <div class="mat-cell">사용</div>
+        <div class="mat-cell">보유</div>
+      </div>
       {{#each craft.summaryColumns as |col|}}
       <div class="mat-col{{#if col.total}} mat-col--total{{/if}}">
         <div class="mat-col__head">
