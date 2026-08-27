@@ -189,7 +189,7 @@
       "dialogTitle": "{label} 판정",
       "target": "목표치",
       "modifier": "달성치 보정",
-      "satietyEffect": "포만도 효과",
+      "satietyEffect": "포만 보정",
       "roll": "굴리기",
       "targetShort": "목표"
     },
