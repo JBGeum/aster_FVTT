@@ -14,14 +14,16 @@
       "knowledge": "박식",
       "dexterity": "요령",
       "worldly": "처세",
-      "pcOnly": "능력치 판정은 PC(캐릭터) 전용입니다."
+      "pcOnly": "능력치 판정은 PC(캐릭터) 전용입니다.",
+      "title": "능력치"
     },
     "aster": {
       "red": "적",
       "blue": "청",
       "white": "백",
       "green": "녹",
-      "yellow": "황"
+      "yellow": "황",
+      "title": "아스테르"
     },
     "emo": {
       "roll": "정동판정",
@@ -47,7 +49,10 @@
       "fumbleAlert": "경계도 +1d6",
       "fumbleAlertFlavor": "대실패 — 경계도 +{delta} (누적 {total})",
       "alertRiseTitle": "경계도 상승",
-      "alertCumulative": "누적 경계도"
+      "alertCumulative": "누적 경계도",
+      "modeNormal": "일반",
+      "modeVs": "대항",
+      "cardTitle": "{label} 판정"
     },
     "opposed": {
       "setActive": "능동 지정",
@@ -85,7 +90,14 @@
       "dodgeFormula": "회피",
       "apFormula": "액션",
       "badstatus": "상태이상",
-      "name": "이름"
+      "name": "이름",
+      "affinity": "속성",
+      "emblem": "로고",
+      "vitals": "활력",
+      "memo": "메모",
+      "namePlaceholder": "캐릭터이름",
+      "memoPlaceholder": "메모를 입력하세요...",
+      "logoAlt": "마녀와 채애의 아스테르"
     },
     "badstatus": {
       "injury": "부상",
@@ -169,14 +181,17 @@
         "FAMILIAR_ONE": "사역마는 하나만 취득할 수 있습니다.",
         "GENERIC": "취득할 수 없습니다.",
         "NEGATIVE": "{resource} 부족 (현재 {value})"
-      }
+      },
+      "used": "사용",
+      "owned": "보유"
     },
     "check": {
       "dialogTitle": "{label} 판정",
       "target": "목표치",
       "modifier": "달성치 보정",
-      "satietyEffect": "포만도 효과",
-      "roll": "굴리기"
+      "satietyEffect": "포만 보정",
+      "roll": "굴리기",
+      "targetShort": "목표"
     },
     "bulk": {
       "action": "일괄 조정",
@@ -346,7 +361,8 @@
       "unisonCureSection": "▷ 상태이상 치료",
       "unisonCureLine": "{name}: {keys}",
       "unisonSelfTurnEndLine": "⚠ {self}와 {pair}는 다음 라운드 행동완료 (자해 효과 — GM 진행)",
-      "unisonNoDescription": "(룰북 플레이버 텍스트 없음)"
+      "unisonNoDescription": "(룰북 플레이버 텍스트 없음)",
+      "unisonChargeExtra": "({original} + {extra} 차지, {final} 선택)"
     },
     "dodge": {
       "label": "회피",
@@ -433,7 +449,8 @@
       "warn": {
         "noColor": "이 마법은 속성 색이 지정되지 않았습니다.",
         "notEnoughAster": "{color} 아스테르가 부족합니다 (필요 {need} / 보유 {have})"
-      }
+      },
+      "book": "주문서"
     },
     "dice": {
       "pickTitle": "다이스 선택",
@@ -507,7 +524,8 @@
     },
     "npc": {
       "itemsSection": "소지 아이템",
-      "noItems": "아이템이 없습니다."
+      "noItems": "아이템이 없습니다.",
+      "bio": "약전"
     },
     "npcAction": {
       "sectionTitle": "액션",
@@ -538,7 +556,9 @@
       "xInputTitle": "{name} — X 값 입력",
       "xInputLabel": "X (AP)",
       "cured": "치료",
-      "cureNone": "효과 없음"
+      "cureNone": "효과 없음",
+      "oncePerRoundShort": "1R 1회",
+      "damageSuffix": "{formula} 대미지"
     },
     "item": {
       "name": "이름",
@@ -568,7 +588,11 @@
       "requirement": "요구",
       "size": "크기",
       "gridSize": "격자 크기",
-      "storageImg": "창고 그림"
+      "storageImg": "창고 그림",
+      "cols": "열",
+      "rows": "행",
+      "width": "가로",
+      "height": "세로"
     },
     "consumable": {
       "timingLabel": "사용 타이밍",
@@ -634,7 +658,12 @@
       "delete": "삭제",
       "deleteConfirm": "아이템 삭제",
       "deleteMsg": "{name}을(를) 삭제하시겠습니까?",
-      "noItems": "아이템이 없습니다."
+      "noItems": "아이템이 없습니다.",
+      "bagSlots": "가방칸",
+      "carry": "착용 · 휴대",
+      "belongings": "소지품",
+      "slotEmpty": "비어 있음",
+      "slotNone": "없음"
     }
   }
 }

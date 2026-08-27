@@ -9,7 +9,7 @@
           <div class="field npc-name">
             <label>{{localize "ASTER.label.name"}}</label>
             <div class="input-line">
-              <input name="name" type="text" value="{{actor.name}}" placeholder="이름" />
+              <input name="name" type="text" value="{{actor.name}}" placeholder="{{localize 'ASTER.label.name'}}" />
             </div>
           </div>
           <div class="stat stat--cr">
@@ -61,7 +61,7 @@
 
     {{!-- 상태이상 5종 — PC 시트 herb-tag 패턴 정합(:has(input:checked)로 ON). --}}
     <section class="panel" data-corner="❀">
-      <div class="panel__head">상태이상</div>
+      <div class="panel__head">{{localize "ASTER.label.badstatus"}}</div>
       <div class="status">
         <label class="herb-tag" {{tooltipHtml badstatusTips.injury}}>
           <input type="checkbox" name="system.badstatus.injury" {{checked system.badstatus.injury}} />
@@ -87,7 +87,7 @@
     </section>
 
     <section class="panel" data-corner="✿">
-      <div class="panel__head">약전</div>
+      <div class="panel__head">{{localize "ASTER.npc.bio"}}</div>
       <div class="npc-bio">
         {{editor system.biography target="system.biography" rollData=rollData button=true owner=owner
         editable=editable}}
@@ -190,10 +190,12 @@
           <span class="a-cost num">{{#if action.system.costVariable}}X{{else}}{{action.system.cost}}{{/if}}</span>
           <span class="a-name">{{action.name}}</span>
           <span class="a-eff">
-            {{#if action.system.effect}}{{action.system.effect}}{{else}}{{#if
-            action.system.damageFormula}}{{action.system.damageFormula}} 대미지{{/if}}{{/if}}
+            {{#if action.system.effect}}{{action.system.effect}}{{else}}{{#if action.system.damageFormula}}{{localize
+            "ASTER.npcAction.damageSuffix" formula=action.system.damageFormula}}{{/if}}{{/if}}
             <span class="a-target">【{{action.targetLabel}}】</span>
-            {{#if action.system.oncePerRound}}<span class="a-once">1R 1회</span>{{/if}}
+            {{#if action.system.oncePerRound}}<span class="a-once"
+              >{{localize "ASTER.npcAction.oncePerRoundShort"}}</span
+            >{{/if}}
           </span>
           <span class="a-tools">
             <button

@@ -16,13 +16,17 @@
       <div class="dice-line">
         {{selfActorName}}: <strong>{{selfFinal}}</strong>
         {{#if selfExtra}}
-        <span class="charge-extra">({{selfOriginal}} + {{selfExtraDice}} 차지, {{selfFinal}} 선택)</span>
+        <span class="charge-extra"
+          >{{localize "ASTER.combat.unisonChargeExtra" original=selfOriginal extra=selfExtraDice final=selfFinal}}</span
+        >
         {{/if}}
       </div>
       <div class="dice-line">
         {{pairActorName}}: <strong>{{pairFinal}}</strong>
         {{#if pairExtra}}
-        <span class="charge-extra">({{pairOriginal}} + {{pairExtraDice}} 차지, {{pairFinal}} 선택)</span>
+        <span class="charge-extra"
+          >{{localize "ASTER.combat.unisonChargeExtra" original=pairOriginal extra=pairExtraDice final=pairFinal}}</span
+        >
         {{/if}}
       </div>
       <div class="total-line">{{totalLabel}}: <strong>{{total}}</strong></div>
