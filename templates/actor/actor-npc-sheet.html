@@ -190,8 +190,8 @@
           <span class="a-cost num">{{#if action.system.costVariable}}X{{else}}{{action.system.cost}}{{/if}}</span>
           <span class="a-name">{{action.name}}</span>
           <span class="a-eff">
-            {{#if action.system.effect}}{{action.system.effect}}{{else}}{{#if
-            action.system.damageFormula}}{{action.system.damageFormula}} 대미지{{/if}}{{/if}}
+            {{#if action.system.effect}}{{action.system.effect}}{{else}}{{#if action.system.damageFormula}}{{localize
+            "ASTER.npcAction.damageSuffix" formula=action.system.damageFormula}}{{/if}}{{/if}}
             <span class="a-target">【{{action.targetLabel}}】</span>
             {{#if action.system.oncePerRound}}<span class="a-once"
               >{{localize "ASTER.npcAction.oncePerRoundShort"}}</span
