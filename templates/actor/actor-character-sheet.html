@@ -36,9 +36,11 @@
           </section>
 
           <section class="panel panel--memo" data-corner="❧">
-            <div class="panel__head">메모</div>
+            <div class="panel__head">{{localize "ASTER.label.memo"}}</div>
             <div class="memo">
-              <textarea name="system.biography" placeholder="메모를 입력하세요...">{{system.biography}}</textarea>
+              <textarea name="system.biography" placeholder="{{localize 'ASTER.label.memoPlaceholder'}}">
+{{system.biography}}</textarea
+              >
             </div>
           </section>
         </div>

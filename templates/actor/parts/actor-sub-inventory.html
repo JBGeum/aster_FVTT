@@ -1,6 +1,6 @@
 {{#if inv.bag}}
 <div class="bag__head">
-  <div class="panel__head" style="margin: 0; flex: 1">가방칸</div>
+  <div class="panel__head" style="margin: 0; flex: 1">{{localize "ASTER.inventory.bagSlots"}}</div>
   <span class="bag__cap"
     >{{inv.bag.grid.cols}} × {{inv.bag.grid.rows}} · <b>{{inv.bag.items.length}}</b>/{{inv.bag.cells.length}}</span
   >
@@ -37,7 +37,7 @@
 {{else}}
 <p class="ap-note">{{localize "ASTER.inventory.noBag"}}</p>
 {{/if}}
-<div class="panel__head">착용 · 휴대</div>
+<div class="panel__head">{{localize "ASTER.inventory.carry"}}</div>
 <div class="carry">
   <div class="cslot basket">
     <div class="ttl">
@@ -107,17 +107,17 @@
       >
         {{localize "ASTER.equipment.unequipBtn"}}
       </button>
-      {{else}} 비어 있음 {{/if}}
+      {{else}} {{localize "ASTER.inventory.slotEmpty"}} {{/if}}
     </div>
   </div>
   {{/each}}
   <div class="cslot empty">
     <div class="ttl">{{localize "ASTER.inventory.companion"}}</div>
-    <div class="content">없음</div>
+    <div class="content">{{localize "ASTER.inventory.slotNone"}}</div>
   </div>
 </div>
 
-<div class="panel__head">소지품</div>
+<div class="panel__head">{{localize "ASTER.inventory.belongings"}}</div>
 <div class="items">
   {{#each inv.allItems as |it|}}
   <div class="item {{#if it.isMagicToolInactive}}magic-tool-inactive{{/if}}">
