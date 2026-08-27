@@ -87,6 +87,16 @@
   --id-logo-radius: 0;
   --id-logo-pad: 0;
   --id-logo-shadow: none;
+  /* 속성 엠블럼 — 원판은 패널 위로 얹히고, 각인은 그 안에 눌린다(다크 값은 night 믹스인). */
+  --id-emblem-face: radial-gradient(
+    circle at 50% 34%,
+    color-mix(in oklch, var(--parchment-soft) 52%, white),
+    var(--parchment)
+  );
+  --id-emblem-face-shadow:
+    0 1px 3px rgba(70, 45, 18, 0.16), inset 0 -2px 3px rgba(120, 90, 50, 0.1);
+  --id-emblem-shadow: drop-shadow(0 2px 1px rgba(255, 255, 255, 0.9))
+    drop-shadow(0 -1px 1px rgba(70, 45, 18, 0.45));
   --record-watermark-opacity: 0.07; /* 기록 카드 별 워터마크(다크는 약간 진하게) */
   /* §24 인터랙션 — 호버/포커스 셰도우. 라이트=양피지 톤, 다크는 별빛 글로우(night 믹스인). */
   --shadow-main-hover: inset 0 0 0 1px var(--gold-soft), 0 4px 12px rgba(50, 20, 45, 0.38);
@@ -145,6 +155,14 @@
   --id-logo-radius: 9px;
   --id-logo-pad: 6px 9px;
   --id-logo-shadow: 0 0 14px rgba(200, 162, 79, 0.28), 0 2px 6px rgba(0, 0, 0, 0.45);
+  --id-emblem-face: radial-gradient(
+    circle at 50% 34%,
+    color-mix(in oklch, var(--parchment-deep) 82%, white),
+    var(--parchment-deep)
+  );
+  --id-emblem-face-shadow: 0 2px 6px rgba(0, 0, 0, 0.45), inset 0 -2px 3px rgba(0, 0, 0, 0.3);
+  --id-emblem-shadow: drop-shadow(0 0 8px rgba(200, 162, 79, 0.42))
+    drop-shadow(0 2px 2px rgba(0, 0, 0, 0.55));
   --record-watermark-opacity: 0.1; /* 시안 .theme-night .record-card::after */
   /* §24 — 별빛 글로우(시안 .theme-night --glow: 150 110 235). rgb()/slash로 알파 합성. */
   --glow: 150 110 235;
@@ -506,24 +524,63 @@
       background: var(--el-white);
     }
   }
-  /* 임시 직사각 엠블럼 자리. 추후 system.color별 로고로 교체 — 템플릿이 .id-emblem--{color}를
-     붙이므로, 이미지 준비되면 색상별 background-image 모디파이어만 추가하면 점선 박스가 교체됨. */
+  /* 속성 미선택 시 .id-emblem--가 어느 모디파이어와도 맞지 않아 이 점선 자리가 그대로 남는다. */
   .id-emblem {
     width: 100%;
-    max-width: 150px;
-    aspect-ratio: 5 / 2;
+    max-width: 112px;
+    aspect-ratio: 1 / 1;
     border: 1px dashed var(--gold-soft);
     border-radius: var(--hb-radius-sm);
     background: var(--parchment-sunk);
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
     display: grid;
     place-items: center;
     color: var(--ink-faint);
     font-size: 11px;
     letter-spacing: 1px;
     box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.12);
+
+    &--red,
+    &--blue,
+    &--green,
+    &--yellow {
+      border: var(--hb-frame);
+      border-radius: 50%;
+      background: var(--id-emblem-face);
+      box-shadow: var(--id-emblem-face-shadow);
+
+      &::before {
+        content: "";
+        width: 62%;
+        height: 62%;
+        -webkit-mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        -webkit-mask-size: contain;
+        mask-repeat: no-repeat;
+        mask-position: center;
+        mask-size: contain;
+        filter: var(--id-emblem-shadow);
+      }
+    }
+    &--red::before {
+      background-color: var(--el-red);
+      -webkit-mask-image: url("/systems/aster/assets/logo/svg/01_red_witch.svg");
+      mask-image: url("/systems/aster/assets/logo/svg/01_red_witch.svg");
+    }
+    &--blue::before {
+      background-color: var(--el-blue);
+      -webkit-mask-image: url("/systems/aster/assets/logo/svg/02_blue_witch.svg");
+      mask-image: url("/systems/aster/assets/logo/svg/02_blue_witch.svg");
+    }
+    &--green::before {
+      background-color: var(--el-green);
+      -webkit-mask-image: url("/systems/aster/assets/logo/svg/03_green_witch.svg");
+      mask-image: url("/systems/aster/assets/logo/svg/03_green_witch.svg");
+    }
+    &--yellow::before {
+      background-color: var(--el-yellow);
+      -webkit-mask-image: url("/systems/aster/assets/logo/svg/04_yellow_witch.svg");
+      mask-image: url("/systems/aster/assets/logo/svg/04_yellow_witch.svg");
+    }
   }
   /* 초상화 중앙(크기 유지) */
   .panel--identity .portrait {

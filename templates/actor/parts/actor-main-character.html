@@ -27,7 +27,9 @@
         </div>
       </div>
 
-      <div class="id-emblem id-emblem--{{system.color}}">{{localize "ASTER.label.emblem"}}</div>
+      <div class="id-emblem id-emblem--{{system.color}}">
+        {{#unless system.color}}{{localize "ASTER.label.emblem"}}{{/unless}}
+      </div>
     </div>
 
     <div class="portrait">
