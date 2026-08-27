@@ -84,7 +84,8 @@
       "hitFormula": "명중",
       "dodgeFormula": "회피",
       "apFormula": "액션",
-      "badstatus": "상태이상"
+      "badstatus": "상태이상",
+      "name": "이름"
     },
     "badstatus": {
       "injury": "부상",
@@ -529,7 +530,7 @@
       "effect": "효과",
       "effectPlaceholder": "효과 요약 (자유 텍스트)",
       "description": "설명",
-      "name": "기명",
+      "name": "액션명",
       "actions": "조작",
       "empty": "액션이 없습니다.",
       "useTooltip": "시전",
@@ -544,6 +545,7 @@
       "namePlaceholder": "아이템 이름",
       "effect": "효과",
       "material": {
+        "title": "재료",
         "label0": "마테리얼",
         "label1": "적",
         "label2": "청",
@@ -561,7 +563,12 @@
         "effectRef": "효과 참조",
         "exploration": "탐색중",
         "combat": "전투중"
-      }
+      },
+      "description": "설명",
+      "requirement": "요구",
+      "size": "크기",
+      "gridSize": "격자 크기",
+      "storageImg": "창고 그림"
     },
     "consumable": {
       "timingLabel": "사용 타이밍",

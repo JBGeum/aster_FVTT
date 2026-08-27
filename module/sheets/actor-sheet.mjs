@@ -591,7 +591,7 @@ function _renderCraftDialogContent() {
       <input type="text" name="name" value="" />
     </div>
     <div class="form-group">
-      <label>재료</label>
+      <label>${L("ASTER.item.material.title")}</label>
       <div class="material-grid flexrow align-center">${matCells}</div>
     </div>
     <div class="form-group">
