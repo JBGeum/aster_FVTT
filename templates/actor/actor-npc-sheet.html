@@ -7,13 +7,13 @@
       <div class="npc-head__main">
         <div class="npc-name-row">
           <div class="field npc-name">
-            <label>이름</label>
+            <label>{{localize "ASTER.label.name"}}</label>
             <div class="input-line">
               <input name="name" type="text" value="{{actor.name}}" placeholder="이름" />
             </div>
           </div>
           <div class="stat stat--cr">
-            <label>도전 등급</label>
+            <label>{{localize "ASTER.label.cr"}}</label>
             <div class="input-line">
               <input type="number" name="system.cr" value="{{system.cr}}" min="0" />
             </div>
@@ -22,7 +22,7 @@
 
         <div class="stat-grid">
           <div class="stat">
-            <label>건강</label>
+            <label>{{localize "ASTER.label.health"}}</label>
             <div class="pair2">
               <div class="input-line">
                 <input type="number" name="system.health.value" value="{{system.health.value}}" />
@@ -34,23 +34,23 @@
             </div>
           </div>
           <div class="stat">
-            <label>민첩</label>
+            <label>{{localize "ASTER.label.speed"}}</label>
             <div class="input-line"><input type="number" name="system.speed" value="{{system.speed}}" /></div>
           </div>
           <div class="stat">
-            <label>명중</label>
+            <label>{{localize "ASTER.label.hitFormula"}}</label>
             <div class="input-line dim">
               <input type="text" name="system.hitFormula" value="{{system.hitFormula}}" placeholder="3D6+4" />
             </div>
           </div>
           <div class="stat">
-            <label>회피</label>
+            <label>{{localize "ASTER.label.dodgeFormula"}}</label>
             <div class="input-line dim">
               <input type="text" name="system.dodgeFormula" value="{{system.dodgeFormula}}" placeholder="2D6+3" />
             </div>
           </div>
           <div class="stat">
-            <label>액션</label>
+            <label>{{localize "ASTER.label.apFormula"}}</label>
             <div class="input-line dim">
               <input type="text" name="system.apFormula" value="{{system.apFormula}}" placeholder="1D6+6" />
             </div>

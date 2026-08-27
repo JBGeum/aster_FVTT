@@ -2,7 +2,7 @@
   <div class="herbarium">
     <div class="dialog__body">
       <div class="frow dlg-name">
-        <label>이름</label>
+        <label>{{localize "ASTER.item.name"}}</label>
         <div class="f-input">
           <input
             type="text"
@@ -16,7 +16,7 @@
         <div class="thumb pixelart"><img src="{{item.img}}" data-edit="img" title="{{item.name}}" /></div>
         <div class="hero-fields">
           <div class="frow">
-            <label>격자 크기</label>
+            <label>{{localize "ASTER.item.gridSize"}}</label>
             <div class="size-row">
               <div class="pair">
                 <span class="k">열</span
@@ -29,27 +29,27 @@
             </div>
           </div>
           <div class="frow">
-            <label>요구</label>
+            <label>{{localize "ASTER.item.requirement"}}</label>
             <div class="f-input"><input type="text" name="system.requirement" value="{{system.requirement}}" /></div>
           </div>
         </div>
       </div>
 
       <div class="frow frow--stack">
-        <label>재료</label>
+        <label>{{localize "ASTER.item.material.title"}}</label>
         {{> "systems/aster/templates/item/parts/material-mats.html"}}
       </div>
       <div class="frow frow--stack">
-        <label>효과</label>
+        <label>{{localize "ASTER.item.effect"}}</label>
         <div class="f-area"><textarea name="system.effect">{{system.effect}}</textarea></div>
       </div>
       <div class="frow">
-        <label>창고 그림</label>
+        <label>{{localize "ASTER.item.storageImg"}}</label>
         <div class="thumb pixelart"><img src="{{system.storageImg}}" data-edit="system.storageImg" /></div>
       </div>
 
       <div class="frow frow--stack">
-        <label>설명</label>
+        <label>{{localize "ASTER.item.description"}}</label>
         <div class="f-area">
           {{editor system.description target="system.description" button=true editable=editable}}
         </div>

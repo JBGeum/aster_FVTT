@@ -2,7 +2,7 @@
   <div class="herbarium">
     <div class="dialog__body">
       <div class="frow dlg-name">
-        <label>이름</label>
+        <label>{{localize "ASTER.item.name"}}</label>
         <div class="f-input">
           <input
             type="text"
@@ -20,14 +20,14 @@
             <div class="f-input"><input type="number" name="system.restore" value="{{system.restore}}" min="0" /></div>
           </div>
           <div class="frow">
-            <label>요구</label>
+            <label>{{localize "ASTER.item.requirement"}}</label>
             <div class="f-input"><input type="text" name="system.requirement" value="{{system.requirement}}" /></div>
           </div>
         </div>
       </div>
 
       <div class="frow frow--stack">
-        <label>재료</label>
+        <label>{{localize "ASTER.item.material.title"}}</label>
         {{> "systems/aster/templates/item/parts/material-mats.html"}}
       </div>
       <div class="frow frow--stack">
@@ -35,13 +35,13 @@
         <div class="f-area"><textarea name="system.bonusEffect">{{system.bonusEffect}}</textarea></div>
       </div>
       <div class="frow frow--stack">
-        <label>효과</label>
+        <label>{{localize "ASTER.item.effect"}}</label>
         <div class="f-area"><textarea name="system.effect">{{system.effect}}</textarea></div>
       </div>
       <p class="fnote">{{localize "ASTER.food.bonusEffectHint"}}</p>
 
       <div class="frow frow--stack">
-        <label>설명</label>
+        <label>{{localize "ASTER.item.description"}}</label>
         <div class="f-area">
           {{editor system.description target="system.description" button=true editable=editable}}
         </div>
