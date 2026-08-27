@@ -543,13 +543,12 @@ async function renderUnisonCard({
         });
         break;
       case "yellow":
-        subResultText = game.i18n.format("ASTER.combat.unisonSubYellowResult", {
-          target: subResult.actorName,
-          status: badstatusLabel(subResult.statusKey),
-          applied: subResult.applied
-            ? game.i18n.localize("ASTER.combat.unisonAppliedYes")
-            : game.i18n.localize("ASTER.combat.unisonAppliedNo"),
-        });
+        subResultText = game.i18n.format(
+          subResult.applied
+            ? "ASTER.combat.unisonSubYellowResult"
+            : "ASTER.combat.unisonSubYellowAlready",
+          { target: subResult.actorName, status: badstatusLabel(subResult.statusKey) },
+        );
         break;
     }
   }
