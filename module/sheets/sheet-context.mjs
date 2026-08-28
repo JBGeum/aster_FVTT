@@ -281,12 +281,9 @@ function _formatCraftCost(cost) {
 }
 
 export function prepareItems(sheet, context) {
-  const features = [];
   for (const i of context.items) {
     i.img = i.img || CONST.DEFAULT_TOKEN;
-    if (i.type === "feature") features.push(i);
   }
-  context.features = features;
 }
 
 export function prepareSpellList(sheet, context) {

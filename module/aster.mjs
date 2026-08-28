@@ -81,6 +81,7 @@ Hooks.once("init", async function () {
 
   const ActorsCls = foundry.documents.collections.Actors;
   const ItemsCls = foundry.documents.collections.Items;
+  const { ActorSheet, ItemSheet } = foundry.appv1.sheets;
 
   ActorsCls.unregisterSheet("core", ActorSheet);
   ActorsCls.registerSheet("aster", AsterActorSheet, { makeDefault: true });
