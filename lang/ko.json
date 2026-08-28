@@ -349,7 +349,7 @@
       "unisonSubGreenEffectName": "합체기 녹 부속성 (민첩)",
       "unisonSubGreenResult": "{actor}의 다음 라운드 민첩 {delta} (1라운드)",
       "unisonSubYellowTitle": "황 부속성 — 적에게 상태이상",
-      "unisonSubYellowLabel": "부여할 상태이상 (부상/졸림/피로)",
+      "unisonSubYellowLabel": "부여할 상태이상",
       "unisonSubYellowResult": "{target}에게 {status} 부여",
       "unisonSubYellowAlready": "{target}은(는) 이미 {status} 상태입니다",
       "unisonDodgeBlocked": "⚠ 합체기 대상이 된 적은 회피할 수 없습니다",
@@ -397,7 +397,7 @@
     },
     "target": {
       "label": "대상",
-      "noTarget": "캔버스에서 대상 토큰을 먼저 지정해주세요 (Shift+클릭).",
+      "noTarget": "대상을 먼저 선택해주세요.",
       "tooMany": "대상이 너무 많습니다 (최대 {max}, 현재 {n}).",
       "tooFew": "대상이 부족합니다 (최소 {min}, 현재 {n}).",
       "wrongType": "허용되지 않는 대상 유형 ({allowed}): {names}"
