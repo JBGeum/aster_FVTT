@@ -27,7 +27,7 @@ import { applyAsterTheme } from "./helpers/theme.mjs";
 import "./hooks/item-hooks.mjs";
 import "./hooks/chat-hooks.mjs";
 import "./hooks/combat-hooks.mjs";
-import { rollItemMacro } from "./hooks/ui-hooks.mjs";
+import "./hooks/ui-hooks.mjs";
 
 /* -------------------------------------------- */
 /*  Init Hook                                   */
@@ -37,7 +37,6 @@ Hooks.once("init", async function () {
   game.aster = {
     AsterActor,
     AsterItem,
-    rollItemMacro,
     openGMPanel: () => AsterGMPanel.show(),
   };
 

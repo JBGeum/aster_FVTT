@@ -1,6 +1,5 @@
 /**
  * import 시 top-level에서 Hooks.on(...)을 등록한다(부수효과).
- * rollItemMacro는 game.aster API 노출용으로 export.
  */
 import { ASTER } from "../helpers/config.mjs";
 import { WORLD_VALUES } from "../helpers/world-values.mjs";
@@ -24,55 +23,6 @@ Hooks.on("getSceneControlButtons", (controls) => {
     onChange: () => AsterGMPanel.show(),
   };
 });
-
-/* -------------------------------------------- */
-/*  Hotbar Macros                               */
-/* -------------------------------------------- */
-
-/**
- * @param {object} data
- * @param {number} slot
- * @returns {Promise<boolean>}
- */
-async function createItemMacro(data, slot) {
-  if (data.type !== "Item") return false;
-  if (!data.uuid.includes("Actor.") && !data.uuid.includes("Token.")) {
-    ui.notifications.warn("You can only create macro buttons for owned Items");
-    return false;
-  }
-  const item = await Item.fromDropData(data);
-  const command = `game.aster.rollItemMacro("${data.uuid}");`;
-
-  let macro = game.macros.find((m) => m.name === item.name && m.command === command);
-  if (!macro) {
-    macro = await Macro.create({
-      name: item.name,
-      type: "script",
-      img: item.img,
-      command,
-      flags: { "aster.itemMacro": true },
-    });
-  }
-  game.user.assignHotbarMacro(macro, slot);
-  return false;
-}
-
-/**
- * @param {string} itemUuid
- */
-export function rollItemMacro(itemUuid) {
-  const dropData = { type: "Item", uuid: itemUuid };
-  Item.fromDropData(dropData).then((item) => {
-    if (!item || !item.parent) {
-      const itemName = item?.name ?? itemUuid;
-      ui.notifications.warn(
-        `Could not find item ${itemName}. You may need to delete and recreate this macro.`,
-      );
-      return;
-    }
-    item.roll();
-  });
-}
 
 /* -------------------------------------------- */
 /*  토큰 HUD — 아스테르 5색 자가 증감 (안 B)      */
@@ -144,11 +94,8 @@ Hooks.on("renderTokenHUD", (hud, html) => {
 });
 
 /* -------------------------------------------- */
-/*  Hotbar Drop & Setting Sync (ready 훅에서 이관) */
+/*  Setting Sync (ready 훅에서 이관)              */
 /* -------------------------------------------- */
-
-// 핫바 드롭 — ready 훅 외부에서 등록해도 runtime에 firing됨.
-Hooks.on("hotbarDrop", (bar, data, slot) => createItemMacro(data, slot));
 
 const worldKeys = new Set([...WORLD_VALUES.map((v) => `aster.${v.key}`), "aster.trackers"]);
 Hooks.on("updateSetting", (setting) => {
