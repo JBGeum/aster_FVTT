@@ -63,15 +63,36 @@ export async function performUnisonAttack({ actor }) {
   }
 
   const colorLabel = (k) => game.i18n.localize(`ASTER.aster.${k}`);
+  const previewHtml = (main) => {
+    const sub = main === selfColor ? pairColor : selfColor;
+    const head = game.i18n.format("ASTER.combat.unisonColorPreview", {
+      main: colorLabel(main),
+      sub: colorLabel(sub),
+    });
+    return `<p>${head}</p>
+      <p>${game.i18n.localize(`ASTER.combat.unisonMainDesc.${main}`)}</p>
+      <p>${game.i18n.localize(`ASTER.combat.unisonSubDesc.${sub}`)}</p>`;
+  };
   const mainColor = await foundry.applications.api.DialogV2.prompt({
     window: { title: game.i18n.localize("ASTER.combat.unisonMainColorTitle") },
     content: `<div class="form-group">
-      <label>${game.i18n.localize("ASTER.combat.unisonMainColorLabel")}</label>
+      <label>${game.i18n.localize("ASTER.combat.unisonMainLabel")}</label>
       <select name="main">
         <option value="${selfColor}">${actor.name} — ${colorLabel(selfColor)}</option>
         <option value="${pairColor}">${pairActor.name} — ${colorLabel(pairColor)}</option>
       </select>
-    </div>`,
+    </div>
+    <div class="unison-color-preview">${previewHtml(selfColor)}</div>`,
+    render: (_event, dialog) => {
+      // V13 DialogV2 render 인자가 dialog 또는 element로 온다.
+      const el = dialog?.element ?? dialog;
+      const select = el?.querySelector?.('select[name="main"]');
+      const box = el?.querySelector?.(".unison-color-preview");
+      if (!select || !box) return;
+      select.addEventListener("change", () => {
+        box.innerHTML = previewHtml(select.value);
+      });
+    },
     ok: { callback: (_e, b) => b.form.elements.main.value },
   }).catch(() => null);
   if (!mainColor) return;

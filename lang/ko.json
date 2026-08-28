@@ -321,9 +321,21 @@
       "unisonPairLabel": "페어로 발동할 PC",
       "unisonPairLine": "{self} + {pair}",
       "unisonMainColorTitle": "주속성 선택",
-      "unisonMainColorLabel": "주속성으로 사용할 색 (다른 하나는 부속성)",
       "unisonMainLabel": "주속성",
       "unisonSubLabel": "부속성",
+      "unisonColorPreview": "주속성: {main} / 부속성: {sub}",
+      "unisonMainDesc": {
+        "red": "주속성 적 — 적 1체에게 대미지",
+        "blue": "주속성 청 — 아군 전체의 건강 회복",
+        "green": "주속성 녹 — 적 전체에게 대미지",
+        "yellow": "주속성 황 — 이 라운드 동안 아군이 받는 대미지 경감"
+      },
+      "unisonSubDesc": {
+        "red": "부속성 적 — 아군 전체의 상태이상 1종 회복",
+        "blue": "부속성 청 — 아군 1인의 다음 판정 다이스 +1D6",
+        "green": "부속성 녹 — 다음 라운드 아군 1체의 민첩 ±20 (최저 0)",
+        "yellow": "부속성 황 — 적 1체에게 [부상][졸림][피로] 중 1종 부여"
+      },
       "unisonChargePickTitle": "{actor} — 차지 효과: 2개 중 1개 선택",
       "unisonChargePickHint": "합체기에 쓸 값 {count}개를 선택하세요.",
       "unisonTotalLabel": "합산값",
@@ -349,7 +361,7 @@
       "unisonSubGreenEffectName": "합체기 녹 부속성 (민첩)",
       "unisonSubGreenResult": "{actor}의 다음 라운드 민첩 {delta} (1라운드)",
       "unisonSubYellowTitle": "황 부속성 — 적에게 상태이상",
-      "unisonSubYellowLabel": "부여할 상태이상 (부상/졸림/피로)",
+      "unisonSubYellowLabel": "부여할 상태이상",
       "unisonSubYellowResult": "{target}에게 {status} 부여",
       "unisonSubYellowAlready": "{target}은(는) 이미 {status} 상태입니다",
       "unisonDodgeBlocked": "⚠ 합체기 대상이 된 적은 회피할 수 없습니다",
@@ -397,7 +409,7 @@
     },
     "target": {
       "label": "대상",
-      "noTarget": "캔버스에서 대상 토큰을 먼저 지정해주세요 (Shift+클릭).",
+      "noTarget": "대상을 먼저 선택해주세요.",
       "tooMany": "대상이 너무 많습니다 (최대 {max}, 현재 {n}).",
       "tooFew": "대상이 부족합니다 (최소 {min}, 현재 {n}).",
       "wrongType": "허용되지 않는 대상 유형 ({allowed}): {names}"
