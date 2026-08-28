@@ -44,8 +44,11 @@ Hooks.on("deleteCombat", async (combat) => {
 // Combatant flag(AP 등) 변경 시 해당 액터 시트 재렌더 — AP는 Combatant 문서에 있어
 // Actor 시트가 자동 갱신되지 않으므로 combat 탭의 AP 표시를 수동 동기화.
 Hooks.on("updateCombatant", (combatant, changes) => {
-  if (!changes.flags?.aster) return;
-  refreshActorSheet(combatant.actor);
+  const changed = changes.flags?.aster;
+  if (!changed) return;
+  // unisonReady만 남의 시트 버튼을 좌우한다 — 나머지는 당사자 시트로 충분.
+  if ("unisonReady" in changed) refreshCombatSheets(combatant.parent);
+  else refreshActorSheet(combatant.actor);
 });
 
 Hooks.on("renderCombatTracker", (_app, element) => {
