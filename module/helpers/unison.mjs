@@ -1,5 +1,3 @@
-/**
- */
 import { lookupUnisonEffect, getUnisonDescription } from "./unison-table.mjs";
 import {
   DAMAGE_STATUSES,
@@ -89,8 +87,6 @@ export async function performUnisonAttack({ actor }) {
   });
 }
 
-/**
- */
 async function proceedUnisonDice({
   selfCombatant,
   pairCombatant,
@@ -114,12 +110,14 @@ async function proceedUnisonDice({
   if (selfCharge) {
     const extraRoll = new Roll("1d6");
     await extraRoll.evaluate();
-    const picked = await pickDiceDialog({
+    const opts = {
       dice: [selfRoll.total, extraRoll.total],
       count: 1,
       title: game.i18n.format("ASTER.combat.unisonChargePickTitle", { actor: selfActor.name }),
       hint: game.i18n.format("ASTER.combat.unisonChargePickHint", { count: 1 }),
-    });
+    };
+    let picked = await pickDiceDialog(opts);
+    if (picked === PICK_RETRY) picked = await pickDiceDialog(opts);
     if (!picked || picked === PICK_RETRY) return;
     selfFinal = picked.selected[0];
     extraInfo.push({
@@ -128,17 +126,18 @@ async function proceedUnisonDice({
       extra: extraRoll.total,
       picked: selfFinal,
     });
-    await selfCombatant.setFlag("aster", "chargeNextRound", null);
   }
   if (pairCharge) {
     const extraRoll = new Roll("1d6");
     await extraRoll.evaluate();
-    const picked = await pickDiceDialog({
+    const opts = {
       dice: [pairRoll.total, extraRoll.total],
       count: 1,
       title: game.i18n.format("ASTER.combat.unisonChargePickTitle", { actor: pairActor.name }),
       hint: game.i18n.format("ASTER.combat.unisonChargePickHint", { count: 1 }),
-    });
+    };
+    let picked = await pickDiceDialog(opts);
+    if (picked === PICK_RETRY) picked = await pickDiceDialog(opts);
     if (!picked || picked === PICK_RETRY) return;
     pairFinal = picked.selected[0];
     extraInfo.push({
@@ -147,8 +146,10 @@ async function proceedUnisonDice({
       extra: extraRoll.total,
       picked: pairFinal,
     });
-    await pairCombatant.setFlag("aster", "chargeNextRound", null);
   }
+
+  if (selfCharge) await selfCombatant.setFlag("aster", "chargeNextRound", null);
+  if (pairCharge) await pairCombatant.setFlag("aster", "chargeNextRound", null);
 
   const total = selfFinal + pairFinal;
 
