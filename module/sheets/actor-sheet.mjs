@@ -286,8 +286,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await item.update({ "system.container": "", "system.grid": { x: 0, y: 0 } });
   }
 
-  /**
-   */
   static async #onPicnicDeclare(_event, target) {
     const itemId = target.dataset.itemId;
     const item = this.actor.items.get(itemId);
@@ -326,8 +324,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     });
   }
 
-  /**
-   */
   static async #onRollDodge(_event, _target) {
     await this.actor.rollDodge();
   }
@@ -348,8 +344,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await resolveNpcActionUse({ actor: this.actor, itemId: target.dataset.itemId });
   }
 
-  /**
-   */
   static async #onUnisonAttack(_event, _target) {
     return performUnisonAttack({ actor: this.actor });
   }

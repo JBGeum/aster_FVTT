@@ -1,7 +1,4 @@
 /**
- */
-
-/**
  * - auto: data-aster-theme 영역 제거 → @media 영역 자동 정합 (OS 영역)
  * - dark: [data-aster-theme="dark"] 명시 → OS 영역 무시
  * - light: [data-aster-theme="light"] 명시 → OS 영역 무시

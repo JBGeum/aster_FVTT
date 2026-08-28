@@ -1,5 +1,3 @@
-/**
- */
 import { detectCritFumble } from "./roll-result.mjs";
 import { getTargetedTokens } from "./target-select.mjs";
 import { applyDamageAndStatus, applyCureAllStatus, applyCureStatus } from "./health-status.mjs";

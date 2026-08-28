@@ -1,5 +1,3 @@
-/**
- */
 import { isEquipSlotContainer } from "./inventory-capacity.mjs";
 import { formatSpeedSources } from "./speed-sources.mjs";
 
@@ -27,8 +25,6 @@ export function formatFormula(spell) {
   return `${c}+${a}(${spell.system.target ?? "?"})`;
 }
 
-/**
- */
 export function inventorySummary(item) {
   if (item.type === "consumable") {
     const sys = item.system;

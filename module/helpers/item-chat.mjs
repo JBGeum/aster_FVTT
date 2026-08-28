@@ -1,5 +1,3 @@
-/**
- */
 import { DAMAGE_STATUSES } from "./health-status.mjs";
 import { isMagicToolInactive } from "./sheet-tooltips.mjs";
 
