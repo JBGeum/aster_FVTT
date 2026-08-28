@@ -264,6 +264,7 @@ export function prepareCraft(sheet, context) {
     resources,
     summaryColumns,
     locked: craftLocked,
+    lockedAttr: craftLocked ? "disabled" : "",
     lockIcon: craftLocked ? "fa-lock" : "fa-lock-open",
     lockTitle: craftLocked ? "ASTER.craft.unlock" : "ASTER.craft.lock",
   };

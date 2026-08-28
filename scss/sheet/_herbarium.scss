@@ -2002,6 +2002,15 @@
     }
   }
 
+  .craft.locked {
+    .craft-res-input:disabled,
+    .rec-btn:disabled,
+    .recipe {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
   /* 재료 합계표 */
   .mat-table {
     display: grid;

@@ -6,6 +6,7 @@
         class="rec-btn rec-btn--del"
         data-action="craftReset"
         title="{{localize 'ASTER.craft.reset'}}"
+        {{craft.lockedAttr}}
       >
         {{localize "ASTER.craft.reset"}}
       </button>
@@ -41,7 +42,13 @@
 
         <div class="mat-cell {{#if col.haveEmpty}}muted{{/if}}">
           {{#if col.editable}}
-          <input type="number" class="craft-res-input" data-field="{{col.inputName}}" value="{{col.have}}" />
+          <input
+            type="number"
+            class="craft-res-input"
+            data-field="{{col.inputName}}"
+            value="{{col.have}}"
+            {{@root.craft.lockedAttr}}
+          />
           {{else}}{{#if col.haveEmpty}}–{{else}}{{col.have}}{{/if}}{{/if}}
         </div>
       </div>
