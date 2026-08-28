@@ -717,7 +717,7 @@
     padding: 7px 9px;
     border: 1px dashed var(--gold-soft);
     border-radius: var(--hb-radius);
-    background: rgba(232, 219, 184, 0.4);
+    background: var(--parchment);
   }
   /* change.txt — 판정: 세로 스택(일반·대항 / 목표 / 정동판정). 초상화 우측 열을 채운다. */
   .roll--wide {
@@ -1212,17 +1212,17 @@
   }
   .el__step .minus {
     color: var(--el-red);
-    background: rgba(243, 233, 210, 0.92);
+    background: var(--parchment-soft);
     border-right: 1px solid var(--gold-soft);
     &:hover {
-      background: color-mix(in oklch, var(--el-red) 18%, #f3e9d2);
+      background: color-mix(in oklch, var(--el-red) 18%, var(--parchment-soft));
     }
   }
   .el__step .plus {
     color: var(--sage);
-    background: rgba(243, 233, 210, 0.92);
+    background: var(--parchment-soft);
     &:hover {
-      background: color-mix(in oklch, var(--sage) 18%, #f3e9d2);
+      background: color-mix(in oklch, var(--sage) 18%, var(--parchment-soft));
     }
   }
 
@@ -2318,10 +2318,7 @@
       margin: 0;
       border: none;
       background: transparent;
-      background-image: repeating-linear-gradient(
-        transparent 0 25px,
-        rgba(120, 90, 50, 0.14) 25px 26px
-      );
+      background-image: repeating-linear-gradient(transparent 0 25px, var(--memo-rule) 25px 26px);
       background-attachment: local;
       resize: vertical;
       color: var(--ink);
