@@ -1,5 +1,3 @@
-/**
- */
 import { lookupUnisonEffect, getUnisonDescription } from "./unison-table.mjs";
 import {
   DAMAGE_STATUSES,
@@ -89,8 +87,6 @@ export async function performUnisonAttack({ actor }) {
   });
 }
 
-/**
- */
 async function proceedUnisonDice({
   selfCombatant,
   pairCombatant,
