@@ -128,7 +128,6 @@ async function proceedUnisonDice({
       extra: extraRoll.total,
       picked: selfFinal,
     });
-    await selfCombatant.setFlag("aster", "chargeNextRound", null);
   }
   if (pairCharge) {
     const extraRoll = new Roll("1d6");
@@ -147,8 +146,10 @@ async function proceedUnisonDice({
       extra: extraRoll.total,
       picked: pairFinal,
     });
-    await pairCombatant.setFlag("aster", "chargeNextRound", null);
   }
+
+  if (selfCharge) await selfCombatant.setFlag("aster", "chargeNextRound", null);
+  if (pairCharge) await pairCombatant.setFlag("aster", "chargeNextRound", null);
 
   const total = selfFinal + pairFinal;
 
