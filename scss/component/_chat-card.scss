@@ -1040,7 +1040,7 @@
 .aster-chat-card .roll-total strong {
   @include num-display;
   font-size: 1.42rem;
-  line-height: 1.05;
+  line-height: 1.2;
   color: var(--cc-ink);
 }
 .aster-chat-card .roll-total .vs {
@@ -1417,10 +1417,9 @@
 }
 .alert-rise-card .alert-total .value {
   @include num-display;
-  @include num;
   font-size: 1.3rem;
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.2;
   text-shadow: 0 1px 3px rgba(10, 4, 20, 0.5);
 }
 
@@ -1477,10 +1476,9 @@
 }
 .world-roll-card .world-roll-total .value {
   @include num-display;
-  @include num;
   font-size: 1.3rem;
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.2;
 }
 
 // ============================================================
