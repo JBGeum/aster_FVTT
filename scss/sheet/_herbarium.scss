@@ -1619,6 +1619,11 @@
         gap: 2px;
         white-space: nowrap;
       }
+
+      /* 비었을 때 .tools가 사라져도 gap이 남아 라벨이 위로 밀린다. */
+      &.empty .ttl {
+        gap: 0;
+      }
     }
   }
 
