@@ -59,7 +59,7 @@
   --hb-pad: 12px;
 
   /* 타이포 (aster.scss CDN). 본문=나눔스퀘어라운드 / 수치·라벨·display fallback=마루부리. */
-  --hb-font-display: "Cinzel", "Noto Serif KR", serif; /* 제목 — fallback만 교체 */
+  --hb-font-display: "Cinzel", var(--aster-font-family-sans); /* 제목 */
   --hb-font-serif: var(--aster-font-family-sans); /* 본문 */
   --hb-font-num: var(--aster-font-family-sans); /* 수치 */
   --hb-font-label: var(--aster-font-family-sans); /* 라벨·칩 — 본문과 분리 */
@@ -757,15 +757,6 @@
     padding: 12px 0;
     font-size: 17px;
     letter-spacing: 2px;
-  }
-  .roll__title {
-    font-family: var(--hb-font-display);
-    font-size: 13px;
-    text-align: center;
-    letter-spacing: 2px;
-    color: var(--ink-strong);
-    margin-bottom: 6px;
-    font-weight: 700;
   }
   .roll__row {
     display: flex;
@@ -2565,35 +2556,6 @@
       inset 0 0 0 3px var(--parchment-soft),
       inset 0 0 0 4px var(--rule);
   }
-  .dialog__bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 11px 16px;
-    background: linear-gradient(180deg, var(--parchment-deep), var(--parchment-sunk));
-    border-bottom: 1px solid var(--gold);
-
-    .t {
-      font-family: var(--hb-font-display);
-      font-weight: 600;
-      font-size: 16px;
-      letter-spacing: 1px;
-      color: var(--ink-strong);
-
-      small {
-        font-family: var(--hb-font-serif);
-        font-weight: 400;
-        font-size: 12px;
-        letter-spacing: 0;
-        color: var(--ink-soft);
-        margin-left: 8px;
-      }
-    }
-    .x {
-      color: var(--ink-soft);
-      font-size: 14px;
-    }
-  }
   .dialog__body {
     padding: 14px;
     display: flex;
@@ -3388,7 +3350,6 @@
   .mat-col__head,
   .recipe__name .lv,
   .stat > label,
-  .dialog__bar .t small,
   .frow > label,
   .mat-in .lbl,
   .id-row .field > label {

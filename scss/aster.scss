@@ -36,7 +36,5 @@
 // CSS @import — 폰트 영역 (CSS 규칙이므로 @use 뒤에 위치)
 // Pretendard — 시스템 고딕체 (가변 45~920)
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
-// Cinzel — .herbarium 제목의 라틴·숫자 (한글은 Noto Serif KR로 폴백)
+// Cinzel — .herbarium 제목의 라틴·숫자
 @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&display=swap");
-// Noto Serif KR — .herbarium 제목의 한글 (Cinzel이 라틴만 덮는다)
-@import url("https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap");
