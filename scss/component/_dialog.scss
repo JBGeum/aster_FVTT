@@ -50,9 +50,9 @@
     background: linear-gradient(180deg, var(--d-deep), var(--d-sunk));
   }
   .window-title {
-    font-family: "Noto Serif KR", serif;
     font-weight: 600;
     font-size: 14.5px;
+    line-height: 1.45;
     letter-spacing: 0.5px;
     color: var(--d-ink-strong);
 
@@ -86,7 +86,6 @@
     gap: 12px;
   }
   .form-label {
-    font-family: "Noto Serif KR", serif;
     font-weight: 600;
     font-size: 12px;
     letter-spacing: 1px;
@@ -98,7 +97,6 @@
   .form-group > label,
   .form-group:hover > label {
     color: var(--d-soft);
-    font-family: "Noto Serif KR", serif;
     font-weight: 600;
     font-size: 13.5px;
     letter-spacing: 0.6px;
@@ -196,7 +194,6 @@
     border: 1px solid var(--d-plum-deep);
     background: linear-gradient(180deg, var(--d-plum), var(--d-plum-deep));
     color: var(--d-cream);
-    font-family: "Noto Serif KR", serif;
     font-weight: 700;
     font-size: 14.5px;
     letter-spacing: 2px;
@@ -231,7 +228,6 @@
     border: 1px solid var(--d-rule);
     background: var(--d-sunk);
     color: var(--d-soft);
-    font-family: "Noto Serif KR", serif;
     font-weight: 600;
     font-size: 13.5px;
     letter-spacing: 1px;
@@ -346,7 +342,6 @@
   color: var(--d-gold);
 }
 .hb-dialog .dice-pick-num {
-  font-family: "Noto Serif KR", serif;
   font-size: 0.74rem;
   font-weight: 700;
   line-height: 1;
@@ -400,7 +395,6 @@
 /* 5행의 옵션 열이 세로로 맞아야 훑어보기 쉽다. */
 .hb-dialog .bulk-status-row .k {
   flex: 0 0 68px;
-  font-family: "Noto Serif KR", serif;
   font-weight: 600;
   font-size: 13px;
   color: var(--d-soft);
