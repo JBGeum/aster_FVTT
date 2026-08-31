@@ -32,7 +32,7 @@
   background-color: var(--tip-bg);
   background-image: linear-gradient(180deg, var(--tip-sheen), transparent 45%);
   color: var(--tip-ink);
-  font-family: "NanumSquareRound", sans-serif;
+  font-family: var(--aster-font-family-sans);
   font-size: 13px;
   line-height: 1.55;
   box-shadow:

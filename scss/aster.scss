@@ -34,11 +34,9 @@
 @use "component/dialog"; // 다이얼로그 시안 — DialogV2.hb-dialog 스킨(라이트/다크)
 
 // CSS @import — 폰트 영역 (CSS 규칙이므로 @use 뒤에 위치)
-// Pretendard — 한글 + 영문 통합 (CDN dynamic subset)
+// Pretendard — 시스템 고딕체 (가변 45~920)
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 // Cinzel — .herbarium 제목의 라틴·숫자 (한글은 Noto Serif KR로 폴백)
 @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&display=swap");
 // Noto Serif KR — 채팅 카드 본문 · .herbarium 수치·라벨
 @import url("https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap");
-// 나눔스퀘어라운드 400/700/800 (.herbarium 본문)
-@import url("https://cdn.jsdelivr.net/gh/innks/NanumSquareRound@master/nanumsquareround.min.css");

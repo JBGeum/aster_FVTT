@@ -60,7 +60,7 @@
 
   /* 타이포 (aster.scss CDN). 본문=나눔스퀘어라운드 / 수치·라벨·display fallback=마루부리. */
   --hb-font-display: "Cinzel", "Noto Serif KR", serif; /* 제목 — fallback만 교체 */
-  --hb-font-serif: "NanumSquareRound", "Gowun Dodum", sans-serif; /* 본문 */
+  --hb-font-serif: var(--aster-font-family-sans); /* 본문 */
   --hb-font-num: "Noto Serif KR", serif; /* 수치 */
   --hb-font-label: "Noto Serif KR", serif; /* 라벨·칩 — 본문과 분리 */
 
