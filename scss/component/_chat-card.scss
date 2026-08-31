@@ -116,6 +116,15 @@
         color: var(--cc-ink);
         font-size: 0.98rem;
         letter-spacing: 0.2px;
+
+        // 12px 언저리에서 한글 명조는 가로획이 뭉개진다 — 보조 표기만 산돌체로.
+        .actor {
+          margin-left: 7px;
+          font-family: var(--aster-font-family-sans);
+          font-size: 0.76rem;
+          font-weight: var(--cc-weight-sm);
+          color: var(--cc-ink-soft);
+        }
       }
 
       .formula {

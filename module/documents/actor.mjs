@@ -147,6 +147,7 @@ export class AsterActor extends Actor {
         isFumble: cf.fumble,
         focusApplied,
         actorId: this.id,
+        actorName: this.name,
         isPC: this.type === "character",
         opposed: true, // 전용 카드(roll-critfumble)에서 대결 결합 푸터 유지용
       };
@@ -192,6 +193,7 @@ export class AsterActor extends Actor {
         resultDiceset,
         diceText,
         actorId: this.id,
+        actorName: this.name,
         isPC: this.type === "character",
       };
       const content = await renderTemplate(
@@ -314,6 +316,7 @@ export class AsterActor extends Actor {
         ? game.i18n.localize(`ASTER.aster.${this.system.color}`)
         : "",
       actorId: this.id,
+      actorName: this.name,
       isPC: this.type === "character",
     };
     const content = await renderTemplate(
@@ -401,6 +404,7 @@ export class AsterActor extends Actor {
       isFumble: cf.fumble,
       focusApplied: !!focus.combatant,
       actorId: this.id,
+      actorName: this.name,
       isPC: this.type === "character",
       isDodge: true,
       opposed: true, // 전용 카드(roll-critfumble)에서 대결 결합 푸터 유지용
@@ -494,6 +498,7 @@ export class AsterActor extends Actor {
       isFumble: cf.fumble,
       focusApplied: !!focus.combatant,
       actorId: this.id,
+      actorName: this.name,
       isPC: false,
       isDodge: false,
       opposed: true, // 전용 카드(roll-critfumble)에서 대결 결합 푸터 유지용

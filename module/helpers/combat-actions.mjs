@@ -145,6 +145,7 @@ export async function resolveCombatAction({ actor, actionKey }) {
     "systems/aster/templates/chat/combat-action.html",
     {
       actionName,
+      actorName: actor.name,
       apSpent: game.i18n.format("ASTER.combat.apSpent", { n: cost }),
       chatExtra,
       hasDamageButton: !!actionFlag.targetActorId,
