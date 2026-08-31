@@ -175,6 +175,7 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
   const cardData = {
     spellId: spell.id,
     actorId: actor.id,
+    actorName: actor.name,
     name: spell.name,
     ruby: sys.ruby,
     img: spell.img,

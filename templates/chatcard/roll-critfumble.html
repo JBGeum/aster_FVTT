@@ -2,7 +2,7 @@
 <div class="aster-chat-card aster-chat-card--cf {{#if isCritical}}is-crit{{else if isFumble}}is-fumble{{/if}}">
   <header class="card-header">
     <div class="title">
-      <div class="name">{{localize label}}</div>
+      <div class="name">{{localize label}}<span class="actor">{{actorName}}</span></div>
       {{#if rollDC}}
       <div class="formula">DC {{rollDC}}</div>
       {{else if formula}}
