@@ -1,5 +1,4 @@
 // Utils
-@use "utils/typography";
 @use "utils/colors";
 @use "utils/mixins";
 @use "utils/variables";
@@ -43,5 +42,3 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap");
 // 나눔스퀘어라운드 400/700/800 (.herbarium 본문)
 @import url("https://cdn.jsdelivr.net/gh/innks/NanumSquareRound@master/nanumsquareround.min.css");
-// Roboto — 기존 영역 (점진 마이그레이션 — H2~에서 Pretendard로 정합 가능)
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");

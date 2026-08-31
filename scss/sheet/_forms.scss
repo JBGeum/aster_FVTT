@@ -1,10 +1,4 @@
-@use "../utils/typography" as t;
-
 .aster {
-  .item-form {
-    font-family: t.$font-primary;
-  }
-
   .sheet-tabs {
     flex: 0;
   }
