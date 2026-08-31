@@ -29,9 +29,8 @@
   --cc-el-yellow: #c2a052;
   --cc-win-bg: rgba(176, 125, 39, 0.13);
   --cc-radius: 7px;
-  // 가독성용 폰트 — Noto Serif KR(가중치 넓고 작은 크기 선명). 대체: "Nanum Myeongjo", "Pretendard"
-  --cc-font: "Noto Serif KR", serif;
-  --cc-font-num: "Noto Serif KR", serif;
+  --cc-font: var(--aster-font-family-sans);
+  --cc-font-num: var(--aster-font-family-sans);
   --cc-weight: 500;
   --cc-weight-sm: 600;
 }
@@ -117,10 +116,8 @@
         font-size: 0.98rem;
         letter-spacing: 0.2px;
 
-        // 12px 언저리에서 한글 명조는 가로획이 뭉개진다 — 보조 표기만 산돌체로.
         .actor {
           margin-left: 7px;
-          font-family: var(--aster-font-family-sans);
           font-size: 0.76rem;
           font-weight: var(--cc-weight-sm);
           color: var(--cc-ink-soft);
