@@ -237,12 +237,12 @@
     width: auto;
   }
 
-  /* 숫자 표기 — 올드스타일 figure */
   .num {
+    font-family: "Cinzel", var(--hb-font-num);
+  }
+  /* 식은 소문자를 담는다 — Cinzel의 소문자는 어센더 없는 작은 대문자라 2d6이 뭉개진다. */
+  .cost.num {
     font-family: var(--hb-font-num);
-    font-feature-settings:
-      "onum" 1,
-      "kern" 1;
   }
 
   /* 원소 점 색 (공용 — .mat-in·.f-select·.mat-col__head 등) */
@@ -786,6 +786,7 @@
       position: relative;
       text-align: center;
       padding: 5px 0;
+      font-weight: var(--weight-sm);
       border-radius: var(--hb-radius-sm);
       cursor: pointer;
       border: 1px solid var(--gold);
@@ -839,7 +840,7 @@
       text-align: center;
       color: var(--cream);
       font-weight: 700;
-      font-size: 15px;
+      font-size: 20px;
     }
   }
   /* change.txt — 정체성 패널의 목표 인장은 크게. */
@@ -854,7 +855,7 @@
     border-radius: var(--hb-radius);
     cursor: pointer;
     font-family: var(--hb-font-label);
-    font-weight: 700;
+    font-weight: 600;
     font-size: 15px;
     letter-spacing: 2px;
     color: var(--cream);
@@ -895,7 +896,6 @@
     cursor: pointer;
   }
   .attr__main {
-    font-family: var(--hb-font-num);
     font-feature-settings: "lnum" 1;
     font-size: 29px;
     line-height: 0.95;
@@ -914,7 +914,6 @@
     border-radius: var(--hb-radius-sm);
     padding: 5px 0;
     text-align: center;
-    font-family: var(--hb-font-num);
     font-size: 14px;
     font-weight: 600;
     color: var(--ink-soft);
@@ -993,9 +992,8 @@
     align-items: center;
     justify-content: center;
     gap: 2px;
-    font-family: var(--hb-font-num);
     font-weight: 700;
-    font-size: 15px;
+    font-size: 14px;
     color: var(--ink-strong);
     text-shadow: var(--txt-emboss);
 
@@ -1043,7 +1041,6 @@
       white-space: nowrap;
     }
     .v {
-      font-family: var(--hb-font-num);
       font-weight: 700;
       font-size: 16px;
       color: var(--ink-strong);
@@ -1162,7 +1159,6 @@
     color: var(--ink-soft);
   }
   .el__val {
-    font-family: var(--hb-font-num);
     font-weight: 700;
     font-size: 15px;
     color: var(--ink-strong);
@@ -1390,7 +1386,6 @@
       border: 1px solid var(--gold-soft);
       border-radius: var(--hb-radius-sm);
       padding: 5px 14px;
-      font-family: var(--hb-font-num);
       font-weight: 700;
       color: var(--ink-strong);
 
@@ -1545,7 +1540,8 @@
     box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.1);
 
     .ttl {
-      font-size: 11px;
+      font-size: 12px;
+      font-weight: 800;
       letter-spacing: 1px;
       color: var(--ink-soft);
       display: flex;
@@ -1622,6 +1618,11 @@
         align-items: flex-start;
         gap: 2px;
         white-space: nowrap;
+      }
+
+      /* 비었을 때 .tools가 사라져도 gap이 남아 라벨이 위로 밀린다. */
+      &.empty .ttl {
+        gap: 0;
       }
     }
   }
@@ -1784,7 +1785,6 @@
       color: var(--ink-soft);
     }
     .ap-value {
-      font-family: var(--hb-font-num);
       font-weight: 700;
       font-size: 18px;
       color: var(--ink-strong);
@@ -2093,7 +2093,7 @@
     text-align: center;
     /* 행 높이가 subgrid로 통일되므로 남는 세로 공간에서 내용을 가운데로. */
     align-content: center;
-    font-family: var(--hb-font-num);
+    font-family: "Cinzel", var(--hb-font-num);
     font-weight: 600;
     font-size: 15px;
     color: var(--ink-strong);
@@ -2337,7 +2337,6 @@
     box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.12);
 
     .count {
-      font-family: var(--hb-font-num);
       font-size: 14px;
       color: var(--ink-strong);
       min-width: 44px;
@@ -2472,7 +2471,6 @@
       white-space: nowrap;
     }
     .v {
-      font-family: var(--hb-font-num);
       color: var(--ink-strong);
       font-weight: 600;
       font-size: 15px;
@@ -2769,7 +2767,6 @@
       border: 1px solid var(--rule);
       border-radius: var(--hb-radius-sm);
       padding: 5px 0;
-      font-family: var(--hb-font-num);
       font-weight: 600;
       color: var(--ink-strong);
       box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.14);
@@ -2796,7 +2793,6 @@
         border: 1px solid var(--rule);
         border-radius: var(--hb-radius-sm);
         padding: 6px 0;
-        font-family: var(--hb-font-num);
         font-weight: 600;
         color: var(--ink-strong);
         box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.14);
@@ -3346,7 +3342,6 @@
   .roll__target .lbl,
   .item__loc,
   .storage .k,
-  .cslot .ttl,
   .mat-col__head,
   .recipe__name .lv,
   .stat > label,

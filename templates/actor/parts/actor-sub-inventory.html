@@ -39,7 +39,7 @@
 {{/if}}
 <div class="panel__head">{{localize "ASTER.inventory.carry"}}</div>
 <div class="carry">
-  <div class="cslot basket">
+  <div class="cslot basket {{#unless inv.food}}empty{{/unless}}">
     <div class="ttl">
       {{localize "ASTER.inventory.basket"}}
       <span class="tools">
@@ -81,9 +81,7 @@
         title="{{localize 'ASTER.inventory.toChat'}}"
         >{{inv.food.name}}</span
       >
-      {{else}}
-      <span class="empty-text">{{localize "ASTER.inventory.foodEmpty"}}</span>
-      {{/if}}
+      {{else}} {{localize "ASTER.inventory.foodEmpty"}} {{/if}}
     </div>
   </div>
   {{#each inv.equipSlots as |slot|}}
