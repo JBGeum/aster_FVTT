@@ -1,8 +1,7 @@
 /* ============================================================
  * Aster 툴팁 스킨 — Foundry 내장 #tooltip / locked-tooltip에 hb-tip 클래스로 입힘.
  *
- * 출처: memo/design/new/마녀 시트 - 툴팁 시안.html (Noto Serif KR 우선 버전).
- * 헤더(Noto Serif KR) · 본문(나눔스퀘어라운드) · 메타 3단 구조 + 한 줄 플레인 팁.
+ * 헤더 · 본문 · 메타 3단 구조 + 한 줄 플레인 팁.
  *
  * 스코프: data-tooltip-class="hb-tip"가 활성 시 #tooltip에 부착된다. 코어 #tooltip은
  *   전역이라(다른 모듈 툴팁 공유) 클래스로 시스템 한정. #tooltip.hb-tip은 (1,1,0)이라
