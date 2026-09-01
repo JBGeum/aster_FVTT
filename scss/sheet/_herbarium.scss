@@ -1367,7 +1367,28 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
+    gap: 8px;
     margin-bottom: 8px;
+  }
+  /* 바구니·가방 머리글의 아이콘 버튼 묶음 */
+  .tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0;
+    color: var(--gold);
+    font-size: 12px;
+    cursor: pointer;
+
+    button {
+      width: auto;
+      flex: 0 0 auto;
+      background: none;
+      border: none;
+      color: var(--gold);
+      cursor: pointer;
+      padding: 0 1px;
+    }
   }
   .bag__cap {
     font-family: var(--hb-font-num);
@@ -1508,26 +1529,6 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-
-      .tools {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        letter-spacing: 0;
-        color: var(--gold);
-        font-size: 12px;
-        cursor: pointer;
-
-        button {
-          width: auto;
-          flex: 0 0 auto;
-          background: none;
-          border: none;
-          color: var(--gold);
-          cursor: pointer;
-          padding: 0 1px;
-        }
-      }
     }
     .content {
       display: flex;

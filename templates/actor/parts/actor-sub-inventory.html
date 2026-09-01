@@ -4,6 +4,16 @@
   <span class="bag__cap"
     >{{inv.bag.grid.cols}} × {{inv.bag.grid.rows}} · <b>{{inv.bag.items.length}}</b>/{{inv.bag.cells.length}}</span
   >
+  <span class="tools">
+    <button
+      type="button"
+      data-action="itemDelete"
+      data-item-id="{{inv.bag.id}}"
+      title="{{localize 'ASTER.inventory.delete'}}"
+    >
+      ✕
+    </button>
+  </span>
 </div>
 
 <div class="bag-grid" style="--bag-cols: {{inv.bag.grid.cols}}; --bag-rows: {{inv.bag.grid.rows}}">
