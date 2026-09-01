@@ -65,22 +65,22 @@ export function buildStatusTooltips() {
 }
 
 /**
- * 본문(description)이 비면 null 반환 → tooltipHtml 헬퍼가 툴팁을 생략(빈 툴팁 박스 방지).
+ * 효과(effect)가 비면 null 반환 → tooltipHtml 헬퍼가 툴팁을 생략(빈 툴팁 박스 방지).
  * 반환 HTML은 템플릿 헬퍼가 속성 안전용으로 엔티티화하므로 여기선 평범한 HTML로 둔다.
- * (단, name은 사용자 입력이라 escapeHTML — 본문 description은 리치텍스트라 그대로.)
+ * (effect는 StringField 평문이라 name과 함께 escapeHTML — description처럼 그대로 넣지 않는다.)
  *
  * @param {Item} item
  * @param {string} [locationLabel]  메타에 표시할 위치(가방/창고)
  * @returns {string|null}
  */
 export function buildItemTooltip(item, locationLabel) {
-  const desc = (item.system.description ?? "").trim();
-  if (!desc) return null;
+  const effect = (item.system.effect ?? "").trim();
+  if (!effect) return null;
   const icon = TOOLTIP_ICON[item.type] ?? "fa-book";
   const name = foundry.utils.escapeHTML(item.name);
   const parts = [
     `<div class="hb-tip__head"><i class="fa-solid ${icon}"></i>${name}</div>`,
-    `<div class="hb-tip__body">${desc}</div>`,
+    `<div class="hb-tip__body">${foundry.utils.escapeHTML(effect)}</div>`,
   ];
   const meta = [];
   if (locationLabel) {
@@ -103,12 +103,12 @@ export function buildItemTooltip(item, locationLabel) {
  * @returns {string|null}
  */
 export function buildSpellTooltip(spell, formula) {
-  const desc = (spell.system.description ?? "").trim();
-  if (!desc) return null;
+  const effect = (spell.system.effect ?? "").trim();
+  if (!effect) return null;
   const name = foundry.utils.escapeHTML(spell.name);
   const parts = [
     `<div class="hb-tip__head"><i class="fa-solid fa-wand-sparkles"></i>${name}</div>`,
-    `<div class="hb-tip__body">${desc}</div>`,
+    `<div class="hb-tip__body">${foundry.utils.escapeHTML(effect)}</div>`,
   ];
   if (formula) {
     const f = foundry.utils.escapeHTML(formula);
