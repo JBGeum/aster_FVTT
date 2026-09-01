@@ -842,14 +842,6 @@
       color: var(--cream);
       font-weight: 700;
       font-size: 20px;
-
-      -moz-appearance: textfield;
-      appearance: textfield;
-      &::-webkit-outer-spin-button,
-      &::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-      }
     }
   }
   /* change.txt — 정체성 패널의 목표 인장은 크게. */
@@ -1016,15 +1008,6 @@
       color: var(--ink-strong);
       font: inherit;
       font-weight: 700;
-
-      /* number 스피너 제거 — 폭 확보 (잘림 방지) */
-      -moz-appearance: textfield;
-      appearance: textfield;
-      &::-webkit-outer-spin-button,
-      &::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-      }
     }
   }
   .minis {
