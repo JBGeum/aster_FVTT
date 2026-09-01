@@ -62,7 +62,7 @@
   --hb-font-display: "Cinzel", var(--aster-font-family-sans); /* 제목 */
   --hb-font-serif: var(--aster-font-family-sans); /* 본문 */
   --hb-font-num: var(--aster-font-family-sans); /* 수치 */
-  --hb-font-label: var(--aster-font-family-sans); /* 라벨·칩 — 본문과 분리 */
+  --hb-font-label: "SANGJU Gotgam", var(--aster-font-family-sans); /* 라벨·칩 — 본문과 분리 */
 
   /* 본문 가중치 (나눔스퀘어라운드는 400/700/800만 — 600은 700으로 튀므로 400 사용) */
   --weight: 400; /* 본문 기본 */
@@ -358,11 +358,13 @@
     align-items: center;
     gap: 10px;
     font-family: var(--hb-font-label);
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 2px;
+    font-weight: 400;
+    font-size: 12px;
+    /* 상자 높이가 서체를 따라가면 별과 금선이 어긋난다 */
+    line-height: 1;
+    letter-spacing: 3px;
     color: var(--ink-soft);
-    margin: -2px 0 6px;
+    margin: -2px 0 7px;
 
     &::before {
       @include fa("\f005"); /* star */
@@ -752,10 +754,9 @@
       justify-content: center;
     }
   }
-  /* change.txt — 정체성 패널의 정동판정 버튼은 크게. */
   .panel--identity .btn-cast {
-    padding: 12px 0;
-    font-size: 17px;
+    padding: 18px 0;
+    font-size: 15px;
     letter-spacing: 2px;
   }
   .roll__row {
@@ -841,6 +842,14 @@
       color: var(--cream);
       font-weight: 700;
       font-size: 20px;
+
+      -moz-appearance: textfield;
+      appearance: textfield;
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
     }
   }
   /* change.txt — 정체성 패널의 목표 인장은 크게. */
@@ -855,8 +864,8 @@
     border-radius: var(--hb-radius);
     cursor: pointer;
     font-family: var(--hb-font-label);
-    font-weight: 600;
-    font-size: 15px;
+    font-weight: 400;
+    font-size: 14px;
     letter-spacing: 2px;
     color: var(--cream);
     background: linear-gradient(180deg, var(--plum), var(--plum-deep));
@@ -890,7 +899,7 @@
   .attr__name {
     font-weight: 700;
     color: var(--ink-strong);
-    font-size: 14px;
+    font-size: 13px;
     letter-spacing: 1px;
     white-space: nowrap;
     cursor: pointer;
@@ -957,7 +966,7 @@
   .gauge__lbl {
     font-weight: 700;
     color: var(--ink-strong);
-    font-size: 14px;
+    font-size: 13px;
     white-space: nowrap;
   }
   .vessel {
@@ -1026,23 +1035,23 @@
   .mini {
     flex: 1;
     display: flex;
-    /* 라벨(13px)과 숫자(num 16px)는 글자 크기·메트릭이 달라 center로는 어긋난다 —
-       텍스트 베이스라인 정렬로 한 줄에 맞춘다(.pair와 동일 방침). */
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     background: var(--parchment-sunk);
     border: 1px solid var(--rule);
     border-radius: var(--hb-radius-sm);
-    padding: 6px 11px;
+    padding: 7px 11px;
 
     .k {
-      font-size: 13px;
+      font-size: 12px;
+      line-height: 1;
       color: var(--ink-soft);
       white-space: nowrap;
     }
     .v {
       font-weight: 700;
       font-size: 16px;
+      line-height: 1;
       color: var(--ink-strong);
     }
   }
@@ -1061,11 +1070,10 @@
     align-items: center;
     gap: 6px;
     line-height: 1;
+    /* 미지정 시 Foundry 코어 --font-h2(Amiri)가 상속을 이겨 한글이 위로 뜬다 */
     font-family: var(--hb-font-label);
-    font-size: 13px;
-    /* 핵심: 폰트 명시. 미지정 시 Foundry 코어 --font-h2(Amiri, 아랍어 폰트)가 상속을
-       이겨 한글이 위로 뜸. 우리 serif를 직접 박아 Amiri를 차단 → 정렬 자연 정합. */
-    font-family: var(--hb-font-serif);
+    font-weight: 400;
+    font-size: 12px;
     padding: 4px 10px;
     border-radius: 20px;
     border: 1px solid var(--gold-soft);
@@ -1155,7 +1163,7 @@
     }
   }
   .el__name {
-    font-size: 11px;
+    font-size: 10.5px;
     color: var(--ink-soft);
   }
   .el__val {
@@ -1775,7 +1783,7 @@
 
     .t {
       font-family: var(--hb-font-label);
-      font-weight: 700;
+      font-weight: 400;
       font-size: 15px;
       letter-spacing: 2px;
       color: var(--ink-strong);
@@ -1878,7 +1886,7 @@
     padding: 12px 0;
     border-radius: var(--hb-radius);
     cursor: pointer;
-    font-family: var(--hb-font-label);
+    font-family: var(--hb-font-serif);
     font-weight: 700;
     font-size: 15px;
     letter-spacing: 3px;
@@ -3352,29 +3360,30 @@
   }
 }
 
-/* ===== 라벨·제목·소제목 — 을유1945 통일 =====
-   본문(description)만 나눔스퀘어라운드, 라벨류는 전부 을유.
-   파일 끝(위 .aster weight 블록 뒤)에 둬 기존 라벨 폰트·굵기를 소스 순서로 override.
-   (섹션 제목 .panel__head·칩 .herb-tag·수치 --hb-font-num은 이미 을유라 제외.) */
+/* ===== 라벨·제목·소제목 =====
+   파일 끝(위 .aster weight 블록 뒤)에 둬 기존 라벨 폰트·굵기를 소스 순서로 override. */
 .herbarium {
   .pair .k, /* 체재도시·경계도·펠카·우호도 등 기록 라벨 */
   .rec-block > .k, /* 체재지의 모습 · 관련된 사람들 · 임의 메모 */
   .field > label, /* 이름·속성 등 필드 라벨 */
+  .id-row .field > label, /* 이름·속성 — .aster 스코프 override */
   .frow > label, /* 다이얼로그 폼 라벨 */
   .cslot .ttl, /* 바구니·장비·사역마 */
+  .seg label, /* 일반·대항 */
+  .roll__target .lbl, /* 목표 */
   .gauge__lbl, /* 건강·포만도 */
   .attr__name, /* 활발·박식·요령·처세 */
   .el__name, /* 백·적·청·녹·황·마테리얼 */
+  .mini .k, /* 민첩·회피 */
   .id-aff .aff-label, /* 속성 라벨 */
   .item__loc, /* '가방' 위치 칩 */
   .fieldset > .legend {
     font-family: var(--hb-font-label);
-    font-weight: 700; /* 마루부리 Bold — 또렷한 라벨 */
+    font-weight: 400;
   }
-  /* 크기 하한 — 을유가 흐려지는 12px 미만 라벨만 한 단계 올림 */
   .field > label,
   .id-aff .aff-label {
-    font-size: 12px; /* 11 → 12 */
+    font-size: 12px;
   }
 }
 

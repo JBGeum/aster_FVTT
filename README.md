@@ -219,3 +219,13 @@ test(emotion): cover favColor branch
 ## 라이선스
 
 MIT - [`LICENSE.txt`](./LICENSE.txt) 참고.
+
+### 서체
+
+CDN에서 링크로 받으며 저장소에 포함하지 않습니다.
+
+| 서체 | 출처 | 라이선스 |
+| --- | --- | --- |
+| 상주곶감체 | 상주시 | [공공누리 제1유형](https://www.kogl.or.kr/info/license.do) (출처표시) |
+| Pretendard | orioncactus | SIL Open Font License 1.1 |
+| Cinzel | Natanael Gama | SIL Open Font License 1.1 |
