@@ -189,7 +189,6 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     // 이미지 편집 — data-edit 클릭 시 FilePicker. V2(DocumentSheetV2)는 V1과 달리
     // data-edit 자동 바인딩이 없어 직접 건다(re-render마다 DOM 교체라 리스너 누적 없음).
-    // dataset.edit를 update 키로 일반화 — img 외 가방 창고 이미지(system.storageImg)도 커버.
     for (const img of this.element.querySelectorAll("img[data-edit]")) {
       img.addEventListener("click", () => {
         const key = img.dataset.edit;
