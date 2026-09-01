@@ -24,6 +24,7 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     window: { resizable: true },
     actions: {
       useConsumable: AsterItemSheet.#onItemConsumableUse,
+      bagCellToggle: AsterItemSheet.#onBagCellToggle,
     },
   };
 
@@ -101,6 +102,20 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.owner = this.item.isOwner;
     context.rollData = this.item.actor?.getRollData() ?? {};
     context.config = CONFIG.ASTER;
+
+    if (this.item.type === "bag") {
+      const grid = this.item.system.grid ?? { cols: 6, rows: 4, dead: [] };
+      const dead = new Set((grid.dead ?? []).map((c) => `${c.x},${c.y}`));
+      context.bagShape = {
+        cols: grid.cols,
+        rows: grid.rows,
+        cells: Array.from({ length: grid.cols * grid.rows }, (_, i) => {
+          const x = i % grid.cols;
+          const y = Math.floor(i / grid.cols);
+          return { x, y, dead: dead.has(`${x},${y}`) };
+        }),
+      };
+    }
 
     // material[6] 인덱스별 라벨 — 코드에 인덱스 의미가 없어 UI에서 명시(마테리얼 + 적·청·녹·황·백).
     // dotKey: .mat-in 점 색 (index 0=마테리얼 … 5=백).
@@ -194,6 +209,18 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       return;
     }
     await useConsumable(actor, this.item);
+  }
+
+  static async #onBagCellToggle(_event, target) {
+    if (this.item.type !== "bag") return;
+    const x = Number(target.dataset.x);
+    const y = Number(target.dataset.y);
+    if (!Number.isInteger(x) || !Number.isInteger(y)) return;
+
+    const dead = this.item.system.grid?.dead ?? [];
+    const hit = dead.some((c) => c.x === x && c.y === y);
+    const next = hit ? dead.filter((c) => !(c.x === x && c.y === y)) : [...dead, { x, y }];
+    await this.item.update({ "system.grid.dead": next });
   }
 
   static async #onSubmit(_event, _form, formData) {
