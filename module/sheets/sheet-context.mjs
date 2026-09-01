@@ -66,6 +66,7 @@ export function prepareInventory(sheet, context) {
   const inBagLabel = game.i18n.localize("ASTER.inventory.inBag");
   const inStorageLabel = game.i18n.localize("ASTER.inventory.inStorage");
 
+  const equipLabel = game.i18n.localize("ASTER.inventory.equipment");
   const equipSlots = EQUIP_SLOT_CONTAINERS.map((slotId) => {
     const it = sheet.actor.items.find(
       (i) => i.type === "equipment" && i.system.container === slotId,
@@ -73,8 +74,14 @@ export function prepareInventory(sheet, context) {
     return {
       slotId,
       item: it ? { id: it.id, name: it.name, img: it.img } : null,
+      tooltip: it ? buildItemTooltip(it, equipLabel) : null,
     };
   });
+
+  const acquiredCraft = sheet.actor.system.craft?.acquired ?? {};
+  const famNode = CRAFT_TREE.nodes.find(
+    (n) => n.category === "familiar" && acquiredCraft[n.id] === true,
+  );
 
   context.inv = {
     equipSlots,
@@ -104,6 +111,7 @@ export function prepareInventory(sheet, context) {
         }
       : null,
     food: food ? { id: food.id, name: food.name, img: food.img } : null,
+    familiar: famNode ? { name: game.i18n.localize(famNode.label) } : null,
     storage: {
       count: inStorage.length,
       limit: storageLimit,
