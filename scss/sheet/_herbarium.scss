@@ -408,26 +408,9 @@
   .identity {
     display: grid;
     grid-template-columns: 1fr 172px 1fr;
-    grid-template-areas:
-      "left name name"
-      "left port roll";
+    grid-template-areas: "left port roll";
     gap: 11px 16px;
     align-items: stretch;
-  }
-  /* 이름 — 초상화 위·우측 상단 */
-  .id-row {
-    grid-area: name;
-    display: flex;
-    align-items: end;
-
-    .field--name {
-      flex: 1;
-      gap: 4px;
-    }
-    /* 이름 input — 기본 .input-line(8px 12px)보다 compact (record 등 타 input-line 불변). */
-    .input-line {
-      padding: 4px 11px;
-    }
   }
   /* 좌측 열(전체 높이) — 로고 · 디바이더 · 속성 · 임시 엠블럼 */
   .id-left {
@@ -441,7 +424,7 @@
   }
   .id-logo {
     width: 100%;
-    max-width: 152px;
+    max-width: 136px;
     height: auto;
     display: block;
     /* 다크 명판(라이트=none) — 진한 상단 글자가 별밤에 묻히지 않게. 토큰은 night 믹스인에서 교체. */
@@ -461,19 +444,6 @@
       var(--gold-soft) 75%,
       transparent
     );
-  }
-  .id-aff {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-
-    .aff-label {
-      font-size: 11px;
-      letter-spacing: 2px;
-      color: var(--ink-soft);
-      white-space: nowrap;
-    }
   }
   .id-affbox {
     display: inline-flex;
@@ -814,7 +784,7 @@
     margin-bottom: 6px;
 
     .lbl {
-      font-size: 12px;
+      font-size: 13px;
       letter-spacing: 1px;
       color: var(--ink-soft);
       white-space: nowrap;
@@ -841,14 +811,14 @@
       text-align: center;
       color: var(--cream);
       font-weight: 700;
-      font-size: 20px;
+      font-size: inherit;
     }
   }
   /* change.txt — 정체성 패널의 목표 인장은 크게. */
   .panel--identity .seal {
-    width: 46px;
-    height: 46px;
-    font-size: 23px;
+    width: 54px;
+    height: 54px;
+    font-size: 27px;
   }
   .btn-cast {
     width: 100%;
@@ -3265,16 +3235,36 @@
     padding-bottom: 4px;
     min-width: 0;
 
+    /* .herbarium 밖이라 코어 input 스타일이 상속을 끊는다 — 여기서 직접 누른다 */
     .pc {
-      font-family: var(--hb-font-display);
+      font-family: var(--hb-font-label);
       font-size: 24px;
-      font-weight: 700;
+      font-weight: 400;
       line-height: 1;
       letter-spacing: 1px;
       color: var(--ink-strong);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      field-sizing: content;
+      min-width: 4ch;
+      max-width: 100%;
+      padding: 0 0 3px;
+      border: none;
+      border-bottom: 1px solid transparent;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+      outline: none;
+
+      &::placeholder {
+        color: var(--ink-faint);
+      }
+      &:hover {
+        border-bottom-style: dashed;
+        border-bottom-color: var(--rule);
+      }
+      &:focus {
+        border-bottom-style: solid;
+        border-bottom-color: var(--gold);
+      }
     }
     .pc-sub {
       font-size: 11px;
@@ -3337,8 +3327,7 @@
   .recipe__name .lv,
   .stat > label,
   .frow > label,
-  .mat-in .lbl,
-  .id-row .field > label {
+  .mat-in .lbl {
     font-weight: var(--weight-sm);
   }
 }
@@ -3349,7 +3338,6 @@
   .pair .k, /* 체재도시·경계도·펠카·우호도 등 기록 라벨 */
   .rec-block > .k, /* 체재지의 모습 · 관련된 사람들 · 임의 메모 */
   .field > label, /* 이름·속성 등 필드 라벨 */
-  .id-row .field > label, /* 이름·속성 — .aster 스코프 override */
   .frow > label, /* 다이얼로그 폼 라벨 */
   .cslot .ttl, /* 바구니·장비·사역마 */
   .seg label, /* 일반·대항 */
@@ -3358,14 +3346,12 @@
   .attr__name, /* 활발·박식·요령·처세 */
   .el__name, /* 백·적·청·녹·황·마테리얼 */
   .mini .k, /* 민첩·회피 */
-  .id-aff .aff-label, /* 속성 라벨 */
   .item__loc, /* '가방' 위치 칩 */
   .fieldset > .legend {
     font-family: var(--hb-font-label);
     font-weight: 400;
   }
-  .field > label,
-  .id-aff .aff-label {
+  .field > label {
     font-size: 12px;
   }
 }
