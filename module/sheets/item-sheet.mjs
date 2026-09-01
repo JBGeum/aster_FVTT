@@ -24,6 +24,7 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     window: { resizable: true },
     actions: {
       useConsumable: AsterItemSheet.#onItemConsumableUse,
+      bagCellToggle: AsterItemSheet.#onBagCellToggle,
     },
   };
 
@@ -102,6 +103,20 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.rollData = this.item.actor?.getRollData() ?? {};
     context.config = CONFIG.ASTER;
 
+    if (this.item.type === "bag") {
+      const grid = this.item.system.grid ?? { cols: 6, rows: 4, dead: [] };
+      const dead = new Set((grid.dead ?? []).map((c) => `${c.x},${c.y}`));
+      context.bagShape = {
+        cols: grid.cols,
+        rows: grid.rows,
+        cells: Array.from({ length: grid.cols * grid.rows }, (_, i) => {
+          const x = i % grid.cols;
+          const y = Math.floor(i / grid.cols);
+          return { x, y, dead: dead.has(`${x},${y}`) };
+        }),
+      };
+    }
+
     // material[6] 인덱스별 라벨 — 코드에 인덱스 의미가 없어 UI에서 명시(마테리얼 + 적·청·녹·황·백).
     // dotKey: .mat-in 점 색 (index 0=마테리얼 … 5=백).
     const MAT_DOT = ["mat", "red", "blue", "green", "yellow", "white"];
@@ -174,7 +189,6 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
     // 이미지 편집 — data-edit 클릭 시 FilePicker. V2(DocumentSheetV2)는 V1과 달리
     // data-edit 자동 바인딩이 없어 직접 건다(re-render마다 DOM 교체라 리스너 누적 없음).
-    // dataset.edit를 update 키로 일반화 — img 외 가방 창고 이미지(system.storageImg)도 커버.
     for (const img of this.element.querySelectorAll("img[data-edit]")) {
       img.addEventListener("click", () => {
         const key = img.dataset.edit;
@@ -194,6 +208,18 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       return;
     }
     await useConsumable(actor, this.item);
+  }
+
+  static async #onBagCellToggle(_event, target) {
+    if (this.item.type !== "bag") return;
+    const x = Number(target.dataset.x);
+    const y = Number(target.dataset.y);
+    if (!Number.isInteger(x) || !Number.isInteger(y)) return;
+
+    const dead = this.item.system.grid?.dead ?? [];
+    const hit = dead.some((c) => c.x === x && c.y === y);
+    const next = hit ? dead.filter((c) => !(c.x === x && c.y === y)) : [...dead, { x, y }];
+    await this.item.update({ "system.grid.dead": next });
   }
 
   static async #onSubmit(_event, _form, formData) {

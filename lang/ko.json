@@ -599,7 +599,7 @@
       "requirement": "요구",
       "size": "크기",
       "gridSize": "격자 크기",
-      "storageImg": "창고 그림",
+      "gridShape": "격자 모양",
       "cols": "열",
       "rows": "행",
       "width": "가로",
@@ -647,6 +647,7 @@
       "warn": {
         "singleton": "{type}은(는) 1개만 소지할 수 있습니다.",
         "AREA_EXCEEDED": "가방 용량을 초과했습니다.",
+        "SHAPE_BLOCKED": "가방 모양을 벗어납니다.",
         "WIDTH_EXCEEDED": "아이템 가로가 가방보다 큽니다.",
         "HEIGHT_EXCEEDED": "아이템 세로가 가방보다 큽니다.",
         "STORAGE_FULL": "창고가 가득 차 꺼낼 수 없습니다."

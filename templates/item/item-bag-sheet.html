@@ -28,6 +28,20 @@
               </div>
             </div>
           </div>
+          <div class="frow frow--stack">
+            <label>{{localize "ASTER.item.gridShape"}}</label>
+            <div class="bshape" style="--bshape-cols: {{bagShape.cols}}; --bshape-rows: {{bagShape.rows}}">
+              {{#each bagShape.cells as |cell|}}
+              <button
+                type="button"
+                class="bshape-cell {{#if cell.dead}}off{{/if}}"
+                data-action="bagCellToggle"
+                data-x="{{cell.x}}"
+                data-y="{{cell.y}}"
+              ></button>
+              {{/each}}
+            </div>
+          </div>
           <div class="frow">
             <label>{{localize "ASTER.item.requirement"}}</label>
             <div class="f-input"><input type="text" name="system.requirement" value="{{system.requirement}}" /></div>
@@ -43,11 +57,6 @@
         <label>{{localize "ASTER.item.effect"}}</label>
         <div class="f-area"><textarea name="system.effect">{{system.effect}}</textarea></div>
       </div>
-      <div class="frow">
-        <label>{{localize "ASTER.item.storageImg"}}</label>
-        <div class="thumb pixelart"><img src="{{system.storageImg}}" data-edit="system.storageImg" /></div>
-      </div>
-
       <div class="frow frow--stack">
         <label>{{localize "ASTER.item.description"}}</label>
         <div class="f-area">

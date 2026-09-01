@@ -6,10 +6,16 @@ export class BagDataModel extends BaseItemModel {
   static defineSchema() {
     return {
       ...super.defineSchema(),
-      storageImg: new fields.StringField({ initial: "" }),
       grid: new fields.SchemaField({
         cols: new fields.NumberField({ initial: 6, integer: true, min: 1 }),
         rows: new fields.NumberField({ initial: 4, integer: true, min: 1 }),
+        dead: new fields.ArrayField(
+          new fields.SchemaField({
+            x: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
+            y: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
+          }),
+          { initial: () => [] },
+        ),
       }),
 
       // 제작 전제 — { [craft 노드 base id]: 최소 레벨 }. 빈 객체면 전제 없음.

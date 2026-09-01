@@ -1,5 +1,5 @@
 import { prepareActiveEffectCategories } from "../helpers/effects.mjs";
-import { checkBagCapacity, checkStorageAdd } from "../helpers/inventory-capacity.mjs";
+import { checkBagCapacity, checkStorageAdd, fitsInShape } from "../helpers/inventory-capacity.mjs";
 import { equipItem, unequipItem } from "../helpers/equipment.mjs";
 import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
 import { acquireSkill, resetCraft } from "../helpers/craft-actions.mjs";
@@ -254,6 +254,11 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
     const start = this.#clampStart(x, y, item.system.size, grid);
 
+    if (!fitsInShape({ start, size: item.system.size, grid, dead: grid.dead })) {
+      ui.notifications.warn(game.i18n.localize("ASTER.inventory.warn.SHAPE_BLOCKED"));
+      return;
+    }
+
     const itemsInBag = this.actor.items
       .filter((i) => i.system.container === bag.id && ["consumable", "equipment"].includes(i.type))
       .map((i) => ({ size: i.system.size }));
@@ -261,6 +266,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       newItemSize: item.system.size,
       itemsInBag,
       grid,
+      dead: grid.dead,
     });
     if (!cap.ok) {
       const msg = cap.reasons.map((r) => game.i18n.localize(`ASTER.inventory.warn.${r}`)).join(" ");

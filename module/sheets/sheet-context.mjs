@@ -1,7 +1,7 @@
 /**
  * 시트 _prepareContext의 하위 컨텍스트 빌더 — (sheet, context)를 받아 context를 채운다.
  */
-import { EQUIP_SLOT_CONTAINERS } from "../helpers/inventory-capacity.mjs";
+import { EQUIP_SLOT_CONTAINERS, liveCellCount } from "../helpers/inventory-capacity.mjs";
 import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
 import { prereqMet, sumCost } from "../helpers/craft-cost.mjs";
 import {
@@ -47,14 +47,20 @@ export function prepareInventory(sheet, context) {
 
   const storageLimit = sheet.actor.system.storage?.limit ?? 0;
 
-  const bagGrid = bag?.system.grid ?? { cols: 6, rows: 4 };
+  const bagGrid = bag?.system.grid ?? { cols: 6, rows: 4, dead: [] };
+  const bagDead = new Set((bagGrid.dead ?? []).map((c) => `${c.x},${c.y}`));
   const cells = bag
-    ? Array.from({ length: bagGrid.cols * bagGrid.rows }, (_, i) => ({
-        index: i,
-        x: i % bagGrid.cols,
-        y: Math.floor(i / bagGrid.cols),
-        light: (Math.floor(i / bagGrid.cols) + (i % bagGrid.cols)) % 2 === 0,
-      }))
+    ? Array.from({ length: bagGrid.cols * bagGrid.rows }, (_, i) => {
+        const x = i % bagGrid.cols;
+        const y = Math.floor(i / bagGrid.cols);
+        return {
+          index: i,
+          x,
+          y,
+          light: (y + x) % 2 === 0,
+          dead: bagDead.has(`${x},${y}`),
+        };
+      })
     : [];
 
   const inBagLabel = game.i18n.localize("ASTER.inventory.inBag");
@@ -78,6 +84,7 @@ export function prepareInventory(sheet, context) {
           name: bag.name,
           grid: bagGrid,
           cells,
+          live: liveCellCount(bagGrid, bagGrid.dead ?? []),
           items: inBag.map((i) => {
             const w = i.system.size?.w ?? 1;
             const h = i.system.size?.h ?? 1;

@@ -26,15 +26,55 @@ export function usedArea(items) {
   return items.reduce((sum, it) => sum + itemArea(it.size), 0);
 }
 
+/** dead 좌표를 "x,y" 문자열 Set으로. 격자 밖 좌표는 버린다. */
+function deadSet(grid, dead = []) {
+  const set = new Set();
+  for (const c of dead) {
+    const { x, y } = c ?? {};
+    if (!Number.isInteger(x) || !Number.isInteger(y)) continue;
+    if (x < 0 || y < 0 || x >= grid.cols || y >= grid.rows) continue;
+    set.add(`${x},${y}`);
+  }
+  return set;
+}
+
+/**
+ * 격자에서 실제로 쓸 수 있는 칸 수.
+ * @param {{cols:number, rows:number}} grid
+ * @param {Array<{x:number,y:number}>} [dead]
+ * @returns {number}
+ */
+export function liveCellCount(grid, dead = []) {
+  return grid.cols * grid.rows - deadSet(grid, dead).size;
+}
+
+/**
+ * 아이템이 차지할 칸이 전부 살아 있는가 (차단용). 격자 밖으로 나가도 false.
+ * @param {{ start:{x:number,y:number}, size:{w:number,h:number}, grid:{cols:number,rows:number}, dead?:Array<{x:number,y:number}> }} p
+ * @returns {boolean}
+ */
+export function fitsInShape({ start, size, grid, dead = [] }) {
+  const { x = 0, y = 0 } = start ?? {};
+  const { w = 1, h = 1 } = size ?? {};
+  if (x < 0 || y < 0 || x + w > grid.cols || y + h > grid.rows) return false;
+  const set = deadSet(grid, dead);
+  for (let dy = 0; dy < h; dy += 1) {
+    for (let dx = 0; dx < w; dx += 1) {
+      if (set.has(`${x + dx},${y + dy}`)) return false;
+    }
+  }
+  return true;
+}
+
 /**
  * 가방 용량 판정 (경고용). 막지 않음.
- * @param {{ newItemSize:{w:number,h:number}, itemsInBag:Array<{size:{w:number,h:number}}>, grid:{cols:number,rows:number} }} p
+ * @param {{ newItemSize:{w:number,h:number}, itemsInBag:Array<{size:{w:number,h:number}}>, grid:{cols:number,rows:number}, dead?:Array<{x:number,y:number}> }} p
  * @returns {{ ok:boolean, reasons:string[] }}
  */
-export function checkBagCapacity({ newItemSize, itemsInBag, grid }) {
+export function checkBagCapacity({ newItemSize, itemsInBag, grid, dead = [] }) {
   const reasons = [];
   const { w = 1, h = 1 } = newItemSize ?? {};
-  if (usedArea(itemsInBag) + itemArea(newItemSize) > grid.cols * grid.rows) {
+  if (usedArea(itemsInBag) + itemArea(newItemSize) > liveCellCount(grid, dead)) {
     reasons.push("AREA_EXCEEDED");
   }
   if (w > grid.cols) reasons.push("WIDTH_EXCEEDED");
