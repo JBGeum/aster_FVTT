@@ -1535,13 +1535,19 @@
   /* 바구니 / 장비 / 사역마 */
   .carry {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.45fr);
     gap: 5px;
     margin-bottom: 11px;
 
     .basket {
       grid-column: 1 / -1;
     }
+  }
+  .carry__equip {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
   }
   .cslot {
     border: 1px solid var(--rule);
@@ -1584,6 +1590,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        min-width: 0;
       }
       button {
         margin-left: auto;
