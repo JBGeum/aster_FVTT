@@ -128,7 +128,7 @@
     </div>
     {{/each}}
   </div>
-  <div class="cslot companion {{#unless inv.familiar}}empty{{/unless}}">
+  <div class="cslot companion {{#unless inv.familiar}}empty{{/unless}}" {{tooltipHtml inv.familiar.tooltip}}>
     <div class="ttl">{{localize "ASTER.inventory.companion"}}</div>
     <div class="content">
       {{#if inv.familiar}}{{inv.familiar.name}}{{else}}{{localize "ASTER.inventory.slotNone"}}{{/if}}

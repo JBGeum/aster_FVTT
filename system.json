@@ -84,6 +84,11 @@
       "lang": "ko",
       "name": "Korean",
       "path": "lang/ko.json"
+    },
+    {
+      "lang": "ko",
+      "name": "Korean",
+      "path": "lang/ko-craft-effect.json"
     }
   ],
   "grid": {
