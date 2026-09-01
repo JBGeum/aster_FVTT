@@ -1,7 +1,13 @@
 <form class="{{cssClass}} {{actor.type}}" autocomplete="off">
   <header class="sheet__top">
     <div class="sheet__name">
-      <span class="pc">{{actor.name}}</span>
+      <input
+        class="pc"
+        name="name"
+        type="text"
+        value="{{actor.name}}"
+        placeholder="{{localize 'ASTER.label.namePlaceholder'}}"
+      />
       <span class="pc-sub">character sheet</span>
     </div>
     <nav class="sheet-main-tabs tabs" data-group="main">
