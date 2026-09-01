@@ -91,3 +91,14 @@ for (const pack of ITEM_PACKS) {
       : `[build] ${pack}: _source 없음 — 빈 compendium (저작권 보호)`,
   );
 }
+
+// 공방 효과 문구는 저작권 자료라 저장소에 없을 수 있다. 없으면 빈 파일을 만들어
+// system.json의 languages path가 항상 유효하도록 한다(Foundry의 404 경고 방지).
+{
+  const dest = path.join(ROOT, "dist", "lang", "ko-craft-effect.json");
+  if (!existsSync(dest)) {
+    await mkdir(path.dirname(dest), { recursive: true });
+    await writeFile(dest, "{}\n");
+    console.log("[build] ko-craft-effect: 원본 없음 — 빈 언어 파일 (저작권 보호)");
+  }
+}

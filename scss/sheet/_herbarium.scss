@@ -2150,7 +2150,6 @@
     &.is-locked {
       opacity: 0.5;
       cursor: not-allowed;
-      pointer-events: none;
     }
     /* 체인(같은 아이템의 레벨 묶음) 첫 노드는 새 행에서 시작 */
     &.chain-start {

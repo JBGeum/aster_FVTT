@@ -60,7 +60,11 @@
       <div class="panel__head">{{localize cat.label}}</div>
       <div class="recipe-grid">
         {{#if cat.isFamiliar}} {{#each cat.nodes as |node|}}
-        <label class="recipe{{#if node.acquired}} is-made{{/if}}{{#if node.locked}} is-locked{{/if}}">
+        <label
+          class="recipe{{#if node.acquired}} is-made{{/if}}{{#if node.locked}} is-locked{{/if}}"
+          {{tooltipHtml
+          node.tooltip}}
+        >
           <input
             type="checkbox"
             class="recipe__toggle"
@@ -83,6 +87,8 @@
         {{/each}} {{else}} {{#each cat.chains as |chain|}} {{#each chain as |node|}}
         <label
           class="recipe{{#if node.acquired}} is-made{{/if}}{{#if node.locked}} is-locked{{/if}}{{#if @first}} chain-start{{/if}}"
+          {{tooltipHtml
+          node.tooltip}}
         >
           <input
             type="checkbox"

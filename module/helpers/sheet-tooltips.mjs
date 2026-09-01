@@ -120,6 +120,20 @@ export function buildSpellTooltip(spell, formula) {
 }
 
 /**
+ * 공방 노드의 효과. 문구는 `ASTER.craft.effect.<node id>` 키로 찾고, 없으면 null →
+ * tooltipHtml 헬퍼가 속성을 생략한다(이름은 호버하는 칸에 이미 있어 본문만 낸다).
+ *
+ * @param {{id:string}} node
+ * @returns {string|null}
+ */
+export function buildCraftTooltip(node) {
+  const key = `ASTER.craft.effect.${node.id}`;
+  const effect = game.i18n.localize(key);
+  if (!effect || effect === key) return null;
+  return `<div class="hb-tip__body">${foundry.utils.escapeHTML(effect)}</div>`;
+}
+
+/**
  * 민첩에 더해진 효과 목록. 해당 효과가 없으면 null → tooltipHtml 헬퍼가 속성을 생략한다.
  *
  * @param {Array} effects  actor.appliedEffects

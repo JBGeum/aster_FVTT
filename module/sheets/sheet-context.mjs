@@ -10,6 +10,7 @@ import {
   isMagicToolInactive,
   buildItemTooltip,
   buildSpellTooltip,
+  buildCraftTooltip,
 } from "../helpers/sheet-tooltips.mjs";
 import { consumableHasHeal } from "../helpers/consumable.mjs";
 
@@ -111,7 +112,9 @@ export function prepareInventory(sheet, context) {
         }
       : null,
     food: food ? { id: food.id, name: food.name, img: food.img } : null,
-    familiar: famNode ? { name: game.i18n.localize(famNode.label) } : null,
+    familiar: famNode
+      ? { name: game.i18n.localize(famNode.label), tooltip: buildCraftTooltip(famNode) }
+      : null,
     storage: {
       count: inStorage.length,
       limit: storageLimit,
@@ -197,6 +200,7 @@ export function prepareCraft(sheet, context) {
       locked: isLocked,
       disabledAttr: isLocked || craftLocked ? "disabled" : "",
       costLabel: _formatCraftCost(node.cost),
+      tooltip: buildCraftTooltip(node),
       col,
     };
     if (col > byCat[node.category].colCount) byCat[node.category].colCount = col;
