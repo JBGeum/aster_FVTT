@@ -1,6 +1,8 @@
-import { detectCritFumble } from "./roll-result.mjs";
+import { detectCritFumble, computePenalties } from "./roll-result.mjs";
 import { getTargetedTokens } from "./target-select.mjs";
 import { applyDamageAndStatus, applyCureAllStatus, applyCureStatus } from "./health-status.mjs";
+import { checkFocusEffect } from "./focus-effect.mjs";
+import { pickTwoIfNeeded } from "./dice-select.mjs";
 
 /**
  * @param {{ actor: Actor, actionKey: string }} params
@@ -243,22 +245,30 @@ export async function resolveNpcActionUse({ actor, itemId }) {
   if (sys.damageFormula && sys.targetType !== "self") {
     const hitFormula = actor.system.hitFormula?.trim();
     if (hitFormula) {
-      // 집중은 1회용 — 사용 시 만료시킨다.
-      const focusActive = combatant.getFlag("aster", "focusActive") === true;
-      const fullHitFormula = focusActive ? `${hitFormula} + 1d6` : hitFormula;
+      const focus = checkFocusEffect(actor);
+      const fullHitFormula =
+        focus.extraDice > 0 ? `${hitFormula} + ${focus.extraDice}d6` : hitFormula;
       try {
         const hitRoll = new Roll(fullHitFormula);
         await hitRoll.evaluate();
-        const hitDice = hitRoll.dice.flatMap((d) => d.values);
-        const hitCf = detectCritFumble(hitDice);
-        hitResult = {
-          formula: hitFormula,
-          total: hitRoll.total,
-          diceText: hitDice.join(", "),
-          isCritical: hitCf.critical,
-          isFumble: hitCf.fumble,
-        };
-        if (focusActive) await combatant.setFlag("aster", "focusActive", false);
+        // 대성공·대실패는 고른 2개로 판단한다 — 전체 다이스를 넘기면 길이≠2라 항상 false다.
+        const pick = await pickTwoIfNeeded({
+          roll: hitRoll,
+          dice: hitRoll.dice.flatMap((d) => d.values),
+        });
+        // 선택 취소 시 hit 결과만 비운다. AP·flag가 이미 소비돼 시전은 되돌릴 수 없다.
+        if (pick) {
+          if (focus.combatant) await focus.combatant.setFlag("aster", "focusActive", false);
+          const hitCf = detectCritFumble(pick.selected);
+          const penalties = computePenalties(actor, { isDodge: false });
+          hitResult = {
+            formula: hitFormula,
+            total: pick.rawTotal + penalties.total,
+            diceText: pick.selected.join(", "),
+            isCritical: hitCf.critical,
+            isFumble: hitCf.fumble,
+          };
+        }
       } catch (e) {
         console.warn(
           `[Aster] NPC ${actor.name} hitFormula 평가 실패(시전 통합): "${hitFormula}"`,
