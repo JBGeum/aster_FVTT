@@ -15,8 +15,4 @@ export class AsterItem extends Item {
     }
     return super._preUpdate(changes, options, user);
   }
-
-  prepareData() {
-    super.prepareData();
-  }
 }
