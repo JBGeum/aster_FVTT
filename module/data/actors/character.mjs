@@ -72,13 +72,12 @@ export class CharacterDataModel extends BaseActorModel {
     for (const ability of Object.values(this.ability)) {
       ability.total = ability.base + ability.mod;
     }
-    // 룰: 민첩 = 박식 + 요령.
-    // this.speed 초기값(0)에는 prepareEmbeddedDocuments 단계에서 Active Effect
-    // (피로 -3 등)가 이미 ADD로 가산돼 있다. prepareDerivedData가 이 뒤에 실행되므로
-    // 파생 base에 그 누적분(this.speed)을 더해 effect 적용분을 보존한다.
+    // 룰: 민첩 = 박식 + 요령, 회피 = (활발 + 처세) / 2 (버림).
+    // 두 파생값의 초기값(0)에는 prepareEmbeddedDocuments 단계에서 Active Effect가 이미
+    // ADD로 가산돼 있다. prepareDerivedData가 그 뒤에 실행되므로 누적분을 더해 보존한다.
     this.speed = this.ability.knowledge.total + this.ability.dexterity.total + this.speed;
-    // 룰: 회피 = (활발 + 처세) / 2 (버림)
-    this.dodge = Math.floor((this.ability.active.total + this.ability.worldly.total) / 2);
+    this.dodge =
+      Math.floor((this.ability.active.total + this.ability.worldly.total) / 2) + this.dodge;
     if (this.health.max > 0) {
       this.health.percent = Math.round((this.health.value / this.health.max) * 100);
     }
