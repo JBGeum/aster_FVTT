@@ -1,7 +1,4 @@
 // Utils
-@use "utils/colors";
-@use "utils/mixins";
-@use "utils/variables";
 @use "utils/tokens"; // ⭐ H1 — 신규 디자인 토큰 (CSS 변수)
 
 // Global
@@ -11,9 +8,7 @@
 // Sheet (각 파일 내부에 .aster {} 래퍼 포함)
 @use "sheet/forms";
 @use "sheet/actor";
-@use "sheet/resource";
 @use "sheet/items";
-@use "sheet/effects";
 @use "sheet/record";
 @use "sheet/herbarium"; // ⭐ H8 — 약초첩 시안 편입 (.herbarium 스코프)
 @use "sheet/interactions"; // §24 — 호버/포커스/스크롤바 (.herbarium 스코프)
