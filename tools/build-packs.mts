@@ -58,7 +58,13 @@ for (const pack of PACKS) {
  * 자료(룰북 추출분)는 저작권 보호로 .gitignore 격리 — 소스 파일이 없으면 팩을 만들지 않는다.
  * 빈 LevelDB를 내보내면 배포본이 서버의 살아 있는 compendium을 덮어써 데이터가 날아간다.
  */
-const ITEM_PACKS = ["items-food", "items-equipment", "items-bag", "items-consumable"];
+const ITEM_PACKS = [
+  "items-food",
+  "items-equipment",
+  "items-bag",
+  "items-consumable",
+  "items-spell",
+];
 
 for (const pack of ITEM_PACKS) {
   // 자료 배치 두 가지 지원: 하위 디렉토리(packs/_source/items/<name>.json) 또는 평면(packs/_source/<name>.json).
@@ -71,7 +77,8 @@ for (const pack of ITEM_PACKS) {
 
   await rm(dest, { recursive: true, force: true });
 
-  if (!srcFile) {
+  const items = srcFile ? JSON.parse(await readFile(srcFile, "utf8")) : [];
+  if (items.length === 0) {
     console.log(`[build] ${pack}: _source 없음 — 팩 생략 (저작권 보호)`);
     continue;
   }
@@ -79,7 +86,6 @@ for (const pack of ITEM_PACKS) {
   await rm(staging, { recursive: true, force: true });
   await mkdir(staging, { recursive: true });
 
-  const items = JSON.parse(await readFile(srcFile, "utf8"));
   for (const item of items) {
     item._key = `!items!${item._id}`;
     await writeFile(path.join(staging, `${item._id}.json`), JSON.stringify(item));
