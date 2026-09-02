@@ -518,6 +518,14 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
         passiveCF: { critical: passive.isCritical, fumble: passive.isFumble },
       });
 
+      // 룰 "판정에 실패하면 졸림 해제" — 대결에서는 패배가 실패다.
+      // 굴림 시점의 페널티 적용 여부는 flag에 없어 패자의 현재 상태로 판단한다.
+      const loser = result.winner === "active" ? passive : active;
+      const loserActor = game.actors.get(loser.actorId);
+      if (loserActor?.system?.badstatus?.sleepy) {
+        await loserActor.update({ "system.badstatus.sleepy": false });
+      }
+
       const dodgeSide = active.isDodge ? "active" : passive.isDodge ? "passive" : null;
       const hasDodge = dodgeSide !== null;
       const dodger = dodgeSide === "active" ? active : dodgeSide === "passive" ? passive : null;

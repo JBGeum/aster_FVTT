@@ -51,6 +51,25 @@ export class AsterCombat extends Combat {
   async _startRound() {
     if (!game.user.isGM) return;
 
+    // 스윕이 대쉬 AE 생성·initiative 갱신보다 앞이어야 한다. 뒤에 두면 만료된 민첩
+    // 보너스가 갱신에 반영되고, 갱신은 스윕 후 다시 돌지 않는다.
+    // `duration.combat`은 ForeignDocumentField라 문자열 비교가 불안정해, 식별은 우리 flag로 한다.
+    for (const c of this.combatants) {
+      if (!c.actor) continue;
+      const expired = c.actor.effects.filter((eff) => {
+        if (!eff.flags?.aster?.sourceAction) return false;
+        const d = eff.duration;
+        if (!d?.rounds) return false;
+        return this.round - (d.startRound ?? this.round) >= d.rounds;
+      });
+      if (expired.length) {
+        await c.actor.deleteEmbeddedDocuments(
+          "ActiveEffect",
+          expired.map((e) => e.id),
+        );
+      }
+    }
+
     // 대쉬 AE는 initiative 갱신보다 먼저 만들어야 오른 민첩이 이 라운드 순서에 반영된다.
     for (const c of this.combatants) {
       const dashX = c.getFlag("aster", "dashNextRound");
@@ -82,6 +101,20 @@ export class AsterCombat extends Combat {
     }
     if (initiativeUpdates.length) {
       await this.updateEmbeddedDocuments("Combatant", initiativeUpdates);
+    }
+
+    // AP 굴림과 분리한다 — 굴림 루프의 continue(apFormula 부재·평가 실패·미지원 타입)에
+    // 걸리면 리셋까지 건너뛰어 damageBlocked가 해제되지 않은 채 남았다.
+    for (const c of this.combatants) {
+      if (!c.actor) continue;
+      // setFlag(키, {})는 flag 객체를 병합해 기존 키가 남는다 — unset으로 지운다.
+      await c.unsetFlag("aster", "actionsThisRound");
+      if (c.getFlag("aster", "damageReduction") > 0) {
+        await c.setFlag("aster", "damageReduction", 0);
+      }
+      if (c.getFlag("aster", "damageBlocked") === true) {
+        await c.setFlag("aster", "damageBlocked", false);
+      }
     }
 
     const apResults = []; // { name, ap, base, chargeBonus, isNpc } — 채팅 카드용
@@ -124,35 +157,8 @@ export class AsterCombat extends Combat {
 
       await c.setFlag("aster", "actionPoint", ap);
       await c.setFlag("aster", "actionPointMax", ap);
-      // setFlag(키, {})는 flag 객체를 병합해 기존 키가 남는다 — unset으로 지운다.
-      await c.unsetFlag("aster", "actionsThisRound");
-
-      if (c.getFlag("aster", "damageReduction") > 0) {
-        await c.setFlag("aster", "damageReduction", 0);
-      }
-      if (c.getFlag("aster", "damageBlocked") === true) {
-        await c.setFlag("aster", "damageBlocked", false);
-      }
 
       apResults.push({ name: c.actor.name, ap, base: baseRoll.total, chargeBonus, isNpc });
-    }
-
-    // Foundry 기본 라운드 만료가 동작하지 않는 케이스의 보조.
-    // `duration.combat`은 ForeignDocumentField라 문자열 비교가 불안정해, 식별은 우리 flag로 한다.
-    for (const c of this.combatants) {
-      if (!c.actor) continue;
-      const expired = c.actor.effects.filter((eff) => {
-        if (!eff.flags?.aster?.sourceAction) return false;
-        const d = eff.duration;
-        if (!d?.rounds) return false;
-        return this.round - (d.startRound ?? this.round) >= d.rounds;
-      });
-      if (expired.length) {
-        await c.actor.deleteEmbeddedDocuments(
-          "ActiveEffect",
-          expired.map((e) => e.id),
-        );
-      }
     }
 
     if (apResults.length) {

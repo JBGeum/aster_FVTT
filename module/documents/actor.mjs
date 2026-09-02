@@ -1,6 +1,6 @@
 import { asterRoll } from "./roll.mjs";
 import { detectCritFumble, computePenalties, critFumbleCardPath } from "../helpers/roll-result.mjs";
-import { syncBadstatusEffect } from "../helpers/badstatus-effects.mjs";
+import { syncBadstatusEffect, BADSTATUS_EFFECTS } from "../helpers/badstatus-effects.mjs";
 import { computeAbilityCheck } from "../helpers/ability-check.mjs";
 import { promptAbilityCheck } from "../helpers/check-dialog.mjs";
 import { checkFocusEffect } from "../helpers/focus-effect.mjs";
@@ -31,6 +31,23 @@ export class AsterActor extends Actor {
       const active = this.system.badstatus?.[k] === true;
       syncBadstatusEffect(this, k, active); // fire & forget
     }
+  }
+
+  /**
+   * 토큰 HUD 토글을 system.badstatus로 보낸다. AE 생성·삭제는 _onUpdate가 맡는다.
+   * 이게 없으면 HUD는 AE만 만들어 필드와 어긋난다 — 아이콘은 뜨는데 페널티가 없다.
+   *
+   * @override
+   * @param {string} statusId
+   * @param {object} [options]
+   * @returns {Promise<boolean|ActiveEffect|undefined>}
+   */
+  async toggleStatusEffect(statusId, options = {}) {
+    if (!BADSTATUS_EFFECTS[statusId]) return super.toggleStatusEffect(statusId, options);
+
+    const next = !this.system.badstatus?.[statusId];
+    await this.update({ [`system.badstatus.${statusId}`]: next });
+    return next;
   }
 
   getRollData() {
