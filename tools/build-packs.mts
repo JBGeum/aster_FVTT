@@ -27,11 +27,16 @@ for (const pack of PACKS) {
 
   // classic-level은 기존 키를 덮어쓰지 않고 누적하므로 매번 정리.
   await rm(dest, { recursive: true, force: true });
+
+  const files = existsSync(src) ? (await readdir(src)).filter((f) => f.endsWith(".json")) : [];
+  if (files.length === 0) {
+    console.log(`[build] ${pack}: _source 없음 — 팩 생략 (저작권 보호)`);
+    continue;
+  }
+
   await rm(staging, { recursive: true, force: true });
   await mkdir(staging, { recursive: true });
 
-  // 시드는 저작권 격리로 repo에 없을 수 있다 — 아이템 pack과 같이 빈 compendium으로 빌드한다.
-  const files = existsSync(src) ? (await readdir(src)).filter((f) => f.endsWith(".json")) : [];
   for (const file of files) {
     const doc = JSON.parse(await readFile(path.join(src, file), "utf8"));
     doc._key = `!tables!${doc._id}`;
@@ -43,19 +48,15 @@ for (const pack of PACKS) {
 
   await compilePack(staging, dest, { log: true });
   await rm(staging, { recursive: true, force: true });
-  console.log(
-    files.length > 0
-      ? `[build] ${pack}: ${files.length}개 표 → LevelDB`
-      : `[build] ${pack}: _source 없음 — 빈 compendium (저작권 보호)`,
-  );
+  console.log(`[build] ${pack}: ${files.length}개 표 → LevelDB`);
 }
 
 /**
  * 아이템 시드 pack (C2). 소스는 단일 JSON 배열(`packs/_source/<name>.json`) — RollTable의
  * dir-of-files와 다르다. 각 아이템에 `!items!<id>` 키를 주입해 staging에 풀어 compile한다.
  *
- * 자료(룰북 추출분)는 저작권 보호로 .gitignore 격리 — 소스 파일이 없으면 *빈 compendium*으로
- * 빌드(경로는 항상 존재). GitHub clone 사용자는 빈 pack, 로컬 자료 보유자는 콘텐츠 노출.
+ * 자료(룰북 추출분)는 저작권 보호로 .gitignore 격리 — 소스 파일이 없으면 팩을 만들지 않는다.
+ * 빈 LevelDB를 내보내면 배포본이 서버의 살아 있는 compendium을 덮어써 데이터가 날아간다.
  */
 const ITEM_PACKS = ["items-food", "items-equipment", "items-bag", "items-consumable"];
 
@@ -69,27 +70,24 @@ for (const pack of ITEM_PACKS) {
   const staging = path.join(ROOT, "dist", ".pack-staging", pack);
 
   await rm(dest, { recursive: true, force: true });
+
+  if (!srcFile) {
+    console.log(`[build] ${pack}: _source 없음 — 팩 생략 (저작권 보호)`);
+    continue;
+  }
+
   await rm(staging, { recursive: true, force: true });
   await mkdir(staging, { recursive: true });
 
-  let count = 0;
-  if (srcFile) {
-    const items = JSON.parse(await readFile(srcFile, "utf8"));
-    for (const item of items) {
-      item._key = `!items!${item._id}`;
-      await writeFile(path.join(staging, `${item._id}.json`), JSON.stringify(item));
-      count++;
-    }
+  const items = JSON.parse(await readFile(srcFile, "utf8"));
+  for (const item of items) {
+    item._key = `!items!${item._id}`;
+    await writeFile(path.join(staging, `${item._id}.json`), JSON.stringify(item));
   }
 
-  // 소스가 비어도 빈 LevelDB를 생성해 manifest path가 항상 유효하도록 한다.
   await compilePack(staging, dest, { log: true });
   await rm(staging, { recursive: true, force: true });
-  console.log(
-    count > 0
-      ? `[build] ${pack}: ${count}개 아이템 → LevelDB`
-      : `[build] ${pack}: _source 없음 — 빈 compendium (저작권 보호)`,
-  );
+  console.log(`[build] ${pack}: ${items.length}개 아이템 → LevelDB`);
 }
 
 // 공방 효과 문구는 저작권 자료라 저장소에 없을 수 있다. 없으면 빈 파일을 만들어
