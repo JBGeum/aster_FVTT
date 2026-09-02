@@ -13,7 +13,6 @@ export const preloadHandlebarsTemplates = async function () {
     "systems/aster/templates/actor/parts/actor-sub-spell.html",
     "systems/aster/templates/actor/parts/actor-sub-combat.html",
 
-    "systems/aster/templates/item/parts/material-fields.html",
     "systems/aster/templates/item/parts/material-mats.html",
 
     "systems/aster/templates/chatcard/roll-asterabl.html",
