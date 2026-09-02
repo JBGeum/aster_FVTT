@@ -61,6 +61,13 @@
       "path": "packs/items-consumable",
       "type": "Item",
       "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "items-spell",
+      "label": "Aster — 주문 (Spell)",
+      "path": "packs/items-spell",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
     }
   ],
   "documentTypes": {
