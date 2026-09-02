@@ -60,13 +60,11 @@ export default defineConfig(({ mode }) => {
       viteStaticCopy({
         targets: [
           { src: "system.json", dest: "." },
-          { src: "template.json", dest: "." },
           { src: "LICENSE.txt", dest: "." },
           { src: "CHANGELOG.md", dest: "." },
           // src에 디렉터리를 통째로 지정하면 dest 아래에 한 단계만 복사됩니다.
           { src: "templates", dest: "." },
           { src: "lang", dest: "." },
-          { src: "lib", dest: "." },
           { src: "assets", dest: "." }, // H8 — 양피지/별밤 텍스처 등 정적 이미지
         ],
       }),
