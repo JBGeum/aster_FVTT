@@ -62,7 +62,7 @@ export const BADSTATUS_EFFECTS = {
  */
 export async function syncBadstatusEffect(actor, key, active) {
   const tpl = BADSTATUS_EFFECTS[key];
-  if (!tpl) return; // 정의되지 않은 상태이상은 동기화 대상 외 (부상/큰부상/배고픔)
+  if (!tpl) return;
 
   // 중복 방지: 같은 statuses 키를 가진 AE 검색
   const existing = actor.effects.find((e) => e.statuses?.has(tpl.statuses[0]));
