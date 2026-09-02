@@ -34,9 +34,6 @@ ASTER.npcTargetType = {
   all: "ASTER.npcAction.target.all",
 };
 
-// 아이템 사용 타이밍 — 룰북/데이터(아스테르 데이터.xlsx)의 타이밍 어휘. consumable 시트 드롭다운.
-// 데이터 timing 저장값이 한글이고 복합 어휘("클린업(효과참조)" 등)가 있어 영문 키 매핑이 불가 →
-// 키·값 모두 한글로 통일해 저장값과 100% 매칭(드롭다운 localize 불필요).
 ASTER.itemTiming = {
   셋업: "셋업",
   이니셔티브: "이니셔티브",
