@@ -9,19 +9,6 @@ import { pickTwoIfNeeded } from "../helpers/dice-select.mjs";
 /** @extends {Actor} */
 export class AsterActor extends Actor {
   /** @override */
-  prepareData() {
-    super.prepareData();
-  }
-
-  /** @override */
-  prepareBaseData() {}
-
-  /** @override */
-  prepareDerivedData() {
-    super.prepareDerivedData();
-  }
-
-  /** @override */
   async _preUpdate(changes, options, user) {
     await super._preUpdate(changes, options, user);
 
@@ -50,7 +37,6 @@ export class AsterActor extends Actor {
     const data = super.getRollData();
 
     this._getCharacterRollData(data);
-    this._getNpcRollData(data);
 
     return data;
   }
@@ -68,10 +54,6 @@ export class AsterActor extends Actor {
     if (data.attributes.level) {
       data.lvl = data.attributes.level.value ?? 0;
     }
-  }
-
-  _getNpcRollData(_data) {
-    if (this.type !== "npc") return;
   }
 
   async rollAbility(ability, label, options = {}) {

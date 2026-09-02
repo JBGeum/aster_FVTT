@@ -48,16 +48,3 @@ export function getTargetedTokens({
 
   return targets;
 }
-
-/**
- *
- * @param {Token[]} tokens
- * @returns {Array<{id:string, name:string, actorId:string|null}>}
- */
-export function describeTargets(tokens) {
-  return tokens.map((t) => ({
-    id: t.id,
-    name: t.name,
-    actorId: t.actor?.id ?? null,
-  }));
-}

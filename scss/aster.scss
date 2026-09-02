@@ -1,26 +1,15 @@
 // Utils
-@use "utils/colors";
-@use "utils/mixins";
-@use "utils/variables";
 @use "utils/tokens"; // ⭐ H1 — 신규 디자인 토큰 (CSS 변수)
 
 // Global
 @use "global/window";
-@use "global/grid";
 @use "global/flex";
 
 // Sheet (각 파일 내부에 .aster {} 래퍼 포함)
 @use "sheet/forms";
 @use "sheet/actor";
-@use "sheet/resource";
 @use "sheet/items";
-@use "sheet/effects";
-@use "sheet/inventory";
-@use "sheet/craft";
-@use "sheet/spell";
 @use "sheet/record";
-@use "sheet/combat-tab";
-@use "sheet/item-base";
 @use "sheet/herbarium"; // ⭐ H8 — 약초첩 시안 편입 (.herbarium 스코프)
 @use "sheet/interactions"; // §24 — 호버/포커스/스크롤바 (.herbarium 스코프)
 
@@ -28,7 +17,6 @@
 @use "component/gm-panel";
 @use "component/chat-card";
 @use "component/combat";
-@use "component/components"; // ⭐ H3 신설 — 공통 컴포넌트
 @use "component/tooltip"; // 툴팁 시안 — Foundry #tooltip.hb-tip 스킨(라이트/다크)
 @use "component/token-hud"; // 토큰 HUD — 아스테르 5색 자가 증감(안 B, #token-hud 자식)
 @use "component/dialog"; // 다이얼로그 시안 — DialogV2.hb-dialog 스킨(라이트/다크)
