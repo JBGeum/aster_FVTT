@@ -19,7 +19,7 @@
   "packs": [
     {
       "name": "unison-tables",
-      "label": "합체기 주속성 표",
+      "label": "합체기표",
       "path": "packs/unison-tables",
       "type": "RollTable",
       "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
@@ -36,36 +36,43 @@
     },
     {
       "name": "items-food",
-      "label": "Aster — 요리 (Food)",
+      "label": "아스테르 — 요리",
       "path": "packs/items-food",
       "type": "Item",
       "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
     },
     {
       "name": "items-equipment",
-      "label": "Aster — 마법구 (Equipment)",
+      "label": "아스테르 — 마법구",
       "path": "packs/items-equipment",
       "type": "Item",
       "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
     },
     {
       "name": "items-bag",
-      "label": "Aster — 가방 (Bag)",
+      "label": "아스테르 — 가방",
       "path": "packs/items-bag",
       "type": "Item",
       "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
     },
     {
       "name": "items-consumable",
-      "label": "Aster — 일회성 (Consumable)",
+      "label": "아스테르 — 일회성",
       "path": "packs/items-consumable",
       "type": "Item",
       "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
     },
     {
       "name": "items-spell",
-      "label": "Aster — 주문 (Spell)",
+      "label": "아스테르 — 주문",
       "path": "packs/items-spell",
+      "type": "Item",
+      "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
+    },
+    {
+      "name": "items-enchant",
+      "label": "아스테르 — 인챈트",
+      "path": "packs/items-enchant",
       "type": "Item",
       "ownership": { "PLAYER": "OBSERVER", "ASSISTANT": "OWNER" }
     }

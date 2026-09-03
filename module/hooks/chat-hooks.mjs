@@ -264,7 +264,8 @@ async function promptDamageDialog(targetActor, defaultDamage) {
       <p class="damage-target-info">${game.i18n.format("ASTER.damage.targetInfo", { name: targetActor.name })}</p>
       <div class="form-group">
         <label>${game.i18n.localize("ASTER.damage.amount")}</label>
-        <input type="number" name="amount" value="${defaultDamage}" min="0" />
+        <input type="text" name="amount" value="${defaultDamage}" />
+        <p class="hint">${game.i18n.localize("ASTER.damage.amountHint")}</p>
       </div>
       <fieldset class="damage-status-group">
         <legend>${game.i18n.localize("ASTER.damage.inflictLegend")}</legend>
@@ -273,7 +274,7 @@ async function promptDamageDialog(targetActor, defaultDamage) {
     `,
     ok: {
       callback: (_e, b) => ({
-        amount: Number(b.form.elements.amount.value) || 0,
+        formula: b.form.elements.amount.value.trim(),
         status: Array.from(b.form.querySelectorAll('input[name="status"]:checked')).map(
           (el) => el.value,
         ),
@@ -283,14 +284,60 @@ async function promptDamageDialog(targetActor, defaultDamage) {
 }
 
 /**
+ * 대미지 입력을 수치로 만든다. 순수 숫자는 그대로, 그 밖은 다이스 식으로 굴린다.
+ * 식은 평가에 실패하면 throw한다 — 호출부가 오타로 보고 다시 묻는다.
+ *
+ * @param {string} formula
+ * @returns {Promise<{amount: number, rollText: string}>} rollText는 식일 때만 채워진다.
+ */
+async function evaluateDamageInput(formula) {
+  if (!formula) return { amount: 0, rollText: "" };
+
+  const n = Number(formula);
+  if (Number.isFinite(n)) return { amount: Math.max(0, Math.trunc(n)), rollText: "" };
+
+  const roll = new Roll(formula);
+  await roll.evaluate();
+  // 다이스 없는 식(3+2)이면 눈이 비어 표기를 생략한다.
+  const faces = roll.dice.flatMap((d) => d.values);
+  const facesText = faces.length ? ` [${faces.join(", ")}]` : "";
+  return { amount: Math.max(0, roll.total), rollText: `${formula} = ${roll.total}${facesText}` };
+}
+
+/**
+ * 취소면 null. 식이 틀리면 한 번 더 묻는다 — pickTwoIfNeeded와 같은 1회 재시도다.
+ *
+ * @param {Actor} targetActor
+ * @param {number} defaultDamage
+ * @returns {Promise<{amount: number, rollText: string, status: string[]} | null>}
+ */
+async function promptDamage(targetActor, defaultDamage) {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const input = await promptDamageDialog(targetActor, defaultDamage);
+    if (input === null) return null;
+    try {
+      const { amount, rollText } = await evaluateDamageInput(input.formula);
+      return { amount, rollText, status: input.status };
+    } catch {
+      ui.notifications.warn(
+        game.i18n.format("ASTER.damage.warn.badFormula", { formula: input.formula }),
+      );
+    }
+  }
+  return null;
+}
+
+/**
  * @param {Actor} targetActor
  * @param {{amount: number, hBefore: number, hAfter: number, statusApplied: string[], defendReduced: {roll:number,original:number,adjusted:number}|null, yellowReduction?: {type:"block"|"reduction",original:number,reduction?:number,adjusted:number}|null}} info
  */
 async function renderDamageResultCard(
   targetActor,
-  { amount, hBefore, hAfter, statusApplied, defendReduced, yellowReduction },
+  { amount, rollText, hBefore, hAfter, statusApplied, defendReduced, yellowReduction },
 ) {
   const lines = [];
+  // 굴림은 방어 차감보다 앞 — 굴린 값이 차감의 입력이다.
+  if (rollText) lines.push(game.i18n.format("ASTER.damage.rollLine", { text: rollText }));
   // 방어 차감은 건강 라인보다 앞 — 룰적 시점 순서(차감 → 황표 차감 → 건강 적용).
   if (defendReduced) {
     lines.push(
@@ -372,9 +419,9 @@ async function applyDamageFromCard(message) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.noCardData"));
     return;
   }
+  // 막지 않고 알린다 — 입력 오타로 0이 들어가도 다시 적용할 수 있어야 한다.
   if (data.damageApplied) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.alreadyApplied"));
-    return;
   }
   if (!data.targetActorId) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.noTarget"));
@@ -386,8 +433,8 @@ async function applyDamageFromCard(message) {
     return;
   }
 
-  const result = await promptDamageDialog(targetActor, data.defaultDamage ?? 0);
-  if (result === null) return; // 취소
+  const result = await promptDamage(targetActor, data.defaultDamage ?? 0);
+  if (result === null) return; // 취소·식 오류
 
   const { hBefore, hAfter, statusApplied, defendReduced, yellowReduction } =
     await applyDamageAndStatus(targetActor, result.amount, result.status);
@@ -398,6 +445,7 @@ async function applyDamageFromCard(message) {
 
   await renderDamageResultCard(targetActor, {
     amount: result.amount,
+    rollText: result.rollText,
     hBefore,
     hAfter,
     statusApplied,
@@ -424,7 +472,6 @@ async function applyDamageFromOpposed(message) {
   }
   if (data.damageApplied) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.alreadyApplied"));
-    return;
   }
   const targetActor = resolveActor({ uuid: data.targetActorUuid, id: data.targetActorId });
   if (!targetActor) {
@@ -432,8 +479,8 @@ async function applyDamageFromOpposed(message) {
     return;
   }
 
-  const result = await promptDamageDialog(targetActor, 0);
-  if (result === null) return; // 취소
+  const result = await promptDamage(targetActor, 0);
+  if (result === null) return; // 취소·식 오류
 
   const { hBefore, hAfter, statusApplied, defendReduced, yellowReduction } =
     await applyDamageAndStatus(targetActor, result.amount, result.status);
@@ -443,6 +490,7 @@ async function applyDamageFromOpposed(message) {
 
   await renderDamageResultCard(targetActor, {
     amount: result.amount,
+    rollText: result.rollText,
     hBefore,
     hAfter,
     statusApplied,
