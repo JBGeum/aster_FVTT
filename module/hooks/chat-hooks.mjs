@@ -14,7 +14,7 @@ import { resolveActor } from "../helpers/actor-resolve.mjs";
 
 const CRIT_COLORS = ["red", "blue", "white", "yellow", "green"];
 
-Hooks.on("renderChatMessageHTML", (_message, html) => {
+Hooks.on("renderChatMessageHTML", (message, html) => {
   // 경계도·트래커 버튼은 GM 전용 — 비-GM 뷰어에게는 제거한다.
   // (crit-aster-gain은 owner/PL용이므로 이 훅 자체를 early-return하지 않는다.)
   if (!game.user.isGM) {
@@ -235,6 +235,24 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
           ? applySet(trackers, r.id, picked.goal)
           : applyDelta(trackers, r.id, total);
       await commitTrackers(r.id, result);
+    });
+  });
+
+  // ----- 돌던지기: 시전자가 명중을 굴린다 -----
+  html.querySelectorAll("[data-action='roll-hit']").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const data = message.getFlag("aster", "combatAction");
+      if (!data) return;
+      const actor = resolveActor({ uuid: data.sourceActorUuid, id: data.sourceActorId });
+      if (!actor) {
+        ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.targetNotFound"));
+        return;
+      }
+      if (!actor.isOwner) {
+        ui.notifications.warn(game.i18n.localize("ASTER.hit.ownerOnly"));
+        return;
+      }
+      await actor.rollHit();
     });
   });
 });

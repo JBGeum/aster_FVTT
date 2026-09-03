@@ -138,6 +138,7 @@ export async function resolveCombatAction({ actor, actionKey }) {
   if (actionKey === "throw" && throwTarget) {
     // orphan 토큰이면 targetActorId가 null — 버튼 미노출(대미지 적용 불가).
     actionFlag.sourceActorId = actor.id;
+    actionFlag.sourceActorUuid = actor.uuid;
     actionFlag.targetActorId = throwTarget.actor?.id ?? null;
     actionFlag.targetActorUuid = throwTarget.actor?.uuid ?? null;
     actionFlag.targetName = throwTarget.name;
@@ -153,6 +154,7 @@ export async function resolveCombatAction({ actor, actionKey }) {
       apSpent: game.i18n.format("ASTER.combat.apSpent", { n: cost }),
       chatExtra,
       hasDamageButton: !!actionFlag.targetActorId,
+      hasHitButton: actionKey === "throw",
     },
   );
 
