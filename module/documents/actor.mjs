@@ -448,30 +448,44 @@ export class AsterActor extends Actor {
    * @returns {Promise<void>}
    */
   async rollHit() {
-    if (this.type !== "npc") {
-      ui.notifications.warn(game.i18n.localize("ASTER.hit.pcNotSupported"));
-      return;
-    }
-
     const renderTemplate = foundry.applications.handlebars.renderTemplate;
     const label = game.i18n.localize("ASTER.hit.label");
-    const formula = this.system.hitFormula?.trim();
+    const isNpc = this.type === "npc";
+
+    let modifier = 0;
+    if (!isNpc) {
+      // 성패는 NPC 회피와의 대결이 정하므로 목표치를 묻지 않는다.
+      const input = await promptAbilityCheck({ label, defaultTarget: 0, showTarget: false });
+      if (!input) return;
+      modifier = input.modifier;
+    }
+
+    const formula = isNpc ? this.system.hitFormula?.trim() : "2d6";
     if (!formula) {
       ui.notifications.warn(game.i18n.localize("ASTER.hit.npcNoFormula"));
       return;
     }
 
     const focus = checkFocusEffect(this);
-    const fullFormula = focus.extraDice > 0 ? `${formula} + ${focus.extraDice}d6` : formula;
+    const baseDice = 2 + focus.extraDice;
+    const fullFormula = isNpc
+      ? focus.extraDice > 0
+        ? `${formula} + ${focus.extraDice}d6`
+        : formula
+      : `${baseDice}d6`;
 
     let roll;
-    try {
-      roll = new Roll(fullFormula);
-      await roll.evaluate();
-    } catch (e) {
-      console.warn(`[Aster] NPC ${this.name} hitFormula 평가 실패: "${formula}"`, e);
-      ui.notifications.warn(game.i18n.localize("ASTER.hit.npcFormulaError"));
-      return;
+    if (isNpc) {
+      try {
+        roll = new Roll(fullFormula);
+        await roll.evaluate();
+      } catch (e) {
+        console.warn(`[Aster] NPC ${this.name} hitFormula 평가 실패: "${formula}"`, e);
+        ui.notifications.warn(game.i18n.localize("ASTER.hit.npcFormulaError"));
+        return;
+      }
+    } else {
+      roll = await asterRoll(0, this.getRollData(), { baseDice });
     }
 
     const pick = await pickTwoIfNeeded({ roll, dice: roll.dice.flatMap((d) => d.values) });
@@ -486,13 +500,14 @@ export class AsterActor extends Actor {
     const cf = detectCritFumble(resultDiceset);
 
     const penalties = computePenalties(this, { isDodge: false });
-    const adjustedTotal = pick.rawTotal + penalties.total;
+    const adjustedTotal = pick.rawTotal + penalties.total + modifier;
 
     const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
     const templateData = {
       label,
       ablValue: 0, // 식 자체가 굴림 — 별도 능력치 합산값 없음
-      formula: fullFormula, // NPC 전용 메서드라 항상 식 전달(카드 표시용)
+      formula: fullFormula,
+      modifierText: modifier === 0 ? null : modifier > 0 ? `+${modifier}` : String(modifier),
       result: roll.result,
       total: adjustedTotal,
       rawTotal: pick.rawTotal,
@@ -505,7 +520,7 @@ export class AsterActor extends Actor {
       actorId: this.id,
       actorUuid: this.uuid,
       actorName: this.name,
-      isPC: false,
+      isPC: !isNpc,
       isDodge: false,
       opposed: true, // 전용 카드(roll-critfumble)에서 대결 결합 푸터 유지용
     };

@@ -6,7 +6,11 @@
     </div>
   </header>
   <div class="action-effect">{{{chatExtra}}}</div>
-  {{#if hasDamageButton}}
+  {{#if hasHitButton}}
+  <footer class="card-actions">
+    <button type="button" data-action="roll-hit">{{localize "ASTER.hit.rollBtn"}}</button>
+  </footer>
+  {{/if}} {{#if hasDamageButton}}
   <footer class="card-actions damage-actions">
     <button type="button" data-action="apply-damage">{{localize "ASTER.damage.applyBtn"}}</button>
   </footer>
