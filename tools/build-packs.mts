@@ -64,6 +64,7 @@ const ITEM_PACKS = [
   "items-bag",
   "items-consumable",
   "items-spell",
+  "items-enchant",
 ];
 
 for (const pack of ITEM_PACKS) {
