@@ -17,3 +17,8 @@
     cursor: pointer;
   }
 }
+
+.directory .directory-item img.thumbnail,
+.compendium.directory .directory-item img.thumbnail {
+  object-fit: contain;
+}
