@@ -375,8 +375,7 @@
     "hit": {
       "label": "명중",
       "npcNoFormula": "명중 식이 설정되지 않았습니다.",
-      "npcFormulaError": "명중 식 평가에 실패했습니다. 콘솔을 확인해주세요.",
-      "pcNotSupported": "명중 굴림은 NPC 전용입니다."
+      "npcFormulaError": "명중 식 평가에 실패했습니다. 콘솔을 확인해주세요."
     },
     "damage": {
       "applyBtn": "대미지 적용",
