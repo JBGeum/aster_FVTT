@@ -372,9 +372,9 @@ async function applyDamageFromCard(message) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.noCardData"));
     return;
   }
+  // 막지 않고 알린다 — 입력 오타로 0이 들어가도 다시 적용할 수 있어야 한다.
   if (data.damageApplied) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.alreadyApplied"));
-    return;
   }
   if (!data.targetActorId) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.noTarget"));
@@ -424,7 +424,6 @@ async function applyDamageFromOpposed(message) {
   }
   if (data.damageApplied) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.alreadyApplied"));
-    return;
   }
   const targetActor = resolveActor({ uuid: data.targetActorUuid, id: data.targetActorId });
   if (!targetActor) {
