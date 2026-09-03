@@ -1,6 +1,7 @@
 /**
  * 데미지·회복·상태이상 적용 로직.
  */
+import { findCombatantFor } from "./combatant-match.mjs";
 
 // 필드명과 i18n 키가 다른 항목(bigInj→biginj)이 있어 매핑을 명시한다.
 // 합체기 부속성 처리도 같은 목록을 참조하므로 export.
@@ -107,7 +108,7 @@ export async function applyHealHealth(actors, amount) {
 async function applyDefendReduction(targetActor, amount) {
   const combat = game.combat;
   if (!combat) return null;
-  const combatant = combat.combatants.find((c) => c.actor?.id === targetActor.id);
+  const combatant = findCombatantFor(combat.combatants, targetActor);
   if (!combatant) return null;
   if (combatant.getFlag("aster", "defendActive") !== true) return null;
 
@@ -134,7 +135,7 @@ async function applyDefendReduction(targetActor, amount) {
 async function applyYellowReduction(targetActor, amount) {
   const combat = game.combat;
   if (!combat) return null;
-  const combatant = combat.combatants.find((c) => c.actor?.id === targetActor.id);
+  const combatant = findCombatantFor(combat.combatants, targetActor);
   if (!combatant) return null;
 
   if (combatant.getFlag("aster", "damageBlocked") === true) {

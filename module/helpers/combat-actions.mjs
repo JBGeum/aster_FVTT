@@ -3,6 +3,7 @@ import { getTargetedTokens } from "./target-select.mjs";
 import { applyDamageAndStatus, applyCureAllStatus, applyCureStatus } from "./health-status.mjs";
 import { checkFocusEffect } from "./focus-effect.mjs";
 import { pickTwoIfNeeded } from "./dice-select.mjs";
+import { findCombatantFor } from "./combatant-match.mjs";
 
 /**
  * @param {{ actor: Actor, actionKey: string }} params
@@ -13,7 +14,7 @@ export async function resolveCombatAction({ actor, actionKey }) {
     ui.notifications.warn(game.i18n.localize("ASTER.combat.notInCombat"));
     return;
   }
-  const combatant = combat.combatants.find((c) => c.actor?.id === actor.id);
+  const combatant = findCombatantFor(combat.combatants, actor);
   if (!combatant) {
     ui.notifications.warn(game.i18n.localize("ASTER.combat.noCombatantForActor"));
     return;
@@ -174,7 +175,7 @@ export async function resolveNpcActionUse({ actor, itemId }) {
     ui.notifications.warn(game.i18n.localize("ASTER.combat.notInCombat"));
     return;
   }
-  const combatant = combat.combatants.find((c) => c.actor?.id === actor.id);
+  const combatant = findCombatantFor(combat.combatants, actor);
   if (!combatant) {
     ui.notifications.warn(game.i18n.localize("ASTER.combat.noCombatantForActor"));
     return;

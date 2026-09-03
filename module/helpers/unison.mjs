@@ -8,6 +8,7 @@ import {
 } from "./health-status.mjs";
 import { getTargetedTokens } from "./target-select.mjs";
 import { pickDiceDialog, PICK_RETRY } from "./dice-select.mjs";
+import { findCombatantFor } from "./combatant-match.mjs";
 
 export async function performUnisonAttack({ actor }) {
   const combat = game.combat;
@@ -15,7 +16,7 @@ export async function performUnisonAttack({ actor }) {
     ui.notifications.warn(game.i18n.localize("ASTER.combat.notInCombat"));
     return;
   }
-  const selfCombatant = combat.combatants.find((c) => c.actor?.id === actor.id);
+  const selfCombatant = findCombatantFor(combat.combatants, actor);
   if (!selfCombatant) return;
 
   // 시트 disabled 분기를 우회한 직접 호출 방어.

@@ -13,6 +13,7 @@ import {
   buildCraftTooltip,
 } from "../helpers/sheet-tooltips.mjs";
 import { consumableHasHeal } from "../helpers/consumable.mjs";
+import { findCombatantFor } from "../helpers/combatant-match.mjs";
 
 export function prepareCharacterData(sheet, context) {
   for (const [k, v] of Object.entries(context.system.ability)) {
@@ -357,7 +358,7 @@ export function buildCombatContext(sheet) {
   const combat = game.combat;
   if (!combat?.started) return { inCombat: false, disabled: true, ap: 0 };
 
-  const combatant = combat.combatants.find((c) => c.actor?.id === sheet.actor.id);
+  const combatant = findCombatantFor(combat.combatants, sheet.actor);
   if (!combatant) return { inCombat: false, disabled: true, ap: 0 };
 
   const usage = combatant.getFlag("aster", "actionsThisRound") ?? {};
