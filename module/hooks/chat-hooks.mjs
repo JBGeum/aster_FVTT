@@ -6,6 +6,7 @@ import { resolveOpposed } from "../helpers/roll-result.mjs";
 import { applyDelta, applySet } from "../helpers/tracker-ops.mjs";
 import { commitTrackers } from "../helpers/tracker-commit.mjs";
 import { rangeFormula } from "../helpers/range-roll.mjs";
+import { resolveActor } from "../helpers/actor-resolve.mjs";
 
 /* -------------------------------------------- */
 /*  대성공/대실패 후속 버튼                      */
@@ -31,7 +32,7 @@ Hooks.on("renderChatMessageHTML", (_message, html) => {
   // ----- 대성공: PL이 색 선택해 아스테르 2개 획득 -----
   html.querySelectorAll("[data-action='crit-aster-gain']").forEach((btn) => {
     btn.addEventListener("click", async () => {
-      const actor = game.actors.get(btn.dataset.actorId);
+      const actor = resolveActor({ uuid: btn.dataset.actorUuid, id: btn.dataset.actorId });
       if (!actor) return;
 
       // 권한 체크: 본인 또는 GM만(룰: 대성공 아스테르 2개는 PL이 색 선택)
@@ -379,7 +380,7 @@ async function applyDamageFromCard(message) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.noTarget"));
     return;
   }
-  const targetActor = game.actors.get(data.targetActorId);
+  const targetActor = resolveActor({ uuid: data.targetActorUuid, id: data.targetActorId });
   if (!targetActor) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.targetNotFound"));
     return;
@@ -425,7 +426,7 @@ async function applyDamageFromOpposed(message) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.alreadyApplied"));
     return;
   }
-  const targetActor = game.actors.get(data.targetActorId);
+  const targetActor = resolveActor({ uuid: data.targetActorUuid, id: data.targetActorId });
   if (!targetActor) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.targetNotFound"));
     return;
@@ -521,7 +522,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
       // 룰 "판정에 실패하면 졸림 해제" — 대결에서는 패배가 실패다.
       // 굴림 시점의 페널티 적용 여부는 flag에 없어 패자의 현재 상태로 판단한다.
       const loser = result.winner === "active" ? passive : active;
-      const loserActor = game.actors.get(loser.actorId);
+      const loserActor = resolveActor({ uuid: loser.actorUuid, id: loser.actorId });
       if (loserActor?.system?.badstatus?.sleepy) {
         await loserActor.update({ "system.badstatus.sleepy": false });
       }
@@ -560,6 +561,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
             opposedDamage: dodgeLost
               ? {
                   targetActorId: dodger.actorId,
+                  targetActorUuid: dodger.actorUuid ?? null,
                   targetName: dodger.actorName,
                   damageApplied: false,
                 }

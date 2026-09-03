@@ -139,6 +139,7 @@ export async function resolveCombatAction({ actor, actionKey }) {
     // orphan 토큰이면 targetActorId가 null — 버튼 미노출(대미지 적용 불가).
     actionFlag.sourceActorId = actor.id;
     actionFlag.targetActorId = throwTarget.actor?.id ?? null;
+    actionFlag.targetActorUuid = throwTarget.actor?.uuid ?? null;
     actionFlag.targetName = throwTarget.name;
     actionFlag.defaultDamage = 1;
     actionFlag.damageApplied = false;
@@ -372,6 +373,8 @@ async function renderNpcActionCard(
   await ChatMessage.create({
     content,
     speaker: ChatMessage.getSpeaker({ actor }),
-    flags: { aster: { npcAction: { actorId: actor.id, actionId: action.id } } },
+    flags: {
+      aster: { npcAction: { actorId: actor.id, actorUuid: actor.uuid, actionId: action.id } },
+    },
   });
 }

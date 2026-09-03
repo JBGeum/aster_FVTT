@@ -43,7 +43,12 @@ export async function castSpell({ actor, spell }) {
   const targets = getTargetedTokens({ required: false, max: 1 });
   if (targets === null) return; // 타겟 초과 — 경고 출력됨
   const targetInfo = targets.length
-    ? { name: targets[0].name, id: targets[0].id, actorId: targets[0].actor?.id ?? null }
+    ? {
+        name: targets[0].name,
+        id: targets[0].id,
+        actorId: targets[0].actor?.id ?? null,
+        actorUuid: targets[0].actor?.uuid ?? null,
+      }
     : null;
 
   const picked = await rollSpellDice(actor, spell, 0);
@@ -71,7 +76,12 @@ export async function castSpellWithExtra({ actor, spell }) {
   const targets = getTargetedTokens({ required: false, max: 1 });
   if (targets === null) return;
   const targetInfo = targets.length
-    ? { name: targets[0].name, id: targets[0].id, actorId: targets[0].actor?.id ?? null }
+    ? {
+        name: targets[0].name,
+        id: targets[0].id,
+        actorId: targets[0].actor?.id ?? null,
+        actorUuid: targets[0].actor?.uuid ?? null,
+      }
     : null;
 
   const haveAster = actor.system.aster?.[color]?.value ?? 0;
@@ -144,6 +154,7 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
   const spellCast = {
     sourceActorId: actor.id,
     targetActorId: ctx.targetInfo?.actorId ?? null,
+    targetActorUuid: ctx.targetInfo?.actorUuid ?? null,
     targetName: ctx.targetInfo?.name ?? null,
     defaultDamage: 0,
     damageApplied: false,
@@ -175,6 +186,7 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
   const cardData = {
     spellId: spell.id,
     actorId: actor.id,
+    actorUuid: actor.uuid,
     actorName: actor.name,
     name: spell.name,
     ruby: sys.ruby,
@@ -213,7 +225,15 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
     rolls: [roll],
     sound: CONFIG.sounds.dice,
     content,
-    flags: { aster: { spellCard: true, spellId: spell.id, actorId: actor.id, spellCast } },
+    flags: {
+      aster: {
+        spellCard: true,
+        spellId: spell.id,
+        actorId: actor.id,
+        actorUuid: actor.uuid,
+        spellCast,
+      },
+    },
   });
 
   // 졸림 자동 해제: 룰 "한 번 판정에 실패하면 해제" — 일반 마법판정 실패에만 적용.

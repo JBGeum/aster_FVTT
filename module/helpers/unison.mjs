@@ -37,7 +37,7 @@ export async function performUnisonAttack({ actor }) {
   }
 
   const pairOptions = candidates
-    .map((c) => `<option value="${c.actor.id}">${c.actor.name}</option>`)
+    .map((c) => `<option value="${c.id}">${c.actor.name}</option>`)
     .join("");
   const pairId = await foundry.applications.api.DialogV2.prompt({
     window: { title: game.i18n.localize("ASTER.combat.unisonPairTitle") },
@@ -48,9 +48,9 @@ export async function performUnisonAttack({ actor }) {
     ok: { callback: (_e, b) => b.form.elements.pair.value },
   }).catch(() => null);
   if (!pairId) return;
-  const pairActor = game.actors.get(pairId);
-  const pairCombatant = combat.combatants.find((c) => c.actor?.id === pairId);
-  if (!pairActor || !pairCombatant) return;
+  const pairCombatant = combat.combatants.get(pairId);
+  const pairActor = pairCombatant?.actor;
+  if (!pairActor) return;
 
   const selfColor = actor.system.color;
   const pairColor = pairActor.system.color;
