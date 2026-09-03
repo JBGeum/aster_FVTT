@@ -16,6 +16,11 @@
       {{#if hitResult.isCritical}}<span class="critical">{{localize "ASTER.roll.critical"}}</span>{{/if}} {{#if
       hitResult.isFumble}}<span class="fumble">{{localize "ASTER.roll.fumble"}}</span>{{/if}}
     </div>
+    {{#if hitResult.penalties.sleepy}}
+    <div class="penalty-line">{{localize "ASTER.badstatus.sleepy"}}: {{hitResult.penalties.sleepy}}</div>
+    {{/if}} {{#if hitResult.penalties.satiety}}
+    <div class="penalty-line">{{localize "ASTER.check.satietyEffect"}}: {{hitResult.penalties.satiety}}</div>
+    {{/if}}
   </div>
   {{/if}} {{#if damageResults.length}}
   <div class="damage-results">

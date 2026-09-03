@@ -268,6 +268,7 @@ export async function resolveNpcActionUse({ actor, itemId }) {
           hitResult = {
             formula: hitFormula,
             total: pick.rawTotal + penalties.total,
+            penalties,
             diceText: pick.selected.join(", "),
             isCritical: hitCf.critical,
             isFumble: hitCf.fumble,
