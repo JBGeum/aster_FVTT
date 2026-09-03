@@ -384,7 +384,9 @@
       "dialogTitle": "대미지·상태이상 적용",
       "targetInfo": "대상: {name}",
       "amount": "대미지 수치",
+      "amountHint": "숫자 또는 다이스 식 (예: 3, 1d6, 2d6+1)",
       "inflictLegend": "부여할 상태이상 (다중 선택 가능)",
+      "rollLine": "대미지 굴림: {text}",
       "defendLine": "방어 차감: {original} - {roll}(1d6) = {adjusted}",
       "yellowReductionLine": "황표 차감: {original} - {reduction} = {adjusted}",
       "yellowBlockLine": "황표 무효: {original} → 0",
@@ -396,7 +398,8 @@
         "noCardData": "이 카드에 대미지 적용 정보가 없습니다.",
         "alreadyApplied": "이미 대미지가 적용된 카드입니다.",
         "noTarget": "대상 액터 정보가 없습니다.",
-        "targetNotFound": "대상 액터를 찾을 수 없습니다."
+        "targetNotFound": "대상 액터를 찾을 수 없습니다.",
+        "badFormula": "대미지 식을 읽을 수 없습니다: {formula}"
       }
     },
     "target": {
