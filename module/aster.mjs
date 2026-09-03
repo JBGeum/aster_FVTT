@@ -51,7 +51,7 @@ Hooks.once("init", async function () {
   // 토큰 상태 아이콘 표시용 status 등록 — BADSTATUS_EFFECTS에서 파생(id는 statuses 키와 정합).
   // 시트 badstatus 토글 → AE 생성/삭제(syncBadstatusEffect) → 토큰 아이콘 자동 갱신.
   CONFIG.statusEffects = [
-    ...CONFIG.statusEffects,
+    ...CONFIG.statusEffects.filter((e) => e.id === "dead"),
     ...Object.values(BADSTATUS_EFFECTS).map((e) => ({
       id: e.statuses[0],
       name: e.name,

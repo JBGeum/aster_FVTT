@@ -9,7 +9,7 @@ export const BADSTATUS_EFFECTS = {
   exhaustion: {
     key: "exhaustion",
     name: "ASTER.badstatus.exhaustion",
-    img: "icons/svg/skull.svg", // 피로
+    img: "icons/svg/downgrade.svg", // 피로
     changes: [
       {
         key: "system.speed",
@@ -41,14 +41,14 @@ export const BADSTATUS_EFFECTS = {
   bigInj: {
     key: "bigInj",
     name: "ASTER.badstatus.biginj",
-    img: "icons/svg/blood.svg",
+    img: "icons/svg/bones.svg",
     changes: [],
     statuses: ["bigInj"],
   },
   hungry: {
     key: "hungry",
     name: "ASTER.badstatus.hungry",
-    img: "icons/svg/pill.svg",
+    img: "icons/svg/tankard.svg",
     changes: [],
     statuses: ["hungry"],
   },
