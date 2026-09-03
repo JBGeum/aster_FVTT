@@ -53,7 +53,7 @@
 
   <footer class="card-actions">
     {{#if isPC}} {{#if isCritical}}
-    <button type="button" data-action="crit-aster-gain" data-actor-id="{{actorId}}">
+    <button type="button" data-action="crit-aster-gain" data-actor-id="{{actorId}}" data-actor-uuid="{{actorUuid}}">
       {{localize "ASTER.roll.critGain"}}
     </button>
     {{/if}} {{#if isFumble}}

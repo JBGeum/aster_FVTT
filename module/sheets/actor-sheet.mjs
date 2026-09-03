@@ -11,6 +11,7 @@ import { buildStatusTooltips, buildSpeedTooltip } from "../helpers/sheet-tooltip
 import { useConsumable } from "../helpers/consumable.mjs";
 import { requestRevive } from "../helpers/revive.mjs";
 import { postItemCard } from "../helpers/item-chat.mjs";
+import { findCombatantFor } from "../helpers/combatant-match.mjs";
 import {
   prepareCharacterData,
   prepareInventory,
@@ -174,7 +175,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     // 폼 제출은 system.*만 다뤄 flag는 저장되지 않는다.
     for (const input of this.element.querySelectorAll("[data-ap-input]")) {
       input.addEventListener("change", async (ev) => {
-        const combatant = game.combat?.combatants.find((c) => c.actor?.id === this.actor.id);
+        const combatant = game.combat ? findCombatantFor(game.combat.combatants, this.actor) : null;
         if (!combatant) return;
         const value = Number(ev.currentTarget.value);
         await combatant.setFlag("aster", "actionPoint", Number.isFinite(value) ? value : 0);

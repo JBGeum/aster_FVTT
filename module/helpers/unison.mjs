@@ -8,6 +8,7 @@ import {
 } from "./health-status.mjs";
 import { getTargetedTokens } from "./target-select.mjs";
 import { pickDiceDialog, PICK_RETRY } from "./dice-select.mjs";
+import { findCombatantFor } from "./combatant-match.mjs";
 
 export async function performUnisonAttack({ actor }) {
   const combat = game.combat;
@@ -15,7 +16,7 @@ export async function performUnisonAttack({ actor }) {
     ui.notifications.warn(game.i18n.localize("ASTER.combat.notInCombat"));
     return;
   }
-  const selfCombatant = combat.combatants.find((c) => c.actor?.id === actor.id);
+  const selfCombatant = findCombatantFor(combat.combatants, actor);
   if (!selfCombatant) return;
 
   // 시트 disabled 분기를 우회한 직접 호출 방어.
@@ -36,7 +37,7 @@ export async function performUnisonAttack({ actor }) {
   }
 
   const pairOptions = candidates
-    .map((c) => `<option value="${c.actor.id}">${c.actor.name}</option>`)
+    .map((c) => `<option value="${c.id}">${c.actor.name}</option>`)
     .join("");
   const pairId = await foundry.applications.api.DialogV2.prompt({
     window: { title: game.i18n.localize("ASTER.combat.unisonPairTitle") },
@@ -47,9 +48,9 @@ export async function performUnisonAttack({ actor }) {
     ok: { callback: (_e, b) => b.form.elements.pair.value },
   }).catch(() => null);
   if (!pairId) return;
-  const pairActor = game.actors.get(pairId);
-  const pairCombatant = combat.combatants.find((c) => c.actor?.id === pairId);
-  if (!pairActor || !pairCombatant) return;
+  const pairCombatant = combat.combatants.get(pairId);
+  const pairActor = pairCombatant?.actor;
+  if (!pairActor) return;
 
   const selfColor = actor.system.color;
   const pairColor = pairActor.system.color;

@@ -3,6 +3,7 @@ import { getTargetedTokens } from "./target-select.mjs";
 import { applyDamageAndStatus, applyCureAllStatus, applyCureStatus } from "./health-status.mjs";
 import { checkFocusEffect } from "./focus-effect.mjs";
 import { pickTwoIfNeeded } from "./dice-select.mjs";
+import { findCombatantFor } from "./combatant-match.mjs";
 
 /**
  * @param {{ actor: Actor, actionKey: string }} params
@@ -13,7 +14,7 @@ export async function resolveCombatAction({ actor, actionKey }) {
     ui.notifications.warn(game.i18n.localize("ASTER.combat.notInCombat"));
     return;
   }
-  const combatant = combat.combatants.find((c) => c.actor?.id === actor.id);
+  const combatant = findCombatantFor(combat.combatants, actor);
   if (!combatant) {
     ui.notifications.warn(game.i18n.localize("ASTER.combat.noCombatantForActor"));
     return;
@@ -138,6 +139,7 @@ export async function resolveCombatAction({ actor, actionKey }) {
     // orphan 토큰이면 targetActorId가 null — 버튼 미노출(대미지 적용 불가).
     actionFlag.sourceActorId = actor.id;
     actionFlag.targetActorId = throwTarget.actor?.id ?? null;
+    actionFlag.targetActorUuid = throwTarget.actor?.uuid ?? null;
     actionFlag.targetName = throwTarget.name;
     actionFlag.defaultDamage = 1;
     actionFlag.damageApplied = false;
@@ -174,7 +176,7 @@ export async function resolveNpcActionUse({ actor, itemId }) {
     ui.notifications.warn(game.i18n.localize("ASTER.combat.notInCombat"));
     return;
   }
-  const combatant = combat.combatants.find((c) => c.actor?.id === actor.id);
+  const combatant = findCombatantFor(combat.combatants, actor);
   if (!combatant) {
     ui.notifications.warn(game.i18n.localize("ASTER.combat.noCombatantForActor"));
     return;
@@ -371,6 +373,8 @@ async function renderNpcActionCard(
   await ChatMessage.create({
     content,
     speaker: ChatMessage.getSpeaker({ actor }),
-    flags: { aster: { npcAction: { actorId: actor.id, actionId: action.id } } },
+    flags: {
+      aster: { npcAction: { actorId: actor.id, actorUuid: actor.uuid, actionId: action.id } },
+    },
   });
 }
