@@ -109,7 +109,8 @@
       </div>
       {{#unless combatContext.inCombat}}
       <div class="ap-note">{{localize "ASTER.combat.notInCombat"}}</div>
-      {{/unless}} {{!-- 반응 판정(AP 소비 없음)이라 전투 진행 여부와 무관하게 활성. --}}
+      {{/unless}} {{> "systems/aster/templates/actor/parts/gm-combat-state.html"}} {{!-- 반응 판정(AP 소비 없음)이라
+      전투 진행 여부와 무관하게 활성. --}}
       <div class="npc-ap__row2">
         <button type="button" class="ap-btn" data-action="rollDodge">
           <span>{{localize "ASTER.dodge.label"}}</span>
