@@ -266,20 +266,47 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 let pendingOpposed = null;
 
 /**
+ * 대상 후보 — 현재 씬의 토큰. 카드가 지목한 대상이 씬에 없으면 그것도 함께 담는다.
+ *
+ * @param {Actor} targetActor
+ * @returns {{uuid: string, name: string}[]}
+ */
+function damageTargetOptions(targetActor) {
+  const rows = [];
+  for (const token of canvas.scene?.tokens ?? []) {
+    if (!token.actor) continue;
+    rows.push({ uuid: token.actor.uuid, name: token.name });
+  }
+  if (!rows.some((r) => r.uuid === targetActor.uuid)) {
+    rows.unshift({ uuid: targetActor.uuid, name: targetActor.name });
+  }
+  return rows;
+}
+
+/**
  * @param {Actor} targetActor
  * @param {number} defaultDamage
- * @returns {Promise<{amount: number, status: string[]}|null>}
+ * @returns {Promise<{formula: string, status: string[], targetUuid: string}|null>}
  */
 async function promptDamageDialog(targetActor, defaultDamage) {
   const statusRows = DAMAGE_STATUSES.map(
     (s) =>
       `<label><input type="checkbox" name="status" value="${s.key}" /> ${game.i18n.localize(`ASTER.badstatus.${s.i18n}`)}</label>`,
   ).join("");
+  const targetRows = damageTargetOptions(targetActor)
+    .map(
+      (r) =>
+        `<option value="${r.uuid}"${r.uuid === targetActor.uuid ? " selected" : ""}>${foundry.utils.escapeHTML(r.name)}</option>`,
+    )
+    .join("");
 
   return foundry.applications.api.DialogV2.prompt({
     window: { title: game.i18n.localize("ASTER.damage.dialogTitle") },
     content: `
-      <p class="damage-target-info">${game.i18n.format("ASTER.damage.targetInfo", { name: targetActor.name })}</p>
+      <div class="form-group">
+        <label>${game.i18n.localize("ASTER.damage.targetLabel")}</label>
+        <select name="target">${targetRows}</select>
+      </div>
       <div class="form-group">
         <label>${game.i18n.localize("ASTER.damage.amount")}</label>
         <input type="text" name="amount" value="${defaultDamage}" />
@@ -293,6 +320,7 @@ async function promptDamageDialog(targetActor, defaultDamage) {
     ok: {
       callback: (_e, b) => ({
         formula: b.form.elements.amount.value.trim(),
+        targetUuid: b.form.elements.target.value,
         status: Array.from(b.form.querySelectorAll('input[name="status"]:checked')).map(
           (el) => el.value,
         ),
@@ -327,7 +355,7 @@ async function evaluateDamageInput(formula) {
  *
  * @param {Actor} targetActor
  * @param {number} defaultDamage
- * @returns {Promise<{amount: number, rollText: string, status: string[]} | null>}
+ * @returns {Promise<{amount: number, rollText: string, status: string[], targetUuid: string} | null>}
  */
 async function promptDamage(targetActor, defaultDamage) {
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -335,7 +363,7 @@ async function promptDamage(targetActor, defaultDamage) {
     if (input === null) return null;
     try {
       const { amount, rollText } = await evaluateDamageInput(input.formula);
-      return { amount, rollText, status: input.status };
+      return { amount, rollText, status: input.status, targetUuid: input.targetUuid };
     } catch {
       ui.notifications.warn(
         game.i18n.format("ASTER.damage.warn.badFormula", { formula: input.formula }),
@@ -441,12 +469,15 @@ async function applyDamage(message, { data, flagKey }) {
   const result = await promptDamage(targetActor, data.defaultDamage ?? 0);
   if (result === null) return; // 취소·식 오류
 
+  // 카드 flag의 대상은 그대로 둔다 — 이력이고, 다이얼로그에서 바꾼 것은 이번 적용에만 쓴다.
+  const applyTo = resolveActor({ uuid: result.targetUuid, id: null }) ?? targetActor;
+
   const { hBefore, hAfter, statusApplied, defendReduced, yellowReduction } =
-    await applyDamageAndStatus(targetActor, result.amount, result.status);
+    await applyDamageAndStatus(applyTo, result.amount, result.status);
 
   await message.setFlag("aster", flagKey, { ...data, damageApplied: true });
 
-  await renderDamageResultCard(targetActor, {
+  await renderDamageResultCard(applyTo, {
     amount: result.amount,
     rollText: result.rollText,
     hBefore,
