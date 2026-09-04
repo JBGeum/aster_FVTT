@@ -420,23 +420,10 @@ async function renderDamageResultCard(
 }
 
 /**
- * 회피는 GM 판단(회피 성공 시 버튼 안 누름) — 시스템 미개입.
- *
  * @param {ChatMessage} message
+ * @param {{data: object, flagKey: string}} card  카드 종류별로 읽어 온 flag와 그 키
  */
-async function applyDamageFromCard(message) {
-  if (!game.user.isGM) {
-    ui.notifications.warn(game.i18n.localize("ASTER.world.gmOnly"));
-    return;
-  }
-
-  const combatAction = message.getFlag("aster", "combatAction");
-  const spellCast = message.getFlag("aster", "spellCast");
-  const data = combatAction ?? spellCast;
-  if (!data) {
-    ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.noCardData"));
-    return;
-  }
+async function applyDamage(message, { data, flagKey }) {
   // 막지 않고 알린다 — 입력 오타로 0이 들어가도 다시 적용할 수 있어야 한다.
   if (data.damageApplied) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.alreadyApplied"));
@@ -457,8 +444,6 @@ async function applyDamageFromCard(message) {
   const { hBefore, hAfter, statusApplied, defendReduced, yellowReduction } =
     await applyDamageAndStatus(targetActor, result.amount, result.status);
 
-  // flag 갱신 — 중복 적용 방지
-  const flagKey = combatAction ? "combatAction" : "spellCast";
   await message.setFlag("aster", flagKey, { ...data, damageApplied: true });
 
   await renderDamageResultCard(targetActor, {
@@ -470,6 +455,24 @@ async function applyDamageFromCard(message) {
     defendReduced,
     yellowReduction,
   });
+}
+
+/**
+ * @param {ChatMessage} message
+ */
+async function applyDamageFromCard(message) {
+  if (!game.user.isGM) {
+    ui.notifications.warn(game.i18n.localize("ASTER.world.gmOnly"));
+    return;
+  }
+
+  const combatAction = message.getFlag("aster", "combatAction");
+  const data = combatAction ?? message.getFlag("aster", "spellCast");
+  if (!data) {
+    ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.noCardData"));
+    return;
+  }
+  await applyDamage(message, { data, flagKey: combatAction ? "combatAction" : "spellCast" });
 }
 
 /**
@@ -488,33 +491,7 @@ async function applyDamageFromOpposed(message) {
     ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.noCardData"));
     return;
   }
-  if (data.damageApplied) {
-    ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.alreadyApplied"));
-  }
-  const targetActor = resolveActor({ uuid: data.targetActorUuid, id: data.targetActorId });
-  if (!targetActor) {
-    ui.notifications.warn(game.i18n.localize("ASTER.damage.warn.targetNotFound"));
-    return;
-  }
-
-  const result = await promptDamage(targetActor, 0);
-  if (result === null) return; // 취소·식 오류
-
-  const { hBefore, hAfter, statusApplied, defendReduced, yellowReduction } =
-    await applyDamageAndStatus(targetActor, result.amount, result.status);
-
-  // 중복 적용 방지
-  await message.setFlag("aster", "opposedDamage", { ...data, damageApplied: true });
-
-  await renderDamageResultCard(targetActor, {
-    amount: result.amount,
-    rollText: result.rollText,
-    hBefore,
-    hAfter,
-    statusApplied,
-    defendReduced,
-    yellowReduction,
-  });
+  await applyDamage(message, { data, flagKey: "opposedDamage" });
 }
 
 Hooks.on("renderChatMessageHTML", (message, html) => {
