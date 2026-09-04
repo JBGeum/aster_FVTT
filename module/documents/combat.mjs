@@ -1,7 +1,6 @@
 import { refreshActorSheet } from "../helpers/sheet-refresh.mjs";
 import { isEffectExpired, remainingRounds } from "../helpers/effect-duration.mjs";
 
-/** 발동한 라운드가 아니라 다음 라운드 시작에 걸리는 민첩 보정. flag에 누적된 값을 AE로 옮긴다. */
 const PENDING_SPEED_EFFECTS = [
   {
     flag: "dashNextRound",
@@ -75,8 +74,6 @@ export class AsterCombat extends Combat {
     for (const c of this.combatants) {
       if (!c.actor) continue;
 
-      // 다른 전투(또는 전투 밖)에서 온 startRound는 이 전투의 라운드와 기준이 달라 만료가
-      // 어긋난다 — 재각인이 스윕보다 앞이어야 이번 라운드부터 세기 시작한다.
       const restamp = c.actor.effects.filter((eff) => {
         const d = eff.duration;
         if (!d?.rounds) return false;
@@ -314,7 +311,6 @@ export class AsterCombat extends Combat {
         );
       }
 
-      // 살아남는 rounds 효과는 각인을 비우고 남은 수만 넘긴다 — 다음 전투가 그 수만큼 다시 센다.
       const carried = [];
       const spent = [];
       for (const eff of c.actor.effects) {
