@@ -3,8 +3,6 @@
 /**
  * Effects 탭에 읽기 전용으로 싣는 전투 상태 목록. 켜진 것만 담는다.
  *
- * 라벨·설명은 i18n 키로 돌려주고 번역은 템플릿이 한다 — 계산을 game 전역에서 떼어 둔다.
- *
  * @param {{inCombat?: boolean, damageReduction?: number, damageBlocked?: boolean,
  *   defendActive?: boolean, focusActive?: boolean, unisonReady?: boolean}|null|undefined} ctx
  *   buildCombatContext의 반환값.

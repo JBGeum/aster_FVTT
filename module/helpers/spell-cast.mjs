@@ -4,6 +4,8 @@ import { pickDiceDialog, PICK_RETRY } from "./dice-select.mjs";
 import { getTargetedTokens } from "./target-select.mjs";
 import { formatFormula } from "./sheet-tooltips.mjs";
 import { checkFocusEffect } from "./focus-effect.mjs";
+import { promptAbilityCheck } from "./check-dialog.mjs";
+import { formatModifier } from "./ability-check.mjs";
 
 /**
  * 집중을 반영해 다이스를 굴리고 2개를 고른다. 고르기를 마쳐야 집중을 소비한다.
@@ -36,9 +38,9 @@ async function rollSpellDice(actor, spell, extraAster) {
 }
 
 /**
- * @param {{actor: Actor, spell: Item}} params
+ * @param {{actor: Actor, spell: Item, showDialog?: boolean}} params
  */
-export async function castSpell({ actor, spell }) {
+export async function castSpell({ actor, spell, showDialog = false }) {
   // 선택적 캔버스 타게팅 — 타겟 있으면 카드에 표시, 없으면 자기 강화 마법으로 진행.
   const targets = getTargetedTokens({ required: false, max: 1 });
   if (targets === null) return; // 타겟 초과 — 경고 출력됨
@@ -51,6 +53,17 @@ export async function castSpell({ actor, spell }) {
       }
     : null;
 
+  let modifier = 0;
+  if (showDialog) {
+    const input = await promptAbilityCheck({
+      label: spell.name,
+      defaultTarget: 0,
+      showTarget: false,
+    });
+    if (!input) return;
+    modifier = input.modifier;
+  }
+
   const picked = await rollSpellDice(actor, spell, 0);
   if (!picked) return;
 
@@ -58,6 +71,7 @@ export async function castSpell({ actor, spell }) {
     color: spell.system.color,
     n: 0,
     targetInfo,
+    modifier,
   });
 }
 
@@ -88,7 +102,8 @@ export async function castSpellWithExtra({ actor, spell }) {
   const colorLabel = game.i18n.localize(`ASTER.aster.${color}`);
 
   // 다이얼로그: 추가 다이스 개수 (룰: 마법 속성 색 아스테르 1개당 다이스 1개. 보유량 한도).
-  const n = await foundry.applications.api.DialogV2.prompt({
+  const input = await foundry.applications.api.DialogV2.prompt({
+    classes: ["hb-dialog"],
     window: { title: game.i18n.localize("ASTER.spell.extraTitle") },
     content: `
         <div class="form-group">
@@ -98,14 +113,22 @@ export async function castSpellWithExtra({ actor, spell }) {
           <label>${game.i18n.localize("ASTER.spell.extraN")}</label>
           <input type="number" name="n" value="1" min="0" max="${haveAster}" />
         </div>
+        <div class="form-group">
+          <label>${game.i18n.localize("ASTER.check.modifier")}</label>
+          <input type="number" name="modifier" value="0" />
+        </div>
       `,
     ok: {
       label: game.i18n.localize("ASTER.spell.castLabel"),
-      callback: (_e, b) => Number(b.form.elements.n.value) || 0,
+      callback: (_e, b) => ({
+        n: Number(b.form.elements.n.value) || 0,
+        modifier: Number(b.form.elements.modifier.value) || 0,
+      }),
     },
   }).catch(() => null);
 
-  if (n === null) return; // 취소
+  if (!input) return; // 취소
+  const { n, modifier } = input;
   if (n < 0 || n > haveAster) {
     ui.notifications.warn(
       game.i18n.format("ASTER.spell.warn.notEnoughAster", {
@@ -133,6 +156,7 @@ export async function castSpellWithExtra({ actor, spell }) {
     color,
     n,
     targetInfo,
+    modifier,
   });
 }
 
@@ -142,7 +166,7 @@ export async function castSpellWithExtra({ actor, spell }) {
  * @param {Roll} roll                 평가 완료된 Roll (채팅 첨부용)
  * @param {number[]} selectedDice     달성치에 합산할 2개
  * @param {number[]} extraDice        선택 제외된 다이스 (표시 전용, 계산 제외)
- * @param {{color:string, n:number}} ctx
+ * @param {{color:string, n:number, targetInfo?:object|null, modifier?:number}} ctx
  */
 async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx) {
   const sys = spell.system;
@@ -164,6 +188,7 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
 
   // extraDice는 합산하지 않고 카드에서 별도 표시 — diceTotal은 고른 2개의 합만 넘긴다.
   const diceTotal = selectedDice.reduce((a, b) => a + b, 0);
+  const modifier = ctx.modifier ?? 0;
   const result = computeSpellRoll({
     diceTotal,
     abilityValue: abilityTotal,
@@ -171,6 +196,7 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
     extraDice: [],
     target: targetVal,
     penalties,
+    modifier,
   });
 
   // 대성공/대실패는 선택된 2개로 판단 (룰: "2개를 고른 후 판단").
@@ -200,6 +226,7 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
     isFumble: cf.fumble,
     isPC: actor.type === "character",
     breakdown: result.breakdown,
+    modifierText: formatModifier(modifier),
     diceText: selectedDice.join(", "),
     resultDiceset: selectedDice, // .dice-pips 시각화용(고른 2개)
     discardedDiceText: extraDice.length ? extraDice.join(", ") : "",

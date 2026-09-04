@@ -27,9 +27,7 @@ export function prepareActiveEffectCategories(effects) {
       name: e.name,
       img: e.img,
       disabled: e.disabled,
-      // duration이 없으면 코어 label이 "None"을 돌려준다.
       durationLabel: e.duration?.remaining ? e.duration.label : null,
-      // 상태이상은 system.badstatus가 정본이다 — AE를 직접 지우면 필드가 남아 어긋난다.
       isStatus: (e.statuses?.size ?? 0) > 0,
     };
     if (e.disabled) categories.inactive.effects.push(row);

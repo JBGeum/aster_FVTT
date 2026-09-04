@@ -1,7 +1,7 @@
 import { asterRoll } from "./roll.mjs";
 import { detectCritFumble, computePenalties, critFumbleCardPath } from "../helpers/roll-result.mjs";
 import { syncBadstatusEffect, BADSTATUS_EFFECTS } from "../helpers/badstatus-effects.mjs";
-import { computeAbilityCheck } from "../helpers/ability-check.mjs";
+import { computeAbilityCheck, formatModifier } from "../helpers/ability-check.mjs";
 import { promptAbilityCheck } from "../helpers/check-dialog.mjs";
 import { checkFocusEffect } from "../helpers/focus-effect.mjs";
 import { pickTwoIfNeeded } from "../helpers/dice-select.mjs";
@@ -83,7 +83,7 @@ export class AsterActor extends Actor {
     const isVs = this.system.rollMode === "vs";
     let target = this.system.dc;
     let modifier = 0;
-    if (!options.skipDialog) {
+    if (options.showDialog) {
       const input = await promptAbilityCheck({
         label,
         defaultTarget: this.system.dc,
@@ -93,8 +93,7 @@ export class AsterActor extends Actor {
       target = input.target;
       modifier = input.modifier;
     }
-    // 0이면 카드에서 보정 줄을 생략한다.
-    const modifierText = modifier === 0 ? null : modifier > 0 ? `+${modifier}` : String(modifier);
+    const modifierText = formatModifier(modifier);
 
     const renderTemplate = foundry.applications.handlebars.renderTemplate;
     const ablValue = this.system.ability[ability].total;
@@ -343,9 +342,21 @@ export class AsterActor extends Actor {
    *
    * @returns {Promise<void>}
    */
-  async rollDodge() {
+  async rollDodge(options = {}) {
     const renderTemplate = foundry.applications.handlebars.renderTemplate;
     const label = game.i18n.localize("ASTER.dodge.label");
+
+    if (this.type === "npc" && !this.system.dodgeFormula?.trim()) {
+      ui.notifications.warn(game.i18n.localize("ASTER.dodge.npcNoFormula"));
+      return;
+    }
+
+    let modifier = 0;
+    if (options.showDialog) {
+      const input = await promptAbilityCheck({ label, defaultTarget: 0, showTarget: false });
+      if (!input) return;
+      modifier = input.modifier;
+    }
 
     // 회피도 일반 판정에 포함되므로 집중이 적용된다.
     const focus = checkFocusEffect(this);
@@ -390,7 +401,12 @@ export class AsterActor extends Actor {
     const cf = detectCritFumble(resultDiceset);
 
     const penalties = computePenalties(this, { isDodge: true });
-    const adjustedTotal = pick.rawTotal + penalties.total;
+    const adjustedTotal = computeAbilityCheck({
+      rawTotal: pick.rawTotal,
+      modifier,
+      penalties,
+      target: null,
+    }).achievement;
 
     const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
     const templateData = {
@@ -401,6 +417,7 @@ export class AsterActor extends Actor {
       total: adjustedTotal,
       rawTotal: pick.rawTotal,
       penalties,
+      modifierText: formatModifier(modifier),
       resultDiceset,
       diceText,
       isCritical: cf.critical,
@@ -507,7 +524,7 @@ export class AsterActor extends Actor {
       label,
       ablValue: 0, // 식 자체가 굴림 — 별도 능력치 합산값 없음
       formula: fullFormula,
-      modifierText: modifier === 0 ? null : modifier > 0 ? `+${modifier}` : String(modifier),
+      modifierText: formatModifier(modifier),
       result: roll.result,
       total: adjustedTotal,
       rawTotal: pick.rawTotal,

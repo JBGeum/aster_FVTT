@@ -132,7 +132,6 @@ export async function resolveCombatAction({ actor, actionKey }) {
   } else if (actionKey === "focus") {
     await combatant.setFlag("aster", "focusActive", true);
   } else if (actionKey === "dash") {
-    // 한 라운드에 두 번 쓰면 합산된다 — 덮어쓰면 앞의 대쉬가 사라진다.
     const pendingDash = combatant.getFlag("aster", "dashNextRound") ?? 0;
     await combatant.setFlag("aster", "dashNextRound", pendingDash + dashX);
   } else if (actionKey === "unisonPrepare") {

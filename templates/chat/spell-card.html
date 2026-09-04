@@ -21,13 +21,19 @@
       <div class="extra-info">{{localize "ASTER.spell.extraUsed"}}: {{extraColorLabel}} × {{extraN}}</div>
       {{/if}}
       <span class="selected-dice">[{{diceText}}]</span> · 2d({{breakdown.base}}) + {{breakdown.ability}} {{#if
-      breakdown.specialty}}+ {{localize "ASTER.spell.specialty"}}({{breakdown.specialty}}){{/if}} {{#if
-      breakdown.penalties.sleepy}}{{breakdown.penalties.sleepy}} ({{localize "ASTER.badstatus.sleepy"}}){{/if}} {{#if
-      breakdown.penalties.satiety}}{{breakdown.penalties.satiety}} ({{localize "ASTER.check.satietyEffect"}}){{/if}}
-      {{#if discardedDiceText}}
+      discardedDiceText}}
       <div class="discarded-dice">{{localize "ASTER.spell.discarded"}}: ({{discardedDiceText}})</div>
       {{/if}}
     </div>
+    {{#if breakdown.specialty}}
+    <div class="penalty-line">{{localize "ASTER.spell.specialty"}}: +{{breakdown.specialty}}</div>
+    {{/if}} {{#if breakdown.penalties.sleepy}}
+    <div class="penalty-line">{{localize "ASTER.badstatus.sleepy"}}: {{breakdown.penalties.sleepy}}</div>
+    {{/if}} {{#if breakdown.penalties.satiety}}
+    <div class="penalty-line">{{localize "ASTER.check.satietyEffect"}}: {{breakdown.penalties.satiety}}</div>
+    {{/if}} {{#if modifierText}}
+    <div class="penalty-line">{{localize "ASTER.check.modifier"}}: {{modifierText}}</div>
+    {{/if}}
     <div class="roll-total">
       <strong>{{achievement}}</strong><span class="vs">/ {{localize "ASTER.spell.target"}} {{target}}</span>
     </div>

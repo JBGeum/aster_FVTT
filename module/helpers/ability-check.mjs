@@ -28,3 +28,14 @@ export function computeAbilityCheck({
     breakdown: { rawTotal, modifier, penalties, penaltyTotal, target },
   };
 }
+
+/**
+ * 카드에 실을 보정 표기.
+ *
+ * @param {number} modifier
+ * @returns {string|null}
+ */
+export function formatModifier(modifier) {
+  if (modifier === 0) return null;
+  return modifier > 0 ? `+${modifier}` : String(modifier);
+}

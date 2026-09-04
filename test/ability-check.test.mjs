@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeAbilityCheck } from "../module/helpers/ability-check.mjs";
+import { computeAbilityCheck, formatModifier } from "../module/helpers/ability-check.mjs";
 
 describe("computeAbilityCheck", () => {
   it("달성치가 목표치와 같으면 성공", () => {
@@ -61,5 +61,19 @@ describe("computeAbilityCheck", () => {
       penaltyTotal: -1,
       target: 12,
     });
+  });
+});
+
+describe("formatModifier", () => {
+  it("0이면 null — 카드에서 보정 줄을 생략한다", () => {
+    expect(formatModifier(0)).toBe(null);
+  });
+
+  it("양수는 부호를 붙인다", () => {
+    expect(formatModifier(2)).toBe("+2");
+  });
+
+  it("음수는 그대로 쓴다", () => {
+    expect(formatModifier(-3)).toBe("-3");
   });
 });
