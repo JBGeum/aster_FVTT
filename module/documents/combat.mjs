@@ -1,3 +1,5 @@
+import { refreshActorSheet } from "../helpers/sheet-refresh.mjs";
+
 /**
  * 동률 시 PC 우선만 자동 처리한다 — PC끼리·NPC끼리는 GM이 수동 조정한다.
  * @extends {Combat}
@@ -188,9 +190,7 @@ export class AsterCombat extends Combat {
 
     // updateCombatant 훅이 각 클라이언트를 갱신하지만, GM의 열린 시트는 여기서 즉시 갱신해
     // 라운드 경계 표시가 stale해지는 것을 막는다.
-    for (const c of this.combatants) {
-      if (c.actor?.sheet?.rendered) c.actor.sheet.render(false);
-    }
+    for (const c of this.combatants) refreshActorSheet(c.actor);
   }
 
   /**

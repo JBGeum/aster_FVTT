@@ -2,12 +2,7 @@
  * import 시 top-level에서 Hooks.on(...)을 등록한다(부수효과).
  */
 import { AsterCombat } from "../documents/combat.mjs";
-
-/** 열려 있는 단일 액터 시트를 재렌더 (combat 탭의 전투 중 여부·AP 동기화용). */
-function refreshActorSheet(actor) {
-  const sheet = actor?.sheet;
-  if (sheet?.rendered) sheet.render(false);
-}
+import { refreshActorSheet } from "../helpers/sheet-refresh.mjs";
 
 /** 전투에 속한 모든 전투원의 액터 시트를 재렌더. 전투 시작/종료 시 사용. */
 function refreshCombatSheets(combat) {
