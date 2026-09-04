@@ -1,4 +1,5 @@
 import { refreshActorSheet } from "../helpers/sheet-refresh.mjs";
+import { isEffectExpired, remainingRounds } from "../helpers/effect-duration.mjs";
 
 /**
  * 동률 시 PC 우선만 자동 처리한다 — PC끼리·NPC끼리는 GM이 수동 조정한다.
@@ -55,15 +56,28 @@ export class AsterCombat extends Combat {
 
     // 스윕이 대쉬 AE 생성·initiative 갱신보다 앞이어야 한다. 뒤에 두면 만료된 민첩
     // 보너스가 갱신에 반영되고, 갱신은 스윕 후 다시 돌지 않는다.
-    // `duration.combat`은 ForeignDocumentField라 문자열 비교가 불안정해, 식별은 우리 flag로 한다.
     for (const c of this.combatants) {
       if (!c.actor) continue;
-      const expired = c.actor.effects.filter((eff) => {
-        if (!eff.flags?.aster?.sourceAction) return false;
+
+      // 다른 전투(또는 전투 밖)에서 온 startRound는 이 전투의 라운드와 기준이 달라 만료가
+      // 어긋난다 — 재각인이 스윕보다 앞이어야 이번 라운드부터 세기 시작한다.
+      const restamp = c.actor.effects.filter((eff) => {
         const d = eff.duration;
         if (!d?.rounds) return false;
-        return this.round - (d.startRound ?? this.round) >= d.rounds;
+        return (d.combat?.id ?? d.combat ?? null) !== this.id;
       });
+      if (restamp.length) {
+        await c.actor.updateEmbeddedDocuments(
+          "ActiveEffect",
+          restamp.map((e) => ({
+            _id: e.id,
+            "duration.startRound": this.round,
+            "duration.combat": this.id,
+          })),
+        );
+      }
+
+      const expired = c.actor.effects.filter((eff) => isEffectExpired(this.round, eff.duration));
       if (expired.length) {
         await c.actor.deleteEmbeddedDocuments(
           "ActiveEffect",
@@ -281,6 +295,26 @@ export class AsterCombat extends Combat {
           combatEffects.map((e) => e.id),
         );
       }
+
+      // 살아남는 rounds 효과는 각인을 비우고 남은 수만 넘긴다 — 다음 전투가 그 수만큼 다시 센다.
+      const carried = [];
+      const spent = [];
+      for (const eff of c.actor.effects) {
+        if (eff.flags?.aster?.sourceAction) continue;
+        const left = remainingRounds(this.round, eff.duration);
+        if (left === null) continue;
+        if (left <= 0) spent.push(eff.id);
+        else {
+          carried.push({
+            _id: eff.id,
+            "duration.rounds": left,
+            "duration.startRound": null,
+            "duration.combat": null,
+          });
+        }
+      }
+      if (spent.length) await c.actor.deleteEmbeddedDocuments("ActiveEffect", spent);
+      if (carried.length) await c.actor.updateEmbeddedDocuments("ActiveEffect", carried);
     }
 
     const transitioned = [];

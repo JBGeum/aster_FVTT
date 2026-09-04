@@ -1,0 +1,49 @@
+<div class="panel__bar">
+  <div class="panel__head" style="margin: 0; flex: 1">{{localize "ASTER.effects.title"}}</div>
+  {{#if isGM}}
+  <button type="button" class="btn-add" data-action="effectCreate">{{localize "ASTER.effects.add"}}</button>
+  {{/if}}
+</div>
+
+{{#if combatStateRows.length}}
+<div class="fx-section">
+  <div class="fx-section__head">{{localize "ASTER.effects.combatState"}}</div>
+  {{#each combatStateRows as |s|}}
+  <div class="fx-row fx-row--state">
+    <div class="fx-row__name">{{localize s.label}}</div>
+    <div class="fx-row__meta">{{#if s.value}}-{{s.value}}{{else}}{{localize s.detail}}{{/if}}</div>
+  </div>
+  {{/each}}
+</div>
+{{/if}} {{#each effects as |section|}} {{#if section.effects.length}}
+<div class="fx-section">
+  <div class="fx-section__head">{{localize section.label}}</div>
+  {{#each section.effects as |e|}}
+  <div class="fx-row {{#if e.disabled}}fx-row--off{{/if}}">
+    <img class="fx-row__img pixelart" src="{{e.img}}" alt="{{e.name}}" draggable="false" />
+    <div class="fx-row__name">{{e.name}}</div>
+    <div class="fx-row__meta">{{e.durationLabel}}</div>
+    {{#if @root.isGM}}{{#unless e.isStatus}}
+    <div class="fx-row__tools">
+      <span data-action="effectToggle" data-effect-id="{{e.id}}" title="{{localize 'ASTER.effects.toggle'}}">
+        <i class="fas {{#if e.disabled}}fa-toggle-off{{else}}fa-toggle-on{{/if}}"></i>
+      </span>
+      <span data-action="effectEdit" data-effect-id="{{e.id}}" title="{{localize 'ASTER.effects.edit'}}">
+        <i class="fas fa-gear"></i>
+      </span>
+      <span
+        class="del"
+        data-action="effectDelete"
+        data-effect-id="{{e.id}}"
+        title="{{localize 'ASTER.effects.delete'}}"
+      >
+        <i class="fas fa-trash"></i>
+      </span>
+    </div>
+    {{/unless}}{{/if}}
+  </div>
+  {{/each}}
+</div>
+{{/if}} {{/each}} {{#unless hasEffects}}{{#unless combatStateRows.length}}
+<div class="ap-note">{{localize "ASTER.effects.none"}}</div>
+{{/unless}}{{/unless}}
