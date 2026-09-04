@@ -569,7 +569,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static #onAblRoll(event, target) {
     const { ability, label } = target.dataset;
-    this.actor.rollAbility(ability, label, { skipDialog: event.shiftKey });
+    this.actor.rollAbility(ability, label, { showDialog: event.shiftKey });
   }
 
   static #onEmoRoll(_event, target) {

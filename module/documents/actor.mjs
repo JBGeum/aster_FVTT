@@ -83,7 +83,7 @@ export class AsterActor extends Actor {
     const isVs = this.system.rollMode === "vs";
     let target = this.system.dc;
     let modifier = 0;
-    if (!options.skipDialog) {
+    if (options.showDialog) {
       const input = await promptAbilityCheck({
         label,
         defaultTarget: this.system.dc,
