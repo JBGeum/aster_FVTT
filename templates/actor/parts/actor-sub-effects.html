@@ -21,7 +21,9 @@
   {{#each section.effects as |e|}}
   <div class="fx-row {{#if e.disabled}}fx-row--off{{/if}}">
     <img class="fx-row__img pixelart" src="{{e.img}}" alt="{{e.name}}" draggable="false" />
-    <div class="fx-row__name">{{e.name}}</div>
+    <div class="fx-row__name">
+      {{e.name}}{{#if e.deltas}} <span class="fx-row__delta num">{{e.deltas}}</span>{{/if}}
+    </div>
     <div class="fx-row__meta">{{e.durationLabel}}</div>
     {{#if @root.isGM}}{{#unless e.isStatus}}
     <div class="fx-row__tools">

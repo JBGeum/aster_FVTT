@@ -310,7 +310,9 @@
         "damageBlocked": "대미지 무효",
         "defendActive": "방어",
         "focusActive": "집중",
-        "unisonReady": "합체기 준비"
+        "unisonReady": "합체기 준비",
+        "dashPending": "대쉬 (다음 라운드)",
+        "unisonGreenPending": "합체기 녹 (다음 라운드)"
       },
       "chargeBonus": "차지",
       "unisonReady": "합체기 준비 ✓",

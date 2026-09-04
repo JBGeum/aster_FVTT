@@ -1,3 +1,5 @@
+import { formatEffectDeltas } from "./effect-deltas.mjs";
+
 /**
  * @param {ActiveEffect[]} effects    The array of Active Effect instances to prepare sheet data for
  * @return {object}                   Data for rendering
@@ -28,6 +30,7 @@ export function prepareActiveEffectCategories(effects) {
       img: e.img,
       disabled: e.disabled,
       durationLabel: e.duration?.remaining ? e.duration.label : null,
+      deltas: formatEffectDeltas(e.changes),
       isStatus: (e.statuses?.size ?? 0) > 0,
     };
     if (e.disabled) categories.inactive.effects.push(row);

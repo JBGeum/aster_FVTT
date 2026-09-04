@@ -40,6 +40,27 @@ describe("buildCombatStateRows", () => {
     ]);
   });
 
+  it("다음 라운드 대기분은 수치와 함께 나온다", () => {
+    expect(buildCombatStateRows(inCombat({ dashPending: 3 }))).toEqual([
+      { label: "ASTER.combat.state.dashPending", value: 3 },
+    ]);
+    expect(buildCombatStateRows(inCombat({ unisonGreenPending: -20 }))).toEqual([
+      { label: "ASTER.combat.state.unisonGreenPending", value: -20 },
+    ]);
+  });
+
+  it("대기분이 0이면 나오지 않는다", () => {
+    expect(buildCombatStateRows(inCombat({ dashPending: 0, unisonGreenPending: 0 }))).toEqual([]);
+  });
+
+  it("대기분은 진행 중인 상태 뒤에 온다", () => {
+    const rows = buildCombatStateRows(inCombat({ defendActive: true, dashPending: 2 }));
+    expect(rows.map((r) => r.label)).toEqual([
+      "ASTER.combat.state.defendActive",
+      "ASTER.combat.state.dashPending",
+    ]);
+  });
+
   it("여러 상태는 경감·무효·방어·집중·합체기 순으로 나온다", () => {
     const rows = buildCombatStateRows(
       inCombat({

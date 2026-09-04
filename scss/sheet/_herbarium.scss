@@ -1810,6 +1810,11 @@
       flex: 1;
       min-width: 0;
       color: var(--ink-strong);
+
+      .fx-row__delta {
+        color: var(--ink-soft);
+        font-size: 12px;
+      }
     }
     .fx-row__meta {
       font-size: 11px;
