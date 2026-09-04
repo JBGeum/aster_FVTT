@@ -239,7 +239,7 @@ export function prepareCraft(sheet, context) {
     })),
     {
       key: "material",
-      label: "마테리얼",
+      labelKey: "ASTER.label.material",
       dotKey: "mat",
       have: resources.material ?? 0,
       used: cost.material,
@@ -250,7 +250,7 @@ export function prepareCraft(sheet, context) {
     },
     {
       key: "any",
-      label: "임의",
+      labelKey: "ASTER.craft.summary.any",
       have: null,
       used: cost.anyAster,
       haveEmpty: true,
@@ -259,7 +259,7 @@ export function prepareCraft(sheet, context) {
     },
     {
       key: "self",
-      label: "자속성",
+      labelKey: "ASTER.craft.summary.self",
       have: null,
       used: null,
       haveEmpty: true,
@@ -268,7 +268,7 @@ export function prepareCraft(sheet, context) {
     },
     {
       key: "total",
-      label: "총합",
+      labelKey: "ASTER.craft.summary.total",
       total: true,
       have: asterHaveTotal,
       used: asterUsedTotal,

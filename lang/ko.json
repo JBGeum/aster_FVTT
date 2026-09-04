@@ -177,7 +177,12 @@
         "NEGATIVE": "{resource} 부족 (현재 {value})"
       },
       "used": "사용",
-      "owned": "보유"
+      "owned": "보유",
+      "summary": {
+        "any": "임의",
+        "self": "자속성",
+        "total": "총합"
+      }
     },
     "check": {
       "dialogTitle": "{label} 판정",
