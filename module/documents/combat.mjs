@@ -1,6 +1,22 @@
 import { refreshActorSheet } from "../helpers/sheet-refresh.mjs";
 import { isEffectExpired, remainingRounds } from "../helpers/effect-duration.mjs";
 
+/** 발동한 라운드가 아니라 다음 라운드 시작에 걸리는 민첩 보정. flag에 누적된 값을 AE로 옮긴다. */
+const PENDING_SPEED_EFFECTS = [
+  {
+    flag: "dashNextRound",
+    nameKey: "ASTER.combat.action.dash",
+    img: "icons/svg/lightning.svg",
+    source: "dash",
+  },
+  {
+    flag: "unisonGreenNextRound",
+    nameKey: "ASTER.combat.unisonSubGreenEffectName",
+    img: "systems/aster/assets/logo/svg/03_green_witch.svg",
+    source: "unisonGreen",
+  },
+];
+
 /**
  * 동률 시 PC 우선만 자동 처리한다 — PC끼리·NPC끼리는 GM이 수동 조정한다.
  * @extends {Combat}
@@ -86,28 +102,30 @@ export class AsterCombat extends Combat {
       }
     }
 
-    // 대쉬 AE는 initiative 갱신보다 먼저 만들어야 오른 민첩이 이 라운드 순서에 반영된다.
-    for (const c of this.combatants) {
-      const dashX = c.getFlag("aster", "dashNextRound");
-      if (!dashX || !c.actor) continue;
-      await c.actor.createEmbeddedDocuments("ActiveEffect", [
-        {
-          name: game.i18n.localize("ASTER.combat.action.dash"),
-          img: "icons/svg/lightning.svg",
-          changes: [
-            {
-              key: "system.speed",
-              mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-              value: dashX,
-              priority: 20,
-            },
-          ],
-          // combat 매개는 Foundry 라운드 기반 만료 흐름에 필요(없으면 자동 만료 안 됨).
-          duration: { rounds: 1, startRound: this.round, combat: this.id },
-          flags: { aster: { sourceAction: "dash" } },
-        },
-      ]);
-      await c.setFlag("aster", "dashNextRound", null);
+    // initiative 갱신보다 먼저 만들어야 오른 민첩이 이 라운드 순서에 반영된다.
+    for (const spec of PENDING_SPEED_EFFECTS) {
+      for (const c of this.combatants) {
+        const delta = c.getFlag("aster", spec.flag);
+        if (!delta || !c.actor) continue;
+        await c.actor.createEmbeddedDocuments("ActiveEffect", [
+          {
+            name: game.i18n.localize(spec.nameKey),
+            img: spec.img,
+            changes: [
+              {
+                key: "system.speed",
+                mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+                value: delta,
+                priority: 20,
+              },
+            ],
+            // combat 매개는 Foundry 라운드 기반 만료 흐름에 필요(없으면 자동 만료 안 됨).
+            duration: { rounds: 1, startRound: this.round, combat: this.id },
+            flags: { aster: { sourceAction: spec.source } },
+          },
+        ]);
+        await c.setFlag("aster", spec.flag, null);
+      }
     }
 
     const initiativeUpdates = [];

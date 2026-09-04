@@ -438,7 +438,7 @@ async function unisonSubBlue() {
   return { type: "blue", actorName: target.actor.name };
 }
 
-/** 녹 부속성: 전투 참가 아군 1인 민첩 ±20 1라운드 AE. */
+/** 녹 부속성: 전투 참가 아군 1인 민첩 ±20 1라운드. 대쉬와 같이 다음 라운드 시작에 걸린다. */
 async function unisonSubGreen() {
   const combat = game.combat;
   const partyCombatants = combat.combatants.filter((c) => c.actor?.type === "character");
@@ -466,23 +466,8 @@ async function unisonSubGreen() {
 
   const target = combat.combatants.get(result.allyId);
   if (!target?.actor) return null;
-  await target.actor.createEmbeddedDocuments("ActiveEffect", [
-    {
-      name: game.i18n.localize("ASTER.combat.unisonSubGreenEffectName"),
-      img: "icons/svg/wind.svg",
-      changes: [
-        {
-          key: "system.speed",
-          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-          value: result.delta,
-          priority: 20,
-        },
-      ],
-      // combat 매개는 Foundry 라운드 기반 만료 흐름에 필요하다.
-      duration: { rounds: 1, startRound: combat.round, combat: combat.id },
-      flags: { aster: { sourceAction: "unisonGreen" } },
-    },
-  ]);
+  const pending = target.getFlag("aster", "unisonGreenNextRound") ?? 0;
+  await target.setFlag("aster", "unisonGreenNextRound", pending + result.delta);
   return { type: "green", actorName: target.actor.name, delta: result.delta };
 }
 
