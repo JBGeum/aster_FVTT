@@ -362,7 +362,7 @@
       "unisonSubGreenTitle": "녹 부속성 — 민첩 보정",
       "unisonSubGreenAllyLabel": "대상 아군",
       "unisonSubGreenDirectionLabel": "민첩 증감",
-      "unisonSubGreenEffectName": "합체기 녹 부속성 (민첩)",
+      "unisonSubGreenEffectName": "합체기 녹 부속성",
       "unisonSubGreenResult": "{actor}의 다음 라운드 민첩 {delta} (1라운드)",
       "unisonSubYellowTitle": "황 부속성 — 적에게 상태이상",
       "unisonSubYellowLabel": "부여할 상태이상",
@@ -641,6 +641,14 @@
       "blockedDetail": "이 라운드 동안 받는 대미지 무효",
       "add": "효과 추가",
       "newName": "새 효과",
+      "targetLabel": "대상",
+      "valueLabel": "증감",
+      "roundsLabel": "지속 라운드",
+      "roundsHint": "비우면 해제할 때까지 유지됩니다.",
+      "target": {
+        "healthMax": "건강 최대치",
+        "satietyMax": "포만 최대치"
+      },
       "toggle": "활성 전환",
       "edit": "수정",
       "delete": "삭제",
