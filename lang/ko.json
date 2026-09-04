@@ -275,6 +275,7 @@
       "endTransition": "전투 종료 — 큰 부상이 부상으로 변경",
       "notInCombat": "전투 중이 아닙니다.",
       "noCombatantForActor": "이 액터는 현재 전투에 참가하지 않았습니다.",
+      "ambiguousCombatant": "이 액터의 토큰이 전투에 여럿 있어 {name}을(를) 대상으로 합니다. 토큰의 액터 연결(actorLink)을 확인하세요.",
       "notEnoughAP": "액션 포인트 부족 (필요 {need} / 보유 {have})",
       "actionUsedThisRound": "{action} 액션은 이미 이번 라운드에 사용했습니다 (1회 제한).",
       "apSpent": "AP {n} 소비",

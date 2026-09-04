@@ -8,7 +8,7 @@ import {
 } from "./health-status.mjs";
 import { getTargetedTokens } from "./target-select.mjs";
 import { pickDiceDialog, PICK_RETRY } from "./dice-select.mjs";
-import { findCombatantFor } from "./combatant-match.mjs";
+import { findCombatantFor, hasAmbiguousCombatants } from "./combatant-match.mjs";
 
 export async function performUnisonAttack({ actor }) {
   const combat = game.combat;
@@ -18,6 +18,11 @@ export async function performUnisonAttack({ actor }) {
   }
   const selfCombatant = findCombatantFor(combat.combatants, actor);
   if (!selfCombatant) return;
+  if (hasAmbiguousCombatants(combat.combatants, actor)) {
+    ui.notifications.warn(
+      game.i18n.format("ASTER.combat.ambiguousCombatant", { name: selfCombatant.name }),
+    );
+  }
 
   // 시트 disabled 분기를 우회한 직접 호출 방어.
   if (selfCombatant.getFlag("aster", "unisonReady") !== true) {
