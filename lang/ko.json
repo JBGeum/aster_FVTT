@@ -394,7 +394,7 @@
       "applyBtn": "대미지 적용",
       "applied": "대미지 적용 — {target}",
       "dialogTitle": "대미지·상태이상 적용",
-      "targetInfo": "대상: {name}",
+      "targetLabel": "대상",
       "amount": "대미지 수치",
       "amountHint": "숫자 또는 다이스 식 (예: 3, 1d6, 2d6+1)",
       "inflictLegend": "부여할 상태이상 (다중 선택 가능)",
