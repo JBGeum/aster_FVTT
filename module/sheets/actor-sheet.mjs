@@ -182,6 +182,21 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       });
     }
 
+    for (const input of this.element.querySelectorAll("[data-combat-flag]")) {
+      input.addEventListener("change", async (ev) => {
+        const combatant = game.combat ? findCombatantFor(game.combat.combatants, this.actor) : null;
+        if (!combatant) return;
+        const el = ev.currentTarget;
+        const key = el.dataset.combatFlag;
+        if (el.type === "checkbox") {
+          await combatant.setFlag("aster", key, el.checked);
+          return;
+        }
+        const value = Number(el.value);
+        await combatant.setFlag("aster", key, Number.isFinite(value) ? value : 0);
+      });
+    }
+
     // 이미지 편집 — data-edit 클릭 시 FilePicker. V2(DocumentSheetV2)는 V1과 달리
     // data-edit 자동 바인딩이 없어 직접 건다(re-render마다 DOM 교체라 리스너 누적 없음).
     // dataset.edit를 update 키로 일반화 — 초상(img) 외 다른 이미지 필드도 커버.

@@ -1815,6 +1815,35 @@
       }
     }
   }
+  .gm-combat-state {
+    margin-bottom: 12px;
+    padding: 8px 10px;
+    border: 1px dashed var(--ink-faint);
+    border-radius: var(--hb-radius);
+
+    > .t {
+      font-family: var(--hb-font-label);
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+    }
+    .state-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .state-num {
+      width: 3ch;
+      height: auto;
+      min-height: 0;
+      line-height: 1;
+      padding: 0 2px;
+      text-align: right;
+      border-bottom: 1px solid var(--ink-faint);
+      border-radius: 0;
+    }
+  }
   .ap-note {
     font-size: 13px;
     color: var(--ink-faint);

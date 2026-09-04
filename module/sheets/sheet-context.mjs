@@ -352,7 +352,10 @@ export function prepareRecord(sheet, context) {
 }
 
 /**
- * @returns {{inCombat:boolean, disabled:boolean, ap:number, combatantId?:string, defendUsed?:boolean, chargeUsed?:boolean}}
+ * @returns {{inCombat:boolean, disabled:boolean, ap:number, apMax?:number, combatantId?:string,
+ *   defendUsed?:boolean, chargeUsed?:boolean, focusActive?:boolean, unisonReady?:boolean,
+ *   canUnison?:boolean, disableUnison?:boolean, isGM?:boolean, damageReduction?:number,
+ *   damageBlocked?:boolean, defendActive?:boolean}}
  */
 export function buildCombatContext(sheet) {
   const combat = game.combat;
@@ -383,6 +386,10 @@ export function buildCombatContext(sheet) {
     chargeUsed: (usage.charge ?? 0) >= 1,
     focusActive: combatant.getFlag("aster", "focusActive") === true,
     unisonReady,
+    isGM: game.user.isGM,
+    damageReduction: combatant.getFlag("aster", "damageReduction") ?? 0,
+    damageBlocked: combatant.getFlag("aster", "damageBlocked") === true,
+    defendActive: combatant.getFlag("aster", "defendActive") === true,
     canUnison: unisonReady && otherUnisonReady,
     // 템플릿 `{{disabled}}` 헬퍼가 truthy를 disabled로 변환하므로 부정값을 컨텍스트에서 미리 계산.
     disableUnison: !(unisonReady && otherUnisonReady),
