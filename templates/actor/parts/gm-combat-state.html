@@ -1,0 +1,35 @@
+{{#if combatContext.inCombat}} {{#if combatContext.isGM}}
+<div class="gm-combat-state">
+  <div class="t">{{localize "ASTER.combat.state.title"}}</div>
+  <div class="state-tags">
+    <label class="herb-tag">
+      {{localize "ASTER.combat.state.damageReduction"}}
+      <input
+        type="number"
+        class="state-num num"
+        data-combat-flag="damageReduction"
+        value="{{combatContext.damageReduction}}"
+        min="0"
+      />
+    </label>
+    <label class="herb-tag">
+      <input type="checkbox" data-combat-flag="damageBlocked" {{checked combatContext.damageBlocked}} />
+      {{localize "ASTER.combat.state.damageBlocked"}}
+    </label>
+    <label class="herb-tag">
+      <input type="checkbox" data-combat-flag="defendActive" {{checked combatContext.defendActive}} />
+      {{localize "ASTER.combat.state.defendActive"}}
+    </label>
+    <label class="herb-tag">
+      <input type="checkbox" data-combat-flag="focusActive" {{checked combatContext.focusActive}} />
+      {{localize "ASTER.combat.state.focusActive"}}
+    </label>
+    {{#if combatContext.isCharacter}}
+    <label class="herb-tag">
+      <input type="checkbox" data-combat-flag="unisonReady" {{checked combatContext.unisonReady}} />
+      {{localize "ASTER.combat.state.unisonReady"}}
+    </label>
+    {{/if}}
+  </div>
+</div>
+{{/if}} {{/if}}

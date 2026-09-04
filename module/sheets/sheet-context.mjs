@@ -356,7 +356,7 @@ export function prepareRecord(sheet, context) {
  *   defendUsed?:boolean, chargeUsed?:boolean, focusActive?:boolean, unisonReady?:boolean,
  *   canUnison?:boolean, disableUnison?:boolean, isGM?:boolean, damageReduction?:number,
  *   damageBlocked?:boolean, defendActive?:boolean, dashPending?:number,
- *   unisonGreenPending?:number}}
+ *   unisonGreenPending?:number, isCharacter?:boolean}}
  */
 export function buildCombatContext(sheet) {
   const combat = game.combat;
@@ -388,6 +388,7 @@ export function buildCombatContext(sheet) {
     focusActive: combatant.getFlag("aster", "focusActive") === true,
     unisonReady,
     isGM: game.user.isGM,
+    isCharacter: sheet.actor.type === "character",
     damageReduction: combatant.getFlag("aster", "damageReduction") ?? 0,
     damageBlocked: combatant.getFlag("aster", "damageBlocked") === true,
     defendActive: combatant.getFlag("aster", "defendActive") === true,
