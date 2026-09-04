@@ -13,6 +13,7 @@ import { requestRevive } from "../helpers/revive.mjs";
 import { postItemCard } from "../helpers/item-chat.mjs";
 import { findCombatantFor } from "../helpers/combatant-match.mjs";
 import { buildCombatStateRows } from "../helpers/combat-state-rows.mjs";
+import { EFFECT_TARGETS, buildEffectData } from "../helpers/effect-targets.mjs";
 import {
   prepareCharacterData,
   prepareInventory,
@@ -401,15 +402,52 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async #onEffectCreate() {
     if (!this.isEditable) return;
-    const duration = game.combat ? { startRound: game.combat.round, combat: game.combat.id } : {};
-    const [effect] = await this.actor.createEmbeddedDocuments("ActiveEffect", [
-      {
-        name: game.i18n.localize("ASTER.effects.newName"),
-        img: "icons/svg/aura.svg",
-        duration,
+
+    const options = EFFECT_TARGETS.map(
+      (t) => `<option value="${t.key}">${game.i18n.localize(t.label)}</option>`,
+    ).join("");
+    const input = await foundry.applications.api.DialogV2.prompt({
+      classes: ["hb-dialog"],
+      window: { title: game.i18n.localize("ASTER.effects.add") },
+      content: `
+        <div class="form-group">
+          <label>${game.i18n.localize("ASTER.label.name")}</label>
+          <input type="text" name="name" value="${game.i18n.localize("ASTER.effects.newName")}" />
+        </div>
+        <div class="form-group">
+          <label>${game.i18n.localize("ASTER.effects.targetLabel")}</label>
+          <select name="key">${options}</select>
+        </div>
+        <div class="form-group">
+          <label>${game.i18n.localize("ASTER.effects.valueLabel")}</label>
+          <input type="number" name="value" value="1" />
+        </div>
+        <div class="form-group">
+          <label>${game.i18n.localize("ASTER.effects.roundsLabel")}</label>
+          <input type="number" name="rounds" value="" min="0" />
+          <p class="hint">${game.i18n.localize("ASTER.effects.roundsHint")}</p>
+        </div>
+      `,
+      ok: {
+        label: game.i18n.localize("ASTER.effects.add"),
+        callback: (_e, b) => ({
+          name: b.form.elements.name.value.trim(),
+          key: b.form.elements.key.value,
+          value: Number(b.form.elements.value.value) || 0,
+          rounds: Number(b.form.elements.rounds.value) || 0,
+        }),
       },
+    }).catch(() => null);
+    if (!input) return;
+
+    await this.actor.createEmbeddedDocuments("ActiveEffect", [
+      buildEffectData({
+        ...input,
+        name: input.name || game.i18n.localize("ASTER.effects.newName"),
+        round: game.combat?.round ?? null,
+        combatId: game.combat?.id ?? null,
+      }),
     ]);
-    effect?.sheet.render(true);
   }
 
   static async #onEffectEdit(_event, target) {

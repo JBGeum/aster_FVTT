@@ -1,9 +1,24 @@
 import { formatEffectDeltas } from "./effect-deltas.mjs";
+import { labelKeyFor } from "./effect-targets.mjs";
 
 /**
  * @param {ActiveEffect[]} effects    The array of Active Effect instances to prepare sheet data for
  * @return {object}                   Data for rendering
  */
+/**
+ * 증감에 대상 라벨을 붙여 한 줄로 잇는다. 라벨이 없는 키는 값만 남긴다.
+ *
+ * @param {object[]} changes
+ * @returns {string|null}
+ */
+function describeDeltas(changes) {
+  const parts = formatEffectDeltas(changes).map((d) => {
+    const labelKey = labelKeyFor(d.key);
+    return labelKey ? `${game.i18n.localize(labelKey)} ${d.text}` : d.text;
+  });
+  return parts.length ? parts.join(", ") : null;
+}
+
 export function prepareActiveEffectCategories(effects) {
   const categories = {
     temporary: {
@@ -30,7 +45,7 @@ export function prepareActiveEffectCategories(effects) {
       img: e.img,
       disabled: e.disabled,
       durationLabel: e.duration?.remaining ? e.duration.label : null,
-      deltas: formatEffectDeltas(e.changes),
+      deltas: describeDeltas(e.changes),
       isStatus: (e.statuses?.size ?? 0) > 0,
     };
     if (e.disabled) categories.inactive.effects.push(row);
