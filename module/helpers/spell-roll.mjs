@@ -9,6 +9,7 @@
  * @param {number} p.target          목표치
  * @param {{sleepy?:number, satiety?:number, total?:number}} [p.penalties]
  *   보정 객체. computePenalties()의 반환을 그대로 넣어도 됨. 기본 { total: 0 }.
+ * @param {number} [p.modifier]      판정 다이얼로그로 받은 달성치 보정
  * @returns {{ achievement:number, success:boolean, breakdown:object }}
  */
 export function computeSpellRoll({
@@ -18,11 +19,13 @@ export function computeSpellRoll({
   extraDice = [],
   target,
   penalties = { total: 0 },
+  modifier = 0,
 }) {
   const specialtyBonus = specialty ? 1 : 0;
   const extraSum = extraDice.reduce((a, b) => a + b, 0);
   const penaltyTotal = penalties.total ?? 0;
-  const achievement = diceTotal + abilityValue + specialtyBonus + extraSum + penaltyTotal;
+  const achievement =
+    diceTotal + abilityValue + specialtyBonus + extraSum + penaltyTotal + modifier;
   return {
     achievement,
     success: achievement >= target,
@@ -35,6 +38,7 @@ export function computeSpellRoll({
       target,
       penalties, // 객체 전체 — 카드에서 분기 표시
       penaltyTotal, // 합산 — 카드 요약용
+      modifier,
     },
   };
 }

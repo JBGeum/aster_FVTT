@@ -156,3 +156,48 @@ describe("isSpecialty", () => {
     expect(isSpecialty({ system: {} }, "red")).toBe(false);
   });
 });
+
+describe("computeSpellRoll — 달성치 보정", () => {
+  it("보정을 달성치에 더한다", () => {
+    const r = computeSpellRoll({
+      diceTotal: 8,
+      abilityValue: 3,
+      specialty: false,
+      target: 11,
+      modifier: 2,
+    });
+    expect(r.achievement).toBe(13);
+    expect(r.breakdown.modifier).toBe(2);
+  });
+
+  it("음수 보정도 반영한다", () => {
+    const r = computeSpellRoll({
+      diceTotal: 8,
+      abilityValue: 3,
+      specialty: false,
+      target: 11,
+      modifier: -3,
+    });
+    expect(r.achievement).toBe(8);
+    expect(r.success).toBe(false);
+  });
+
+  it("보정을 넘기지 않으면 0으로 본다", () => {
+    const r = computeSpellRoll({ diceTotal: 8, abilityValue: 3, specialty: false, target: 11 });
+    expect(r.achievement).toBe(11);
+    expect(r.breakdown.modifier).toBe(0);
+  });
+
+  it("보정과 상태이상 페널티가 같은 합에 들어간다", () => {
+    const r = computeSpellRoll({
+      diceTotal: 8,
+      abilityValue: 3,
+      specialty: true,
+      target: 11,
+      penalties: { sleepy: -2, satiety: 0, total: -2 },
+      modifier: 3,
+    });
+    // 8 + 3 + 1(특기) - 2(졸림) + 3(보정) = 13
+    expect(r.achievement).toBe(13);
+  });
+});

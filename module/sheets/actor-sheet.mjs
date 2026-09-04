@@ -354,8 +354,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     });
   }
 
-  static async #onRollDodge(_event, _target) {
-    await this.actor.rollDodge();
+  static async #onRollDodge(event, _target) {
+    await this.actor.rollDodge({ showDialog: event.shiftKey });
   }
 
   static async #onRollHit(_event, _target) {
@@ -514,10 +514,10 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     }
   }
 
-  static async #onSpellCast(_event, target) {
+  static async #onSpellCast(event, target) {
     const spell = this.actor.items.get(target.dataset.itemId);
     if (!spell) return;
-    await castSpell({ actor: this.actor, spell });
+    await castSpell({ actor: this.actor, spell, showDialog: event.shiftKey });
   }
 
   static async #onSpellCastWithExtra(_event, target) {
