@@ -3,7 +3,7 @@ import { getTargetedTokens } from "./target-select.mjs";
 import { applyDamageAndStatus, applyCureAllStatus, applyCureStatus } from "./health-status.mjs";
 import { checkFocusEffect } from "./focus-effect.mjs";
 import { pickTwoIfNeeded } from "./dice-select.mjs";
-import { findCombatantFor } from "./combatant-match.mjs";
+import { findCombatantFor, hasAmbiguousCombatants } from "./combatant-match.mjs";
 
 /**
  * @param {{ actor: Actor, actionKey: string }} params
@@ -18,6 +18,11 @@ export async function resolveCombatAction({ actor, actionKey }) {
   if (!combatant) {
     ui.notifications.warn(game.i18n.localize("ASTER.combat.noCombatantForActor"));
     return;
+  }
+  if (hasAmbiguousCombatants(combat.combatants, actor)) {
+    ui.notifications.warn(
+      game.i18n.format("ASTER.combat.ambiguousCombatant", { name: combatant.name }),
+    );
   }
 
   // defend/charge는 1라운드 1회만 쓸 수 있다.
@@ -127,7 +132,9 @@ export async function resolveCombatAction({ actor, actionKey }) {
   } else if (actionKey === "focus") {
     await combatant.setFlag("aster", "focusActive", true);
   } else if (actionKey === "dash") {
-    await combatant.setFlag("aster", "dashNextRound", dashX);
+    // 한 라운드에 두 번 쓰면 합산된다 — 덮어쓰면 앞의 대쉬가 사라진다.
+    const pendingDash = combatant.getFlag("aster", "dashNextRound") ?? 0;
+    await combatant.setFlag("aster", "dashNextRound", pendingDash + dashX);
   } else if (actionKey === "unisonPrepare") {
     await combatant.setFlag("aster", "unisonReady", true);
   }
@@ -182,6 +189,11 @@ export async function resolveNpcActionUse({ actor, itemId }) {
   if (!combatant) {
     ui.notifications.warn(game.i18n.localize("ASTER.combat.noCombatantForActor"));
     return;
+  }
+  if (hasAmbiguousCombatants(combat.combatants, actor)) {
+    ui.notifications.warn(
+      game.i18n.format("ASTER.combat.ambiguousCombatant", { name: combatant.name }),
+    );
   }
 
   // AP·다이얼로그보다 앞서 차단해야 자원·UX 낭비가 없다.
