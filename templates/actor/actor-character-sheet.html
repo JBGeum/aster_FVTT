@@ -29,6 +29,15 @@
               <a class="item" data-group="sub" data-action="tab" data-tab="inventory">Inventory</a>
               <a class="item" data-group="sub" data-action="tab" data-tab="spell">Spell</a>
               <a class="item" data-group="sub" data-action="tab" data-tab="combat">Combat</a>
+              <a
+                class="item item--icon"
+                data-group="sub"
+                data-action="tab"
+                data-tab="effects"
+                title="{{localize 'ASTER.effects.title'}}"
+              >
+                <i class="fas fa-wand-sparkles"></i>
+              </a>
             </nav>
             <div class="tab inventory" data-group="sub" data-tab="inventory">
               {{> "systems/aster/templates/actor/parts/actor-sub-inventory.html"}}
@@ -38,6 +47,9 @@
             </div>
             <div class="tab combat" data-group="sub" data-tab="combat">
               {{> "systems/aster/templates/actor/parts/actor-sub-combat.html"}}
+            </div>
+            <div class="tab effects" data-group="sub" data-tab="effects">
+              {{> "systems/aster/templates/actor/parts/actor-sub-effects.html"}}
             </div>
           </section>
 

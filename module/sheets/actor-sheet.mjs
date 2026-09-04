@@ -12,6 +12,7 @@ import { useConsumable } from "../helpers/consumable.mjs";
 import { requestRevive } from "../helpers/revive.mjs";
 import { postItemCard } from "../helpers/item-chat.mjs";
 import { findCombatantFor } from "../helpers/combatant-match.mjs";
+import { buildCombatStateRows } from "../helpers/combat-state-rows.mjs";
 import {
   prepareCharacterData,
   prepareInventory,
@@ -63,6 +64,10 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       emoRoll: AsterActorSheet.#onEmoRoll,
       asterStep: AsterActorSheet.#onAsterStep,
       itemCreate: AsterActorSheet.#onItemCreate,
+      effectCreate: AsterActorSheet.#onEffectCreate,
+      effectEdit: AsterActorSheet.#onEffectEdit,
+      effectDelete: AsterActorSheet.#onEffectDelete,
+      effectToggle: AsterActorSheet.#onEffectToggle,
     },
   };
 
@@ -103,11 +108,13 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.flags = actorData.flags;
     context.items = this.actor.items.map((i) => i.toObject(false));
     context.effects = prepareActiveEffectCategories(this.actor.effects);
+    context.hasEffects = this.actor.effects.size > 0;
     context.rollData = this.actor.getRollData();
     context.config = CONFIG.ASTER;
     context.cssClass = this.isEditable ? "editable" : "locked";
     context.editable = this.isEditable;
     context.owner = this.actor.isOwner;
+    context.isGM = game.user.isGM;
     context.badstatusTips = buildStatusTooltips();
 
     if (this.actor.type === "character") {
@@ -118,6 +125,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       prepareSpellList(this, context);
       prepareRecord(this, context);
       context.combatContext = buildCombatContext(this);
+      context.combatStateRows = buildCombatStateRows(context.combatContext);
       context.reviveContext = buildReviveContext(this);
       context.speedTooltip = buildSpeedTooltip(this.actor.appliedEffects);
     } else if (this.actor.type === "npc") {
@@ -389,6 +397,42 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       content: `<p>${game.i18n.format("ASTER.inventory.deleteMsg", { name: item.name })}</p>`,
     });
     if (confirmed) await item.delete();
+  }
+
+  static async #onEffectCreate() {
+    if (!this.isEditable) return;
+    const duration = game.combat ? { startRound: game.combat.round, combat: game.combat.id } : {};
+    const [effect] = await this.actor.createEmbeddedDocuments("ActiveEffect", [
+      {
+        name: game.i18n.localize("ASTER.effects.newName"),
+        img: "icons/svg/aura.svg",
+        duration,
+      },
+    ]);
+    effect?.sheet.render(true);
+  }
+
+  static async #onEffectEdit(_event, target) {
+    const effect = this.actor.effects.get(target.dataset.effectId);
+    effect?.sheet.render(true);
+  }
+
+  static async #onEffectDelete(_event, target) {
+    if (!this.isEditable) return;
+    const effect = this.actor.effects.get(target.dataset.effectId);
+    if (!effect) return;
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("ASTER.effects.deleteConfirm") },
+      content: `<p>${game.i18n.format("ASTER.effects.deleteMsg", { name: effect.name })}</p>`,
+    });
+    if (confirmed) await effect.delete();
+  }
+
+  static async #onEffectToggle(_event, target) {
+    if (!this.isEditable) return;
+    const effect = this.actor.effects.get(target.dataset.effectId);
+    if (!effect) return;
+    await effect.update({ disabled: !effect.disabled });
   }
 
   static async #onConsumableUse(_event, target) {

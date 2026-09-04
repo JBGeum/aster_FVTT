@@ -12,6 +12,7 @@ export const preloadHandlebarsTemplates = async function () {
     "systems/aster/templates/actor/parts/actor-sub-inventory.html",
     "systems/aster/templates/actor/parts/actor-sub-spell.html",
     "systems/aster/templates/actor/parts/actor-sub-combat.html",
+    "systems/aster/templates/actor/parts/actor-sub-effects.html",
 
     "systems/aster/templates/item/parts/material-mats.html",
 

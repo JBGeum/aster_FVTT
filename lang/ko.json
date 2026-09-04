@@ -632,6 +632,24 @@
       "autoTitle": "전투 종료 — 자동 회복",
       "autoLine": "{name}: 건강 0 → 1"
     },
+    "effects": {
+      "title": "효과",
+      "combatState": "전투 상태",
+      "blockedDetail": "이 라운드 동안 받는 대미지 무효",
+      "add": "효과 추가",
+      "newName": "새 효과",
+      "toggle": "활성 전환",
+      "edit": "수정",
+      "delete": "삭제",
+      "deleteConfirm": "효과 삭제",
+      "deleteMsg": "{name}을(를) 삭제하시겠습니까?",
+      "none": "걸려 있는 효과가 없습니다.",
+      "cat": {
+        "temporary": "일시 효과",
+        "passive": "지속 효과",
+        "inactive": "비활성"
+      }
+    },
     "inventory": {
       "warn": {
         "singleton": "{type}은(는) 1개만 소지할 수 있습니다.",
