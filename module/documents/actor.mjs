@@ -2,6 +2,7 @@ import { asterRoll } from "./roll.mjs";
 import { detectCritFumble, computePenalties, critFumbleCardPath } from "../helpers/roll-result.mjs";
 import { syncBadstatusEffect, BADSTATUS_EFFECTS } from "../helpers/badstatus-effects.mjs";
 import { computeAbilityCheck, formatModifier } from "../helpers/ability-check.mjs";
+import { buildOpposedCard } from "../helpers/opposed-card.mjs";
 import { promptAbilityCheck } from "../helpers/check-dialog.mjs";
 import { checkFocusEffect } from "../helpers/focus-effect.mjs";
 import { pickTwoIfNeeded } from "../helpers/dice-select.mjs";
@@ -131,25 +132,18 @@ export class AsterActor extends Actor {
 
     if (isVs) {
       // 상대측 굴림이 있어야 승패가 정해지므로 카드에는 본 액터 정보만 싣는다.
-      const templateData = {
+      const { templateData, opposedRoll } = buildOpposedCard({
+        actor: this,
         label,
+        ability,
         ablValue,
-        result: roll.result,
-        total: adjustedTotal,
-        rawTotal: pick.rawTotal,
+        pick,
+        cf,
         penalties,
-        modifierText,
-        resultDiceset,
-        diceText,
-        isCritical: cf.critical,
-        isFumble: cf.fumble,
+        modifier,
         focusApplied,
-        actorId: this.id,
-        actorUuid: this.uuid,
-        actorName: this.name,
-        isPC: this.type === "character",
-        opposed: true, // 전용 카드(roll-critfumble)에서 대결 결합 푸터 유지용
-      };
+        rollResult: roll.result,
+      });
       const content = await renderTemplate(
         critFumbleCardPath(cf, "systems/aster/templates/chatcard/roll-asterabl-vs.html"),
         templateData,
@@ -158,22 +152,7 @@ export class AsterActor extends Actor {
         content,
         speaker,
         rolls: [roll],
-        flags: {
-          aster: {
-            opposedRoll: {
-              actorId: this.id,
-              actorUuid: this.uuid,
-              actorName: this.name,
-              label,
-              ability,
-              ablValue,
-              total: adjustedTotal,
-              dice: resultDiceset,
-              isCritical: cf.critical,
-              isFumble: cf.fumble,
-            },
-          },
-        },
+        flags: { aster: { opposedRoll } },
       });
     } else {
       const isSuccess = check.success;
@@ -396,40 +375,25 @@ export class AsterActor extends Actor {
       await focus.combatant.setFlag("aster", "focusActive", false);
     }
 
-    const resultDiceset = pick.selected;
-    const diceText = resultDiceset.join(", ");
-    const cf = detectCritFumble(resultDiceset);
-
+    const cf = detectCritFumble(pick.selected);
     const penalties = computePenalties(this, { isDodge: true });
-    const adjustedTotal = computeAbilityCheck({
-      rawTotal: pick.rawTotal,
-      modifier,
-      penalties,
-      target: null,
-    }).achievement;
 
-    const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
-    const templateData = {
+    const { templateData, opposedRoll } = buildOpposedCard({
+      actor: this,
       label,
+      ability: "dodge",
       ablValue: dodgeValue,
       formula: npcFormula, // NPC면 식, PC면 null(템플릿이 능력치 합산 표시로 분기)
-      result: roll.result,
-      total: adjustedTotal,
-      rawTotal: pick.rawTotal,
-      penalties,
-      modifierText: formatModifier(modifier),
-      resultDiceset,
-      diceText,
-      isCritical: cf.critical,
-      isFumble: cf.fumble,
-      focusApplied: !!focus.combatant,
-      actorId: this.id,
-      actorUuid: this.uuid,
-      actorName: this.name,
-      isPC: this.type === "character",
       isDodge: true,
-      opposed: true, // 전용 카드(roll-critfumble)에서 대결 결합 푸터 유지용
-    };
+      pick,
+      cf,
+      penalties,
+      modifier,
+      focusApplied: !!focus.combatant,
+      rollResult: roll.result,
+    });
+
+    const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
     const content = await renderTemplate(
       critFumbleCardPath(cf, "systems/aster/templates/chatcard/roll-asterabl-vs.html"),
       templateData,
@@ -438,23 +402,7 @@ export class AsterActor extends Actor {
       content,
       speaker,
       rolls: [roll],
-      flags: {
-        aster: {
-          opposedRoll: {
-            actorId: this.id,
-            actorUuid: this.uuid,
-            actorName: this.name,
-            label,
-            ability: "dodge",
-            ablValue: dodgeValue,
-            total: adjustedTotal,
-            dice: resultDiceset,
-            isCritical: cf.critical,
-            isFumble: cf.fumble,
-            isDodge: true,
-          },
-        },
-      },
+      flags: { aster: { opposedRoll } },
     });
   }
 
@@ -512,35 +460,25 @@ export class AsterActor extends Actor {
       await focus.combatant.setFlag("aster", "focusActive", false);
     }
 
-    const resultDiceset = pick.selected;
-    const diceText = resultDiceset.join(", ");
-    const cf = detectCritFumble(resultDiceset);
-
+    const cf = detectCritFumble(pick.selected);
     const penalties = computePenalties(this, { isDodge: false });
-    const adjustedTotal = pick.rawTotal + penalties.total + modifier;
 
-    const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
-    const templateData = {
+    const { templateData, opposedRoll } = buildOpposedCard({
+      actor: this,
       label,
+      ability: "hit",
       ablValue: 0, // 식 자체가 굴림 — 별도 능력치 합산값 없음
       formula: fullFormula,
-      modifierText: formatModifier(modifier),
-      result: roll.result,
-      total: adjustedTotal,
-      rawTotal: pick.rawTotal,
-      penalties,
-      resultDiceset,
-      diceText,
-      isCritical: cf.critical,
-      isFumble: cf.fumble,
-      focusApplied: !!focus.combatant,
-      actorId: this.id,
-      actorUuid: this.uuid,
-      actorName: this.name,
-      isPC: !isNpc,
       isDodge: false,
-      opposed: true, // 전용 카드(roll-critfumble)에서 대결 결합 푸터 유지용
-    };
+      pick,
+      cf,
+      penalties,
+      modifier,
+      focusApplied: !!focus.combatant,
+      rollResult: roll.result,
+    });
+
+    const speaker = ChatMessage.getSpeaker({ alias: game.user.name });
     const content = await renderTemplate(
       critFumbleCardPath(cf, "systems/aster/templates/chatcard/roll-asterabl-vs.html"),
       templateData,
@@ -549,23 +487,7 @@ export class AsterActor extends Actor {
       content,
       speaker,
       rolls: [roll],
-      flags: {
-        aster: {
-          opposedRoll: {
-            actorId: this.id,
-            actorUuid: this.uuid,
-            actorName: this.name,
-            label,
-            ability: "hit",
-            ablValue: 0,
-            total: adjustedTotal,
-            dice: resultDiceset,
-            isCritical: cf.critical,
-            isFumble: cf.fumble,
-            isDodge: false,
-          },
-        },
-      },
+      flags: { aster: { opposedRoll } },
     });
   }
 }
