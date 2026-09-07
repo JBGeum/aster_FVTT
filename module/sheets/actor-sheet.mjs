@@ -12,7 +12,7 @@ import { requestRevive } from "../helpers/revive.mjs";
 import { postItemCard } from "../helpers/item-chat.mjs";
 import { findCombatantFor } from "../helpers/combatant-match.mjs";
 import { buildCombatStateRows } from "../helpers/combat-state-rows.mjs";
-import { EFFECT_TARGETS, buildEffectData } from "../helpers/effect-targets.mjs";
+import { EFFECT_TARGETS, buildEffectData, stripEffectKeys } from "../helpers/effect-targets.mjs";
 import {
   prepareCharacterData,
   prepareInventory,
@@ -115,6 +115,8 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const actorData = this.actor.toObject(false);
     context.actor = this.actor;
     context.system = actorData.system;
+    // 입력칸 전용 — toObject(false)는 AE가 적용된 값이라 그대로 저장하면 효과 분이 누적된다.
+    context.src = this.actor.toObject().system;
     context.flags = actorData.flags;
     context.items = this.actor.items.map((i) => i.toObject(false));
     context.effects = prepareActiveEffectCategories(this.actor.effects);
@@ -604,6 +606,12 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async #onSubmit(_event, _form, formData) {
-    await this.actor.update(formData.object);
+    const stripped = stripEffectKeys(
+      formData.object,
+      this.actor.appliedEffects,
+      this.actor,
+      this.actor.toObject(),
+    );
+    await this.actor.update(stripped);
   }
 }

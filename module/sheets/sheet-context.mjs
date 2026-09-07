@@ -18,6 +18,9 @@ import { findCombatantFor } from "../helpers/combatant-match.mjs";
 export function prepareCharacterData(sheet, context) {
   for (const [k, v] of Object.entries(context.system.ability)) {
     v.label = game.i18n.localize(CONFIG.ASTER.ability[k]) ?? k;
+    // 입력칸은 원본을 그린다 — total은 파생 그대로 둔다.
+    v.baseSrc = context.src.ability[k].base;
+    v.modSrc = context.src.ability[k].mod;
   }
   for (const [k, v] of Object.entries(context.system.aster)) {
     v.label = game.i18n.localize(CONFIG.ASTER.aster[k]) ?? k;
