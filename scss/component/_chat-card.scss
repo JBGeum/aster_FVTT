@@ -744,6 +744,32 @@
       color: var(--cc-crit);
     }
   }
+  .tracker-body {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 7px;
+
+    .after {
+      @include num-display;
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--cc-ink);
+    }
+    .before,
+    .goal,
+    .delta {
+      @include num;
+      font-size: 0.9rem;
+      color: var(--cc-ink-soft);
+    }
+    .verdict {
+      margin-top: 0;
+      font-size: 0.8rem;
+      padding: 1px 11px;
+    }
+  }
   &.damage-result-card .damage-lines {
     margin: 0;
     padding: 0;
