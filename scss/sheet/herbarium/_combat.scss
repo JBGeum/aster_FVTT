@@ -1,0 +1,214 @@
+.herbarium {
+  /* ---------- 전투(Combat) — 액션 포인트 ---------- */
+  .ap-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+
+    .t {
+      font-family: var(--hb-font-label);
+      font-weight: 400;
+      font-size: 15px;
+      letter-spacing: 2px;
+      color: var(--ink-strong);
+      white-space: nowrap;
+    }
+    .min {
+      color: var(--ink-soft);
+    }
+    .ap-value {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--ink-strong);
+      display: inline-flex;
+      align-items: baseline;
+      gap: 3px;
+
+      .ap-input {
+        // 숫자 폭에 맞춘 고정 크기 — 표시용 span 자리를 그대로 대체한다.
+        width: 3ch;
+        padding: 0 2px;
+        font: inherit;
+        color: inherit;
+        text-align: right;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid var(--ink-faint);
+        // 코어 input의 곡률이 남으면 밑줄 양끝이 둥글어진다.
+        border-radius: 0;
+      }
+
+      .ap-max {
+        font-size: 15px;
+        color: var(--ink-soft);
+      }
+    }
+  }
+  .gm-combat-state {
+    margin-bottom: 12px;
+    padding: 8px 10px;
+    border: 1px dashed var(--ink-faint);
+    border-radius: var(--hb-radius);
+
+    > .t {
+      font-family: var(--hb-font-label);
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+    }
+    .state-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .state-num {
+      width: 3ch;
+      height: auto;
+      min-height: 0;
+      line-height: 1;
+      padding: 0 2px;
+      text-align: right;
+      border-bottom: 1px solid var(--ink-faint);
+      border-radius: 0;
+    }
+  }
+  .ap-note {
+    font-size: 13px;
+    color: var(--ink-faint);
+    font-style: italic;
+    margin-bottom: 14px;
+    white-space: nowrap;
+  }
+  .dodge {
+    margin: 0 auto 16px;
+    width: max-content;
+    padding: 7px 22px;
+    border-radius: 20px;
+    white-space: nowrap;
+    background: var(--parchment-sunk);
+    border: 1px solid var(--gold);
+    color: var(--ink-strong);
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1px var(--parchment-soft);
+    cursor: pointer;
+  }
+  .ap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin-bottom: 12px;
+  }
+  .ap-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    white-space: nowrap;
+    padding: 10px 13px;
+    border-radius: var(--hb-radius);
+    border: 1px solid var(--rule);
+    background: var(--parchment-sunk);
+    color: var(--ink-soft);
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    &.used {
+      opacity: 0.5;
+      text-decoration: line-through;
+    }
+    > span:first-child {
+      white-space: nowrap;
+    }
+    .cost {
+      font-family: var(--hb-font-num);
+      font-size: 12px;
+      color: var(--ink-faint);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      min-width: 22px;
+      text-align: center;
+      padding: 1px 6px;
+    }
+  }
+  .ap-fire {
+    width: 100%;
+    padding: 12px 0;
+    border-radius: var(--hb-radius);
+    cursor: pointer;
+    font-family: var(--hb-font-serif);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 3px;
+    color: var(--cream);
+    background: linear-gradient(180deg, var(--plum), var(--plum-deep));
+    border: 1px solid var(--plum-deep);
+    box-shadow:
+      inset 0 0 0 1px var(--gold-soft),
+      0 3px 8px rgba(50, 20, 45, 0.3);
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+  }
+  .focus-indicator,
+  .unison-ready-indicator {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 12px;
+    background: var(--amber);
+    color: var(--cream);
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .unison-ready-indicator {
+    margin-bottom: 8px;
+  }
+  .unison-hint {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--ink-faint);
+    font-style: italic;
+    text-align: center;
+  }
+  .combat-unison {
+    margin-top: 12px;
+  }
+  .revive-section {
+    margin-bottom: 14px;
+    padding: 12px;
+    border: 1px dashed var(--el-red);
+    border-radius: var(--hb-radius);
+    background: rgba(168, 90, 78, 0.1);
+    text-align: center;
+
+    .fallen-indicator {
+      font-weight: 700;
+      color: var(--el-red);
+      margin-bottom: 8px;
+    }
+    button {
+      padding: 8px 18px;
+      border-radius: var(--hb-radius-sm);
+      border: 1px solid var(--plum-deep);
+      background: linear-gradient(180deg, var(--plum), var(--plum-deep));
+      color: var(--cream);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .hint {
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: var(--ink-soft);
+      &.warn {
+        color: var(--el-red);
+      }
+    }
+  }
+}

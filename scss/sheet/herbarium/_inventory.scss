@@ -1,0 +1,457 @@
+@use "../../utils/fa" as *;
+
+.herbarium {
+  /* ---------- 인벤토리 (우측) ---------- */
+  /* 서브탭 nav. 항목은 .item(Foundry 정합 — .tab이면 코어 .tab:not(.active){display:none}에 숨음).
+     .inv-tabs.tabs로 특정도를 올려 _actor의 nav.tabs>.item 토큰 스타일을 이긴다. */
+  .inv-tabs.tabs {
+    display: flex;
+    // 탭이 346px 열을 넘으면 삐져나온다 — 줄바꿈이 안전망이다.
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-bottom: 6px;
+    border-bottom: none;
+
+    .item.item--icon {
+      display: inline-flex;
+      align-items: center;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+    .item {
+      flex: 0 0 auto;
+      font-family: var(--hb-font-display);
+      font-size: 15px;
+      letter-spacing: 1px;
+      padding: 6px 9px 5px;
+      color: var(--ink-soft);
+      background: none;
+      cursor: pointer;
+      text-decoration: none;
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      position: relative;
+      top: 1px;
+
+      &:hover {
+        color: var(--ink-strong);
+      }
+      &.active {
+        color: var(--ink-strong);
+        background: var(--parchment-soft);
+        border-color: var(--gold);
+        box-shadow: inset 0 2px 0 var(--plum);
+      }
+    }
+  }
+
+  .items {
+    display: flex;
+    flex-direction: column;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 2px 4px;
+    border-bottom: 1px solid var(--rule);
+    font-size: 13px;
+
+    &:last-child {
+      border-bottom: none;
+    }
+    &.magic-tool-inactive {
+      opacity: 0.6;
+    }
+  }
+  .item__ico {
+    width: 22px;
+    flex: none;
+    font-size: 15px;
+    color: var(--ink-soft);
+    text-align: center;
+
+    img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      border: none;
+    }
+  }
+  .item__name {
+    flex: 1;
+    min-width: 0;
+    color: var(--ink-strong);
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .item__loc {
+    flex: none;
+    font-size: 11px;
+    color: var(--sage);
+    border: 1px solid color-mix(in oklch, var(--sage) 55%, var(--rule));
+    border-radius: 12px;
+    padding: 2px 10px;
+    white-space: nowrap;
+  }
+  .item__act,
+  .item__edit,
+  .item__del {
+    flex: none;
+    background: none;
+    border: none;
+    padding: 2px 4px;
+    color: var(--ink-faint);
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .item__act {
+    color: var(--ink-soft);
+  }
+  .item__del {
+    color: var(--el-red);
+    opacity: 0.7;
+  }
+  .inactive-badge {
+    flex: none;
+    font-size: 10px;
+    color: var(--ink-soft);
+    background: rgba(194, 160, 82, 0.25);
+    border-radius: 8px;
+    padding: 1px 7px;
+  }
+
+  .storage {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px solid var(--rule);
+
+    .k {
+      font-size: 13px;
+      color: var(--ink-soft);
+      white-space: nowrap;
+    }
+    .box {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--parchment-sunk);
+      border: 1px solid var(--gold-soft);
+      border-radius: var(--hb-radius-sm);
+      padding: 5px 14px;
+      font-weight: 700;
+      color: var(--ink-strong);
+
+      input {
+        width: 2.6em;
+        text-align: center;
+        color: var(--ink-strong);
+        font-weight: 700;
+      }
+    }
+    &.over .count {
+      color: var(--el-red);
+    }
+  }
+
+  /* ---------- 충진형 가방 (격자) ---------- */
+  .bag__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  /* 바구니·가방 머리글의 아이콘 버튼 묶음 */
+  .tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0;
+    color: var(--gold);
+    font-size: 12px;
+    cursor: pointer;
+
+    button {
+      width: auto;
+      flex: 0 0 auto;
+      background: none;
+      border: none;
+      color: var(--gold);
+      cursor: pointer;
+      padding: 0 1px;
+    }
+  }
+  .bag__cap {
+    font-family: var(--hb-font-num);
+    font-size: 12px;
+    color: var(--ink-soft);
+    white-space: nowrap;
+
+    b {
+      color: var(--ink-strong);
+      font-weight: 600;
+    }
+  }
+  /* STEP 2 — 프레임(.bag-frame) + 고정 크기 정사각 셀.
+     셀을 고정 px(--bag-cell)로 잡아 가방 크기(cols·rows)와 무관하게 항상 동일 크기 → 도트 선명도 유지.
+     크기 결정자 .bag-cells는 일반 흐름(width:max-content)으로 트랙 합만큼만 차지하고,
+     .bag-items는 그 위에 inset:0으로 겹쳐 동일 트랙에 정렬한다(box-sizing 의존 calc 불필요). */
+  .bag-grid {
+    --bag-cell: 35px; /* 한 격자 = 32px 도트 이미지 + 여백 ≈ 35px (가방 크기 무관 고정) */
+    --bag-gap: 3px;
+    position: relative;
+    width: fit-content; /* 고정 셀 합만큼만 — 작은 가방은 외곽 골드 보더가 빈칸까지 감싸지 않음 */
+    align-self: center; /* 세로 flex 패널의 교차축(가로) 중앙 정렬 */
+    padding: 3px;
+    margin-bottom: 11px;
+    background: var(--rule);
+    border: 1px solid var(--gold);
+    border-radius: var(--hb-radius-sm);
+    box-shadow: inset 0 1px 4px rgba(70, 45, 18, 0.18);
+  }
+  .bag-frame {
+    position: relative; /* .bag-items(absolute inset:0)의 기준 */
+  }
+  .bag-cells,
+  .bag-items {
+    display: grid;
+    gap: var(--bag-gap);
+    grid-template-columns: repeat(var(--bag-cols, 5), var(--bag-cell));
+    grid-template-rows: repeat(var(--bag-rows, 3), var(--bag-cell));
+  }
+  .bag-cells {
+    width: max-content; /* 프레임·그리드 크기 결정자 */
+  }
+  // .bag-items가 격자 전체(inset:0)를 덮어 빈 칸 좌클릭을 가로채는 문제 해소:
+  // 컨테이너(빈 영역)는 클릭 통과시켜 아래 .bag-cells .bcell(cellClick)에 도달하게 한다.
+  .bag-items {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .bcell {
+    background: var(--parchment-sunk);
+
+    &.cell-light {
+      background: var(--bcell-light);
+    }
+    &.bcell--dead {
+      background: none;
+      cursor: default;
+    }
+  }
+  .bshape {
+    --bshape-cell: 18px;
+    display: grid;
+    gap: 2px;
+    grid-template-columns: repeat(var(--bshape-cols, 6), var(--bshape-cell));
+    grid-template-rows: repeat(var(--bshape-rows, 4), var(--bshape-cell));
+    width: max-content;
+    padding: 3px;
+    background: var(--rule);
+    border: 1px solid var(--gold);
+    border-radius: var(--hb-radius-sm);
+  }
+  .bshape-cell {
+    width: auto;
+    height: var(--bshape-cell);
+    min-width: 0;
+    min-height: 0;
+    line-height: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: var(--parchment-sunk);
+    cursor: pointer;
+
+    &.off {
+      background: none;
+      box-shadow: inset 0 0 0 1px var(--gold-soft);
+    }
+  }
+  .bitem {
+    margin: 0; // 셀(35px)을 꽉 채움 — 여백은 셀 내부에서 처리(아래 img 32px + border)
+    box-sizing: border-box;
+    border-radius: 3px;
+    background: var(--parchment-soft);
+    border: 1px solid var(--gold);
+    box-shadow:
+      inset 0 0 0 1px var(--parchment-deep),
+      0 2px 5px rgba(60, 40, 18, 0.22);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 0;
+    text-align: center;
+    cursor: pointer;
+    overflow: hidden;
+    pointer-events: auto; // 실제 아이템만 클릭 수신 (우클릭 itemUnplace 유지)
+
+    .g {
+      font-size: 19px;
+      color: var(--ink-soft);
+      line-height: 1;
+    }
+    &.lg .g {
+      font-size: 30px;
+    }
+    img {
+      // 1칸 아이템: 35px 셀 안에 32px 도트 이미지 중앙 정렬(border 2px + 여백 1px ≈ 3px)
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      border: none;
+    }
+    &.lg img {
+      // 다칸 아이템: 차지한 칸 수에 비례(여백 3px 유지)
+      width: 100%;
+      height: 100%;
+      padding: 3px;
+    }
+    .n {
+      /* change.txt — 가방 격자 칸 이름 숨김(그림만 표시). */
+      display: none;
+      font-size: 9.5px;
+      line-height: 1.15;
+      color: var(--ink-soft);
+      max-width: 100%;
+      overflow: hidden;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+  }
+
+  /* 바구니 / 장비 / 사역마 */
+  .carry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.45fr);
+    gap: 5px;
+    margin-bottom: 11px;
+
+    .basket {
+      grid-column: 1 / -1;
+    }
+  }
+  .carry__equip {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+  .cslot {
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 5px 9px;
+    background: var(--parchment-sunk);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 36px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.1);
+
+    .ttl {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--ink-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink-strong);
+      font-size: 14px;
+
+      .sack {
+        font-size: 18px;
+      }
+      img {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        border: none;
+      }
+      .name {
+        cursor: pointer;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        min-width: 0;
+      }
+      button {
+        margin-left: auto;
+        background: none;
+        border: 1px solid var(--gold-soft);
+        border-radius: var(--hb-radius-sm);
+        padding: 2px 8px;
+        color: var(--ink-soft);
+        font: inherit;
+        font-size: 11px;
+        cursor: pointer;
+      }
+    }
+    &.empty .content {
+      color: var(--ink-faint);
+      font-style: italic;
+      font-size: 12.5px;
+    }
+    &.basket {
+      background: linear-gradient(180deg, var(--parchment-soft), var(--parchment-sunk));
+      border-color: var(--gold);
+      flex-direction: row;
+      align-items: center;
+
+      .ttl {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        white-space: nowrap;
+      }
+
+      /* 비었을 때 .tools가 사라져도 gap이 남아 라벨이 위로 밀린다. */
+      &.empty .ttl {
+        gap: 0;
+      }
+    }
+  }
+
+  /* ---------- 우측 패널 — 탭 헤더 + 추가 버튼 ---------- */
+  .panel__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .btn-add {
+    font: inherit;
+    font-size: 13px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--plum);
+    background: var(--parchment-soft);
+    border: 1px solid var(--plum);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+
+    &::before {
+      @include fa("\f067"); /* plus */
+      font-size: 12px;
+    }
+  }
+}
