@@ -40,6 +40,14 @@ describe("applyDelta", () => {
     applyDelta(original, "a", 9);
     expect(original[0].value).toBe(143);
   });
+
+  it("갱신 전 값을 함께 돌려준다", () => {
+    expect(applyDelta(base(), "a", 9).before).toBe(143);
+  });
+
+  it("없는 id면 before가 null이다", () => {
+    expect(applyDelta(base(), "zzz", 5).before).toBe(null);
+  });
 });
 
 describe("applySet", () => {
@@ -53,5 +61,9 @@ describe("applySet", () => {
 
   it("목표 아래로 되돌리면 reached가 거짓이다", () => {
     expect(applySet(base(), "a", 10).reached).toBe(false);
+  });
+
+  it("갱신 전 값을 함께 돌려준다", () => {
+    expect(applySet(base(), "a", 10).before).toBe(143);
   });
 });

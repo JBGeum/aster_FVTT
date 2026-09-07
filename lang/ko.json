@@ -229,12 +229,13 @@
       "sumConfirm": "합산",
       "toGoal": "달성치 대신 목표값으로 설정",
       "noTrackers": "트래커가 없습니다. GM 패널에서 먼저 만드세요.",
-      "reachedTitle": "목표 도달",
-      "reachedLine": "{name} — {value} / {goal}",
+      "updateTitle": "트래커: {name}",
+      "updateLine": "{before} → {after} ({delta})",
+      "updateLineGoal": "{before} → {after} / {goal} ({delta})",
       "post": "채팅에 표시",
-      "statusTitle": "트래커 현황",
-      "statusLine": "{name} — {value}",
-      "statusLineGoal": "{name} — {value} / {goal}"
+      "statusTitle": "트래커 현황: {name}",
+      "statusLine": "{value}",
+      "statusLineGoal": "{value} / {goal}"
     },
     "world": {
       "panelTitle": "GM 패널",
