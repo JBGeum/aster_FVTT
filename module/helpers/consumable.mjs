@@ -1,5 +1,5 @@
 import {
-  DAMAGE_STATUSES,
+  badstatusI18nKey,
   applyCureStatus,
   applyCureAllStatus,
   applyHealHealth,
@@ -55,10 +55,7 @@ export async function useConsumable(actor, item) {
 }
 
 async function renderConsumableCard(actor, results) {
-  const badstatusLabel = (key) => {
-    const def = DAMAGE_STATUSES.find((s) => s.key === key);
-    return game.i18n.localize(`ASTER.badstatus.${def?.i18n ?? key}`);
-  };
+  const badstatusLabel = (key) => game.i18n.localize(badstatusI18nKey(key));
 
   let healLine = null;
   if (results.healed) {

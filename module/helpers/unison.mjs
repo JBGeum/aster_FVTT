@@ -1,6 +1,7 @@
 import { lookupUnisonEffect, getUnisonDescription } from "./unison-table.mjs";
 import {
   DAMAGE_STATUSES,
+  badstatusI18nKey,
   applyCureStatus,
   applyCureAllStatus,
   applyDamageAndStatus,
@@ -398,7 +399,7 @@ async function applyUnisonSubEffect({
 /** 적 부속성: 임의 상태이상 1개 → 아군(시나리오 PC 전체) 회복. 광역 회복이므로 전투 외 PC도 포함. */
 async function unisonSubRed() {
   const statusOptions = DAMAGE_STATUSES.map(
-    (s) => `<option value="${s.key}">${game.i18n.localize(`ASTER.badstatus.${s.i18n}`)}</option>`,
+    (s) => `<option value="${s.key}">${game.i18n.localize(badstatusI18nKey(s.key))}</option>`,
   ).join("");
   const statusKey = await foundry.applications.api.DialogV2.prompt({
     window: { title: game.i18n.localize("ASTER.combat.unisonSubRedTitle") },
@@ -480,10 +481,7 @@ async function unisonSubYellow() {
 
   const allowedKeys = ["injury", "sleepy", "exhaustion"];
   const statusOptions = allowedKeys
-    .map((k) => {
-      const def = DAMAGE_STATUSES.find((s) => s.key === k);
-      return `<option value="${k}">${game.i18n.localize(`ASTER.badstatus.${def?.i18n ?? k}`)}</option>`;
-    })
+    .map((k) => `<option value="${k}">${game.i18n.localize(badstatusI18nKey(k))}</option>`)
     .join("");
   const statusKey = await foundry.applications.api.DialogV2.prompt({
     window: { title: game.i18n.localize("ASTER.combat.unisonSubYellowTitle") },
@@ -515,10 +513,7 @@ async function renderUnisonCard({
   subResult,
 }) {
   const colorLabel = (k) => game.i18n.localize(`ASTER.aster.${k}`);
-  const badstatusLabel = (key) => {
-    const def = DAMAGE_STATUSES.find((s) => s.key === key);
-    return game.i18n.localize(`ASTER.badstatus.${def?.i18n ?? key}`);
-  };
+  const badstatusLabel = (key) => game.i18n.localize(badstatusI18nKey(key));
   const healLineFor = (t) =>
     t.blocked === true
       ? game.i18n.format("ASTER.combat.unisonHealBlockedLine", { name: t.name })

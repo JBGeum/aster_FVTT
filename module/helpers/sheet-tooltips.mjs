@@ -1,8 +1,8 @@
 import { isEquipSlotContainer } from "./inventory-capacity.mjs";
 import { formatSpeedSources } from "./speed-sources.mjs";
+import { DAMAGE_STATUSES } from "./health-status.mjs";
 
-// 상태이상 칩 툴팁 키 (lang 키 — bigInj 필드는 lang에서 biginj).
-const BADSTATUS_KEYS = ["injury", "biginj", "sleepy", "exhaustion", "hungry"];
+const BADSTATUS_KEYS = DAMAGE_STATUSES.map((s) => s.i18n);
 
 const TOOLTIP_ICON = {
   consumable: "fa-flask",

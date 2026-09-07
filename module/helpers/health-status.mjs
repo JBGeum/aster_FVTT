@@ -13,6 +13,11 @@ export const DAMAGE_STATUSES = [
   { key: "hungry", i18n: "hungry" },
 ];
 
+export function badstatusI18nKey(key) {
+  const def = DAMAGE_STATUSES.find((s) => s.key === key);
+  return `ASTER.badstatus.${def?.i18n ?? key}`;
+}
+
 /**
  * AE 동기 hook이 false → AE 자동 제거를 처리한다.
  *
