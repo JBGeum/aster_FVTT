@@ -85,6 +85,7 @@ function renderCraftDialogContent() {
   }).join("");
 
   return `<div class="craft-dialog">
+    <input type="hidden" name="img" value="" />
     <div class="form-group">
       <label>${L("ASTER.craft.itemType")}</label>
       <select name="itemType">${typeOptions}</select>
@@ -190,6 +191,7 @@ function fillCraftDraftFromItem(el, source) {
   const sys = source.system ?? {};
   el.querySelector('select[name="itemType"]').value = source.type;
   el.querySelector('input[name="name"]').value = source.name;
+  el.querySelector('input[name="img"]').value = source.img ?? "";
   for (let i = 0; i < 6; i++) {
     const input = el.querySelector(`input[name="material.${i}"]`);
     if (input) input.value = sys.material?.[i] ?? 0;
@@ -265,7 +267,11 @@ function collectCraftDraft(el) {
   }
 
   const effect = el.querySelector('input[name="effect"]')?.value ?? "";
-  return { name, type, system: { material, craftRequires, effect } };
+  const img = el.querySelector('input[name="img"]')?.value ?? "";
+  const draft = { name, type, system: { material, craftRequires, effect } };
+  // 빈 값을 실으면 코어 기본 아이콘을 덮어써 빈 그림이 된다.
+  if (img) draft.img = img;
+  return draft;
 }
 
 function confirmCraftShortage(validation) {
