@@ -348,6 +348,7 @@
     min-width: 0;
   }
   .cslot {
+    position: relative;
     border: 1px solid var(--rule);
     border-radius: var(--hb-radius-sm);
     padding: 5px 9px;
@@ -355,8 +356,22 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    min-height: 36px;
+    min-height: 48px;
     box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.1);
+
+    .ttl .tools {
+      position: absolute;
+      top: 5px;
+      right: 9px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.12s ease;
+    }
+    &:hover .ttl .tools,
+    &:focus-within .ttl .tools {
+      opacity: 1;
+      pointer-events: auto;
+    }
 
     .ttl {
       font-size: 12px;
@@ -378,8 +393,8 @@
         font-size: 18px;
       }
       img {
-        width: 22px;
-        height: 22px;
+        width: 34px;
+        height: 34px;
         object-fit: contain;
         border: none;
       }
@@ -416,13 +431,7 @@
       .ttl {
         flex-direction: column;
         align-items: flex-start;
-        gap: 2px;
         white-space: nowrap;
-      }
-
-      /* 비었을 때 .tools가 사라져도 gap이 남아 라벨이 위로 밀린다. */
-      &.empty .ttl {
-        gap: 0;
       }
     }
   }
