@@ -1,4 +1,4 @@
-import { DAMAGE_STATUSES } from "../helpers/health-status.mjs";
+import { DAMAGE_STATUSES, badstatusI18nKey } from "../helpers/health-status.mjs";
 import { useConsumable } from "../helpers/consumable.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -131,7 +131,7 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       const current = sys.cureStatus ?? [];
       context.cureStatusOptions = DAMAGE_STATUSES.map((s) => ({
         key: s.key,
-        label: game.i18n.localize(`ASTER.badstatus.${s.i18n}`),
+        label: game.i18n.localize(badstatusI18nKey(s.key)),
         checked: current.includes(s.key),
       }));
       context.showUseButton =
@@ -143,7 +143,7 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       const buildOptions = (selected) =>
         DAMAGE_STATUSES.map((s) => ({
           key: s.key,
-          label: game.i18n.localize(`ASTER.badstatus.${s.i18n}`),
+          label: game.i18n.localize(badstatusI18nKey(s.key)),
           checked: (selected ?? []).includes(s.key),
         }));
       context.addStatusOptions = buildOptions(sys.addStatus);

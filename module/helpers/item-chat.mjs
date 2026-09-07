@@ -1,4 +1,4 @@
-import { DAMAGE_STATUSES } from "./health-status.mjs";
+import { badstatusI18nKey } from "./health-status.mjs";
 import { isMagicToolInactive } from "./sheet-tooltips.mjs";
 
 // 타입 라벨(ASTER.itemType.*)이 정의된 인벤토리 타입만 typeLabel 표기.
@@ -42,10 +42,7 @@ export function buildItemCardData(item, localize) {
         value: localize("ASTER.consumable.cureAllResult"),
       });
     } else if ((sys.cureStatus?.length ?? 0) > 0) {
-      const labels = sys.cureStatus.map((k) => {
-        const def = DAMAGE_STATUSES.find((s) => s.key === k);
-        return localize(`ASTER.badstatus.${def?.i18n ?? k}`);
-      });
+      const labels = sys.cureStatus.map((k) => localize(badstatusI18nKey(k)));
       meta.push({
         icon: "fa-hand-sparkles",
         label: localize("ASTER.consumable.cureResult"),

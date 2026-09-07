@@ -1,6 +1,11 @@
 import { detectCritFumble, computePenalties } from "./roll-result.mjs";
 import { getTargetedTokens } from "./target-select.mjs";
-import { applyDamageAndStatus, applyCureAllStatus, applyCureStatus } from "./health-status.mjs";
+import {
+  badstatusI18nKey,
+  applyDamageAndStatus,
+  applyCureAllStatus,
+  applyCureStatus,
+} from "./health-status.mjs";
 import { checkFocusEffect } from "./focus-effect.mjs";
 import { pickTwoIfNeeded } from "./dice-select.mjs";
 import { findCombatantFor, hasAmbiguousCombatants } from "./combatant-match.mjs";
@@ -327,7 +332,7 @@ export async function resolveNpcActionUse({ actor, itemId }) {
 }
 
 /**
- * 상태이상 키는 badstatus i18n 매핑(bigInj→biginj)으로 지역화해 전달한다.
+ * 상태이상 키는 지역화해 전달한다 — 템플릿은 라벨만 받는다.
  *
  * @param {Actor} actor
  * @param {Item} action
@@ -346,8 +351,7 @@ async function renderNpcActionCard(
   hitResult = null,
 ) {
   const sys = action.system;
-  const statusLabel = (key) =>
-    game.i18n.localize(`ASTER.badstatus.${key === "bigInj" ? "biginj" : key}`);
+  const statusLabel = (key) => game.i18n.localize(badstatusI18nKey(key));
 
   const damageResults = effectResults
     .filter((r) => r.type === "damage")

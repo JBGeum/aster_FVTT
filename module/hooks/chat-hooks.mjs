@@ -1,7 +1,11 @@
 /**
  * import 시 top-level에서 Hooks.on("renderChatMessageHTML", ...) 2건을 등록한다(부수효과).
  */
-import { DAMAGE_STATUSES, applyDamageAndStatus } from "../helpers/health-status.mjs";
+import {
+  DAMAGE_STATUSES,
+  badstatusI18nKey,
+  applyDamageAndStatus,
+} from "../helpers/health-status.mjs";
 import { resolveOpposed } from "../helpers/roll-result.mjs";
 import { applyDelta, applySet } from "../helpers/tracker-ops.mjs";
 import { commitTrackers } from "../helpers/tracker-commit.mjs";
@@ -291,7 +295,7 @@ function damageTargetOptions(targetActor) {
 async function promptDamageDialog(targetActor, defaultDamage) {
   const statusRows = DAMAGE_STATUSES.map(
     (s) =>
-      `<label><input type="checkbox" name="status" value="${s.key}" /> ${game.i18n.localize(`ASTER.badstatus.${s.i18n}`)}</label>`,
+      `<label><input type="checkbox" name="status" value="${s.key}" /> ${game.i18n.localize(badstatusI18nKey(s.key))}</label>`,
   ).join("");
   const targetRows = damageTargetOptions(targetActor)
     .map(
@@ -425,10 +429,7 @@ async function renderDamageResultCard(
     }
   }
   if (statusApplied.length > 0) {
-    const names = statusApplied.map((k) => {
-      const def = DAMAGE_STATUSES.find((s) => s.key === k);
-      return game.i18n.localize(`ASTER.badstatus.${def?.i18n ?? k}`);
-    });
+    const names = statusApplied.map((k) => game.i18n.localize(badstatusI18nKey(k)));
     lines.push(game.i18n.format("ASTER.damage.statusLine", { names: names.join(", ") }));
   }
   if (lines.length === 0) lines.push(game.i18n.localize("ASTER.damage.noChange"));
