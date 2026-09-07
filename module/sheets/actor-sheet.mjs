@@ -81,14 +81,22 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     character: {
       template: "systems/aster/templates/actor/actor-character-sheet.html",
       forms: { form: AsterActorSheet.#formConfig },
-      scrollable: [".tab.character", ".tab.craft", ".tab.record", ".panel--inv .items"],
     },
     npc: {
       template: "systems/aster/templates/actor/actor-npc-sheet.html",
       forms: { form: AsterActorSheet.#formConfig },
-      scrollable: [".npc-body"],
     },
   };
+
+  static #SCROLLERS = [
+    ".tab.character",
+    ".tab.craft",
+    ".tab.record",
+    ".panel--inv .items",
+    ".npc-sheet",
+  ];
+
+  #scrollTops = {};
 
   tabGroups = { main: "character", sub: "inventory" };
 
@@ -167,6 +175,16 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         event.preventDefault();
         const { tab, group } = navItem.dataset;
         if (tab && group) this.changeTab(tab, group);
+      });
+    }
+
+    // changeTab이 .active를 붙인 뒤라야 컨테이너에 overflow가 걸려 scrollTop이 먹는다.
+    for (const sel of AsterActorSheet.#SCROLLERS) {
+      const el = this.element.querySelector(sel);
+      if (!el) continue;
+      if (this.#scrollTops[sel]) el.scrollTop = this.#scrollTops[sel];
+      el.addEventListener("scroll", () => (this.#scrollTops[sel] = el.scrollTop), {
+        passive: true,
       });
     }
 
