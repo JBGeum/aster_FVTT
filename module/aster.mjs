@@ -26,6 +26,7 @@ import { applyAsterTheme } from "./helpers/theme.mjs";
 // 훅 모듈 — import 시 top-level에서 Hooks.on(...)을 등록한다(부수효과).
 import "./hooks/item-hooks.mjs";
 import "./hooks/chat-hooks.mjs";
+import "./hooks/damage-hooks.mjs";
 import "./hooks/combat-hooks.mjs";
 import "./hooks/ui-hooks.mjs";
 
