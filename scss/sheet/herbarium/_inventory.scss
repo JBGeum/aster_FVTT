@@ -235,6 +235,17 @@
   }
   .bag-frame {
     position: relative; /* .bag-items(absolute inset:0)의 기준 */
+
+    /* 셀 배경이 불투명해 뒤에 깔면 가려진다 — 셀 위, 아이템 아래에 얹는다. */
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: var(--bag-img, none) center / contain no-repeat;
+      opacity: 0.12;
+      pointer-events: none;
+    }
   }
   .bag-cells,
   .bag-items {
@@ -251,6 +262,7 @@
   .bag-items {
     position: absolute;
     inset: 0;
+    z-index: 1;
     pointer-events: none;
   }
   .bcell {

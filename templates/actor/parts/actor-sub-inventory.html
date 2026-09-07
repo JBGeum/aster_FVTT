@@ -16,7 +16,10 @@
   </span>
 </div>
 
-<div class="bag-grid" style="--bag-cols: {{inv.bag.grid.cols}}; --bag-rows: {{inv.bag.grid.rows}}">
+<div
+  class="bag-grid"
+  style="--bag-cols: {{inv.bag.grid.cols}}; --bag-rows: {{inv.bag.grid.rows}}; --bag-img: url('{{inv.bag.img}}')"
+>
   <div class="bag-frame">
     <div class="bag-cells">
       {{#each inv.bag.cells as |cell|}} {{#if cell.dead}}

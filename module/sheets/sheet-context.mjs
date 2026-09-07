@@ -91,6 +91,7 @@ export function prepareInventory(sheet, context) {
       ? {
           id: bag.id,
           name: bag.name,
+          img: bag.img,
           grid: bagGrid,
           cells,
           live: liveCellCount(bagGrid, bagGrid.dead ?? []),
