@@ -81,10 +81,12 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     character: {
       template: "systems/aster/templates/actor/actor-character-sheet.html",
       forms: { form: AsterActorSheet.#formConfig },
+      scrollable: [".tab.character", ".tab.craft", ".tab.record", ".panel--inv .items"],
     },
     npc: {
       template: "systems/aster/templates/actor/actor-npc-sheet.html",
       forms: { form: AsterActorSheet.#formConfig },
+      scrollable: [".npc-body"],
     },
   };
 
