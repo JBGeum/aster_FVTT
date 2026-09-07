@@ -27,6 +27,37 @@ export function labelKeyFor(key) {
   return EFFECT_TARGETS.find((t) => t.key === key)?.label ?? null;
 }
 
+/** @param {object} obj @param {string} path */
+function atPath(obj, path) {
+  return path.split(".").reduce((o, k) => (o == null ? undefined : o[k]), obj);
+}
+
+/**
+ * 폼 제출값에서 **효과가 얹힌 값을 그대로 되보낸 칸만** 뺀다.
+ *
+ * 입력칸이 원본을 그리는 자리는 제출값이 원본과 같아 걸리지 않으므로 편집이 살아 있고,
+ * 파생값을 그리는 자리만 막혀 누적을 끊는다.
+ *
+ * @param {Record<string, unknown>} data           formData.object
+ * @param {Array<{changes?: Array<{key: string}>}>} effects  actor.appliedEffects
+ * @param {object} derived                         파생 루트 (actor)
+ * @param {object} source                          원본 루트 (actor.toObject())
+ * @returns {Record<string, unknown>}
+ */
+export function stripEffectKeys(data, effects, derived, source) {
+  const keys = new Set();
+  for (const e of effects ?? []) {
+    for (const c of e.changes ?? []) keys.add(c.key);
+  }
+  return Object.fromEntries(
+    Object.entries(data).filter(([k, v]) => {
+      if (!keys.has(k)) return true;
+      const d = atPath(derived, k);
+      return !(d !== atPath(source, k) && String(v) === String(d));
+    }),
+  );
+}
+
 /**
  * 다이얼로그 입력을 ActiveEffect 생성 데이터로 바꾼다.
  *

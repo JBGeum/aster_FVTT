@@ -56,10 +56,10 @@
           <div class="attr__main num">{{ability.total}}</div>
           <div class="attr__cells">
             <div class="cell num">
-              <input type="number" name="system.ability.{{key}}.base" value="{{ability.base}}" />
+              <input type="number" name="system.ability.{{key}}.base" value="{{ability.baseSrc}}" />
             </div>
             <div class="cell cell--accent num">
-              <input type="number" name="system.ability.{{key}}.mod" value="{{ability.mod}}" />
+              <input type="number" name="system.ability.{{key}}.mod" value="{{ability.modSrc}}" />
             </div>
           </div>
         </div>
@@ -74,9 +74,9 @@
           <div class="vessel">
             <div class="vessel__fill vessel__fill--hp" style="right: {{healthEmptyPct}}%"></div>
             <div class="vessel__txt num">
-              <input type="number" name="system.health.value" value="{{system.health.value}}" />
+              <input type="number" name="system.health.value" value="{{src.health.value}}" />
               /
-              <input type="number" name="system.health.max" value="{{system.health.max}}" />
+              <input type="number" name="system.health.max" value="{{src.health.max}}" />
             </div>
           </div>
         </div>
@@ -85,9 +85,9 @@
           <div class="vessel">
             <div class="vessel__fill vessel__fill--sat" style="right: {{satietyEmptyPct}}%"></div>
             <div class="vessel__txt num">
-              <input type="number" name="system.satiety.value" value="{{system.satiety.value}}" />
+              <input type="number" name="system.satiety.value" value="{{src.satiety.value}}" />
               /
-              <input type="number" name="system.satiety.max" value="{{system.satiety.max}}" />
+              <input type="number" name="system.satiety.max" value="{{src.satiety.max}}" />
             </div>
           </div>
         </div>
