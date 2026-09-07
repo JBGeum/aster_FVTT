@@ -46,10 +46,8 @@ export async function resolveCombatAction({ actor, actionKey }) {
 
   switch (actionKey) {
     case "throw": {
-      // 캔버스 사전 타게팅 — 적 1체만 허용. 시전자가 PC면 적은 NPC, NPC면 적은 PC다.
-      // 검증 실패 시 자원 소비 없이 종료.
-      const enemyType = actor.type === "npc" ? "character" : "npc";
-      const targets = getTargetedTokens({ required: true, max: 1, allowedTypes: enemyType });
+      // 캔버스 사전 타게팅 — 1체만. 검증 실패 시 자원 소비 없이 종료.
+      const targets = getTargetedTokens({ required: true, max: 1 });
       if (!targets) return;
       throwTarget = targets[0];
       cost = 1;
