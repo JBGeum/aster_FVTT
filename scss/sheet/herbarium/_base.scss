@@ -1,0 +1,225 @@
+/* 장식 글리프 FA 믹스인은 공용 utils/_fa.scss로 단일화(family 한 곳 관리).
+   as * 로 가져와 기존 @include fa("\f005") 호출을 그대로 사용. */
+@use "../../utils/fa" as *;
+
+/* ---------- 시트 루트 / 표면 (Foundry 윈도우 내부) ---------- */
+.herbarium {
+  /* STEP 1 — 양피지 텍스처 토큰 (Foundry 절대 경로 — Vite는 / 시작 url을 그대로 둠).
+     변경: 시트 표면은 평평한 양피지 단색으로 두고, 텍스처는 종이 요소(.panel·.dialog·
+     카드·표)에만 입힌다(아래 ".herbarium 종이 요소 텍스처" 규칙). 다크(starfield)는 STEP 5. */
+  --surface-tex: url("/systems/aster/assets/textures/parchment-texture.png");
+  --tex-1: rgba(168, 136, 78, 0.1);
+  --tex-2: rgba(120, 90, 50, 0.08);
+  --tex-3: rgba(90, 60, 30, 0.1);
+  color: var(--ink);
+  font-family: var(--hb-font-serif);
+  font-weight: var(--weight);
+  /* 가짜 볼드/이탤릭 합성 방지. 마루부리는 700 실페이스가 있어 합성은 안 일어나나 무해하게 유지. */
+  font-synthesis: none;
+  font-size: 14px;
+  line-height: 1.4;
+
+  /* 폼 요소 폰트 상속 강제 — label·button·input 등은 Foundry 코어 폰트
+     (--font-h2: Amiri 등 아랍어 폰트)가 상속을 끊고 직접 걸려 한글이 위로 떴음.
+     herbarium 스코프에서 우리 serif를 명시해 코어 폰트 누수를 차단한다. */
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  .herb-tag,
+  .herb-tag__label {
+    font-family: var(--hb-font-serif);
+  }
+  background-color: var(--parchment);
+  background-image: none;
+
+  * {
+    box-sizing: border-box;
+  }
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    outline: none;
+  }
+  /* select 펼침 목록(option)은 OS/브라우저 네이티브라 inherit(투명+밝은 ink)만으론
+     배경과 구분이 안 됐다. 양피지 톤으로 명시(테마 인식 — 다크에서도 가독). */
+  option {
+    background-color: var(--parchment-soft);
+    color: var(--ink);
+  }
+  /* ApplicationV2 기본 button은 전폭(width:100%)이라 약초첩 버튼이 세로로 쌓인다.
+     기본을 auto로 되돌림 — 전폭이 필요한 버튼(btn-cast·ap-fire 등)은 자체 width:100%로 override. */
+  button {
+    width: auto;
+  }
+
+  .num {
+    font-family: "Cinzel", var(--hb-font-num);
+  }
+  /* 식은 소문자를 담는다 — Cinzel의 소문자는 어센더 없는 작은 대문자라 2d6이 뭉개진다. */
+  .cost.num {
+    font-family: var(--hb-font-num);
+  }
+
+  /* 원소 점 색 (공용 — .mat-in·.f-select·.mat-col__head 등) */
+  .dot--red {
+    background: var(--el-red);
+  }
+  .dot--blue {
+    background: var(--el-blue);
+  }
+  .dot--green {
+    background: var(--el-green);
+  }
+  .dot--yellow {
+    background: var(--el-yellow);
+  }
+  .dot--white {
+    background: var(--el-white);
+  }
+  .dot--mat {
+    background: var(--el-mat);
+  }
+
+  /* ---------- 레이아웃 그리드 (좌상 idn / 중상 stel / 우 inv / 좌하 abil / 중하 memo) ---------- */
+  .sheet__body {
+    display: grid;
+    /* STEP 2 갱신 — 좌측 2열에 idn/abil/stel/memo 세로 스택, 우측 346px에 inv.
+       abil(능력치+활력 2열)·identity(좌측열·이름·초상·판정 그리드)가 좌측 전폭(2열)을 쓴다. */
+    grid-template-columns: 1fr 1fr 346px;
+    /* memo 행만 1fr — 윈도우 세로가 늘면 남는 높이를 memo가 흡수(아래로 늘어남).
+       inv는 4행 전체를 span+stretch라 그리드 총높이를 채운다. */
+    grid-template-rows: auto auto auto 1fr;
+    grid-template-areas:
+      "idn  idn  inv"
+      "abil abil inv"
+      "stel stel inv"
+      "memo memo inv";
+    /* 행 간격 9px — 윈도우가 뷰포트 높이에 클램프(예: 849px)될 때 좌측 패널 스택이 잘리지 않도록
+       세로 간격 축소(행 3개 × 5px ≈ 15px 회수). 가로 간격은 14px 유지. */
+    gap: 9px 14px;
+    /* start: 짧은 좌측 패널이 inv 높이로 늘어나지 않게(여백 방지). inv·memo는 align-self로 채움. */
+    align-items: start;
+    /* herbarium(flex 컬럼)를 채워 grid 총높이를 윈도우 높이에 맞춘다 → 1fr 행이 의미를 가짐. */
+    flex: 1 0 auto;
+    min-height: 0;
+  }
+  .col {
+    display: contents;
+  }
+  .panel--identity {
+    grid-area: idn;
+  }
+  .panel--abil {
+    grid-area: abil;
+  }
+  /* STEP 2 — 능력치 | 활력 2열 */
+  .panel--abil .abil-grid {
+    display: grid;
+    /* change.txt — 능력치 열을 비율 기반(1.25fr, 최소 248px)으로. auto 상한 폭주도 차단. */
+    grid-template-columns: minmax(248px, 1.25fr) 1fr;
+    gap: 22px;
+    /* change.txt — 두 열 동일 높이로(능력치 열이 활력 열 높이에 맞춰 늘어남). */
+    align-items: stretch;
+  }
+  /* 두 열을 flex 컬럼으로 — panel__head 아래 콘텐츠가 flex로 채워져
+     height:100%가 panel__head 높이만큼 넘쳐 능력치가 아래로 삐져나오던 것 해소. */
+  .panel--abil .abil-col {
+    display: flex;
+    flex-direction: column;
+  }
+  /* 능력치 .attrs가 남은 높이를 flex로 채우고 셀을 늘려 활력 열 바닥과 정합(아래 padding 동일). */
+  .panel--abil .abil-col:first-child .attrs {
+    flex: 1;
+    align-items: stretch;
+  }
+  .panel--statel {
+    grid-area: stel;
+  }
+  /* STEP 2 — statel이 좌측 전폭이므로 원소는 6열 한 줄 */
+  .panel--statel .elements {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .panel--inv {
+    grid-area: inv;
+    align-self: stretch;
+    /* 내부를 세로 flex로 — 활성 서브탭이 패널을 채우고, 그 안 .items가 내부 스크롤한다.
+       min-height:0이라야 자식이 패널 높이를 넘겨도 스크롤 영역으로 가둘 수 있다. */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .panel--memo {
+    grid-area: memo;
+    /* 1fr 행(memo)을 세로로 가득 채운다 — align-items:start 기본을 개별 override. */
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel--memo .memo {
+    flex: 1;
+  }
+
+  /* ---------- 패널 ---------- */
+  .panel {
+    position: relative;
+    background: var(--parchment-soft);
+    border: var(--hb-frame);
+    border-radius: var(--hb-radius);
+    padding: var(--hb-pad);
+    box-shadow: var(--panel-shadow);
+  }
+  .panel__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--hb-font-label);
+    font-weight: 400;
+    font-size: 12px;
+    /* 상자 높이가 서체를 따라가면 별과 금선이 어긋난다 */
+    line-height: 1;
+    letter-spacing: 3px;
+    color: var(--ink-soft);
+    margin: -2px 0 7px;
+
+    &::before {
+      @include fa("\f005"); /* star */
+      color: var(--gold);
+      font-size: 10px;
+      /* change.txt — FA 글리프 세로 중앙 정렬. */
+      display: inline-flex;
+      align-items: center;
+      line-height: 1;
+    }
+    &::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--rule), transparent);
+    }
+    &--sub {
+      margin-top: 9px;
+    }
+  }
+  .panel--bare {
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 4px 2px;
+  }
+  .panel[data-corner]::after {
+    @include fa("\f0a3"); /* certificate(별무리) — data-corner 값과 무관하게 통일 */
+    position: absolute;
+    top: 7px;
+    right: 10px;
+    color: var(--gold-soft);
+    font-size: 15px;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+}

@@ -1,0 +1,284 @@
+@use "../../utils/fa" as *;
+
+.herbarium {
+  /* ---------- 정체성 패널 ---------- */
+  /* change.txt — 좌측 열(로고·속성·엠블럼) | 이름(초상화 위) / 초상화(중앙)·판정(우측).
+     "left name name" / "left port roll" 2행 그리드. */
+  .identity {
+    display: grid;
+    grid-template-columns: 1fr 172px 1fr;
+    grid-template-areas: "left port roll";
+    gap: 11px 16px;
+    align-items: stretch;
+  }
+  /* 좌측 열(전체 높이) — 로고 · 디바이더 · 속성 · 임시 엠블럼 */
+  .id-left {
+    grid-area: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 2px;
+  }
+  .id-logo {
+    width: 100%;
+    max-width: 136px;
+    height: auto;
+    display: block;
+    /* 다크 명판(라이트=none) — 진한 상단 글자가 별밤에 묻히지 않게. 토큰은 night 믹스인에서 교체. */
+    background: var(--id-logo-bg);
+    border: var(--id-logo-border);
+    border-radius: var(--id-logo-radius);
+    padding: var(--id-logo-pad);
+    box-shadow: var(--id-logo-shadow);
+  }
+  .id-div {
+    width: 78%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--gold-soft) 25%,
+      var(--gold-soft) 75%,
+      transparent
+    );
+  }
+  .id-affbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 3px 7px 3px 5px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.16);
+
+    /* 정적 시안의 .aff-name 자리 — 실제 select. affbox에 녹아들게 크롬·기본 패딩 제거. */
+    select {
+      padding: 0;
+      font-weight: 700;
+      color: var(--ink-strong);
+      cursor: pointer;
+    }
+    .chev {
+      color: var(--ink-soft);
+      font-size: 10px;
+    }
+  }
+  /* 원소색 아이콘 박스 — 색은 --el-* 토큰(다크 자동 호환) */
+  .aff-ico {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 12px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+      0 1px 2px rgba(40, 26, 12, 0.3);
+
+    &--red {
+      background: var(--el-red);
+    }
+    &--blue {
+      background: var(--el-blue);
+    }
+    &--green {
+      background: var(--el-green);
+    }
+    &--yellow {
+      background: var(--el-yellow);
+    }
+    &--white {
+      background: var(--el-white);
+    }
+  }
+  /* 속성 미선택 시 .id-emblem--가 어느 모디파이어와도 맞지 않아 이 점선 자리가 그대로 남는다. */
+  .id-emblem {
+    width: 100%;
+    max-width: 112px;
+    aspect-ratio: 1 / 1;
+    border: 1px dashed var(--gold-soft);
+    border-radius: var(--hb-radius-sm);
+    background: var(--parchment-sunk);
+    display: grid;
+    place-items: center;
+    color: var(--ink-faint);
+    font-size: 11px;
+    letter-spacing: 1px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.12);
+
+    &--red,
+    &--blue,
+    &--green,
+    &--yellow {
+      border: var(--hb-frame);
+      border-radius: 50%;
+      background: var(--id-emblem-face);
+      box-shadow: var(--id-emblem-face-shadow);
+
+      &::before {
+        content: "";
+        width: 62%;
+        height: 62%;
+        -webkit-mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        -webkit-mask-size: contain;
+        mask-repeat: no-repeat;
+        mask-position: center;
+        mask-size: contain;
+        filter: var(--id-emblem-shadow);
+      }
+    }
+    &--red::before {
+      background-color: var(--el-red);
+      -webkit-mask-image: url("/systems/aster/assets/logo/svg/01_red_witch.svg");
+      mask-image: url("/systems/aster/assets/logo/svg/01_red_witch.svg");
+    }
+    &--blue::before {
+      background-color: var(--el-blue);
+      -webkit-mask-image: url("/systems/aster/assets/logo/svg/02_blue_witch.svg");
+      mask-image: url("/systems/aster/assets/logo/svg/02_blue_witch.svg");
+    }
+    &--green::before {
+      background-color: var(--el-green);
+      -webkit-mask-image: url("/systems/aster/assets/logo/svg/03_green_witch.svg");
+      mask-image: url("/systems/aster/assets/logo/svg/03_green_witch.svg");
+    }
+    &--yellow::before {
+      background-color: var(--el-yellow);
+      -webkit-mask-image: url("/systems/aster/assets/logo/svg/04_yellow_witch.svg");
+      mask-image: url("/systems/aster/assets/logo/svg/04_yellow_witch.svg");
+    }
+  }
+  /* 초상화 중앙(크기 유지) */
+  .panel--identity .portrait {
+    grid-area: port;
+    width: 172px;
+    height: 100%;
+    min-height: 158px;
+    aspect-ratio: auto;
+    align-self: stretch;
+    justify-self: center;
+  }
+  .portrait {
+    position: relative;
+    aspect-ratio: 3/4;
+    border-radius: 50% 50% 14px 14px / 60% 60% 14px 14px;
+    overflow: hidden;
+    border: 1.5px solid var(--gold);
+    background: repeating-linear-gradient(
+      45deg,
+      var(--parchment-deep) 0 7px,
+      var(--parchment-sunk) 7px 14px
+    );
+    box-shadow:
+      inset 0 0 0 4px var(--parchment-soft),
+      inset 0 0 18px rgba(80, 55, 25, 0.25);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+
+    img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+      border: none;
+    }
+    /* change.txt — 초상 상단 장식 글리프. img(absolute)가 덮으므로 z-index로 위에,
+       클릭(파일선택)을 막지 않게 pointer-events:none. */
+    &::before {
+      @include fa("\f6e8"); /* hat-wizard */
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      font-size: 13px;
+      color: var(--gold);
+      opacity: 0.85;
+      pointer-events: none;
+    }
+  }
+  .identity__main {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    > label {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--ink-soft);
+    }
+  }
+  .input-line {
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.18);
+
+    &.center {
+      justify-content: center;
+    }
+    .val {
+      font-weight: 700;
+      color: var(--ink-strong);
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+    .chev {
+      color: var(--ink-soft);
+      font-size: 11px;
+    }
+    /* 정적 .val → 실제 input/select */
+    input,
+    select {
+      width: 100%;
+      font-weight: 700;
+      color: var(--ink-strong);
+    }
+    select {
+      cursor: pointer;
+    }
+  }
+  .affinity-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    display: inline-block;
+    flex: none;
+
+    &--white {
+      background: var(--el-white);
+    }
+    &--red {
+      background: var(--el-red);
+    }
+    &--blue {
+      background: var(--el-blue);
+    }
+    &--green {
+      background: var(--el-green);
+    }
+    &--yellow {
+      background: var(--el-yellow);
+    }
+  }
+}

@@ -1,0 +1,250 @@
+.herbarium {
+  /* ============================================================
+   * NPC 시트 (단일 폼 · 약초첩 라이트)
+   * witch-sheet.css v23 §24 편입. .npc-bar(윈도우 헤더)는 Foundry 네이티브
+   * 윈도우가 담당하므로 미편입(D52 sheet-header 제거 정합). 다크는 본 명세 밖.
+   * ============================================================ */
+  &.npc-sheet {
+    /* Foundry 윈도우 내부 — 시안 624px 고정폭/외곽 테두리 미적용. 본문만 약초첩 톤. */
+    padding: 0;
+    /* STEP 1 — NPC 시트는 텍스처 생략(단색). 시안 정합. */
+    background-image: none;
+    /* NPC는 form 자체가 .herbarium이라(character/item처럼 자식 div가 아님) _actor.scss의
+       `.aster form`(0,1,1)이 .herbarium(0,1,0)의 배경·텍스트를 덮어 다크로 보였다.
+       .herbarium.npc-sheet(0,2,0)에서 양피지 톤을 직접 강제해 교정. */
+    background-color: var(--parchment);
+    color: var(--ink);
+    /* 탭이 없어 character 시트의 `.tab.active` 스크롤 규칙을 받지 못한다 — form의 overflow: hidden을 덮는다. */
+    overflow-y: auto;
+  }
+  .npc-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 16px 16px;
+    max-width: 660px;
+    margin: 0 auto;
+    width: 100%;
+
+    .input-line {
+      padding: 6px 11px;
+    }
+  }
+
+  /* 헤더 — 초상 + 이름/도전등급 + 능력치 그리드 */
+  .npc-head {
+    display: grid;
+    grid-template-columns: 132px 1fr;
+    gap: 16px;
+    align-items: start;
+
+    .portrait {
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      border-radius: var(--hb-radius-sm);
+
+      /* 시안 NPC 초상은 단순 사각 — 연금 글리프 장식 생략 */
+      &::before {
+        content: none;
+      }
+    }
+  }
+  .npc-head__main {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .npc-name-row {
+    display: flex;
+    gap: 12px;
+    align-items: end;
+
+    .npc-name {
+      flex: 1;
+    }
+    .stat--cr {
+      width: 132px;
+      flex: none;
+    }
+  }
+  .npc-name .input-line {
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px 14px;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    > label {
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      color: var(--ink-soft);
+    }
+    .input-line {
+      justify-content: center;
+      font-family: var(--hb-font-num);
+      font-weight: 600;
+
+      input {
+        text-align: center;
+      }
+      /* 식(명중·회피·액션)은 음각 톤으로 — 시안 .dim */
+      &.dim {
+        color: var(--ink-soft);
+        input {
+          color: var(--ink-soft);
+        }
+      }
+    }
+    .pair2 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+
+      .input-line {
+        flex: 1;
+      }
+      .sep {
+        color: var(--ink-soft);
+      }
+    }
+  }
+
+  /* 약전(biography) — 시안 메모 자리 */
+  .npc-bio {
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 8px 11px;
+    box-shadow: inset 0 1px 4px rgba(70, 45, 18, 0.16);
+
+    .editor,
+    .editor-content {
+      min-height: 60px;
+      color: var(--ink);
+    }
+  }
+
+  /* 전투(AP) 패널 — 시안 .npc-ap */
+  .npc-ap {
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius);
+    padding: 11px;
+    background: color-mix(in oklch, var(--parchment-deep) 36%, var(--parchment-soft));
+
+    .ap-note {
+      margin-bottom: 9px;
+    }
+  }
+  .npc-ap__row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 9px;
+  }
+  .npc-ap__acts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 9px;
+
+    &.disabled .ap-btn {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+  }
+
+  /* 액션 표 — 시안 .act-table (div grid) */
+  .act-table {
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius);
+    overflow: hidden;
+
+    &__head,
+    .act-row {
+      display: grid;
+      grid-template-columns: 78px 1fr 1.5fr 92px;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+    }
+    &__head {
+      background: var(--parchment-deep);
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--ink-soft);
+    }
+    .act-row {
+      border-top: 1px solid var(--rule);
+
+      &:hover {
+        background: color-mix(in oklch, var(--parchment-deep) 28%, var(--parchment-soft));
+      }
+      .a-cost {
+        text-align: center;
+        font-weight: 700;
+        color: var(--plum);
+      }
+      .a-name {
+        font-weight: 700;
+        color: var(--ink-strong);
+      }
+      .a-eff {
+        font-size: 13px;
+        color: var(--ink-soft);
+
+        .a-target {
+          color: var(--sage);
+          white-space: nowrap;
+        }
+        .a-once {
+          margin-left: 5px;
+          padding: 1px 7px;
+          border: 1px solid var(--gold-soft);
+          border-radius: 10px;
+          font-size: 11px;
+          color: var(--ink-soft);
+          white-space: nowrap;
+        }
+      }
+      .a-tools {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        color: var(--ink-soft);
+
+        button {
+          color: var(--ink-soft);
+          font-size: 13px;
+          cursor: pointer;
+
+          &:hover:not(:disabled) {
+            color: var(--ink-strong);
+          }
+          &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+          }
+          &.del:hover {
+            color: var(--el-red);
+          }
+        }
+      }
+    }
+  }
+  .act-empty {
+    padding: 16px;
+    text-align: center;
+    color: var(--ink-faint);
+    font-style: italic;
+    font-size: 13px;
+  }
+}

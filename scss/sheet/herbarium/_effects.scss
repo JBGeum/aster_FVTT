@@ -1,0 +1,75 @@
+.herbarium {
+  /* ---------- 효과(Effects) ---------- */
+  .fx-section {
+    margin-bottom: 12px;
+
+    .fx-section__head {
+      font-family: var(--hb-font-label);
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--ink-soft);
+      margin-bottom: 5px;
+    }
+  }
+  .fx-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--gold-soft);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .fx-row__img {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+      border: none;
+    }
+    .fx-row__name {
+      flex: 1;
+      min-width: 0;
+      color: var(--ink-strong);
+
+      .fx-row__delta {
+        color: var(--ink-soft);
+        font-size: 12px;
+      }
+    }
+    .fx-row__meta {
+      font-size: 11px;
+      color: var(--ink-faint);
+      white-space: nowrap;
+    }
+    .fx-row__tools {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--ink-soft);
+      font-size: 13px;
+
+      span {
+        cursor: pointer;
+      }
+      .del {
+        color: var(--el-red);
+        opacity: 0.75;
+      }
+    }
+  }
+  .fx-row--off {
+    opacity: 0.5;
+  }
+  // 전투 상태는 combatant flag라 아이콘이 없다 — 이미지 자리를 비우고 두 열로 둔다.
+  .fx-row--state {
+    padding-left: 2px;
+
+    .fx-row__meta {
+      color: var(--ink-soft);
+      white-space: normal;
+      text-align: right;
+    }
+  }
+}

@@ -1,0 +1,239 @@
+@use "../../utils/fa" as *;
+
+.herbarium {
+  /* ---------- 종이 요소 텍스처 (시트 표면에서 이관) ----------
+     평평해진 .herbarium 위에서, 실제 종이(패널·다이얼로그·기록 카드·재료표·주문 카드)에만
+     양피지 텍스처를 입힌다(시안 change.txt 추가 규칙). 3번째 레이어는 surface-tex PNG 대신
+     미세 종이결(repeating-linear-gradient)로 교체됨 — 값은 시안 그대로 raw rgba 사용.
+     블록 끝에 둬 각 요소의 background 단축속성을 소스 순서로 덮어쓴다(같은 특정도).
+     .dialog__body는 아이템 시트 본문(=종이)이라 .dialog와 함께 포함. */
+  .panel,
+  .dialog,
+  .dialog__body,
+  .record-field,
+  .record-card,
+  .mat-table,
+  .spell-card {
+    background-color: var(--parchment-soft);
+    background-image: var(--paper-tex);
+    background-size: var(--paper-tex-size);
+    background-position: center;
+    background-blend-mode: var(--paper-tex-blend);
+  }
+}
+
+/* ============================================================
+ * Foundry 통합 — 캐릭터 탭 herbarium 컨테이너 (콘텐츠 패딩 + 서브탭 표시 정합)
+ * 윈도우 height:"auto"가 콘텐츠에 맞추므로 탭 내부 스크롤·강제 100% 높이는 두지 않는다.
+ * → 짧은 탭이 늘어나지(여백) 않고, 긴 탭이 내부 스크롤되지 않으며, 윈도우가 콘텐츠 높이로 맞는다.
+ * ============================================================ */
+.aster .tab.character .herbarium,
+.aster .tab.craft .herbarium,
+.aster .tab.record .herbarium {
+  padding: 14px;
+  box-sizing: border-box;
+  /* 고정 높이 탭을 양피지로 가득 채운다 — :root 라이트 토큰이라 테마 무관 항상 라이트.
+     짧으면 채워 다크 form 배경(--aster-color-bg) 노출을 막고(검정 프레임 차단),
+     길면 콘텐츠 높이를 유지해 .tab.active가 스크롤한다(grow 1 / shrink 0). */
+  flex: 1 0 auto;
+}
+/* character·record는 내부 콘텐츠(.sheet__body·.record)가 herbarium를 채워야
+   memo·inv·기록 카드가 세로로 늘어난다. craft는 본문이 위에서 흐르고 넘치면
+   스크롤하는 현재 동작을 유지하므로 flex 컬럼을 적용하지 않는다. */
+.aster .tab.character .herbarium,
+.aster .tab.record .herbarium {
+  display: flex;
+  flex-direction: column;
+}
+/* .panel--inv 안 서브탭: 활성만 표시 (Foundry .tab:not(.active) 숨김 정합) */
+.aster .tab.character .panel--inv > .tab {
+  min-height: 0;
+}
+.aster .tab.character .panel--inv > .tab:not(.active) {
+  display: none;
+}
+/* 활성 서브탭(inventory/spell/combat)이 패널 높이를 채우는 세로 flex 컨테이너가 되어,
+   내부 스크롤 영역(소지품 .items 등)이 definite 높이를 받게 한다. */
+.aster .tab.character .panel--inv > .tab.active {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* 소지품(가방+창고 통합) 목록 — 활성 서브탭의 잔여 높이를 채우고, 항목이 표시 공간보다
+   길어지면 목록 안에서만 세로 스크롤한다(가방칸·착용/휴대·창고 카운터는 고정). */
+.aster .tab.character .panel--inv .items {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* ============================================================
+ * H8 — 상단 헤더(.sheet__top: 이름 + 메인 탭) 약초첩 스타일.
+ * 이 영역은 .herbarium 래퍼 밖이라 여기서 직접 부여(토큰은 :root 전역).
+ * ============================================================ */
+.aster .sheet__top {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  /* 상단 패딩 축소(10→6) — 뷰포트 클램프 시 본문 세로 공간 확보. */
+  padding: 6px 14px 0;
+  background: var(--parchment);
+  border-bottom: 1px solid var(--rule);
+
+  /* change.txt — 헤더 하단 중앙 장식(테두리선 위 메달리온). */
+  &::after {
+    @include fa("\f699"); /* star-and-crescent */
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+    transform: translateX(-50%);
+    color: var(--gold);
+    background: var(--parchment);
+    padding: 0 9px;
+    font-size: 12px;
+  }
+
+  .sheet__name {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding-bottom: 4px;
+    min-width: 0;
+
+    /* .herbarium 밖이라 코어 input 스타일이 상속을 끊는다 — 여기서 직접 누른다 */
+    .pc {
+      font-family: var(--hb-font-label);
+      font-size: 24px;
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: 1px;
+      color: var(--ink-strong);
+      field-sizing: content;
+      min-width: 4ch;
+      max-width: 100%;
+      padding: 0 0 3px;
+      border: none;
+      border-bottom: 1px solid transparent;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+      outline: none;
+
+      &::placeholder {
+        color: var(--ink-faint);
+      }
+      &:hover {
+        border-bottom-style: dashed;
+        border-bottom-color: var(--rule);
+      }
+      &:focus {
+        border-bottom-style: solid;
+        border-bottom-color: var(--gold);
+      }
+    }
+    .pc-sub {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      white-space: nowrap;
+    }
+  }
+}
+.aster nav.sheet-main-tabs {
+  display: flex;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+
+  > .item {
+    flex: 0 0 auto;
+    font-family: var(--hb-font-display);
+    font-size: 15px;
+    letter-spacing: 1px;
+    text-transform: capitalize;
+    padding: 7px 18px 6px;
+    color: var(--ink-soft);
+    background: none;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    text-shadow: none;
+
+    &:hover {
+      color: var(--ink-strong);
+    }
+    &.active {
+      color: var(--ink-strong);
+      background: var(--parchment-soft);
+      border-color: var(--gold);
+      box-shadow: inset 0 2px 0 var(--plum);
+    }
+  }
+}
+
+/* change.txt 신규 — 작은 라벨·보조 텍스트는 --weight-sm(600). .pc-sub는 .herbarium 밖
+   (.sheet__top)이라 .aster 스코프로 안팎을 함께 커버하고, 파일 끝에 둬 기존 라벨
+   font-weight(예: .frow > label 700)를 소스 순서로 override한다. */
+.aster {
+  .field > label,
+  .pc-sub,
+  .el__name,
+  .bag__cap,
+  .mini .k,
+  .attr__rank,
+  .roll__target .lbl,
+  .item__loc,
+  .storage .k,
+  .mat-col__head,
+  .recipe__name .lv,
+  .stat > label,
+  .frow > label,
+  .mat-in .lbl {
+    font-weight: var(--weight-sm);
+  }
+}
+
+/* ===== 라벨·제목·소제목 =====
+   파일 끝(위 .aster weight 블록 뒤)에 둬 기존 라벨 폰트·굵기를 소스 순서로 override. */
+.herbarium {
+  .pair .k, /* 체재도시·경계도·펠카·우호도 등 기록 라벨 */
+  .rec-block > .k, /* 체재지의 모습 · 관련된 사람들 · 임의 메모 */
+  .field > label, /* 이름·속성 등 필드 라벨 */
+  .frow > label, /* 다이얼로그 폼 라벨 */
+  .cslot .ttl, /* 바구니·장비·사역마 */
+  .seg label, /* 일반·대항 */
+  .roll__target .lbl, /* 목표 */
+  .gauge__lbl, /* 건강·포만도 */
+  .attr__name, /* 활발·박식·요령·처세 */
+  .el__name, /* 백·적·청·녹·황·마테리얼 */
+  .mini .k, /* 민첩·회피 */
+  .item__loc, /* '가방' 위치 칩 */
+  .fieldset > .legend {
+    font-family: var(--hb-font-label);
+    font-weight: 400;
+  }
+  .field > label {
+    font-size: 12px;
+  }
+}
+
+/* ===== 픽셀아트 렌더링 — 도트 아이콘 전용 (PIXELART_ICON_SPEC ③) =====
+   작은 도트 원본을 큰 칸에 띄울 때 브라우저 기본 보간(bilinear)으로 흐려지는 것을
+   최근접 이웃 스케일링으로 막아 도트를 선명한 픽셀로 확대한다. 향후 이미지 교체만으로
+   바로 선명하게 렌더되도록 사전 정비. 사진·일러스트(초상화)엔 미적용(계단현상 방지) —
+   .pixelart 클래스를 도트 요소에만 선별 부여(옵션 ㄱ). 전역 규칙(시트·아이템 다이얼로그 공통). */
+// 일시 비활성화 — 도트 또렷함(최근접 이웃 스케일링) 규칙. 되살리려면 주석 해제.
+// .pixelart,
+// .pixelart img {
+//   image-rendering: pixelated; /* 표준 — 최근접 이웃 */
+//   image-rendering: -moz-crisp-edges; /* 구 Firefox 폴백 */
+//   image-rendering: crisp-edges; /* 폴백 */
+// }

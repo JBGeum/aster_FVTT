@@ -1,0 +1,300 @@
+@use "../../utils/fa" as *;
+
+.herbarium {
+  /* ============================================================
+   * RECORD 탭
+   * ============================================================ */
+  /* herbarium(flex 컬럼)를 채워, 남는 세로 공간을 기록 카드가 흡수하게 한다. */
+  .record {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    min-height: 0;
+  }
+  .record-top {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    /* 상단 노트↔세션 네비 사이 간격 축소(24→12) — character 세로 밀도에 맞춤. */
+    margin-bottom: 12px;
+  }
+  .record-field {
+    background: var(--parchment-soft);
+    border: 1px solid var(--gold);
+    border-radius: var(--hb-radius);
+    padding: 14px;
+    box-shadow: 0 2px 6px rgba(60, 40, 18, 0.08);
+
+    .panel__head {
+      margin: -2px 0 10px;
+    }
+    /* change.txt — 제목 입력을 가운데 정렬 + 큰 num 글꼴(.val 정적 시안 / input 라이브 공통). */
+    .input-line {
+      margin-bottom: 8px;
+      justify-content: center;
+
+      input,
+      .val {
+        font-family: var(--hb-font-num);
+        font-size: 17px;
+        font-weight: 600;
+        text-align: center;
+      }
+    }
+  }
+  .area {
+    min-height: 78px;
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 26px;
+    box-shadow: inset 0 1px 4px rgba(70, 45, 18, 0.14);
+    /* 줄무늬·패딩을 textarea로 이동 — 컨테이너는 박스만.
+       (배경이 div, 글자가 textarea로 나뉘면 줄과 글자가 어긋나고
+        리사이즈 마크도 박스 모서리와 안 맞음) */
+    padding: 0;
+    overflow: hidden;
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 78px;
+      box-sizing: border-box;
+      padding: 0 12px;
+      margin: 0;
+      border: none;
+      background: transparent;
+      background-image: repeating-linear-gradient(transparent 0 25px, var(--memo-rule) 25px 26px);
+      background-attachment: local;
+      resize: vertical;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 26px;
+      font-family: inherit;
+    }
+  }
+  .record-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* 세션 네비↔카드 사이 간격 축소(16→10). */
+    margin-bottom: 10px;
+  }
+  /* change.txt — 책갈피형 페이지네이션(둥근 플라크 안에 버튼·카운트). */
+  .pager {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--parchment-sunk);
+    border: 1px solid var(--gold-soft);
+    border-radius: 22px;
+    padding: 3px 6px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.12);
+
+    .count {
+      font-size: 14px;
+      color: var(--ink-strong);
+      min-width: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+
+      /* 카운트 양옆 작은 별 장식 */
+      &::before,
+      &::after {
+        @include fa("\f005"); /* star */
+        font-size: 6px;
+        color: var(--gold-soft);
+      }
+    }
+  }
+  .pager-btn {
+    width: 30px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 12px;
+    cursor: pointer;
+
+    &:not(.is-off):not(:disabled):hover {
+      background: var(--parchment-deep);
+    }
+    &.is-off,
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+  }
+  .record-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .rec-btn {
+    font: inherit;
+    font-size: 13px;
+    padding: 7px 14px;
+    border-radius: var(--hb-radius-sm);
+    cursor: pointer;
+    background: var(--parchment-sunk);
+    border: 1px solid var(--gold);
+    color: var(--ink-soft);
+    white-space: nowrap;
+
+    &--add {
+      color: var(--plum);
+      border-color: var(--plum);
+      &::before {
+        @include fa("\f067"); /* plus */
+        margin-right: 5px;
+        font-size: 11px;
+      }
+    }
+    &--del {
+      color: var(--el-red);
+      border-color: color-mix(in oklch, var(--el-red) 55%, var(--rule));
+    }
+  }
+  .record-card {
+    /* change.txt — 우상단 흐린 별 워터마크를 카드 안에 가두기 위해 relative+clip. */
+    position: relative;
+    overflow: hidden;
+    background: var(--parchment-soft);
+    border: 1px solid var(--gold);
+    border-radius: var(--hb-radius);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 2px 6px rgba(60, 40, 18, 0.1);
+    /* 남는 세로 공간을 채워 화면 하단까지 늘어난다(윈도우를 키우면 함께 커짐). */
+    flex: 1 0 auto;
+
+    /* 우상단 흐린 별 워터마크. 다크는 약간 진하게(--record-watermark-opacity 토큰). */
+    &::after {
+      @include fa("\f005"); /* star */
+      position: absolute;
+      top: -18px;
+      right: -12px;
+      font-size: 96px;
+      color: var(--gold);
+      opacity: var(--record-watermark-opacity);
+      transform: rotate(18deg);
+      pointer-events: none;
+    }
+  }
+  /* 기록이 없을 때의 안내도 동일하게 영역을 채운다. */
+  .record > .ap-note {
+    flex: 1 0 auto;
+  }
+  .rec-line {
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 11px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 32px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.1);
+  }
+  /* change.txt — 체재도시 헤더 라인: 위치 아이콘 + 강조면. (템플릿 첫 .rec-line에 부여) */
+  .rec-line--head {
+    align-items: center;
+    background: var(--parchment-deep);
+    border-color: var(--gold-soft);
+
+    &::before {
+      @include fa("\f3c5"); /* map-marker-alt */
+      font-size: 13px;
+      color: var(--gold);
+      margin-right: -16px;
+      align-self: center;
+    }
+  }
+  .pair {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+
+    .k {
+      color: var(--ink-soft);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .v {
+      color: var(--ink-strong);
+      font-weight: 600;
+      font-size: 15px;
+    }
+  }
+  .rec-block {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    /* change.txt — 블록 제목에 작은 별 마커 + 굵게. */
+    > .k {
+      font-size: 13px;
+      letter-spacing: 1px;
+      color: var(--ink-soft);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      &::before {
+        @include fa("\f005"); /* star */
+        font-size: 8px;
+        color: var(--gold);
+      }
+    }
+  }
+  .rec-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    li {
+      position: relative;
+      font-family: var(--hb-font-num);
+      color: var(--ink-strong);
+      font-size: 14px;
+      padding-left: 18px;
+
+      &::before {
+        content: "";
+        position: absolute;
+        left: 3px;
+        top: 50%;
+        width: 7px;
+        height: 7px;
+        background: var(--gold);
+        transform: translateY(-50%) rotate(45deg);
+      }
+    }
+  }
+  .rec-people {
+    font-family: var(--hb-font-num);
+    color: var(--ink-strong);
+    font-size: 14px;
+    padding-left: 6px;
+  }
+  .rec-memo {
+    background: var(--parchment-sunk);
+    border: 1px solid var(--rule);
+    border-radius: var(--hb-radius-sm);
+    padding: 10px 14px;
+    font-family: var(--hb-font-num);
+    color: var(--ink-strong);
+    font-size: 14px;
+    box-shadow: inset 0 1px 3px rgba(70, 45, 18, 0.1);
+  }
+}
