@@ -51,11 +51,10 @@
     flex-direction: column;
   }
   .item {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    display: flex;
     align-items: center;
-    gap: 1px 9px;
-    padding: 4px;
+    gap: 7px;
+    padding: 2px 4px;
     border-bottom: 1px solid var(--rule);
     font-size: 13px;
 
@@ -67,22 +66,21 @@
     }
   }
   .item__ico {
-    grid-row: 1 / -1;
-    width: 34px;
+    width: 22px;
+    flex: none;
     font-size: 15px;
     color: var(--ink-soft);
     text-align: center;
 
     img {
-      width: 34px;
-      height: 34px;
+      width: 18px;
+      height: 18px;
       object-fit: contain;
       border: none;
     }
   }
   .item__name {
-    grid-column: 2;
-    grid-row: 1;
+    flex: 1;
     min-width: 0;
     color: var(--ink-strong);
     cursor: pointer;
@@ -90,20 +88,42 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .item__meta {
-    grid-column: 2;
-    grid-row: 2;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
-  }
-  .item__acts {
-    grid-column: 3;
-    grid-row: 1 / -1;
-    display: flex;
-    align-items: center;
-    gap: 2px;
+
+  .panel--inv .items .item {
+    gap: 9px;
+    padding: 4px;
+
+    .item__ico {
+      width: 38px;
+      height: 38px;
+
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .item__info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .item__name {
+      flex: none;
+    }
+    .item__meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .item__acts {
+      flex: none;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
   }
   .item__loc {
     flex: none;
@@ -235,17 +255,18 @@
   }
   .bag-frame {
     position: relative; /* .bag-items(absolute inset:0)의 기준 */
-
-    /* 셀 배경이 불투명해 뒤에 깔면 가려진다 — 셀 위, 아이템 아래에 얹는다. */
-    &::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      background: var(--bag-img, none) center / contain no-repeat;
-      opacity: 0.12;
-      pointer-events: none;
-    }
+  }
+  /* 셀 배경이 불투명해 뒤에 깔면 가려진다 — 셀 위, 아이템 아래에 얹는다. */
+  .bag-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0.12;
+    pointer-events: none;
+    border: none;
   }
   .bag-cells,
   .bag-items {
