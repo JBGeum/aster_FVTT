@@ -16,11 +16,9 @@
   </span>
 </div>
 
-<div
-  class="bag-grid"
-  style="--bag-cols: {{inv.bag.grid.cols}}; --bag-rows: {{inv.bag.grid.rows}}; --bag-img: url('{{inv.bag.img}}')"
->
+<div class="bag-grid" style="--bag-cols: {{inv.bag.grid.cols}}; --bag-rows: {{inv.bag.grid.rows}}">
   <div class="bag-frame">
+    <img class="bag-bg" src="{{inv.bag.img}}" alt="" draggable="false" />
     <div class="bag-cells">
       {{#each inv.bag.cells as |cell|}} {{#if cell.dead}}
       <div class="bcell bcell--dead"></div>
@@ -144,16 +142,18 @@
   {{#each inv.allItems as |it|}}
   <div class="item {{#if it.isMagicToolInactive}}magic-tool-inactive{{/if}}">
     <span class="item__ico pixelart"><img src="{{it.img}}" alt="{{it.name}}" draggable="false" /></span>
-    <span class="item__name" data-action="itemChat" data-item-id="{{it.id}}" {{tooltipHtml it.tooltip}}
-      >{{it.name}}</span
-    >
-    <span class="item__meta">
-      {{#if it.isMagicToolInactive}}
-      <span class="inactive-badge" title="{{localize 'ASTER.equipment.inactiveTooltip'}}"
-        >{{localize "ASTER.equipment.inactiveBadge"}}</span
+    <span class="item__info">
+      <span class="item__name" data-action="itemChat" data-item-id="{{it.id}}" {{tooltipHtml it.tooltip}}
+        >{{it.name}}</span
       >
-      {{/if}}
-      <span class="item__loc">{{it.locationLabel}}</span>
+      <span class="item__meta">
+        {{#if it.isMagicToolInactive}}
+        <span class="inactive-badge" title="{{localize 'ASTER.equipment.inactiveTooltip'}}"
+          >{{localize "ASTER.equipment.inactiveBadge"}}</span
+        >
+        {{/if}}
+        <span class="item__loc">{{it.locationLabel}}</span>
+      </span>
     </span>
     <span class="item__acts">
       {{#if it.isEquipment}}
