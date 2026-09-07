@@ -16,7 +16,10 @@
   </span>
 </div>
 
-<div class="bag-grid" style="--bag-cols: {{inv.bag.grid.cols}}; --bag-rows: {{inv.bag.grid.rows}}">
+<div
+  class="bag-grid"
+  style="--bag-cols: {{inv.bag.grid.cols}}; --bag-rows: {{inv.bag.grid.rows}}; --bag-img: url('{{inv.bag.img}}')"
+>
   <div class="bag-frame">
     <div class="bag-cells">
       {{#each inv.bag.cells as |cell|}} {{#if cell.dead}}
@@ -144,51 +147,55 @@
     <span class="item__name" data-action="itemChat" data-item-id="{{it.id}}" {{tooltipHtml it.tooltip}}
       >{{it.name}}</span
     >
-    {{#if it.isMagicToolInactive}}
-    <span class="inactive-badge" title="{{localize 'ASTER.equipment.inactiveTooltip'}}"
-      >{{localize "ASTER.equipment.inactiveBadge"}}</span
-    >
-    {{/if}}
-    <span class="item__loc">{{it.locationLabel}}</span>
-    {{#if it.isEquipment}}
-    <button
-      type="button"
-      class="item__act"
-      data-action="equipmentEquip"
-      data-item-id="{{it.id}}"
-      title="{{localize 'ASTER.equipment.equipTooltip'}}"
-    >
-      {{localize "ASTER.equipment.equipBtn"}}
-    </button>
-    {{/if}} {{#if it.canUse}}
-    <button
-      type="button"
-      class="item__act"
-      data-action="consumableUse"
-      data-item-id="{{it.id}}"
-      title="{{localize 'ASTER.consumable.useBtn'}}"
-    >
-      <i class="fas fa-flask-round-potion"></i>
-    </button>
-    {{/if}}
-    <button
-      type="button"
-      class="item__edit"
-      data-action="itemEdit"
-      data-item-id="{{it.id}}"
-      title="{{localize 'ASTER.inventory.edit'}}"
-    >
-      ✎
-    </button>
-    <button
-      type="button"
-      class="item__del"
-      data-action="itemDelete"
-      data-item-id="{{it.id}}"
-      title="{{localize 'ASTER.inventory.delete'}}"
-    >
-      ✕
-    </button>
+    <span class="item__meta">
+      {{#if it.isMagicToolInactive}}
+      <span class="inactive-badge" title="{{localize 'ASTER.equipment.inactiveTooltip'}}"
+        >{{localize "ASTER.equipment.inactiveBadge"}}</span
+      >
+      {{/if}}
+      <span class="item__loc">{{it.locationLabel}}</span>
+    </span>
+    <span class="item__acts">
+      {{#if it.isEquipment}}
+      <button
+        type="button"
+        class="item__act"
+        data-action="equipmentEquip"
+        data-item-id="{{it.id}}"
+        title="{{localize 'ASTER.equipment.equipTooltip'}}"
+      >
+        {{localize "ASTER.equipment.equipBtn"}}
+      </button>
+      {{/if}} {{#if it.canUse}}
+      <button
+        type="button"
+        class="item__act"
+        data-action="consumableUse"
+        data-item-id="{{it.id}}"
+        title="{{localize 'ASTER.consumable.useBtn'}}"
+      >
+        <i class="fas fa-flask-round-potion"></i>
+      </button>
+      {{/if}}
+      <button
+        type="button"
+        class="item__edit"
+        data-action="itemEdit"
+        data-item-id="{{it.id}}"
+        title="{{localize 'ASTER.inventory.edit'}}"
+      >
+        ✎
+      </button>
+      <button
+        type="button"
+        class="item__del"
+        data-action="itemDelete"
+        data-item-id="{{it.id}}"
+        title="{{localize 'ASTER.inventory.delete'}}"
+      >
+        ✕
+      </button>
+    </span>
   </div>
   {{else}}
   <p class="ap-note">{{localize "ASTER.inventory.noItems"}}</p>
