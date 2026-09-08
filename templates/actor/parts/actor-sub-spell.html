@@ -14,7 +14,15 @@
     >
       <img src="{{s.img}}" alt="{{s.name}}" draggable="false" />
     </div>
-    <div class="spell-card__name" data-action="spellCast" data-item-id="{{s.id}}" {{tooltipHtml s.tooltip}}>
+    <div
+      class="spell-card__name"
+      data-action="spellCast"
+      data-item-id="{{s.id}}"
+      role="button"
+      tabindex="0"
+      {{tooltipHtml
+      s.tooltip}}
+    >
       {{s.name}}
     </div>
     <div class="spell-card__meta">

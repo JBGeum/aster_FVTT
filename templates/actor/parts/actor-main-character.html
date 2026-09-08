@@ -33,7 +33,13 @@
         </div>
         <div class="roll__target">
           <span class="lbl">{{localize "ASTER.check.targetShort"}}</span>
-          <span class="seal num"><input type="number" name="system.dc" value="{{system.dc}}" /></span>
+          <span class="seal num"
+            ><input
+              type="number"
+              name="system.dc"
+              value="{{system.dc}}"
+              aria-label="{{localize 'ASTER.check.targetShort'}}"
+          /></span>
         </div>
       </div>
       <button type="button" class="btn-cast" data-action="emoRoll" data-label="ASTER.emo.rollLabel">
@@ -50,16 +56,33 @@
       <div class="attrs">
         {{#each system.ability as |ability key|}}
         <div class="attr">
-          <div class="attr__name abl-roll" data-action="ablRoll" data-ability="{{key}}" data-label="{{ability.label}}">
+          <div
+            class="attr__name abl-roll"
+            data-action="ablRoll"
+            data-ability="{{key}}"
+            data-label="{{ability.label}}"
+            role="button"
+            tabindex="0"
+          >
             {{ability.label}}
           </div>
           <div class="attr__main num">{{ability.total}}</div>
           <div class="attr__cells">
             <div class="cell num">
-              <input type="number" name="system.ability.{{key}}.base" value="{{ability.baseSrc}}" />
+              <input
+                type="number"
+                name="system.ability.{{key}}.base"
+                value="{{ability.baseSrc}}"
+                aria-label="{{localize 'ASTER.a11y.base' label=ability.label}}"
+              />
             </div>
             <div class="cell cell--accent num">
-              <input type="number" name="system.ability.{{key}}.mod" value="{{ability.modSrc}}" />
+              <input
+                type="number"
+                name="system.ability.{{key}}.mod"
+                value="{{ability.modSrc}}"
+                aria-label="{{localize 'ASTER.a11y.mod' label=ability.label}}"
+              />
             </div>
           </div>
         </div>
@@ -74,9 +97,19 @@
           <div class="vessel">
             <div class="vessel__fill vessel__fill--hp" style="right: {{healthEmptyPct}}%"></div>
             <div class="vessel__txt num">
-              <input type="number" name="system.health.value" value="{{src.health.value}}" />
+              <input
+                type="number"
+                name="system.health.value"
+                value="{{src.health.value}}"
+                aria-label="{{localize 'ASTER.a11y.healthValue'}}"
+              />
               /
-              <input type="number" name="system.health.max" value="{{src.health.max}}" />
+              <input
+                type="number"
+                name="system.health.max"
+                value="{{src.health.max}}"
+                aria-label="{{localize 'ASTER.a11y.healthMax'}}"
+              />
             </div>
           </div>
         </div>
@@ -85,9 +118,19 @@
           <div class="vessel">
             <div class="vessel__fill vessel__fill--sat" style="right: {{satietyEmptyPct}}%"></div>
             <div class="vessel__txt num">
-              <input type="number" name="system.satiety.value" value="{{src.satiety.value}}" />
+              <input
+                type="number"
+                name="system.satiety.value"
+                value="{{src.satiety.value}}"
+                aria-label="{{localize 'ASTER.a11y.satietyValue'}}"
+              />
               /
-              <input type="number" name="system.satiety.max" value="{{src.satiety.max}}" />
+              <input
+                type="number"
+                name="system.satiety.max"
+                value="{{src.satiety.max}}"
+                aria-label="{{localize 'ASTER.a11y.satietyMax'}}"
+              />
             </div>
           </div>
         </div>
@@ -137,11 +180,31 @@
         <div class="el__dot el__dot--{{key}}"></div>
         <div class="el__name">{{aster.label}}</div>
         <div class="el__step">
-          <span class="minus" data-action="asterStep" data-aster="{{key}}" data-dir="-1">-</span>
-          <span class="plus" data-action="asterStep" data-aster="{{key}}" data-dir="1">+</span>
+          <span
+            class="minus"
+            data-action="asterStep"
+            data-aster="{{key}}"
+            data-dir="-1"
+            role="button"
+            tabindex="0"
+            aria-label="{{aster.label}} -1"
+            >-</span
+          >
+          <span
+            class="plus"
+            data-action="asterStep"
+            data-aster="{{key}}"
+            data-dir="1"
+            role="button"
+            tabindex="0"
+            aria-label="{{aster.label}} +1"
+            >+</span
+          >
         </div>
       </div>
-      <div class="el__val num"><input type="number" name="system.aster.{{key}}.value" value="{{aster.value}}" /></div>
+      <div class="el__val num">
+        <input type="number" name="system.aster.{{key}}.value" value="{{aster.value}}" aria-label="{{aster.label}}" />
+      </div>
     </div>
     {{/each}}
     <div class="el el--mat">
@@ -149,7 +212,14 @@
         <div class="el__dot el__dot--mat"></div>
         <div class="el__name">{{localize "ASTER.label.material"}}</div>
       </div>
-      <div class="el__val num"><input type="number" name="system.material" value="{{system.material}}" /></div>
+      <div class="el__val num">
+        <input
+          type="number"
+          name="system.material"
+          value="{{system.material}}"
+          aria-label="{{localize 'ASTER.label.material'}}"
+        />
+      </div>
     </div>
   </div>
 </section>

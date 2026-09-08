@@ -161,6 +161,14 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   _onRender(context, options) {
     super._onRender(context, options);
 
+    for (const el of this.element.querySelectorAll('[role="button"][data-action]')) {
+      el.addEventListener("keydown", (ev) => {
+        if (ev.key !== "Enter" && ev.key !== " ") return;
+        ev.preventDefault();
+        el.click();
+      });
+    }
+
     // NPC 시트는 탭 없는 flat 폼이라 매칭 요소가 없다 — changeTab은 요소 부재 시 throw하므로
     // 해당 탭 네비가 실제로 렌더된 경우에만 호출한다.
     for (const [group, tab] of Object.entries(this.tabGroups)) {
@@ -415,6 +423,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const item = this.actor.items.get(target.dataset.itemId);
     if (!item) return;
     const confirmed = await foundry.applications.api.DialogV2.confirm({
+      classes: ["hb-dialog"],
       window: { title: game.i18n.localize("ASTER.inventory.deleteConfirm") },
       content: `<p>${game.i18n.format("ASTER.inventory.deleteMsg", { name: item.name })}</p>`,
     });
@@ -481,6 +490,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const effect = this.actor.effects.get(target.dataset.effectId);
     if (!effect) return;
     const confirmed = await foundry.applications.api.DialogV2.confirm({
+      classes: ["hb-dialog"],
       window: { title: game.i18n.localize("ASTER.effects.deleteConfirm") },
       content: `<p>${game.i18n.format("ASTER.effects.deleteMsg", { name: effect.name })}</p>`,
     });
@@ -567,6 +577,7 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async #onRecordDelete(_event, target) {
     const ok = await foundry.applications.api.DialogV2.confirm({
+      classes: ["hb-dialog"],
       window: { title: game.i18n.localize("ASTER.record.delete") },
       content: game.i18n.localize("ASTER.record.deleteConfirm"),
     }).catch(() => false);

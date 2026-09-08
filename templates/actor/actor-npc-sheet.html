@@ -15,7 +15,13 @@
           <div class="stat stat--cr">
             <label>{{localize "ASTER.label.cr"}}</label>
             <div class="input-line">
-              <input type="number" name="system.cr" value="{{system.cr}}" min="0" />
+              <input
+                type="number"
+                name="system.cr"
+                value="{{system.cr}}"
+                min="0"
+                aria-label="{{localize 'ASTER.label.cr'}}"
+              />
             </div>
           </div>
         </div>
@@ -25,34 +31,51 @@
             <label>{{localize "ASTER.label.health"}}</label>
             <div class="pair2">
               <div class="input-line">
-                <input type="number" name="system.health.value" value="{{src.health.value}}" />
+                <input
+                  type="number"
+                  name="system.health.value"
+                  value="{{src.health.value}}"
+                  aria-label="{{localize 'ASTER.a11y.healthValue'}}"
+                />
               </div>
               <span class="sep">/</span>
               <div class="input-line">
-                <input type="number" name="system.health.max" value="{{src.health.max}}" />
+                <input
+                  type="number"
+                  name="system.health.max"
+                  value="{{src.health.max}}"
+                  aria-label="{{localize 'ASTER.a11y.healthMax'}}"
+                />
               </div>
             </div>
           </div>
           <div class="stat">
             <label>{{localize "ASTER.label.speed"}}</label>
-            <div class="input-line"><input type="number" name="system.speed" value="{{src.speed}}" /></div>
+            <div class="input-line">
+              <input
+                type="number"
+                name="system.speed"
+                value="{{src.speed}}"
+                aria-label="{{localize 'ASTER.label.speed'}}"
+              />
+            </div>
           </div>
           <div class="stat">
             <label>{{localize "ASTER.label.hitFormula"}}</label>
             <div class="input-line dim">
-              <input type="text" name="system.hitFormula" value="{{system.hitFormula}}" placeholder="3D6+4" />
+              <input type="text" name="system.hitFormula" value="{{system.hitFormula}}" />
             </div>
           </div>
           <div class="stat">
             <label>{{localize "ASTER.label.dodgeFormula"}}</label>
             <div class="input-line dim">
-              <input type="text" name="system.dodgeFormula" value="{{system.dodgeFormula}}" placeholder="2D6+3" />
+              <input type="text" name="system.dodgeFormula" value="{{system.dodgeFormula}}" />
             </div>
           </div>
           <div class="stat">
             <label>{{localize "ASTER.label.apFormula"}}</label>
             <div class="input-line dim">
-              <input type="text" name="system.apFormula" value="{{system.apFormula}}" placeholder="1D6+6" />
+              <input type="text" name="system.apFormula" value="{{system.apFormula}}" />
             </div>
           </div>
         </div>
@@ -100,7 +123,13 @@
         <span class="t">{{localize "ASTER.combat.actionPoints"}}</span>
         <span class="ap-value num">
           {{#if combatContext.inCombat}}
-          <input type="number" class="ap-input" data-ap-input value="{{combatContext.ap}}" />
+          <input
+            type="number"
+            class="ap-input"
+            data-ap-input
+            value="{{combatContext.ap}}"
+            aria-label="{{localize 'ASTER.combat.actionPoints'}}"
+          />
           <span class="ap-max">/ {{combatContext.apMax}}</span>
           {{else}}—{{/if}} {{#if combatContext.focusActive}}<span class="focus-indicator"
             >{{localize "ASTER.combat.focusActiveIndicator"}}</span

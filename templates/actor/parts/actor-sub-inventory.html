@@ -206,6 +206,12 @@
   <span class="k">{{localize "ASTER.inventory.storage"}}</span>
   <span class="box num">
     <span class="count">{{inv.storage.count}}</span> /
-    <input type="number" name="system.storage.limit" value="{{inv.storage.limit}}" min="0" />
+    <input
+      type="number"
+      name="system.storage.limit"
+      value="{{inv.storage.limit}}"
+      min="0"
+      aria-label="{{localize 'ASTER.a11y.storageLimit'}}"
+    />
   </span>
 </div>

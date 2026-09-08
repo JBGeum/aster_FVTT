@@ -9,6 +9,17 @@
         "light": "라이트 모드"
       }
     },
+    "a11y": {
+      "healthValue": "건강 현재값",
+      "healthMax": "건강 최대치",
+      "satietyValue": "포만 현재값",
+      "satietyMax": "포만 최대치",
+      "storageLimit": "창고 한도",
+      "base": "{label} 기본값",
+      "mod": "{label} 보정",
+      "recordPrev": "이전 기록",
+      "recordNext": "다음 기록"
+    },
     "ability": {
       "active": "활발",
       "knowledge": "박식",
