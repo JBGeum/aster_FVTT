@@ -133,6 +133,17 @@
     }
   }
 
+  /* 위 input 규칙이 (0,4,1)이라 격자 밖에서는 폭을 되돌릴 수 없다. */
+  .pick-grid input[type="number"],
+  .grant-grid input[type="number"] {
+    width: 48px;
+    text-align: center;
+  }
+
+  input[type="number"].pick-any {
+    border-style: dashed;
+  }
+
   /* select — 음각 양피지 + 금빛 화살표(appearance:none 필수: 코어 화살표 제거) */
   select {
     appearance: none;
@@ -521,4 +532,64 @@
 }
 .hb-dialog .craft-shortage li {
   margin-bottom: 4px;
+}
+.hb-dialog .grant-mode {
+  display: flex;
+  gap: 16px;
+}
+.hb-dialog .grant-inputs {
+  max-height: 34vh;
+  overflow-y: auto;
+}
+.hb-dialog .pick-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--pick-cols), auto);
+  justify-content: center;
+  align-items: center;
+  gap: 5px 14px;
+}
+.hb-dialog .grant-grid {
+  display: grid;
+  grid-template-columns: 90px repeat(var(--pick-cols), auto);
+  // start가 없으면 auto 트랙이 다이얼로그 폭까지 늘어나 고정폭 input이 왼쪽에 붙는다.
+  justify-content: start;
+  justify-items: center;
+  align-items: center;
+  gap: 5px 10px;
+}
+.hb-dialog .pick-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 0.92em;
+  color: var(--d-soft);
+}
+.hb-dialog .pick-head .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+  border: 1px solid rgba(60, 40, 18, 0.35);
+}
+.hb-dialog .pick-head.el-red .dot {
+  background: var(--el-red);
+}
+.hb-dialog .pick-head.el-blue .dot {
+  background: var(--el-blue);
+}
+.hb-dialog .pick-head.el-green .dot {
+  background: var(--el-green);
+}
+.hb-dialog .pick-head.el-yellow .dot {
+  background: var(--el-yellow);
+}
+.hb-dialog .pick-head.el-white .dot {
+  background: var(--el-white);
+}
+.hb-dialog .grant-pc-name {
+  justify-self: start;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

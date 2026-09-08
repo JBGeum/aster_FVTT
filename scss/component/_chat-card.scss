@@ -1277,25 +1277,27 @@
   color: var(--cc-ink-soft) !important;
 }
 
-// ── 후속 카드 — 아스테르 획득(대성공) / 경계도 상승(대실패) ──
-.aster-chat-card.aster-gain-card {
-  border-color: var(--cc-crit);
+// ── 지급 카드 — GM 발생 / 대성공 획득 ──
+.aster-chat-card.aster-grant-card {
   position: relative;
   overflow: hidden;
+}
+.aster-chat-card.aster-grant-card.from-crit {
+  border-color: var(--cc-crit);
   box-shadow:
     inset 0 0 0 1px rgba(246, 239, 218, 0.5),
     0 0 0 1px rgba(176, 125, 39, 0.22),
     0 0 14px var(--cc-crit-glow),
     0 2px 7px rgba(60, 40, 18, 0.16);
 }
-.aster-gain-card .card-header .name::before {
+.aster-grant-card.from-crit .card-header .name::before {
   @include fa("\f005");
   color: var(--cc-crit);
   margin-right: 7px;
   font-size: 0.82em;
   vertical-align: 1px;
 }
-.aster-gain-card::after {
+.aster-grant-card.from-crit::after {
   @include fa("\f005"); // 우상단 별 워터마크
   position: absolute;
   top: -16px;
@@ -1307,56 +1309,77 @@
   transform: rotate(18deg);
   pointer-events: none;
 }
-.aster-gain-card .gain-body {
+.aster-grant-card .grant-body {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 7px;
-  padding: 3px 0 2px;
+  padding: 2px 0;
 }
-.aster-gain-card .gain-chips {
+.aster-grant-card .grant-row {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
 }
-.aster-gain-card .gain-chip {
+.aster-grant-card .grant-names {
+  font-size: 0.86rem;
+  color: var(--cc-ink-soft);
+}
+.aster-grant-card .grant-gains {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.aster-grant-card .gain-bonus {
+  font-size: 0.8rem;
+  color: var(--cc-ink-faint);
+}
+.aster-grant-card .grant-arrow {
+  color: var(--cc-ink-faint);
+}
+.aster-grant-card .gain-chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 16px;
-  border-radius: 20px;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 12px;
   @include num;
   font-weight: 700;
-  font-size: 1.02rem;
+  font-size: 0.88rem;
   color: var(--cc-ink);
-  background: var(--cc-win-bg);
-  border: 1px solid var(--cc-crit);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    0 1px 4px rgba(60, 40, 18, 0.14);
+  background: var(--cc-sunk);
+  border: 1px solid var(--cc-rule);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
-.aster-gain-card .gain-chip .dot {
-  width: 13px;
-  height: 13px;
+.aster-grant-card.from-crit .gain-chip {
+  background: var(--cc-win-bg);
+  border-color: var(--cc-crit);
+}
+.aster-grant-card .gain-chip.el-any {
+  border-style: dashed;
+}
+.aster-grant-card .gain-chip .dot {
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   flex: none;
   border: 1px solid rgba(60, 40, 18, 0.35);
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35);
 }
-.aster-gain-card .gain-chip.el-red .dot {
+.aster-grant-card .gain-chip.el-red .dot {
   background: var(--cc-el-red);
 }
-.aster-gain-card .gain-chip.el-blue .dot {
+.aster-grant-card .gain-chip.el-blue .dot {
   background: var(--cc-el-blue);
 }
-.aster-gain-card .gain-chip.el-green .dot {
+.aster-grant-card .gain-chip.el-green .dot {
   background: var(--cc-el-green);
 }
-.aster-gain-card .gain-chip.el-yellow .dot {
+.aster-grant-card .gain-chip.el-yellow .dot {
   background: var(--cc-el-yellow);
 }
-.aster-gain-card .gain-chip.el-white .dot {
+.aster-grant-card .gain-chip.el-white .dot {
   background: #e9ddc0;
 }
 .aster-chat-card.alert-rise-card {
@@ -1599,7 +1622,10 @@
       0 2px 10px rgba(0, 0, 0, 0.5);
   }
   // 후속 카드 — 다크 보정
-  &.aster-gain-card {
+  &.aster-grant-card .gain-chip .dot {
+    border-color: rgba(0, 0, 0, 0.4);
+  }
+  &.aster-grant-card.from-crit {
     box-shadow:
       inset 0 0 0 1px rgba(255, 255, 255, 0.05),
       0 0 0 1px rgba(236, 205, 106, 0.3),
@@ -1609,9 +1635,6 @@
       box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.12),
         0 0 8px rgba(236, 205, 106, 0.18);
-      .dot {
-        border-color: rgba(0, 0, 0, 0.4);
-      }
     }
   }
   &.alert-rise-card {
