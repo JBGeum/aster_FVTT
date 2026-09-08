@@ -490,8 +490,11 @@
       "cancelled": "마법 판정이 취소되었습니다.",
       "warn": {
         "noColor": "이 마법은 속성 색이 지정되지 않았습니다.",
-        "notEnoughAster": "{color} 아스테르가 부족합니다 (필요 {need} / 보유 {have})"
+        "notEnoughAster": "{color} 아스테르가 부족합니다 (필요 {need} / 보유 {have})",
+        "notEnoughAP": "액션 포인트가 부족해 시전하지 않았습니다 (필요 {need} / 보유 {have})"
       },
+      "costInterrupt": "끼어들기 · 라운드 1회",
+      "costAP": "AP {n}",
       "book": "주문서"
     },
     "dice": {

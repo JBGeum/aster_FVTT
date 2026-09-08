@@ -25,6 +25,16 @@ export function formatFormula(spell) {
   return `${c}+${a}(${spell.system.target ?? "?"})`;
 }
 
+/**
+ * @param {{ap: number, interrupt: boolean}} cost
+ * @returns {string}  비용이 없으면 빈 문자열
+ */
+export function spellCostTag(cost) {
+  if (cost.interrupt) return game.i18n.localize("ASTER.spell.costInterrupt");
+  if (cost.ap > 0) return game.i18n.format("ASTER.spell.costAP", { n: cost.ap });
+  return "";
+}
+
 export function inventorySummary(item) {
   if (item.type === "consumable") {
     const sys = item.system;

@@ -17,7 +17,11 @@
     <div class="spell-card__name" data-action="spellCast" data-item-id="{{s.id}}" {{tooltipHtml s.tooltip}}>
       {{s.name}}
     </div>
-    <div class="spell-card__meta">{{s.formula}}</div>
+    <div class="spell-card__meta">
+      {{s.formula}} {{#if s.costTag}}<span class="spell-cost{{#if s.interrupt}} spell-cost--interrupt{{/if}}"
+        >{{s.costTag}}</span
+      >{{/if}}
+    </div>
     <div class="spell-card__tools">
       <span data-action="spellCastWithExtra" data-item-id="{{s.id}}" title="{{localize 'ASTER.spell.castWithExtra'}}">
         <i class="fas fa-dice-d6"></i>
