@@ -118,6 +118,7 @@ export async function acquireSkill({ actor, skillId, target }) {
  */
 export async function resetCraft({ actor }) {
   const ok = await foundry.applications.api.DialogV2.confirm({
+    classes: ["hb-dialog"],
     window: { title: game.i18n.localize("ASTER.craft.reset") },
     content: game.i18n.localize("ASTER.craft.resetConfirm"),
   }).catch(() => false);

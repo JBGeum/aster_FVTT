@@ -42,6 +42,7 @@ export async function requestRevive(fallenActor) {
     })
     .join("");
   const confirmed = await foundry.applications.api.DialogV2.confirm({
+    classes: ["hb-dialog"],
     window: { title: game.i18n.localize("ASTER.revive.confirmTitle") },
     content: `<div class="revive-confirm">
       <p>${game.i18n.localize("ASTER.revive.confirmIntro1")}</p>

@@ -63,6 +63,7 @@ Hooks.on("preCreateItem", (item, _data, _options, _userId) => {
  */
 async function promptFoodReplace(actor, existing, newData) {
   const confirmed = await foundry.applications.api.DialogV2.confirm({
+    classes: ["hb-dialog"],
     window: { title: game.i18n.localize("ASTER.food.replaceConfirmTitle") },
     content: `<div class="food-replace-confirm">
       <p>${game.i18n.localize("ASTER.food.replaceIntro")}</p>

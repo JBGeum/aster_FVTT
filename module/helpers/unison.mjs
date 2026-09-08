@@ -46,6 +46,7 @@ export async function performUnisonAttack({ actor }) {
     .map((c) => `<option value="${c.id}">${c.actor.name}</option>`)
     .join("");
   const pairId = await foundry.applications.api.DialogV2.prompt({
+    classes: ["hb-dialog"],
     window: { title: game.i18n.localize("ASTER.combat.unisonPairTitle") },
     content: `<div class="form-group">
       <label>${game.i18n.localize("ASTER.combat.unisonPairLabel")}</label>
@@ -81,6 +82,7 @@ export async function performUnisonAttack({ actor }) {
       <p>${game.i18n.localize(`ASTER.combat.unisonSubDesc.${sub}`)}</p>`;
   };
   const mainColor = await foundry.applications.api.DialogV2.prompt({
+    classes: ["hb-dialog"],
     window: { title: game.i18n.localize("ASTER.combat.unisonMainColorTitle") },
     content: `<div class="form-group">
       <label>${game.i18n.localize("ASTER.combat.unisonMainLabel")}</label>
@@ -402,6 +404,7 @@ async function unisonSubRed() {
     (s) => `<option value="${s.key}">${game.i18n.localize(badstatusI18nKey(s.key))}</option>`,
   ).join("");
   const statusKey = await foundry.applications.api.DialogV2.prompt({
+    classes: ["hb-dialog"],
     window: { title: game.i18n.localize("ASTER.combat.unisonSubRedTitle") },
     content: `<div class="form-group">
       <label>${game.i18n.localize("ASTER.combat.unisonSubRedLabel")}</label>
@@ -424,6 +427,7 @@ async function unisonSubBlue() {
     .map((c) => `<option value="${c.id}">${c.actor.name}</option>`)
     .join("");
   const allyCombatantId = await foundry.applications.api.DialogV2.prompt({
+    classes: ["hb-dialog"],
     window: { title: game.i18n.localize("ASTER.combat.unisonSubBlueTitle") },
     content: `<div class="form-group">
       <label>${game.i18n.localize("ASTER.combat.unisonSubBlueLabel")}</label>
@@ -447,6 +451,7 @@ async function unisonSubGreen() {
     .map((c) => `<option value="${c.id}">${c.actor.name}</option>`)
     .join("");
   const result = await foundry.applications.api.DialogV2.prompt({
+    classes: ["hb-dialog"],
     window: { title: game.i18n.localize("ASTER.combat.unisonSubGreenTitle") },
     content: `<div class="form-group">
       <label>${game.i18n.localize("ASTER.combat.unisonSubGreenAllyLabel")}</label>
@@ -484,6 +489,7 @@ async function unisonSubYellow() {
     .map((k) => `<option value="${k}">${game.i18n.localize(badstatusI18nKey(k))}</option>`)
     .join("");
   const statusKey = await foundry.applications.api.DialogV2.prompt({
+    classes: ["hb-dialog"],
     window: { title: game.i18n.localize("ASTER.combat.unisonSubYellowTitle") },
     content: `<div class="form-group">
       <label>${game.i18n.localize("ASTER.combat.unisonSubYellowLabel")}</label>

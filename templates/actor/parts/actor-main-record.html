@@ -47,9 +47,25 @@
 
     <div class="record-nav">
       <div class="pager">
-        <button type="button" class="pager-btn" data-action="recordPrev" {{recordPrevDisabled}}>◀</button>
+        <button
+          type="button"
+          class="pager-btn"
+          data-action="recordPrev"
+          aria-label="{{localize 'ASTER.a11y.recordPrev'}}"
+          {{recordPrevDisabled}}
+        >
+          ◀
+        </button>
         <span class="count num">{{currentPage}} / {{recordCount}}</span>
-        <button type="button" class="pager-btn" data-action="recordNext" {{recordNextDisabled}}>▶</button>
+        <button
+          type="button"
+          class="pager-btn"
+          data-action="recordNext"
+          aria-label="{{localize 'ASTER.a11y.recordNext'}}"
+          {{recordNextDisabled}}
+        >
+          ▶
+        </button>
       </div>
       <div class="record-actions">
         <button type="button" class="rec-btn rec-btn--add" data-action="recordAdd">

@@ -227,6 +227,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
 
       const total = Number(btn.dataset.total) || 0;
       const r = await foundry.applications.api.DialogV2.prompt({
+        classes: ["hb-dialog"],
         window: { title: game.i18n.localize("ASTER.tracker.sumTitle") },
         content: `
           <p class="tracker-sum-hint">${game.i18n.format("ASTER.tracker.sumHint", { total })}</p>

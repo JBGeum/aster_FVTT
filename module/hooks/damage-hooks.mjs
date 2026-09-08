@@ -53,6 +53,7 @@ async function promptDamageDialog(targetActor, defaultDamage) {
     .join("");
 
   return foundry.applications.api.DialogV2.prompt({
+    classes: ["hb-dialog"],
     window: { title: game.i18n.localize("ASTER.damage.dialogTitle") },
     content: `
       <div class="form-group">

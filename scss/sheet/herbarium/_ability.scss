@@ -295,7 +295,6 @@
   .el--mat {
     grid-column: span 1;
   }
-  /* hover 증감 오버레이 */
   .el__step {
     position: absolute;
     inset: 0;
@@ -304,7 +303,8 @@
     opacity: 0;
     transition: opacity 0.12s ease;
   }
-  .el:hover .el__step {
+  .el:hover .el__step,
+  .el__head:focus-within .el__step {
     opacity: 1;
   }
   .el__step span {
