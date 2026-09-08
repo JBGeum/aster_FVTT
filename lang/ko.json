@@ -29,11 +29,30 @@
       "roll": "정동판정",
       "rollLabel": "정동판정",
       "favLabel": "특기색",
-      "generate": "아스테르 발생",
-      "generateTitle": "정동판정 — 아스테르 발생",
-      "generateHint": "발생할 색별 개수를 입력하세요. (1인당 1~5개)",
-      "generated": "아스테르 발생",
-      "invalidTotal": "발생 개수 합계는 1~5개여야 합니다."
+      "generate": "아스테르 발생"
+    },
+    "grant": {
+      "dialogTitle": "아스테르 발생",
+      "targets": "대상",
+      "mode": "입력 방식",
+      "modeSame": "전원 동일",
+      "modeEach": "PC별 개별",
+      "anyLabel": "임의",
+      "emoMode": "정동판정 지급",
+      "reason": "사유",
+      "confirm": "발생",
+      "cardTitle": "아스테르 발생",
+      "anyChip": "임의 {n}",
+      "pick": "색 선택",
+      "pickTitle": "임의 아스테르",
+      "pickHint": "받을 색별 개수를 입력하세요. (합계 {n}개)",
+      "bonusNote": "(특기 +1 포함)",
+      "warn": {
+        "noTargets": "대상을 한 명 이상 선택하세요.",
+        "invalidTotal": "1인당 합계는 1~5개여야 합니다 — {list}",
+        "pickTotal": "합계는 정확히 {n}개여야 합니다.",
+        "alreadyPicked": "이미 색을 선택했습니다."
+      }
     },
     "roll": {
       "critical": "대성공",

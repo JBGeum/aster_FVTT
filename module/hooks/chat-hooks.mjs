@@ -1,16 +1,23 @@
 /**
- * import 시 top-level에서 Hooks.on("renderChatMessageHTML", ...) 1건을 등록한다(부수효과).
+ * import 시 top-level에서 Hooks.on("renderChatMessageHTML", ...)와
+ * Hooks.on("updateActor", ...) 2건을 등록한다(부수효과).
  */
 import { applyDelta, applySet } from "../helpers/tracker-ops.mjs";
 import { commitTrackers } from "../helpers/tracker-commit.mjs";
 import { rangeFormula } from "../helpers/range-roll.mjs";
 import { resolveActor } from "../helpers/actor-resolve.mjs";
+import {
+  postAsterGrantCard,
+  runAsterPick,
+  replacePickedRow,
+  refreshGrantCard,
+  colorPickGridHTML,
+} from "../helpers/aster-grant.mjs";
+import { PICK_COLORS } from "../helpers/aster-grant-ops.mjs";
 
 /* -------------------------------------------- */
 /*  대성공/대실패 후속 버튼                      */
 /* -------------------------------------------- */
-
-const CRIT_COLORS = ["red", "blue", "white", "yellow", "green"];
 
 Hooks.on("renderChatMessageHTML", (message, html) => {
   // 경계도·트래커 버튼은 GM 전용 — 비-GM 뷰어에게는 제거한다.
@@ -39,24 +46,21 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
         return;
       }
 
-      const rows = CRIT_COLORS.map((k) => {
-        const label = game.i18n.localize(`ASTER.aster.${k}`);
-        return `<div class="form-group"><label>${label}</label>
-                <input type="number" name="${k}" value="0" min="0" max="2" /></div>`;
-      }).join("");
-
       const result = await foundry.applications.api.DialogV2.prompt({
         classes: ["hb-dialog"],
         window: {
           title: game.i18n.localize("ASTER.roll.critGainTitle"),
           icon: "fa-solid fa-star",
         },
-        content: `<p class="crit-gain-hint">${game.i18n.localize("ASTER.roll.critGainHint")}</p>${rows}`,
+        position: { width: 420 },
+        content: `<p class="crit-gain-hint">${game.i18n.localize("ASTER.roll.critGainHint")}</p>${colorPickGridHTML(PICK_COLORS, 2)}`,
         ok: {
           icon: "fa-solid fa-check",
           label: game.i18n.localize("ASTER.roll.critGain"),
           callback: (_e, b) =>
-            Object.fromEntries(CRIT_COLORS.map((k) => [k, Number(b.form.elements[k].value) || 0])),
+            Object.fromEntries(
+              PICK_COLORS.map((k) => [k, Math.max(0, Number(b.form.elements[k].value) || 0)]),
+            ),
         },
       }).catch(() => null);
       if (!result) return;
@@ -68,7 +72,7 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
       }
 
       const update = {};
-      for (const k of CRIT_COLORS) {
+      for (const k of PICK_COLORS) {
         if (result[k] > 0) {
           const cur = actor.system.aster?.[k]?.value ?? 0;
           update[`system.aster.${k}.value`] = cur + result[k];
@@ -76,23 +80,39 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
       }
       await actor.update(update);
 
-      const chips = CRIT_COLORS.filter((k) => result[k] > 0)
-        .map(
-          (k) =>
-            `<span class="gain-chip el-${k}"><i class="dot"></i>${game.i18n.localize(`ASTER.aster.${k}`)} +${result[k]}</span>`,
-        )
-        .join("");
-      await ChatMessage.create({
-        content: `<div class="aster-chat-card aster-gain-card">
-          <header class="card-header"><div class="title">
-            <div class="name">${game.i18n.localize("ASTER.roll.critGainTitle")}</div>
-            <div class="formula">${actor.name} — ${game.i18n.localize("ASTER.roll.critical")}</div>
-          </div></header>
-          <div class="gain-body"><div class="gain-chips">${chips}</div></div>
-        </div>`,
-        speaker: ChatMessage.getSpeaker({ actor }),
-      });
+      await postAsterGrantCard(
+        [
+          {
+            actorId: actor.id,
+            name: actor.name,
+            favColor: null,
+            gains: { ...result, white: 0 },
+            any: 0,
+            bonus: null,
+          },
+        ],
+        {
+          subtitle: `${actor.name} — ${game.i18n.localize("ASTER.roll.critical")}`,
+          speaker: ChatMessage.getSpeaker({ actor }),
+          crit: true,
+        },
+      );
     });
+  });
+
+  // ----- 임의 지급: PL이 색 선택 -----
+  html.querySelectorAll("[data-action='aster-pick']").forEach((btn) => {
+    const actor = resolveActor({ uuid: btn.dataset.actorUuid, id: btn.dataset.actorId });
+    const picked = actor?.getFlag("aster", `grant.${message.id}`);
+    if (picked) {
+      replacePickedRow(btn, picked);
+      return;
+    }
+    if (!actor?.isOwner) {
+      btn.remove();
+      return;
+    }
+    btn.addEventListener("click", () => runAsterPick(message, btn));
   });
 
   // ----- 대실패: 경계도 +1d6 -----
@@ -253,4 +273,18 @@ Hooks.on("renderChatMessageHTML", (message, html) => {
       await actor.rollHit();
     });
   });
+});
+
+/* -------------------------------------------- */
+/*  임의 지급 수령을 모든 화면에 반영             */
+/* -------------------------------------------- */
+
+// PL은 남의 메시지를 못 고치므로 GM 하나가 대신 다시 그린다.
+Hooks.on("updateActor", (_actor, changed) => {
+  const picks = changed?.flags?.aster?.grant;
+  if (!picks || game.users.activeGM !== game.user) return;
+  for (const messageId of Object.keys(picks)) {
+    const message = game.messages.get(messageId);
+    if (message) refreshGrantCard(message);
+  }
 });
