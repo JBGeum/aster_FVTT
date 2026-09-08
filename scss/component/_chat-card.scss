@@ -1277,6 +1277,18 @@
   color: var(--cc-ink-soft) !important;
 }
 
+.aster-chat-card .spell-cost {
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: var(--cc-radius);
+  border: 1px solid var(--cc-rule);
+  font-size: 11px;
+  color: var(--cc-ink-faint);
+}
+.aster-chat-card .spell-cost--interrupt {
+  border-style: dashed;
+}
+
 // ── 지급 카드 — GM 발생 / 대성공 획득 ──
 .aster-chat-card.aster-grant-card {
   position: relative;

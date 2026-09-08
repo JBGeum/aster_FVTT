@@ -91,6 +91,18 @@
     color: var(--plum);
     white-space: nowrap;
   }
+  .spell-cost {
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: var(--hb-radius-sm);
+    border: var(--hb-hair);
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+  .spell-cost--interrupt {
+    border-style: dashed;
+    color: var(--plum);
+  }
   .spell-card__tools {
     position: absolute;
     top: 11px;

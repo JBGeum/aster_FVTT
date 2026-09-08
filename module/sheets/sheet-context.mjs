@@ -11,7 +11,9 @@ import {
   buildItemTooltip,
   buildSpellTooltip,
   buildCraftTooltip,
+  spellCostTag,
 } from "../helpers/sheet-tooltips.mjs";
+import { parseSpellCost } from "../helpers/spell-cost.mjs";
 import { consumableHasHeal } from "../helpers/consumable.mjs";
 import { findCombatantFor } from "../helpers/combatant-match.mjs";
 
@@ -314,6 +316,7 @@ export function prepareSpellList(sheet, context) {
   const spells = sheet.actor.items.filter((i) => i.type === "spell");
   context.spells = spells.map((s) => {
     const formula = formatFormula(s); // "녹+박식(12)"
+    const cost = parseSpellCost(s.system.effect);
     return {
       id: s.id,
       name: s.name,
@@ -324,6 +327,8 @@ export function prepareSpellList(sheet, context) {
       // tooltipHtml 헬퍼가 빈 값을 걸러낸다.
       tooltip: buildSpellTooltip(s, formula),
       formula,
+      costTag: spellCostTag(cost),
+      interrupt: cost.interrupt,
     };
   });
 }

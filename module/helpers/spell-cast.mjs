@@ -2,10 +2,12 @@ import { computeSpellRoll, getAbilityTotal, isSpecialty } from "./spell-roll.mjs
 import { detectCritFumble, computePenalties } from "./roll-result.mjs";
 import { pickDiceDialog, PICK_RETRY } from "./dice-select.mjs";
 import { getTargetedTokens } from "./target-select.mjs";
-import { formatFormula } from "./sheet-tooltips.mjs";
+import { formatFormula, spellCostTag } from "./sheet-tooltips.mjs";
 import { checkFocusEffect } from "./focus-effect.mjs";
 import { promptAbilityCheck } from "./check-dialog.mjs";
 import { formatModifier } from "./ability-check.mjs";
+import { parseSpellCost } from "./spell-cost.mjs";
+import { findCombatantFor, hasAmbiguousCombatants } from "./combatant-match.mjs";
 
 /**
  * 집중을 반영해 다이스를 굴리고 2개를 고른다. 고르기를 마쳐야 집중을 소비한다.
@@ -38,9 +40,45 @@ async function rollSpellDice(actor, spell, extraAster) {
 }
 
 /**
+ * @param {Actor} actor
+ * @param {Item} spell
+ * @returns {{ok: boolean, spend?: () => Promise<void>}} ok가 false면 경고를 이미 냈다.
+ */
+function checkSpellAP(actor, spell) {
+  const skip = { ok: true, spend: async () => {} };
+  const cost = parseSpellCost(spell.system?.effect);
+  // AP는 _startRound에서만 채워진다 — 시작 전 전투에서는 전원이 0이다.
+  if (cost.interrupt || cost.ap <= 0 || !game.combat?.started) return skip;
+
+  const combatant = findCombatantFor(game.combat.combatants, actor);
+  if (!combatant) return skip;
+  if (hasAmbiguousCombatants(game.combat.combatants, actor)) {
+    ui.notifications.warn(
+      game.i18n.format("ASTER.combat.ambiguousCombatant", { name: combatant.name }),
+    );
+  }
+
+  const have = combatant.getFlag("aster", "actionPoint") ?? 0;
+  if (have < cost.ap) {
+    ui.notifications.warn(
+      game.i18n.format("ASTER.spell.warn.notEnoughAP", { need: cost.ap, have }),
+    );
+    return { ok: false };
+  }
+
+  return {
+    ok: true,
+    spend: () => combatant.setFlag("aster", "actionPoint", have - cost.ap),
+  };
+}
+
+/**
  * @param {{actor: Actor, spell: Item, showDialog?: boolean}} params
  */
 export async function castSpell({ actor, spell, showDialog = false }) {
+  const ap = checkSpellAP(actor, spell);
+  if (!ap.ok) return;
+
   // 선택적 캔버스 타게팅 — 타겟 있으면 카드에 표시, 없으면 자기 강화 마법으로 진행.
   const targets = getTargetedTokens({ required: false, max: 1 });
   if (targets === null) return; // 타겟 초과 — 경고 출력됨
@@ -64,8 +102,13 @@ export async function castSpell({ actor, spell, showDialog = false }) {
     modifier = input.modifier;
   }
 
+  await ap.spend();
+
   const picked = await rollSpellDice(actor, spell, 0);
-  if (!picked) return;
+  if (!picked) {
+    ui.notifications.info(game.i18n.localize("ASTER.spell.cancelled"));
+    return;
+  }
 
   await processSpellRoll(actor, spell, picked.roll, picked.selected, picked.discarded, {
     color: spell.system.color,
@@ -85,6 +128,9 @@ export async function castSpellWithExtra({ actor, spell }) {
     ui.notifications.warn(game.i18n.localize("ASTER.spell.warn.noColor"));
     return;
   }
+
+  const ap = checkSpellAP(actor, spell);
+  if (!ap.ok) return;
 
   // 선택적 캔버스 타게팅 — 자원 소비 전에 검증 (초과 시 종료).
   const targets = getTargetedTokens({ required: false, max: 1 });
@@ -141,6 +187,7 @@ export async function castSpellWithExtra({ actor, spell }) {
   }
 
   // 룰: 자원은 판정 전에 소비한다.
+  await ap.spend();
   if (n > 0) {
     await actor.update({ [`system.aster.${color}.value`]: haveAster - n });
   }
@@ -209,6 +256,7 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
     { rollData: actor.getRollData() },
   );
 
+  const spellCost = parseSpellCost(sys.effect);
   const cardData = {
     spellId: spell.id,
     actorId: actor.id,
@@ -219,6 +267,8 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
     img: spell.img,
     color: sys.color,
     formula: formatFormula(spell),
+    costTag: spellCostTag(spellCost),
+    interrupt: spellCost.interrupt,
     target: targetVal,
     achievement: result.achievement,
     success: finalSuccess,
