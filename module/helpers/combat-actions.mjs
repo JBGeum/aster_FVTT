@@ -69,6 +69,7 @@ export async function resolveCombatAction({ actor, actionKey }) {
       break;
     case "dash": {
       const x = await foundry.applications.api.DialogV2.prompt({
+        classes: ["hb-dialog"],
         window: { title: game.i18n.localize("ASTER.combat.action.dashTitle") },
         content: `<div class="form-group">
           <label>${game.i18n.localize("ASTER.combat.dashValueLabel")}</label>
@@ -84,6 +85,7 @@ export async function resolveCombatAction({ actor, actionKey }) {
     }
     case "charge": {
       chargeChoice = await foundry.applications.api.DialogV2.prompt({
+        classes: ["hb-dialog"],
         window: { title: game.i18n.localize("ASTER.combat.action.chargeTitle") },
         content: `<div class="form-group">
           <label>${game.i18n.localize("ASTER.combat.chargeChooseLabel")}</label>
@@ -215,6 +217,7 @@ export async function resolveNpcActionUse({ actor, itemId }) {
   if (needsDialog) {
     if (sys.costVariable) {
       const x = await foundry.applications.api.DialogV2.prompt({
+        classes: ["hb-dialog"],
         window: {
           title: game.i18n.format("ASTER.npcAction.xInputTitle", { name: action.name }),
         },

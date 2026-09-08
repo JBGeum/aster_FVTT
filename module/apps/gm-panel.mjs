@@ -108,6 +108,7 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
   static async #onRangeRoll(_event, target) {
     const key = target.dataset.key;
     const r = await foundry.applications.api.DialogV2.prompt({
+      classes: ["hb-dialog"],
       window: { title: game.i18n.localize("ASTER.world.rangeTitle") },
       content: `
         <div class="form-group">
@@ -240,6 +241,7 @@ export class AsterGMPanel extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static async #onTrackerAdd(_event, _target) {
     const r = await foundry.applications.api.DialogV2.prompt({
+      classes: ["hb-dialog"],
       window: { title: game.i18n.localize("ASTER.tracker.createTitle") },
       content: `
         <div class="form-group">

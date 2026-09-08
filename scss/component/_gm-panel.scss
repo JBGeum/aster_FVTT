@@ -3,6 +3,11 @@
   --gm-btn-surface: var(--aster-color-surface);
   color: var(--aster-color-text);
 
+  .window-content {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
   // 코어 버튼은 다크 UI 전제라 라이트 배경에서 대비가 무너진다 — .aster-btn과 같은 토큰으로 덮는다.
   button {
     background: var(--gm-btn-surface);

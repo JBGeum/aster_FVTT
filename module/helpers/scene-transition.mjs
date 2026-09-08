@@ -24,6 +24,7 @@ export async function runSceneTransition() {
     .join("");
 
   const selectedIds = await foundry.applications.api.DialogV2.prompt({
+    classes: ["hb-dialog"],
     window: { title: game.i18n.localize("ASTER.scene.transitionTitle") },
     content: `
       <p class="scene-hint">${game.i18n.localize("ASTER.scene.transitionHint")}</p>

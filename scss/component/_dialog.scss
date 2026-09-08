@@ -306,9 +306,15 @@
 }
 
 .scene-target-picker,
-.bulk-target-grid {
+.bulk-target-grid,
+.tracker-pick-list {
   max-height: 30vh;
   overflow-y: auto;
+}
+.hb-dialog .tracker-pick-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .hb-dialog .dice-pick-hint,
