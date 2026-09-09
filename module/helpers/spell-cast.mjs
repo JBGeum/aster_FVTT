@@ -256,6 +256,17 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
     { rollData: actor.getRollData() },
   );
 
+  const outcomeText = cf.critical
+    ? (sys.message?.critical ?? "")
+    : cf.fumble
+      ? (sys.message?.fumble ?? "")
+      : "";
+  const outcomeMessage = outcomeText
+    ? await foundry.applications.ux.TextEditor.implementation.enrichHTML(outcomeText, {
+        rollData: actor.getRollData(),
+      })
+    : "";
+
   const spellCost = parseSpellCost(sys.effect);
   const cardData = {
     spellId: spell.id,
@@ -274,6 +285,7 @@ async function processSpellRoll(actor, spell, roll, selectedDice, extraDice, ctx
     success: finalSuccess,
     isCritical: cf.critical,
     isFumble: cf.fumble,
+    outcomeMessage,
     isPC: actor.type === "character",
     breakdown: result.breakdown,
     modifierText: formatModifier(modifier),

@@ -46,6 +46,8 @@
     <div class="verdict {{#if success}}success{{else}}fail{{/if}}">
       {{#if success}}{{localize "ASTER.spell.success"}}{{else}}{{localize "ASTER.spell.fail"}}{{/if}}
     </div>
+    {{/if}} {{#if outcomeMessage}}
+    <div class="outcome-msg {{#if isCritical}}crit{{else}}fumble{{/if}}">{{{outcomeMessage}}}</div>
     {{/if}}
   </div>
 
