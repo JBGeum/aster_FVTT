@@ -214,6 +214,20 @@
 
   // 대성공/대실패 임팩트 배너는 .verdict.critical/.fumble로 통일 — 파일 하단 전용 섹션 참조.
 
+  .outcome-msg {
+    margin-top: 5px;
+    padding-left: 9px;
+    border-left: 2px solid var(--cc-crit);
+    text-align: left;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--cc-ink);
+
+    &.fumble {
+      border-left-color: var(--cc-fumble);
+    }
+  }
+
   // ── 부가 정보 블록 ──
   .effect,
   .alert-block,

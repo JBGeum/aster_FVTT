@@ -1,7 +1,7 @@
 /**
  * 시트 _prepareContext의 하위 컨텍스트 빌더 — (sheet, context)를 받아 context를 채운다.
  */
-import { EQUIP_SLOT_CONTAINERS, liveCellCount } from "../helpers/inventory-capacity.mjs";
+import { EQUIP_SLOT_CONTAINERS } from "../helpers/inventory-capacity.mjs";
 import { CRAFT_TREE } from "../helpers/craft-tree.mjs";
 import { prereqMet, sumCost } from "../helpers/craft-cost.mjs";
 import {
@@ -99,7 +99,6 @@ export function prepareInventory(sheet, context) {
           img: bag.img,
           grid: bagGrid,
           cells,
-          live: liveCellCount(bagGrid, bagGrid.dead ?? []),
           items: inBag.map((i) => {
             const w = i.system.size?.w ?? 1;
             const h = i.system.size?.h ?? 1;

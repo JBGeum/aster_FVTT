@@ -730,6 +730,7 @@
       "deleteMsg": "{name}을(를) 삭제하시겠습니까?",
       "noItems": "아이템이 없습니다.",
       "bagSlots": "가방칸",
+      "openBag": "가방 시트 열기",
       "carry": "착용 · 휴대",
       "belongings": "소지품",
       "slotEmpty": "비어 있음",

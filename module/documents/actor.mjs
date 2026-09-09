@@ -7,8 +7,34 @@ import { promptAbilityCheck } from "../helpers/check-dialog.mjs";
 import { checkFocusEffect } from "../helpers/focus-effect.mjs";
 import { pickTwoIfNeeded } from "../helpers/dice-select.mjs";
 
+/** `aster.items-spell` 팩의 문서 id. */
+const DEFAULT_SPELL_IDS = Object.freeze([
+  "IT9rb5NIwh645if8",
+  "FxczPZaoVrhUMVZe",
+  "jpqkSOvE6ZJvaGVY",
+  "yQP4CfHDxnkYI76z",
+]);
+
 /** @extends {Actor} */
 export class AsterActor extends Actor {
+  /** @override */
+  async _preCreate(data, options, user) {
+    const allowed = await super._preCreate(data, options, user);
+    if (allowed === false) return false;
+    if (this.type !== "character") return;
+    if (data.items?.length) return;
+
+    const pack = game.packs?.get("aster.items-spell");
+    if (!pack) return;
+
+    const spells = [];
+    for (const id of DEFAULT_SPELL_IDS) {
+      const doc = await pack.getDocument(id).catch(() => null);
+      if (doc) spells.push(doc.toObject());
+    }
+    if (spells.length) this.updateSource({ items: spells });
+  }
+
   /** @override */
   async _preUpdate(changes, options, user) {
     await super._preUpdate(changes, options, user);

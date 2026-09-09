@@ -157,16 +157,13 @@
   .panel--identity .portrait {
     grid-area: port;
     width: 172px;
-    height: 100%;
-    min-height: 158px;
-    aspect-ratio: auto;
-    align-self: stretch;
+    align-self: center;
     justify-self: center;
   }
   .portrait {
     position: relative;
-    aspect-ratio: 3/4;
-    border-radius: 50% 50% 14px 14px / 60% 60% 14px 14px;
+    aspect-ratio: 1;
+    border-radius: 14px;
     overflow: hidden;
     border: 1.5px solid var(--gold);
     background: repeating-linear-gradient(
@@ -189,20 +186,6 @@
       object-fit: cover;
       cursor: pointer;
       border: none;
-    }
-    /* change.txt — 초상 상단 장식 글리프. img(absolute)가 덮으므로 z-index로 위에,
-       클릭(파일선택)을 막지 않게 pointer-events:none. */
-    &::before {
-      @include fa("\f6e8"); /* hat-wizard */
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1;
-      font-size: 13px;
-      color: var(--gold);
-      opacity: 0.85;
-      pointer-events: none;
     }
   }
   .identity__main {

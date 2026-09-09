@@ -225,15 +225,27 @@
       padding: 0 1px;
     }
   }
-  .bag__cap {
-    font-family: var(--hb-font-num);
+  .bag__name {
+    flex: 0 1 auto;
+    min-width: 0;
+    width: auto;
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
     font-size: 12px;
+    line-height: inherit;
+    text-align: left;
     color: var(--ink-soft);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
 
-    b {
-      color: var(--ink-strong);
-      font-weight: 600;
+    &:hover,
+    &:focus-visible {
+      color: var(--gold);
+      text-decoration: underline;
     }
   }
   /* STEP 2 — 프레임(.bag-frame) + 고정 크기 정사각 셀.

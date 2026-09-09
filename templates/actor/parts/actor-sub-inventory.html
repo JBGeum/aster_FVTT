@@ -1,9 +1,15 @@
 {{#if inv.bag}}
 <div class="bag__head">
   <div class="panel__head" style="margin: 0; flex: 1">{{localize "ASTER.inventory.bagSlots"}}</div>
-  <span class="bag__cap"
-    >{{inv.bag.grid.cols}} × {{inv.bag.grid.rows}} · <b>{{inv.bag.items.length}}</b>/{{inv.bag.live}}</span
+  <button
+    type="button"
+    class="bag__name"
+    data-action="itemEdit"
+    data-item-id="{{inv.bag.id}}"
+    title="{{localize 'ASTER.inventory.openBag'}}"
   >
+    {{inv.bag.name}}
+  </button>
   <span class="tools">
     <button
       type="button"
