@@ -109,14 +109,6 @@
       </div>
     </section>
 
-    <section class="panel" data-corner="✿">
-      <div class="panel__head">{{localize "ASTER.npc.bio"}}</div>
-      <div class="npc-bio">
-        {{formInput fields.biography name="system.biography" value=system.biography enriched=enrichedBiography
-        toggled=true disabled=disabled}}
-      </div>
-    </section>
-
     {{!-- charge·unisonPrepare 제외 — NPC는 합체기를 발동할 수 없다(룰). --}}
     <div class="npc-ap">
       <div class="ap-head">
@@ -300,5 +292,13 @@
         {{/each}}
       </div>
     </div>
+
+    <section class="panel" data-corner="✿">
+      <div class="panel__head">{{localize "ASTER.npc.bio"}}</div>
+      <div class="npc-bio">
+        {{formInput fields.biography name="system.biography" value=system.biography enriched=enrichedBiography
+        toggled=true disabled=disabled}}
+      </div>
+    </section>
   </div>
 </form>
