@@ -4,10 +4,15 @@
  * 6종 아이템 편집 시트는 _herbarium.scss(.dialog) 구조로 이관됨.
  * 기존 .item-sheet > .item-container/.item-detail·.item-sheet.npcaction 규칙은
  * 템플릿 재작성으로 *0 usage* → 제거.
- * 남긴 것: 설명 에디터 최소 높이 — height:"auto" 시 접힘 방지.
+ * 남긴 것: 설명 에디터 최소 높이(height:"auto" 시 접힘 방지)와 본문 세로 스크롤.
  * ============================================================ */
 
 .aster.sheet.item {
+  /* _actor.scss의 `.aster form`이 overflow: hidden이라 창보다 긴 내용이 잘린다. */
+  form {
+    overflow-y: auto;
+  }
+
   prose-mirror {
     min-height: 120px;
   }
