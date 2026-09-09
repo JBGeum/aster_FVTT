@@ -74,15 +74,17 @@ const UNISON_TABLE_LABEL = Object.freeze({
 });
 
 /**
- * RollTable은 초기화 시 compendium에서 world로 import된다.
- *
  * @param {string} color
- * @returns {RollTable | null}
+ * @returns {Promise<RollTable | null>}
  */
-export function getUnisonTable(color) {
+export async function getUnisonTable(color) {
   const label = UNISON_TABLE_LABEL[color];
   if (!label) return null;
-  return game.tables?.getName(`Unison Table - ${label}`) ?? null;
+  const pack = game.packs?.get("aster.unison-tables");
+  if (!pack) return null;
+  const tables = await pack.getDocuments().catch(() => []);
+  const table = tables.find((t) => t.name === `Unison Table - ${label}`);
+  return table instanceof RollTable ? table : null;
 }
 
 /**
@@ -91,10 +93,10 @@ export function getUnisonTable(color) {
  *
  * @param {string} color
  * @param {number} total  실제 다이스 합산값
- * @returns {string}  플레이버 텍스트 또는 빈 문자열
+ * @returns {Promise<string>}  플레이버 텍스트 또는 빈 문자열
  */
-export function getUnisonDescription(color, total) {
-  const table = getUnisonTable(color);
+export async function getUnisonDescription(color, total) {
+  const table = await getUnisonTable(color);
   if (!table) return "";
   const results = table.getResultsForRoll(total);
   if (!results || results.length === 0) return "";

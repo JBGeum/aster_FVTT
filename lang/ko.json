@@ -378,10 +378,10 @@
       },
       "unisonChargePickTitle": "{actor} — 차지 효과: 2개 중 1개 선택",
       "unisonChargePickHint": "합체기에 쓸 값 {count}개를 선택하세요.",
-      "unisonTotalLabel": "합산값",
-      "unisonMainTableHint": "주속성 {color} 표에서 합산값 {total}의 효과를 확인하세요",
       "unisonMainEffectLabel": "주속성 {color} 효과",
+      "unisonUnapplied": "⚠ 대상 미지정 — 수동 적용",
       "unisonMainDamageText": "각 {amount}대미지 부여 — {targets}",
+      "unisonMainDamageNoTarget": "각 {amount}대미지 부여",
       "unisonMainHealText": "각 {amount} 건강 회복 — {targets}",
       "unisonDamageLine": "{name}: {before} → {after} ({delta})",
       "unisonHealLine": "{name}: {before} → {after} (+{delta})",
@@ -404,6 +404,7 @@
       "unisonSubYellowLabel": "부여할 상태이상",
       "unisonSubYellowResult": "{target}에게 {status} 부여",
       "unisonSubYellowAlready": "{target}은(는) 이미 {status} 상태입니다",
+      "unisonSubYellowNoTarget": "{status} 부여",
       "unisonDodgeBlocked": "⚠ 합체기 대상이 된 적은 회피할 수 없습니다",
       "unisonTurnEnd": "두 PC 모두 행동을 마쳤습니다",
       "unisonYellowReductionText": "이 라운드 동안 아군이 받는 대미지 -{amount} — {targets}",
@@ -412,7 +413,7 @@
       "unisonCureSection": "▷ 상태이상 치료",
       "unisonCureLine": "{name}: {keys}",
       "unisonSelfTurnEndLine": "⚠ {self}와 {pair}는 다음 라운드 행동완료",
-      "unisonChargeExtra": "({original} + {extra} 차지, {final} 선택)"
+      "unisonChargeExtra": "차지: {original}, {extra}"
     },
     "dodge": {
       "label": "회피",

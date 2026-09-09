@@ -183,6 +183,8 @@ async function proceedUnisonDice({
 
   const total = selfFinal + pairFinal;
 
+  const mainDescription = await getUnisonDescription(mainColor, total);
+
   // 주속성 효과 자동 적용 — 부속성 다이얼로그 *전*이라 부속성 취소해도 주속성은 적용 보존.
   const mainResult = await applyUnisonMainEffect({ mainColor, total });
 
@@ -196,6 +198,7 @@ async function proceedUnisonDice({
     total,
     extraInfo,
     mainResult,
+    mainDescription,
   });
 
   await selfCombatant.setFlag("aster", "unisonReady", false);
@@ -203,45 +206,45 @@ async function proceedUnisonDice({
 }
 
 /**
- * lookup 결과 null이면 자동 적용 안 함 (GM 수동 처리 — 카드에 안내).
- *
- * @returns {Promise<object|null>}  적용 결과 (mainResult) 또는 null (자동 처리 안 함)
+ * @returns {Promise<object|null>}  적용 결과, 검증 실패로 건너뛰면 `{type:"skipped"}`,
+ *   표에 정의된 효과가 없으면(합산 3·4) null.
  */
 async function applyUnisonMainEffect({ mainColor, total }) {
   const effect = lookupUnisonEffect(mainColor, total);
-  // RollTable 플레이버 텍스트 — effect null(합산 3·4 실패)이어도 조회 가능.
-  const description = getUnisonDescription(mainColor, total);
-
-  if (!effect) {
-    return description ? { type: "description-only", description } : null;
-  }
+  if (!effect) return null;
 
   switch (effect.type) {
     case "damage": {
       if (effect.targetType === "enemy-single") {
-        // 적표 — 캔버스 타겟 1체 필수
+        // 적표 — 캔버스 타겟 1체. 없으면 적용 없이 효과만 카드에 싣는다.
         const targets = getTargetedTokens({
-          required: true,
+          required: false,
           max: 1,
           allowedTypes: "npc",
         });
-        if (!targets) return null; // 검증 실패 — 자동 적용 건너뜀
-        const target = targets[0].actor;
-        const { hBefore, hAfter } = await applyDamageAndStatus(target, effect.amount, []);
+        const target = targets?.[0]?.actor ?? null;
+        const targetResults = [];
+        if (target) {
+          const { hBefore, hAfter } = await applyDamageAndStatus(target, effect.amount, []);
+          targetResults.push({
+            name: target.name,
+            before: hBefore,
+            after: hAfter,
+            delta: hAfter - hBefore,
+          });
+        }
         return {
           type: "damage",
           targetType: "enemy-single",
-          targets: [{ name: target.name, before: hBefore, after: hAfter, delta: hAfter - hBefore }],
+          targets: targetResults,
+          unapplied: targetResults.length === 0,
           amount: effect.amount,
           selfTurnEnd: effect.selfTurnEnd === true,
-          description,
         };
       } else if (effect.targetType === "enemy-all") {
         // 녹표 — Combat 참가 NPC 전체 자동
-        const combat = game.combat;
-        if (!combat) return null;
-        const npcs = combat.combatants.filter((c) => c.actor?.type === "npc").map((c) => c.actor);
-        if (npcs.length === 0) return null;
+        const npcs =
+          game.combat?.combatants.filter((c) => c.actor?.type === "npc").map((c) => c.actor) ?? [];
         const targetResults = [];
         for (const npc of npcs) {
           const { hBefore, hAfter } = await applyDamageAndStatus(npc, effect.amount, []);
@@ -256,12 +259,12 @@ async function applyUnisonMainEffect({ mainColor, total }) {
           type: "damage",
           targetType: "enemy-all",
           targets: targetResults,
+          unapplied: targetResults.length === 0,
           amount: effect.amount,
           selfTurnEnd: effect.selfTurnEnd === true,
-          description,
         };
       }
-      return null;
+      return { type: "skipped" };
     }
     case "heal": {
       if (effect.targetType === "ally-all") {
@@ -282,10 +285,9 @@ async function applyUnisonMainEffect({ mainColor, total }) {
           })),
           amount: effect.amount,
           selfTurnEnd: effect.selfTurnEnd === true,
-          description,
         };
       }
-      return null;
+      return { type: "skipped" };
     }
 
     // 황표 5~11 — Combat 참가 PC 전체에 1라운드 수신 대미지 감소
@@ -303,7 +305,6 @@ async function applyUnisonMainEffect({ mainColor, total }) {
         amount: effect.amount,
         targetNames,
         selfTurnEnd: effect.selfTurnEnd === true,
-        description,
       };
     }
 
@@ -321,7 +322,6 @@ async function applyUnisonMainEffect({ mainColor, total }) {
         type: "damage-block",
         targetNames,
         selfTurnEnd: effect.selfTurnEnd === true,
-        description,
       };
     }
 
@@ -343,12 +343,11 @@ async function applyUnisonMainEffect({ mainColor, total }) {
         amount: effect.amount,
         cureResults,
         selfTurnEnd: effect.selfTurnEnd === true,
-        description,
       };
     }
 
     default:
-      return null;
+      return { type: "skipped" };
   }
 }
 
@@ -365,6 +364,7 @@ async function applyUnisonSubEffect({
   total,
   extraInfo,
   mainResult,
+  mainDescription,
 }) {
   let subResult = null;
   switch (subColor) {
@@ -394,6 +394,7 @@ async function applyUnisonSubEffect({
     total,
     extraInfo,
     mainResult,
+    mainDescription,
     subResult,
   });
 }
@@ -479,10 +480,8 @@ async function unisonSubGreen() {
 
 /** 황 부속성: 캔버스 타게팅한 적 1체에 부상/졸림/피로 중 1개 부여. 이미 상태이면 변화 없음. */
 async function unisonSubYellow() {
-  const targets = getTargetedTokens({ required: true, max: 1, allowedTypes: "npc" });
-  if (!targets) return null;
-  const targetActor = targets[0].actor;
-  if (!targetActor) return null;
+  const targets = getTargetedTokens({ required: false, max: 1, allowedTypes: "npc" });
+  const targetActor = targets?.[0]?.actor ?? null;
 
   const allowedKeys = ["injury", "sleepy", "exhaustion"];
   const statusOptions = allowedKeys
@@ -498,6 +497,7 @@ async function unisonSubYellow() {
     ok: { callback: (_e, b) => b.form.elements.status.value },
   }).catch(() => null);
   if (!statusKey) return null;
+  if (!targetActor) return { type: "yellow", statusKey, unapplied: true };
 
   const current = targetActor.system.badstatus?.[statusKey] ?? false;
   if (!current) {
@@ -516,10 +516,12 @@ async function renderUnisonCard({
   total,
   extraInfo,
   mainResult,
+  mainDescription,
   subResult,
 }) {
   const colorLabel = (k) => game.i18n.localize(`ASTER.aster.${k}`);
   const badstatusLabel = (key) => game.i18n.localize(badstatusI18nKey(key));
+  const dieIcon = (n) => `fa-dice-${["one", "two", "three", "four", "five", "six"][n - 1]}`;
   const healLineFor = (t) =>
     t.blocked === true
       ? game.i18n.format("ASTER.combat.unisonHealBlockedLine", { name: t.name })
@@ -557,23 +559,30 @@ async function renderUnisonCard({
         });
         break;
       case "yellow":
-        subResultText = game.i18n.format(
-          subResult.applied
-            ? "ASTER.combat.unisonSubYellowResult"
-            : "ASTER.combat.unisonSubYellowAlready",
-          { target: subResult.actorName, status: badstatusLabel(subResult.statusKey) },
-        );
+        subResultText = subResult.unapplied
+          ? game.i18n.format("ASTER.combat.unisonSubYellowNoTarget", {
+              status: badstatusLabel(subResult.statusKey),
+            })
+          : game.i18n.format(
+              subResult.applied
+                ? "ASTER.combat.unisonSubYellowResult"
+                : "ASTER.combat.unisonSubYellowAlready",
+              { target: subResult.actorName, status: badstatusLabel(subResult.statusKey) },
+            );
         break;
     }
   }
 
-  // mainResult가 null이면 GM 안내(mainTableHint)와 양자택일이다.
   let mainResultText = "";
-  let hasMainResult = false;
-  if (mainResult) {
-    hasMainResult = true;
+  if (mainResult && mainResult.type !== "skipped") {
     switch (mainResult.type) {
       case "damage": {
+        if (mainResult.targets.length === 0) {
+          mainResultText = game.i18n.format("ASTER.combat.unisonMainDamageNoTarget", {
+            amount: mainResult.amount,
+          });
+          break;
+        }
         const targetLines = mainResult.targets
           .map((t) =>
             game.i18n.format("ASTER.combat.unisonDamageLine", {
@@ -641,18 +650,15 @@ async function renderUnisonCard({
     }
   }
 
-  if (mainResult?.type === "description-only") {
-    // 효과 없이 텍스트만 (합산 3·4 실패 등) — hasMainResult를 켜서 GM 힌트 대신 텍스트 표시.
-    hasMainResult = true;
-    mainResultText = mainResult.description;
-  } else if (mainResult?.description) {
+  if (mainDescription) {
     // 효과 결과 *앞*에 플레이버 텍스트 (룰북 서사 → 시스템 적용 순서).
-    mainResultText = `<em class="unison-flavor">${mainResult.description}</em><br>${mainResultText}`;
+    const flavor = `<em class="unison-flavor">${mainDescription}</em>`;
+    mainResultText = mainResultText ? `${flavor}<br>${mainResultText}` : flavor;
   }
 
   // RollTable description에 "행동완료" 텍스트가 이미 포함되면 시스템 라인 중복 출력 방지.
   const hasSelfTurnEnd = mainResult?.selfTurnEnd === true;
-  const descIncludesSelfWarn = mainResult?.description?.includes("행동완료") === true;
+  const descIncludesSelfWarn = mainDescription?.includes("행동완료") === true;
   const showSelfTurnEndLine = hasSelfTurnEnd && !descIncludesSelfWarn;
 
   const selfExtra = extraInfo.find((e) => e.actor === selfActor.name);
@@ -674,6 +680,10 @@ async function renderUnisonCard({
     pairActorName: pairActor.name,
     selfFinal,
     pairFinal,
+    selfDieIcon: dieIcon(selfFinal),
+    pairDieIcon: dieIcon(pairFinal),
+    selfColor: selfActor.system.color,
+    pairColor: pairActor.system.color,
     total,
     selfExtra: !!selfExtra,
     selfOriginal: selfExtra?.original,
@@ -681,24 +691,18 @@ async function renderUnisonCard({
     pairExtra: !!pairExtra,
     pairOriginal: pairExtra?.original,
     pairExtraDice: pairExtra?.extra,
-    totalLabel: game.i18n.localize("ASTER.combat.unisonTotalLabel"),
-    // 자동 적용 완료 시 GM 안내 숨김 — hasMainResult ↔ mainTableHint 양자택일.
-    mainTableHint: hasMainResult
-      ? null
-      : game.i18n.format("ASTER.combat.unisonMainTableHint", {
-          color: colorLabel(mainColor),
-          total,
-        }),
-    hasMainResult,
     mainEffectLabel: game.i18n.format("ASTER.combat.unisonMainEffectLabel", {
       color: colorLabel(mainColor),
     }),
     mainResultText,
+    mainUnapplied: mainResult?.unapplied === true,
     subResult,
     subEffectLabel: game.i18n.format("ASTER.combat.unisonSubEffectLabel", {
       color: colorLabel(subColor),
     }),
     subResultText,
+    subUnapplied: subResult?.unapplied === true,
+    unappliedNote: game.i18n.localize("ASTER.combat.unisonUnapplied"),
     dodgeBlockNote: game.i18n.localize("ASTER.combat.unisonDodgeBlocked"),
     turnEndNote: game.i18n.localize("ASTER.combat.unisonTurnEnd"),
     hasSelfTurnEnd,

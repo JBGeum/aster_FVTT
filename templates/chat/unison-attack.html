@@ -13,39 +13,51 @@
     </div>
 
     <div class="unison-dice">
-      <div class="dice-line">
-        {{selfActorName}}: <strong>{{selfFinal}}</strong>
-        {{#if selfExtra}}
-        <span class="charge-extra"
-          >{{localize "ASTER.combat.unisonChargeExtra" original=selfOriginal extra=selfExtraDice final=selfFinal}}</span
-        >
-        {{/if}}
+      <div class="dice-pair">
+        <div class="side self">
+          <div class="pc-name">{{selfActorName}}</div>
+          <div class="pc-die">
+            <i class="fas {{selfDieIcon}} eltx-{{selfColor}}"></i><span class="val">{{selfFinal}}</span>
+          </div>
+          {{#if selfExtra}}
+          <div class="charge-extra">
+            {{localize "ASTER.combat.unisonChargeExtra" original=selfOriginal extra=selfExtraDice}}
+          </div>
+          {{/if}}
+        </div>
+        <div class="pair-op">+</div>
+        <div class="side pair">
+          <div class="pc-name">{{pairActorName}}</div>
+          <div class="pc-die">
+            <i class="fas {{pairDieIcon}} eltx-{{pairColor}}"></i><span class="val">{{pairFinal}}</span>
+          </div>
+          {{#if pairExtra}}
+          <div class="charge-extra">
+            {{localize "ASTER.combat.unisonChargeExtra" original=pairOriginal extra=pairExtraDice}}
+          </div>
+          {{/if}}
+        </div>
       </div>
-      <div class="dice-line">
-        {{pairActorName}}: <strong>{{pairFinal}}</strong>
-        {{#if pairExtra}}
-        <span class="charge-extra"
-          >{{localize "ASTER.combat.unisonChargeExtra" original=pairOriginal extra=pairExtraDice final=pairFinal}}</span
-        >
-        {{/if}}
-      </div>
-      <div class="total-line">{{totalLabel}}: <strong>{{total}}</strong></div>
+      <div class="pair-sum">{{total}}</div>
     </div>
 
-    {{#if hasMainResult}}
+    {{#if mainResultText}}
     <div class="unison-main-result">
       <div class="main-label">{{mainEffectLabel}}</div>
       <div class="main-text">{{{mainResultText}}}</div>
-      {{#if showSelfTurnEndLine}}
+      {{#if mainUnapplied}}
+      <div class="unison-unapplied warn">{{unappliedNote}}</div>
+      {{/if}} {{#if showSelfTurnEndLine}}
       <div class="self-turn-end-line warn">{{selfTurnEndLine}}</div>
       {{/if}}
     </div>
-    {{else}}
-    <div class="unison-main-table-hint">{{mainTableHint}}</div>
     {{/if}} {{#if subResult}}
     <div class="unison-sub-result">
       <div class="sub-label">{{subEffectLabel}}</div>
       <div class="sub-text">{{{subResultText}}}</div>
+      {{#if subUnapplied}}
+      <div class="unison-unapplied warn">{{unappliedNote}}</div>
+      {{/if}}
     </div>
     {{/if}}
   </div>
