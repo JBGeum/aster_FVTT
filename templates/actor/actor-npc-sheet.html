@@ -112,8 +112,8 @@
     <section class="panel" data-corner="✿">
       <div class="panel__head">{{localize "ASTER.npc.bio"}}</div>
       <div class="npc-bio">
-        {{editor system.biography target="system.biography" rollData=rollData button=true owner=owner
-        editable=editable}}
+        {{formInput fields.biography name="system.biography" value=system.biography enriched=enrichedBiography
+        toggled=true disabled=disabled}}
       </div>
     </section>
 

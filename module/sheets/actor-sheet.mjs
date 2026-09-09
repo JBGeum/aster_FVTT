@@ -128,6 +128,12 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     context.owner = this.actor.isOwner;
     context.isGM = game.user.isGM;
     context.badstatusTips = buildStatusTooltips();
+    context.fields = this.actor.system.schema.fields;
+    context.disabled = !this.isEditable;
+    context.enrichedBiography = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      actorData.system.biography ?? "",
+      { relativeTo: this.actor, rollData: context.rollData, secrets: this.actor.isOwner },
+    );
 
     if (this.actor.type === "character") {
       prepareCharacterData(this, context);

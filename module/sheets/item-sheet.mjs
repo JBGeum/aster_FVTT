@@ -102,6 +102,13 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     context.owner = this.item.isOwner;
     context.rollData = this.item.actor?.getRollData() ?? {};
     context.config = CONFIG.ASTER;
+    context.fields = this.item.system.schema.fields;
+    context.disabled = !this.isEditable;
+    context.enrichedDescription =
+      await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+        itemData.system.description ?? "",
+        { relativeTo: this.item, rollData: context.rollData, secrets: this.item.isOwner },
+      );
 
     if (this.item.type === "bag") {
       const grid = this.item.system.grid ?? { cols: 6, rows: 4, dead: [] };
