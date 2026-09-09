@@ -60,7 +60,8 @@
       <div class="frow frow--stack">
         <label>{{localize "ASTER.item.description"}}</label>
         <div class="f-area">
-          {{editor system.description target="system.description" button=true editable=editable}}
+          {{formInput fields.description name="system.description" value=system.description enriched=enrichedDescription
+          toggled=true disabled=disabled}}
         </div>
       </div>
     </div>
