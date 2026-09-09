@@ -412,21 +412,76 @@
     @include num;
     font-size: 0.86rem;
 
-    .dice-line {
-      color: var(--cc-ink-soft);
-      strong {
-        color: var(--cc-ink);
+    .dice-pair {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      grid-template-rows: auto auto auto;
+      column-gap: 8px;
+      text-align: center;
+    }
+    .side {
+      display: contents;
+    }
+    .side.self .pc-name {
+      grid-area: 1 / 1;
+    }
+    .side.self .pc-die {
+      grid-area: 2 / 1;
+    }
+    .side.self .charge-extra {
+      grid-area: 3 / 1;
+    }
+    .side.pair .pc-name {
+      grid-area: 1 / 3;
+    }
+    .side.pair .pc-die {
+      grid-area: 2 / 3;
+    }
+    .side.pair .charge-extra {
+      grid-area: 3 / 3;
+    }
+    .pc-name {
+      overflow-wrap: anywhere;
+      font-size: 0.76rem;
+      color: var(--cc-ink-faint);
+    }
+    .pc-die {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 5px;
+      color: var(--cc-ink);
+      i {
+        font-size: 1.3rem;
       }
+      .val {
+        @include num-display;
+        font-size: 1.15rem;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+    }
+    .pair-op {
+      grid-area: 2 / 2;
+      align-self: center;
+      font-size: 0.95rem;
+      color: var(--cc-ink-faint);
     }
     .charge-extra {
       font-size: 0.76rem;
       color: var(--cc-ink-faint);
       font-style: italic;
     }
-    .total-line {
+    .pair-sum {
+      @include num-display;
+      border-top: 1px solid var(--cc-rule);
+      margin-top: 5px;
+      padding-top: 4px;
+      text-align: center;
+      font-size: 1.42rem;
       font-weight: 700;
+      line-height: 1.2;
       color: var(--cc-ink);
-      margin-top: 2px;
     }
   }
   .unison-main-result,
@@ -448,11 +503,11 @@
     font-style: italic;
     font-size: 0.9em;
   }
-  .self-turn-end-line.warn {
+  .self-turn-end-line.warn,
+  .unison-unapplied.warn {
     color: var(--cc-fail);
     font-size: 0.8rem;
   }
-  .unison-main-table-hint,
   .unison-notes .note {
     font-size: 0.76rem;
     color: var(--cc-ink-faint);
@@ -864,7 +919,6 @@
   .section-label,
   .bonus-label,
   .winner-label,
-  .unison-main-table-hint,
   .result-line,
   .formula-line,
   .effect .label,
