@@ -1,9 +1,14 @@
 /**
- * 모든 검증(페이즈·행동불능·포만)을 다이얼로그 *전*에 끝내 진행 후 실패가 없도록 한다.
+ * 모든 검증(GM·페이즈·행동불능·포만)을 다이얼로그 *전*에 끝내 진행 후 실패가 없도록 한다.
  * @param {Actor} fallenActor  행동불능 상태인 PC
  */
 export async function requestRevive(fallenActor) {
   if (!fallenActor) return;
+
+  if (!game.user.isGM) {
+    ui.notifications.warn(game.i18n.localize("ASTER.revive.gmOnly"));
+    return;
+  }
 
   const phase = game.settings.get("aster", "currentPhase");
   if (phase !== "exploration") {

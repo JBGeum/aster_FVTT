@@ -417,7 +417,7 @@ export function buildReviveContext(sheet) {
   const phase = game.settings.get("aster", "currentPhase");
   return {
     isFallen,
-    canRevive: isFallen && phase === "exploration",
+    canRevive: isFallen && phase === "exploration" && game.user.isGM,
     inCombatBlocked: isFallen && phase === "climax",
   };
 }

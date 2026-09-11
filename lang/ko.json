@@ -660,6 +660,7 @@
       "fallen": "⚠ 행동불능 — 건강 0",
       "requestBtn": "협력 회복 신청",
       "requestHint": "PC 전원의 포만 -2 후 건강 1로 회복합니다.",
+      "gmOnly": "협력 회복은 GM만 진행할 수 있습니다.",
       "inCombatBlocked": "전투 중에는 회복 효과를 받을 수 없습니다. 전투가 끝나면 건강 1로 회복됩니다.",
       "explorationOnly": "협력 회복은 탐색 페이즈에서만 가능합니다.",
       "notFallen": "건강 0이 아닌 PC는 협력 회복 대상이 아닙니다.",
