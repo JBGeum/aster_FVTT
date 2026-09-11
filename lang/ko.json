@@ -653,6 +653,9 @@
       "noStatusToHeal": "해당 상태이상 없음",
       "healBlockedLine": "⚠ 전투 중 행동불능 PC는 건강 회복 효과를 받지 못합니다"
     },
+    "sheet": {
+      "ownerOnly": "이 캐릭터의 소유자 또는 GM만 할 수 있습니다."
+    },
     "revive": {
       "fallen": "⚠ 행동불능 — 건강 0",
       "requestBtn": "협력 회복 신청",

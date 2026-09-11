@@ -13,6 +13,7 @@ import { postItemCard } from "../helpers/item-chat.mjs";
 import { findCombatantFor } from "../helpers/combatant-match.mjs";
 import { buildCombatStateRows } from "../helpers/combat-state-rows.mjs";
 import { EFFECT_TARGETS, buildEffectData, stripEffectKeys } from "../helpers/effect-targets.mjs";
+import { guardSheetActions } from "../helpers/sheet-guard.mjs";
 import {
   prepareCharacterData,
   prepareInventory,
@@ -70,6 +71,15 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       effectToggle: AsterActorSheet.#onEffectToggle,
     },
   };
+
+  static {
+    guardSheetActions(this.DEFAULT_OPTIONS.actions, [
+      "itemEdit",
+      "effectEdit",
+      "recordPrev",
+      "recordNext",
+    ]);
+  }
 
   static #formConfig = {
     handler: AsterActorSheet.#onSubmit,
@@ -246,6 +256,10 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     // dataset.edit를 update 키로 일반화 — 초상(img) 외 다른 이미지 필드도 커버.
     for (const img of this.element.querySelectorAll("img[data-edit]")) {
       img.addEventListener("click", () => {
+        if (!this.isEditable) {
+          ui.notifications.warn(game.i18n.localize("ASTER.sheet.ownerOnly"));
+          return;
+        }
         const key = img.dataset.edit;
         new foundry.applications.apps.FilePicker.implementation({
           type: "image",
@@ -437,8 +451,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async #onEffectCreate() {
-    if (!this.isEditable) return;
-
     const options = EFFECT_TARGETS.map(
       (t) => `<option value="${t.key}">${game.i18n.localize(t.label)}</option>`,
     ).join("");
@@ -492,7 +504,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async #onEffectDelete(_event, target) {
-    if (!this.isEditable) return;
     const effect = this.actor.effects.get(target.dataset.effectId);
     if (!effect) return;
     const confirmed = await foundry.applications.api.DialogV2.confirm({
@@ -504,7 +515,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async #onEffectToggle(_event, target) {
-    if (!this.isEditable) return;
     const effect = this.actor.effects.get(target.dataset.effectId);
     if (!effect) return;
     await effect.update({ disabled: !effect.disabled });
@@ -594,7 +604,6 @@ export class AsterActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   }
 
   static async #onItemCreate(_event, target) {
-    if (!this.isEditable) return;
     const type = target.dataset.type;
     const data = foundry.utils.duplicate(target.dataset);
     const name = `New ${type.charAt(0).toUpperCase() + type.slice(1)}`;

@@ -1,5 +1,6 @@
 import { DAMAGE_STATUSES, badstatusI18nKey } from "../helpers/health-status.mjs";
 import { useConsumable } from "../helpers/consumable.mjs";
+import { guardSheetActions } from "../helpers/sheet-guard.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheetV2 } = foundry.applications.sheets;
@@ -27,6 +28,10 @@ export class AsterItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       bagCellToggle: AsterItemSheet.#onBagCellToggle,
     },
   };
+
+  static {
+    guardSheetActions(this.DEFAULT_OPTIONS.actions);
+  }
 
   /**
    * 너비는 type별 권장값(미정의 type은 DEFAULT 460 fallback), 높이는 콘텐츠 자동.
