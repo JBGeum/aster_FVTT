@@ -65,6 +65,23 @@
   --cc-win-bg: rgba(236, 205, 106, 0.14);
 }
 
+.chat-message:not(.whisper):not(.blind):has(.message-content > .aster-chat-card) {
+  margin-block: 4px !important;
+  padding: 0;
+  border: none;
+  background: none !important;
+  box-shadow: none;
+
+  .message-header {
+    display: none !important;
+  }
+
+  .message-content {
+    margin: 0;
+    padding: 0;
+  }
+}
+
 .aster-chat-card {
   @include aster-cc-tokens-light;
 
