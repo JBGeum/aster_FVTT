@@ -109,7 +109,7 @@ export async function postItemCard(actor, item) {
   const data = buildItemCardData(item, (key) => game.i18n.localize(key));
   const content = await foundry.applications.handlebars.renderTemplate(
     "systems/aster/templates/chat/item-card.html",
-    data,
+    { ...data, actorName: actor.name },
   );
   await ChatMessage.create({
     content,
